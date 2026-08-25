@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-08-25, end of phase 1.
+Last updated 2026-08-25, end of phase 2.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -16,7 +16,11 @@ Platform: Windows 11, Node 24, Git Bash available. No CI configured yet.
 
 - **Phase 1 complete and merged to `main`.** The atlas is no longer purely
   derived: authored corrections now survive a re-ingest.
-- **113 tests**, `npm test`. All passing.
+- **Phase 2 complete.** A pull request from a stranger is safe to review by
+  hand: a path guard, a deterministic validator, and a Gate 1 workflow. No
+  secret exists in the repository yet, which is why nothing here can leak one.
+  **Three repository settings are still outstanding — see below.**
+- **128 tests**, `npm test`. All passing.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
 - The app runs: `npm run dev` (port 5177 via `.claude/launch.json`).
@@ -107,10 +111,58 @@ implementing.
   affects the one-named-one-unnamed branch for refs that did not already match
   directly. Minor; noted, not fixed.
 
-## Next: phase 2
+## Outstanding: three repository settings
 
-[plans/2026-08-25-phase-2-contribution-gates.md](plans/2026-08-25-phase-2-contribution-gates.md)
+Phase 2's code is done. These are GitHub settings, cannot be committed, and two
+of them matter more than anything in the code. **They are not applied.** Record
+the date beside each when it is, because "we meant to" is indistinguishable
+from "we did" six months later.
 
-Path guard, deterministic validator, and Gate 1. **No secrets, no LLM, no trust
-levels** — those are phase 3, and phase 3 must not start until the security note
-above has been read in full.
+| Setting | Applied |
+|---|---|
+| Actions → Fork PR workflows → **Require approval for all external contributors** (the default covers only first-time contributors, which is exactly the population that costs nothing) | not yet |
+| Org-level: **disable** "Allow GitHub Actions reviews to count towards required approval" (on by default; lets a workflow token satisfy branch protection) | not yet |
+| Branch protection on `main`: require the `gate-1` check, require review, disallow force-push | not yet |
+
+Everything in the Gate 2 security note assumes an uncompromised default branch.
+Until the third row is done, that assumption is not held up by anything.
+
+## What phase 2 built
+
+| File | What it does |
+|---|---|
+| `scripts/lib/pathguard.mjs` | Which paths an outside PR may modify. Pure, normalises before checking. |
+| `scripts/validate-overlay.mjs` | `npm run validate`. Same code on a laptop and in CI. |
+| `.github/workflows/gate.yml` | Gate 1. No secrets, no `npm ci`, actions pinned to SHAs. |
+| `scripts/pathguard.test.mjs`, `scripts/workflows.test.mjs` | The guards, mutation-checked. |
+
+**Gate 1 is not a security boundary and the workflow says so in its header.**
+On a fork PR the workflow file comes from the PR head, so a contributor can
+rewrite it to report success on anything. Phase 3's Gate 2 re-runs it from
+default-branch code; that is the check that counts.
+
+### Phase 2's defects were also all in the plan
+
+The phase 1 lesson repeated exactly. Four found, none in the implementation:
+
+| Defect | Would have caused |
+|---|---|
+| Traversal test asserted only *that* a path was rejected | Passed with the normaliser deleted — the literal `..` tripped the unrelated "no subdirectories" branch |
+| Repo guards scanned raw YAML | `gate.yml`'s own comments ("No secrets. No `npm ci`") failed the guards; the fix on offer was deleting the explanation |
+| Comment stripper used `.*$` | `\r` is a regex line terminator, so on a CRLF checkout nothing stripped and all four guards silently scanned prose |
+| Validator read deleted files | A legitimate removal request reported as "not valid JSON" |
+
+The CRLF one is the one to remember: it was caught **only** because a mutation
+run passed when it should have failed. A guard that quietly stops guarding
+looks exactly like a guard that is working.
+
+## Next: phase 3
+
+**Do not begin until
+[specs/2026-08-25-gate-2-trigger-security.md](specs/2026-08-25-gate-2-trigger-security.md)
+has been read in full.** Its first draft contained a path to the API key.
+
+Phase 3 introduces the first secret in the repository, so
+`scripts/workflows.test.mjs`'s "no workflow references a secret" test must be
+deliberately changed. That is the point of it: the change is a decision
+someone makes on purpose, not a thing that drifts in.
