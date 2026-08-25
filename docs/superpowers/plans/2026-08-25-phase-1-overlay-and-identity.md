@@ -225,7 +225,10 @@ test('identical names beyond 300m stay separate', () => {
 
 test('a substring name match keeps the tight 60m radius', () => {
   const near = at(64.048, -21.2222, 'Blue Spring', 'osm-node-1');
-  const far = at(64.0485, -21.2222, 'Blue Spring Lodge', 'osm-node-2');
+  // 64.049 is 111m away, unambiguously outside the 60m radius. An earlier
+  // draft used 64.0485, which is 55.6m -- inside it -- so the assertion below
+  // was wrong and the test would have failed against a correct implementation.
+  const far = at(64.049, -21.2222, 'Blue Spring Lodge', 'osm-node-2');
   assert.equal(isSameSpring(near, at(64.0481, -21.2222, 'Blue Spring Lodge', 'osm-node-2')), true);
   assert.equal(isSameSpring(near, far), false);
 });
@@ -337,10 +340,13 @@ Add to the imports at the top of the file, after the existing `exclusions.mjs` i
 
 ```js
 import { isSameSpring } from './lib/identity.mjs';
-import { distanceMeters, normName } from './lib/geo.mjs';
 ```
 
-Then update the two remaining `haversine(` call sites inside `dedupe()` to `distanceMeters(`.
+That is the only import needed. There is exactly one `haversine(` call site in the
+file and it sits inside `isSameSpring`, which moves out wholesale — so afterwards
+nothing in `build-dataset.mjs` references `distanceMeters` or `normName`, and
+importing them would be dead code. Verify before adding any import: only import
+what the file actually references.
 
 - [ ] **Step 6: Verify the build still produces the same dataset**
 
