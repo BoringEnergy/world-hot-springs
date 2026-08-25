@@ -188,3 +188,47 @@ test('a returning spring clears its missing flag', () => {
   const id = first.assignments.get('osm-node-1');
   assert.equal(back.registry[id].missingSince, null);
 });
+
+test('resolveRegistry throws on a mintId hash collision instead of silently conflating two springs', () => {
+  // This guards against a hash collision, not any expected condition: two
+  // different OSM refs are not supposed to ever mint the same id, but the id
+  // space is finite, so we force one here by pre-seeding the registry with
+  // the exact id mintId('node/1') would produce, attached to an unrelated
+  // ref and centroid. A collision must be loud, never silent -- silently
+  // reusing the id would conflate two distinct springs permanently.
+  const collidingId = mintId('node/1');
+  const registry = {
+    [collidingId]: {
+      osmRefs: ['node/999999'],
+      centroid: [10, 20],
+      name: 'Some Other Spring',
+      firstSeen: '2026-01-01',
+      lastSeen: '2026-01-01',
+      missingSince: null,
+    },
+  };
+  const records = [rec('osm-node-1', 64.048, -21.2222, 'Totally Unrelated Spring')];
+  assert.throws(() => resolveRegistry(records, registry, '2026-08-25'), /collision/i);
+});
+
+test('a merged duplicate carries both OSM refs, and the secondary ref alone still resolves to the same id', () => {
+  // This is what Task 2's dedupe produces when it merges a node and a way
+  // into one record: the primary id is one ref, and the other survives only
+  // in `sources`. refsOf must pick both up.
+  const merged = {
+    id: 'osm-node-1',
+    name: 'Reykjadalur',
+    location: { lat: 64.048, lng: -21.2222 },
+    sources: ['https://www.openstreetmap.org/node/1', 'https://www.openstreetmap.org/way/55'],
+  };
+  const first = resolveRegistry([merged], {}, '2026-08-25');
+  const id = first.assignments.get('osm-node-1');
+  assert.ok(first.registry[id].osmRefs.includes('node/1'));
+  assert.ok(first.registry[id].osmRefs.includes('way/55'));
+
+  // The redraw-survival property, reached through a merged duplicate's
+  // secondary ref rather than through the primary id.
+  const laterRecord = rec('osm-way-55', 64.048, -21.2222, 'Reykjadalur');
+  const second = resolveRegistry([laterRecord], first.registry, '2026-09-01');
+  assert.equal(second.assignments.get('osm-way-55'), id, 'the secondary ref alone must resolve to the same durable id');
+});
