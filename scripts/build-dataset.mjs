@@ -14,13 +14,18 @@ import path from 'node:path';
 import { countryLookup } from './lib/countries.mjs';
 import { normalizeElement } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
-import { isSameSpring } from './lib/identity.mjs';
+import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
+import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
+import { appendEvents } from './lib/events.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
 const OUT_GEOJSON = path.join('data', 'hot-springs.geojson');
 const OUT_SUMMARY = path.join('data', 'summary.json');
+const REGISTRY = path.join('data', 'registry.json');
+const OVERLAY_DIR = path.join('data', 'overlay');
+const EVENTS = path.join('data', 'events.jsonl');
 
 /**
  * Fold the loser of a duplicate pair into the winner.
@@ -211,6 +216,50 @@ async function main() {
   records = deduped;
   console.log(`  merged ${dropped} duplicate record(s) -> ${records.length} springs`);
 
+  // --- Durable identity ---
+  // Assign each record an id of ours so a claim survives OSM redrawing the
+  // spring under a new element id. Runs after dedupe so ids attach to final
+  // records, not to duplicates about to be merged away.
+  console.log('Resolving identity ...');
+  const priorRegistry = fs.existsSync(REGISTRY)
+    ? JSON.parse(fs.readFileSync(REGISTRY, 'utf8'))
+    : {};
+  const { registry, assignments, events: identityEvents } = resolveRegistry(
+    records,
+    priorRegistry,
+    ingestedAt,
+  );
+  for (const record of records) {
+    const whsId = assignments.get(record.id);
+    // Refs come from the registry, not the record id: dedupe folded several
+    // OSM elements into this record and the registry holds all of them.
+    // Keeping only the winner's ref would lose the others' matches next build.
+    record.osmRefs = registry[whsId].osmRefs;
+    record.id = whsId;
+  }
+  const appeared = identityEvents.filter((e) => e.type === 'spring.appeared').length;
+  const vanished = identityEvents.filter((e) => e.type === 'spring.disappeared').length;
+  console.log(`  ${Object.keys(registry).length} springs in the registry`);
+  if (appeared) console.log(`  ${appeared} new since the last build`);
+  if (vanished) console.log(`  ${vanished} no longer present upstream (flagged, not deleted)`);
+
+  // --- Curated overlay ---
+  console.log('Applying curated claims ...');
+  const overlays = loadOverlays(OVERLAY_DIR);
+  const { applied, orphaned, events: overlayEvents } = applyOverlays(records, overlays);
+  console.log(`  ${applied} claim(s) applied from ${overlays.size} overlay file(s)`);
+  const contested = overlayEvents.filter((e) => e.type === 'claim.contested').length;
+  if (contested) console.log(`  ${contested} claim(s) now disagree with upstream`);
+
+  if (orphaned.length) {
+    // A claim with nowhere to land is a correction about to vanish silently.
+    console.error(`FATAL: ${orphaned.length} overlay file(s) reference springs absent from this build:`);
+    for (const id of orphaned) console.error(`  ${id}`);
+    console.error('Their claims would be silently discarded. Check data/registry.json for a');
+    console.error('missingSince flag on these ids before removing the overlay files.');
+    process.exit(1);
+  }
+
   // --- The privacy guard ---
   // Genuinely last: nothing that can add, move, or reintroduce a record may run
   // below this point. This is the promise in PRIVACY.md, and build.test.mjs
@@ -227,6 +276,19 @@ async function main() {
   if (leaked.length) {
     console.error(`FATAL: ${leaked.length} record(s) carry unicorn !== false. Refusing to write.`);
     process.exit(1);
+  }
+
+  // Claim accounting. Exclusion always wins, but a suppressed claim must be
+  // reported: the overlay file is now dead weight, and it points at a location
+  // we have promised to protect.
+  const survivingIds = new Set(records.map((r) => r.id));
+  const suppressed = [...overlays.keys()].filter((id) => !survivingIds.has(id));
+  if (suppressed.length) {
+    console.log(`  ${suppressed.length} overlay file(s) suppressed by the privacy filter`);
+    console.log('    Remove them from data/overlay/. Their springs are excluded.');
+    // Ids only. Never log the claim contents or the matched rule -- a detailed
+    // message is an oracle for locating exactly what the exclusion list protects.
+    for (const id of suppressed) console.log(`    ${id}`);
   }
 
   records.sort((a, b) =>
@@ -294,6 +356,9 @@ async function main() {
     excludedByPrivacyList: excluded,
   };
   fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
+  fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');
+  const written = appendEvents(EVENTS, [...identityEvents, ...overlayEvents], generatedAt);
+  if (written) console.log(`  ${written} new event(s) recorded in ${EVENTS}`);
 
   console.log(`\n${records.length} springs across ${summary.countries} countries`);
   console.log(`  temperature known: ${withTemp} (${Math.round((withTemp / records.length) * 100)}%)`);

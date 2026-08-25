@@ -11,8 +11,14 @@
  * data, which the rule above forbids. The UI renders null as "Unnamed spring".
  */
 export interface HotSpring {
-  /** Stable slug. OSM-derived records use `osm-<type>-<id>`. */
+  /**
+   * Durable id, stable across rebuilds and across OpenStreetMap redrawing the
+   * spring under a new element id. Claims in `data/overlay/` are keyed by it,
+   * which is what lets a curated correction survive a re-ingest.
+   */
   id: string;
+  /** Every OSM element this record was derived from, e.g. ["node/4702109263"]. */
+  osmRefs: string[];
   name: string | null;
   location: {
     lat: number;
@@ -95,6 +101,8 @@ export interface DataQuality {
   completeness: number;
   /** Which first-class fields are actually known. */
   known: string[];
+  /** True when at least one curated claim was applied to this record. */
+  curated?: boolean;
   /** ISO date the record was ingested. */
   ingestedAt: string;
 }
