@@ -186,6 +186,50 @@ polygon within 0.5° and set `quality.countryInferred`. A spring 400 m off the
 digitised coastline of Iceland is in Iceland, and saying so is not inventing
 data.
 
+## Stage 3b — bad upstream imports
+
+The first credible-looking build ranked **Iraq as the second most hot-spring-rich
+country on earth**, ahead of Japan and Iceland, with 984 records. Syria had 424,
+Libya 234, Yemen 158.
+
+They are not hot springs. Central Baghdad held 263 nodes tagged
+`natural=hot_spring` named after city districts, checkpoints and villages —
+*Zajalba village*, *Muhsin checkpoint*, *new paved entrance*. The Libyan ones
+are irrigation boreholes on the Great Man-Made River centre-pivot fields, named
+with well identifiers (`6J659`, `-193c`). Someone bulk-imported water-point
+datasets under the wrong tag, years ago, and nobody fixed it.
+
+### Why there is a list instead of a rule
+
+The obvious automated rule is "a dense cluster of attribute-free nodes is a bulk
+import". It was implemented and measured before being trusted. It flagged
+**1,957 of Yellowstone's 1,959** attribute-free springs, plus most of Rotorua.
+Those are real. A geyser basin and a bulk import have the same statistical
+shape, and no threshold separates them.
+
+So the decision is a judgement call, and it is written down as one, in
+[`data/known-bad-imports.json`](../data/known-bad-imports.json): four named
+imports, each with the evidence, the date it was reviewed, and instructions for
+disputing it. Matched records are **quarantined to `data/suspect.json`**, never
+deleted, so reinstating one is a one-line edit rather than a re-ingest.
+
+That file is public, unlike the privacy exclusion list. The distinction is
+deliberate: hiding a spring is a promise we made to someone, but calling
+somebody's data wrong is a claim, and a claim should be arguable.
+
+### What survives
+
+The rule only matches records carrying *nothing* but `natural` and a name. A
+properly attributed Iraqi spring is untouched — Hammam al-Alil, the real thermal
+bath south of Mosul, has attributes and stays. Iraq drops from 984 to 33, and
+those 33 are still worth reviewing by hand.
+
+### Also quarantined
+
+A narrower, name-based check catches identifier-named nodes elsewhere
+(`c-175`, `0061`) that carry no other attribute — 153 records, mostly Libya and
+Egypt.
+
 ## Stage 4 — privacy filter
 
 Runs **last**, after normalisation and before anything is written. See

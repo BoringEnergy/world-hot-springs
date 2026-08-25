@@ -77,11 +77,35 @@ export function MapView() {
       projection: { type: 'globe' },
     });
 
+    if (import.meta.env.DEV) {
+      document.documentElement.dataset.mapPhase = 'constructed';
+      m.on('styledata', () => (document.documentElement.dataset.mapPhase = 'styledata'));
+      m.on('error', (e) => {
+        document.documentElement.dataset.mapError = String(e?.error?.message ?? e);
+      });
+    }
+
     m.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
     m.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
     m.dragRotate.enable();
 
-    m.on('load', () => {
+    /**
+     * Layer setup keys off the style being ready, not the `load` event.
+     *
+     * `load` requires the first frame to have been painted, so in any context
+     * where the page is not compositing — a background tab, a hidden pane, an
+     * automated check — it never fires and the springs layer is never added.
+     * `styledata` only needs the style itself, which is the actual
+     * precondition for addSource/addLayer.
+     */
+    let initialised = false;
+    const setup = () => {
+      // The precondition for addSource/addLayer is a parsed style, which is
+      // what getStyle() reflects. isStyleLoaded() additionally waits on every
+      // source, and that can stay false indefinitely when nothing is painting.
+      if (initialised || !m.getStyle()?.layers) return;
+      initialised = true;
+
       m.addSource(SOURCE, {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
@@ -164,10 +188,28 @@ export function MapView() {
 
       ready.current = true;
       map.current = m;
+      // Dev-only introspection. The data attribute (rather than a window global)
+      // is deliberate: automated checks often run in an isolated JS world where
+      // page globals are invisible, but the DOM is shared.
+      if (import.meta.env.DEV) {
+        (window as unknown as { __map?: maplibregl.Map }).__map = m;
+        const report = () => {
+          document.documentElement.dataset.mapReady = String(m.loaded());
+          document.documentElement.dataset.mapPoints = String(
+            m.queryRenderedFeatures({ layers: ['springs'] }).length,
+          );
+        };
+        m.on('idle', report);
+        report();
+      }
       // Push whatever the store already has.
       const data = toFeatureCollection(useStore.getState().visible);
       (m.getSource(SOURCE) as maplibregl.GeoJSONSource)?.setData(data);
-    });
+    };
+
+    m.on('styledata', setup);
+    m.on('load', setup);
+    setup();
 
     map.current = m;
     return () => {
@@ -182,7 +224,11 @@ export function MapView() {
     const m = map.current;
     if (!m || !ready.current) return;
     const src = m.getSource(SOURCE) as maplibregl.GeoJSONSource | undefined;
-    src?.setData(toFeatureCollection(visible));
+    const data = toFeatureCollection(visible);
+    src?.setData(data);
+    if (import.meta.env.DEV) {
+      document.documentElement.dataset.mapSourceFeatures = String(data.features.length);
+    }
   }, [visible]);
 
   // --- selection ---

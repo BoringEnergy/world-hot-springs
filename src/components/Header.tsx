@@ -60,7 +60,9 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
       </div>
 
       <span className="hidden shrink-0 text-xs tabular-nums text-steam-400 md:inline">
-        {loading ? 'Loading…' : `${visible.length.toLocaleString()} springs`}
+        {loading
+          ? 'Loading…'
+          : `${visible.length.toLocaleString()} spring${visible.length === 1 ? '' : 's'}`}
       </span>
 
       <button

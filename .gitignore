@@ -11,3 +11,6 @@ data/raw/
 
 # Private exclusion list. Never committed, never published. See PRIVACY.md.
 data/private/
+
+# Build output
+dist/

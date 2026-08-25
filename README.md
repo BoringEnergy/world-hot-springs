@@ -8,14 +8,29 @@ survey, forum posts, and OpenStreetMap tags that nobody has ever normalised.
 This repository is an attempt to fix that, in public, with the provenance
 attached.
 
+**6,470 springs across 129 countries** in the current build.
+
 ## What makes this different
 
 **Unknown is a value.** Temperature, price, clothing policy and opening hours
 are first-class fields. When we don't know one, the record stores `null` and the
 UI renders **Unknown**. We never invent a plausible number, and we never leave a
-field blank in a way that reads like an answer. Roughly a fifth of springs have
-a recorded temperature; pretending otherwise would make the whole dataset
-untrustworthy.
+field blank in a way that reads like an answer.
+
+That honesty is the whole product, because the real numbers are humbling:
+
+| Field | Known |
+| --- | --- |
+| Temperature | **1%** |
+| Price | 14% |
+| Hours | 7% |
+| Clothing policy | 1% |
+
+Barely one spring in a hundred, worldwide, has a recorded temperature. Most that
+carry a `temperature` tag say `hot`, which is not a temperature — so we store
+that separately and the card says *described as hot, no measurement recorded*.
+Any hot spring site showing you a confident number for every entry is making
+most of them up.
 
 **We deliberately leave springs out.** See [PRIVACY.md](PRIVACY.md). Truly
 hidden local springs are not on this map and there is no mode, login, or request
@@ -25,6 +40,16 @@ it.
 **The dataset is ours and it is versioned.** Every record carries its sources,
 its provenance, a completeness score, and the date it was last touched. You can
 check us on any spring.
+
+**We show our working, including the awkward parts.** The first build ranked
+Iraq as the second most hot-spring-rich country on earth, because someone
+bulk-imported a water-point dataset into OpenStreetMap under
+`natural=hot_spring` years ago. The obvious automated fix flagged 1,957 of
+Yellowstone's real springs as fake, so we didn't ship it. What we shipped
+instead is a reviewed, public, arguable list in
+[`data/known-bad-imports.json`](data/known-bad-imports.json), and the excluded
+records are quarantined rather than deleted. The whole story is in
+[docs/DATA.md](docs/DATA.md).
 
 ## Quick start
 
@@ -51,6 +76,7 @@ an interrupted run costs nothing and re-running only fetches what is missing.
 | `data/hot-springs.json` | Full `HotSpring` records. The source of truth. |
 | `data/hot-springs.geojson` | The same records as a `FeatureCollection`, with license metadata. |
 | `data/summary.json` | Counts, per-country totals, and field coverage. |
+| `data/suspect.json` | Quarantined records with full provenance — kept out of the atlas, not deleted. |
 | `public/data/` | Copies the web app fetches at runtime. |
 
 ## The data model

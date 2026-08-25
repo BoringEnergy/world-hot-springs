@@ -1,0 +1,38 @@
+{
+  "note": "Bulk OSM imports that applied natural=hot_spring to features that are not hot springs. Unlike data/private/exclusions.json (which is secret by design), this list is public: it is a claim about upstream data quality and it should be arguable. Records matched here are quarantined to data/suspect.json, never deleted.",
+  "rule_definitions": {
+    "attribute-free": "The element carries no tag other than `natural=hot_spring` and a name (in any language). No temperature, operator, website, wikidata, elevation, source, address, or any other attribute. A genuine spring that anyone has actually visited nearly always picks up at least one of these."
+  },
+  "imports": [
+    {
+      "id": "iq-water-points",
+      "countries": ["IQ"],
+      "rule": "attribute-free",
+      "reviewed": "2026-08-24",
+      "reason": "A water-point dataset imported with the wrong tag. The Baghdad cluster (33.0-33.6N, 44.0-44.7E) alone holds 263 nodes named after city districts, checkpoints and villages -- 'قرية الزجالبة' (Zajalba village), 'سيطرة محسن' (Muhsin checkpoint), 'مدخل جديد تبليط' (new paved entrance). Central Baghdad has no geothermal field. Elsewhere the names are bare well registry numbers ('0061', '0126').",
+      "keeps": "Properly attributed springs in Iraq are unaffected. Hammam al-Alil, a real thermal bath south of Mosul, carries attributes and survives the filter."
+    },
+    {
+      "id": "sy-water-points",
+      "countries": ["SY"],
+      "rule": "attribute-free",
+      "reviewed": "2026-08-24",
+      "reason": "Same failure mode. 424 attribute-free nodes spread across the whole country with personal and settlement names ('jaboreen', 'OMAR', 'ابراهيم البولهيس'), which is the signature of a humanitarian water-point survey, not a geothermal one."
+    },
+    {
+      "id": "ye-water-points",
+      "countries": ["YE"],
+      "rule": "attribute-free",
+      "reviewed": "2026-08-24",
+      "reason": "Same failure mode. 158 attribute-free nodes named after families and villages ('آل ميقان', 'ال مرضي')."
+    },
+    {
+      "id": "ly-kufra-wells",
+      "countries": ["LY"],
+      "rule": "attribute-free",
+      "reviewed": "2026-08-24",
+      "reason": "Irrigation boreholes in the Kufra basin (28.5-29.5N, 19.0-20.5E), named with well identifiers ('6J659', '-193c', '291-287-283-281-282'). These sit on the centre-pivot fields of the Great Man-Made River scheme and are groundwater abstraction points."
+    }
+  ],
+  "how_to_dispute": "If you know one of these clusters is real, open an issue with a source. The quarantined records are kept in data/suspect.json with full provenance, so reinstating them is a one-line change to this file rather than a re-ingest."
+}

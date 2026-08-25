@@ -22,7 +22,13 @@ export function ResultsList() {
 
   const rows = useMemo(() => {
     if (!active) return [];
-    const list = userLocation ? sortByDistance(visible, userLocation) : visible;
+    // Distance wins when we have a location. Otherwise lead with the records we
+    // actually know something about — a spring where every field says Unknown
+    // is a worse first result than one with a temperature and a price, even
+    // when both match the query equally well.
+    const list = userLocation
+      ? sortByDistance(visible, userLocation)
+      : [...visible].sort((a, b) => b.quality.completeness - a.quality.completeness);
     return list.slice(0, MAX_ROWS);
   }, [active, visible, userLocation]);
 

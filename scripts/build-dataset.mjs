@@ -20,8 +20,29 @@ const OUT_JSON = path.join('data', 'hot-springs.json');
 const OUT_GEOJSON = path.join('data', 'hot-springs.geojson');
 const OUT_SUMMARY = path.join('data', 'summary.json');
 
-/** Two records closer than this with a compatible name are the same spring. */
-const DEDUPE_METERS = 60;
+/**
+ * Dedupe radii.
+ *
+ * `SAME_FEATURE_METERS` applies when the two records are different OSM element
+ * types — the classic case of one spring mapped as both a node (the source) and
+ * a way (the pool built around it).
+ *
+ * `ANONYMOUS_METERS` is much tighter and applies to two unnamed records of the
+ * same type. In a geyser basin, hundreds of genuinely distinct springs sit
+ * within a few tens of metres of each other. Merging those on proximity alone
+ * would delete real springs from the atlas, which is a worse failure than
+ * leaving a duplicate in.
+ */
+const SAME_FEATURE_METERS = 60;
+const ANONYMOUS_METERS = 12;
+
+/**
+ * Two records carrying the *identical* name this far apart are one destination.
+ * "Termas de Lahuen Co" appears three times within 500m — the separate pools of
+ * one resort, mapped individually, only one of which carries the temperature.
+ * Left unmerged, a search for it surfaces whichever copy knows least.
+ */
+const EXACT_NAME_METERS = 300;
 
 function haversine(a, b) {
   const R = 6371000;
@@ -37,10 +58,95 @@ function normName(n) {
   return (n || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 }
 
+function osmType(id) {
+  return id.split('-')[1]; // osm-<type>-<id>
+}
+
 /**
- * Collapse duplicates. The common case is one spring mapped as both a node
- * (the source) and a way (the pool around it). Keep the more complete record
- * and merge the other's sources so no provenance is lost.
+ * Are these two records the same physical spring?
+ *
+ * Erring toward "no" is the safer failure. A leftover duplicate is visible and
+ * fixable; a wrongly merged record silently deletes a real spring.
+ */
+function isSameSpring(a, b) {
+  const d = haversine(a.location, b.location);
+  const an = normName(a.name);
+  const bn = normName(b.name);
+
+  // Same name, near each other: the same spring, however it was mapped.
+  if (an && bn) {
+    if (an === bn) return d <= EXACT_NAME_METERS;
+    // A substring match is weaker evidence ("Blue Spring" vs "Blue Spring
+    // Lodge"), so it keeps the tight radius.
+    return d <= SAME_FEATURE_METERS && (an.includes(bn) || bn.includes(an));
+  }
+
+  // One named, one not, mapped as different element types: the source-and-pool
+  // case. Same element type means two separate features somebody mapped
+  // individually, so leave them alone.
+  if (an || bn) {
+    return d <= SAME_FEATURE_METERS && osmType(a.id) !== osmType(b.id);
+  }
+
+  // Both anonymous: only merge when they are effectively on top of each other.
+  return d <= ANONYMOUS_METERS;
+}
+
+/**
+ * Fold the loser of a duplicate pair into the winner.
+ *
+ * Only ever fills gaps — a known value on the winner is never overwritten by
+ * the loser's. Two mappings of one spring usually know different things, and
+ * discarding the loser wholesale throws away the half of the record that the
+ * winner was missing.
+ */
+function mergeInto(winner, loser) {
+  winner.sources = [...new Set([...winner.sources, ...loser.sources])];
+  winner.warnings = [...new Set([...winner.warnings, ...loser.warnings])];
+  winner.tags = [...new Set([...winner.tags, ...loser.tags])].sort();
+  winner.name ??= loser.name;
+  winner.description ??= loser.description;
+
+  if (winner.temperature.celsius === null && loser.temperature.celsius !== null) {
+    winner.temperature = { ...loser.temperature };
+  }
+  winner.temperature.qualitative ??= loser.temperature.qualitative;
+
+  winner.access.price ??= loser.access.price;
+  winner.access.currency ??= loser.access.currency;
+  winner.access.notes ??= loser.access.notes;
+
+  if (winner.clothing.policy === 'unknown') winner.clothing = { ...loser.clothing };
+  winner.hours.open ??= loser.hours.open;
+  winner.hours.seasonalNotes ??= loser.hours.seasonalNotes;
+  if (winner.hours.status === 'unknown') winner.hours.status = loser.hours.status;
+  if (winner.type === 'unknown') winner.type = loser.type;
+
+  winner.location.elevation ??= loser.location.elevation;
+  winner.location.region ??= loser.location.region;
+  winner.location.nearestTown ??= loser.location.nearestTown;
+
+  const c = recomputeCompleteness(winner);
+  winner.quality.completeness = c.score;
+  winner.quality.known = c.known;
+}
+
+const FIRST_CLASS_COUNT = 6;
+
+function recomputeCompleteness(r) {
+  const known = [];
+  if (r.name) known.push('name');
+  if (r.temperature.celsius !== null) known.push('temperature');
+  if (r.access.price) known.push('price');
+  if (r.clothing.policy !== 'unknown') known.push('clothing');
+  if (r.hours.open || r.hours.status !== 'unknown') known.push('hours');
+  if (r.type !== 'unknown') known.push('type');
+  return { known, score: Math.round((known.length / FIRST_CLASS_COUNT) * 100) };
+}
+
+/**
+ * Collapse duplicates. Keep the more complete record and merge the other's
+ * knowledge in, so no provenance and no known field is lost.
  */
 function dedupe(records) {
   // Spatial hash at ~1km so we compare each record against a handful of
@@ -60,23 +166,14 @@ function dedupe(records) {
       }
     }
 
-    const dup = candidates.find((c) => {
-      if (haversine(c.location, r.location) > DEDUPE_METERS) return false;
-      const an = normName(c.name);
-      const bn = normName(r.name);
-      // Same spot and neither contradicts the other on name.
-      return !an || !bn || an === bn || an.includes(bn) || bn.includes(an);
-    });
+    const dup = candidates.find((c) => isSameSpring(c, r));
 
     if (dup) {
       dropped++;
       // Keep whichever record knows more; fold the loser's sources in.
       const winner = r.quality.completeness > dup.quality.completeness ? r : dup;
       const loser = winner === r ? dup : r;
-      winner.sources = [...new Set([...winner.sources, ...loser.sources])];
-      winner.name = winner.name || loser.name;
-      winner.warnings = [...new Set([...winner.warnings, ...loser.warnings])];
-      winner.tags = [...new Set([...winner.tags, ...loser.tags])].sort();
+      mergeInto(winner, loser);
       if (winner !== dup) {
         const arr = buckets.get(key(dup));
         arr.splice(arr.indexOf(dup), 1);
@@ -137,6 +234,39 @@ async function main() {
   console.log(`  ${records.length} records`);
   for (const [reason, n] of [...rejects].sort((a, b) => b[1] - a[1])) {
     console.log(`  dropped ${n} — ${reason}`);
+  }
+
+  // --- Reviewed bad-import list ---
+  // Deliberately a human-reviewed list of specific known-bad imports rather
+  // than a clever heuristic. The obvious automated rule — "a dense cluster of
+  // attribute-free nodes is a bulk import" — was tested and flagged 1,957 of
+  // Yellowstone's 1,959 attribute-free springs. Those are real. There is no
+  // statistical signal separating a bulk import from a genuine geyser basin,
+  // so this is a judgement call and it is written down as one.
+  const badImports = JSON.parse(fs.readFileSync(path.join('data', 'known-bad-imports.json'), 'utf8'));
+  for (const r of records) {
+    if (r.quality.suspect) continue;
+    const rule = badImports.imports.find(
+      (imp) => imp.countries.includes(r.location.country) && imp.rule === 'attribute-free',
+    );
+    if (rule && r.quality.attributeFree) {
+      r.quality.suspect = `matched reviewed bad import "${rule.id}": ${rule.rule}`;
+    }
+  }
+
+  // --- Quarantine suspected mis-tags ---
+  // Written to data/suspect.json rather than deleted, so the call is auditable
+  // and reversible. If the heuristic is wrong, the evidence is right there.
+  const suspects = records.filter((r) => r.quality.suspect);
+  if (suspects.length) {
+    records = records.filter((r) => !r.quality.suspect);
+    fs.writeFileSync(path.join('data', 'suspect.json'), JSON.stringify(suspects, null, 2));
+    const byCountry = {};
+    for (const s of suspects) byCountry[s.location.countryName] = (byCountry[s.location.countryName] || 0) + 1;
+    console.log(`  quarantined ${suspects.length} suspected mis-tags -> data/suspect.json`);
+    console.log(
+      `    ${Object.entries(byCountry).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${k} ${v}`).join(', ')}`,
+    );
   }
 
   // --- The privacy guard. This runs last so nothing can slip past it. ---

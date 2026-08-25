@@ -230,6 +230,52 @@ function completeness(record) {
 }
 
 /**
+ * Detect nodes that say `natural=hot_spring` but are almost certainly
+ * mis-tagged water boreholes.
+ *
+ * The Kufra basin in Libya and areas around Mosul in Iraq carry hundreds of
+ * nodes named `c-175`, `-193c`, `0061` — irrigation well identifiers — tagged
+ * as hot springs by a bulk import and never corrected. Taken at face value they
+ * make Iraq the second most geothermally active country on earth, ahead of
+ * Japan and Iceland, which is obviously false.
+ *
+ * The test is deliberately narrow, because the cost of a false positive is
+ * deleting a real spring:
+ *   1. the name is a bare identifier (digits, with at most a stray c/C), AND
+ *   2. the element carries no other evidence of being a spring at all — no
+ *      temperature, operator, website, wikidata, fee, hours, address or
+ *      description.
+ *
+ * A genuine spring named "0061" with literally no other tag is a record we
+ * cannot say anything true about anyway.
+ */
+const IDENTIFIER_NAME = /^[\s\-_.#]*[cC]?[\s\-_.#]*\d+[\s\-_.#]*[cC]?[\s\-_.#]*$/;
+
+const EVIDENCE_KEYS = [
+  'temperature', 'operator', 'website', 'contact:website', 'wikidata', 'wikipedia',
+  'fee', 'charge', 'opening_hours', 'description', 'tourism', 'amenity', 'leisure',
+  'building', 'bath:type', 'access', 'ele', 'source', 'note', 'check_date',
+];
+
+/**
+ * True when the element carries nothing but `natural` and a name. See
+ * data/known-bad-imports.json for how this is used — on its own it is not
+ * evidence of anything, since plenty of real springs are minimally mapped.
+ */
+export function isAttributeFree(tags) {
+  return !Object.keys(tags).some((k) => k !== 'natural' && !k.startsWith('name'));
+}
+
+function suspectedBorehole(tags) {
+  if (tags.natural !== 'hot_spring') return null;
+  const name = (tags.name || '').normalize('NFKC').trim();
+  if (!name || !IDENTIFIER_NAME.test(name)) return null;
+  if (EVIDENCE_KEYS.some((k) => tags[k])) return null;
+  if (Object.keys(tags).some((k) => k.startsWith('addr:'))) return null;
+  return `identifier-style name ("${tags.name}") with no other spring attributes`;
+}
+
+/**
  * @returns {{record: object|null, reject: string|null}}
  */
 export function normalizeElement(el, lookup, ingestedAt) {
@@ -314,6 +360,12 @@ export function normalizeElement(el, lookup, ingestedAt) {
   const c = completeness(record);
   record.quality.completeness = c.score;
   record.quality.known = c.known;
+
+  // Flagged rather than dropped here, so the build can quarantine these to an
+  // auditable file instead of making them vanish.
+  const suspect = suspectedBorehole(tags);
+  if (suspect) record.quality.suspect = suspect;
+  if (isAttributeFree(tags)) record.quality.attributeFree = true;
 
   return { record, reject: null };
 }
