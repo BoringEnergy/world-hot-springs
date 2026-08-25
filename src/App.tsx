@@ -30,15 +30,20 @@ export default function App() {
   }, [filtersOpen, select]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <MapView />
+    /*
+     * The header sits in normal flow and the map area is what remains. The
+     * overlay panels then position against the map, not the window, so none of
+     * them needs to know how tall the header is — which is what put the filter
+     * rail's own heading underneath it.
+     */
+    <div className="flex h-full w-full flex-col overflow-hidden">
+      <Header onToggleFilters={() => setFiltersOpen((v) => !v)} filtersOpen={filtersOpen} />
 
-      <div className="pointer-events-none absolute inset-0">
-        <Header onToggleFilters={() => setFiltersOpen((v) => !v)} filtersOpen={filtersOpen} />
+      <div className="relative flex-1 overflow-hidden">
+        <MapView />
         <FilterRail open={filtersOpen} onClose={() => setFiltersOpen(false)} />
         {!filtersOpen && <ResultsList />}
         <DetailPanel />
-        <AboutPanel />
 
         {loading && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -58,6 +63,8 @@ export default function App() {
           </div>
         )}
       </div>
+
+      <AboutPanel />
     </div>
   );
 }

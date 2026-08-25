@@ -35,7 +35,7 @@ export function ResultsList() {
   if (!active) return null;
 
   return (
-    <div className="pointer-events-auto absolute left-3 top-[64px] z-20 flex max-h-[calc(100vh-88px)] w-[300px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border border-basalt-800 bg-basalt-900/95 backdrop-blur-xl sm:left-4">
+    <div className="pointer-events-auto absolute left-3 top-3 z-20 flex max-h-[calc(100%-24px)] w-[300px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border border-basalt-800 bg-basalt-900/95 backdrop-blur-xl sm:left-4">
       <div className="border-b border-basalt-800 px-4 py-2.5">
         <p className="text-xs tabular-nums text-steam-400">
           {visible.length.toLocaleString()} match{visible.length === 1 ? '' : 'es'}

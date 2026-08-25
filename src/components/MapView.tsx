@@ -66,15 +66,13 @@ export function MapView() {
     const m = new maplibregl.Map({
       container: container.current,
       style: STYLE,
-      center: [10, 25],
-      zoom: 1.4,
-      minZoom: 0.6,
+      center: [20, 20],
+      // Framed so the globe fills the viewport rather than floating in it.
+      // minZoom stops it being shrunk to a dot in the middle of black space.
+      zoom: 2.3,
+      minZoom: 1.6,
       maxZoom: 16,
       attributionControl: { compact: true },
-      // The globe is the point. It also makes the geothermal belt legible in a
-      // way a Mercator map actively hides.
-      // @ts-expect-error projection is supported at runtime in maplibre-gl v5
-      projection: { type: 'globe' },
     });
 
     if (import.meta.env.DEV) {
@@ -105,6 +103,16 @@ export function MapView() {
       // source, and that can stay false indefinitely when nothing is painting.
       if (initialised || !m.getStyle()?.layers) return;
       initialised = true;
+
+      // Globe is set here, not as a constructor option — MapLibre v5 has no
+      // `projection` map option, so passing one is silently ignored and you get
+      // Mercator. It also has to come after the style, which would otherwise
+      // overwrite it.
+      //
+      // Mercator is actively misleading for this dataset: it inflates Iceland
+      // and Kamchatka and squashes the equatorial belt, so the geothermal
+      // pattern reads as "hot springs are a northern thing". They are not.
+      m.setProjection({ type: 'globe' });
 
       m.addSource(SOURCE, {
         type: 'geojson',

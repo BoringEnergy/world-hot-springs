@@ -48,7 +48,7 @@ export function AboutPanel() {
 
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-50 flex items-end justify-center bg-basalt-950/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      className="pointer-events-auto fixed inset-0 z-50 flex items-end justify-center bg-basalt-950/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
       onClick={() => setShow(false)}
       role="dialog"
       aria-modal="true"

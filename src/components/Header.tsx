@@ -12,7 +12,7 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
   const setShowAbout = useStore((s) => s.setShowAbout);
 
   return (
-    <header className="pointer-events-auto absolute inset-x-0 top-0 z-40 flex items-center gap-2 border-b border-basalt-800/80 bg-basalt-950/80 px-3 py-2.5 backdrop-blur-xl sm:px-4">
+    <header className="relative z-40 flex shrink-0 items-center gap-2 border-b border-basalt-800/80 bg-basalt-950/80 px-3 py-2.5 backdrop-blur-xl sm:px-4">
       <button
         onClick={onToggleFilters}
         aria-pressed={filtersOpen}

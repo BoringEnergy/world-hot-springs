@@ -1,5 +1,19 @@
 @import 'tailwindcss';
-@import 'maplibre-gl/dist/maplibre-gl.css';
+
+/*
+ * MapLibre's stylesheet MUST be imported into a cascade layer.
+ *
+ * Tailwind v4 emits its utilities inside `@layer utilities`, and any unlayered
+ * rule beats a layered one no matter what order they appear in. Imported
+ * plainly, `.maplibregl-map { position: relative }` therefore overrides
+ * `absolute inset-0` on the map container — the container collapses to zero
+ * height, MapLibre falls back to its default 300px canvas, and the page renders
+ * as a black rectangle with a working UI on top of it. Which is exactly what
+ * happened.
+ *
+ * `layer(base)` puts it below utilities, so Tailwind classes win again.
+ */
+@import 'maplibre-gl/dist/maplibre-gl.css' layer(base);
 
 /*
  * Geothermal palette: basalt and steam. Dark ground so the temperature-coloured
