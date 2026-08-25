@@ -92,7 +92,7 @@ export function isSameSpring(a, b) {
  * from scratch on another machine assigns the same id to the same spring.
  */
 export function mintId(osmRef) {
-  return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 6)}`;
+  return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 12)}`;
 }
 
 /** Every OSM reference a record can be traced to, including merged duplicates. */
@@ -150,6 +150,17 @@ export function resolveRegistry(records, existingRegistry, today) {
 
     if (!whsId) {
       whsId = mintId(refs[0]);
+      // Guards against a hash collision, not any expected condition: two
+      // different OSM refs minting the same id would silently conflate two
+      // distinct springs under one durable id. That is worse than a crash.
+      if (registry[whsId]) {
+        const existing = registry[whsId];
+        throw new Error(
+          `mintId collision on ${whsId}: ` +
+            `existing ref(s) ${existing.osmRefs.join(', ')} at centroid ${JSON.stringify(existing.centroid)} ` +
+            `vs new ref ${refs[0]} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
+        );
+      }
       registry[whsId] = {
         osmRefs: [],
         centroid: [record.location.lng, record.location.lat],

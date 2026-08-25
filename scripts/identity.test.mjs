@@ -120,7 +120,7 @@ const rec = (id, lat, lng, name, sources = []) => ({
 
 test('mintId is deterministic and prefixed', () => {
   const a = mintId('node/4702109263');
-  assert.match(a, /^whs_[0-9a-f]{6}$/);
+  assert.match(a, /^whs_[0-9a-f]{12}$/);
   assert.equal(a, mintId('node/4702109263'), 'same ref must always mint the same id');
   assert.notEqual(a, mintId('node/4702109264'));
 });
