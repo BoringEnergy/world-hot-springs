@@ -14,83 +14,18 @@ import path from 'node:path';
 import { countryLookup } from './lib/countries.mjs';
 import { normalizeElement } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
+import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
+import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
+import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
+import { appendEvents } from './lib/events.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
 const OUT_GEOJSON = path.join('data', 'hot-springs.geojson');
 const OUT_SUMMARY = path.join('data', 'summary.json');
-
-/**
- * Dedupe radii.
- *
- * `SAME_FEATURE_METERS` applies when the two records are different OSM element
- * types — the classic case of one spring mapped as both a node (the source) and
- * a way (the pool built around it).
- *
- * `ANONYMOUS_METERS` is much tighter and applies to two unnamed records of the
- * same type. In a geyser basin, hundreds of genuinely distinct springs sit
- * within a few tens of metres of each other. Merging those on proximity alone
- * would delete real springs from the atlas, which is a worse failure than
- * leaving a duplicate in.
- */
-const SAME_FEATURE_METERS = 60;
-const ANONYMOUS_METERS = 12;
-
-/**
- * Two records carrying the *identical* name this far apart are one destination.
- * "Termas de Lahuen Co" appears three times within 500m — the separate pools of
- * one resort, mapped individually, only one of which carries the temperature.
- * Left unmerged, a search for it surfaces whichever copy knows least.
- */
-const EXACT_NAME_METERS = 300;
-
-function haversine(a, b) {
-  const R = 6371000;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const la1 = (a.lat * Math.PI) / 180;
-  const la2 = (b.lat * Math.PI) / 180;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
-function normName(n) {
-  return (n || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
-}
-
-function osmType(id) {
-  return id.split('-')[1]; // osm-<type>-<id>
-}
-
-/**
- * Are these two records the same physical spring?
- *
- * Erring toward "no" is the safer failure. A leftover duplicate is visible and
- * fixable; a wrongly merged record silently deletes a real spring.
- */
-function isSameSpring(a, b) {
-  const d = haversine(a.location, b.location);
-  const an = normName(a.name);
-  const bn = normName(b.name);
-
-  // Same name, near each other: the same spring, however it was mapped.
-  if (an && bn) {
-    if (an === bn) return d <= EXACT_NAME_METERS;
-    // A substring match is weaker evidence ("Blue Spring" vs "Blue Spring
-    // Lodge"), so it keeps the tight radius.
-    return d <= SAME_FEATURE_METERS && (an.includes(bn) || bn.includes(an));
-  }
-
-  // One named, one not, mapped as different element types: the source-and-pool
-  // case. Same element type means two separate features somebody mapped
-  // individually, so leave them alone.
-  if (an || bn) {
-    return d <= SAME_FEATURE_METERS && osmType(a.id) !== osmType(b.id);
-  }
-
-  // Both anonymous: only merge when they are effectively on top of each other.
-  return d <= ANONYMOUS_METERS;
-}
+const REGISTRY = path.join('data', 'registry.json');
+const OVERLAY_DIR = path.join('data', 'overlay');
+const EVENTS = path.join('data', 'events.jsonl');
 
 /**
  * Fold the loser of a duplicate pair into the winner.
@@ -199,7 +134,9 @@ async function main() {
     process.exit(1);
   }
 
-  const ingestedAt = new Date().toISOString().slice(0, 10);
+  // Derived from the inputs so the build is reproducible. See lib/buildtime.mjs.
+  const ingestedAt = buildDate(RAW_DIR);
+  const generatedAt = buildTimestamp(RAW_DIR);
   const files = fs.readdirSync(RAW_DIR).filter((f) => f.startsWith('tile-') && f.endsWith('.json'));
   console.log(`Reading ${files.length} tile files ...`);
 
@@ -269,7 +206,64 @@ async function main() {
     );
   }
 
-  // --- The privacy guard. This runs last so nothing can slip past it. ---
+  // --- Deduplicate ---
+  // Runs before the privacy guard, not after. mergeInto() adopts the winner's
+  // coordinates, so a merge can move a record several hundred metres. Merging
+  // after the exclusion check would let a record clear the filter at its own
+  // position and then be pulled inside an exclusion radius, published.
+  console.log('Deduplicating ...');
+  const { records: deduped, dropped } = dedupe(records);
+  records = deduped;
+  console.log(`  merged ${dropped} duplicate record(s) -> ${records.length} springs`);
+
+  // --- Durable identity ---
+  // Assign each record an id of ours so a claim survives OSM redrawing the
+  // spring under a new element id. Runs after dedupe so ids attach to final
+  // records, not to duplicates about to be merged away.
+  console.log('Resolving identity ...');
+  const priorRegistry = fs.existsSync(REGISTRY)
+    ? JSON.parse(fs.readFileSync(REGISTRY, 'utf8'))
+    : {};
+  const { registry, assignments, events: identityEvents } = resolveRegistry(
+    records,
+    priorRegistry,
+    ingestedAt,
+  );
+  for (const record of records) {
+    const whsId = assignments.get(record.id);
+    // Refs come from the registry, not the record id: dedupe folded several
+    // OSM elements into this record and the registry holds all of them.
+    // Keeping only the winner's ref would lose the others' matches next build.
+    record.osmRefs = registry[whsId].osmRefs;
+    record.id = whsId;
+  }
+  const appeared = identityEvents.filter((e) => e.type === 'spring.appeared').length;
+  const vanished = identityEvents.filter((e) => e.type === 'spring.disappeared').length;
+  console.log(`  ${Object.keys(registry).length} springs in the registry`);
+  if (appeared) console.log(`  ${appeared} new since the last build`);
+  if (vanished) console.log(`  ${vanished} no longer present upstream (flagged, not deleted)`);
+
+  // --- Curated overlay ---
+  console.log('Applying curated claims ...');
+  const overlays = loadOverlays(OVERLAY_DIR);
+  const { applied, orphaned, events: overlayEvents } = applyOverlays(records, overlays);
+  console.log(`  ${applied} claim(s) applied from ${overlays.size} overlay file(s)`);
+  const contested = overlayEvents.filter((e) => e.type === 'claim.contested').length;
+  if (contested) console.log(`  ${contested} claim(s) now disagree with upstream`);
+
+  if (orphaned.length) {
+    // A claim with nowhere to land is a correction about to vanish silently.
+    console.error(`FATAL: ${orphaned.length} overlay file(s) reference springs absent from this build:`);
+    for (const id of orphaned) console.error(`  ${id}`);
+    console.error('Their claims would be silently discarded. Check data/registry.json for a');
+    console.error('missingSince flag on these ids before removing the overlay files.');
+    process.exit(1);
+  }
+
+  // --- The privacy guard ---
+  // Genuinely last: nothing that can add, move, or reintroduce a record may run
+  // below this point. This is the promise in PRIVACY.md, and build.test.mjs
+  // asserts the ordering so it cannot quietly regress.
   const exclusions = loadExclusions();
   const before = records.length;
   records = records.filter((r) => !isExcluded(r, exclusions));
@@ -284,30 +278,39 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('Deduplicating ...');
-  const { records: deduped, dropped } = dedupe(records);
-  console.log(`  merged ${dropped} duplicate record(s) -> ${deduped.length} springs`);
+  // Claim accounting. Exclusion always wins, but a suppressed claim must be
+  // reported: the overlay file is now dead weight, and it points at a location
+  // we have promised to protect.
+  const survivingIds = new Set(records.map((r) => r.id));
+  const suppressed = [...overlays.keys()].filter((id) => !survivingIds.has(id));
+  if (suppressed.length) {
+    console.log(`  ${suppressed.length} overlay file(s) suppressed by the privacy filter`);
+    console.log('    Remove them from data/overlay/. Their springs are excluded.');
+    // Ids only. Never log the claim contents or the matched rule -- a detailed
+    // message is an oracle for locating exactly what the exclusion list protects.
+    for (const id of suppressed) console.log(`    ${id}`);
+  }
 
-  deduped.sort((a, b) =>
+  records.sort((a, b) =>
     (a.location.countryName || '').localeCompare(b.location.countryName || '') ||
     (a.name || '￿').localeCompare(b.name || '￿'),
   );
 
   // --- Outputs ---
-  fs.writeFileSync(OUT_JSON, JSON.stringify(deduped));
+  fs.writeFileSync(OUT_JSON, JSON.stringify(records));
 
   const geojson = {
     type: 'FeatureCollection',
     // Attribution travels with the data, not just the README.
     metadata: {
       name: "World Hot Springs — public hot spring atlas",
-      generated: new Date().toISOString(),
-      count: deduped.length,
+      generated: generatedAt,
+      count: records.length,
       license: 'ODbL 1.0 (derived from OpenStreetMap)',
       attribution: '© OpenStreetMap contributors',
       note: 'Hidden local springs are deliberately excluded. See PRIVACY.md.',
     },
-    features: deduped.map((r) => ({
+    features: records.map((r) => ({
       type: 'Feature',
       id: r.id,
       geometry: { type: 'Point', coordinates: [r.location.lng, r.location.lat] },
@@ -322,7 +325,7 @@ async function main() {
   let withPrice = 0;
   let withHours = 0;
   let withClothing = 0;
-  for (const r of deduped) {
+  for (const r of records) {
     const key = `${r.location.country}|${r.location.countryName}`;
     byCountry[key] = (byCountry[key] || 0) + 1;
     byType[r.type] = (byType[r.type] || 0) + 1;
@@ -333,8 +336,8 @@ async function main() {
   }
 
   const summary = {
-    generated: new Date().toISOString(),
-    total: deduped.length,
+    generated: generatedAt,
+    total: records.length,
     countries: Object.keys(byCountry).length,
     coverage: {
       temperature: withTemp,
@@ -353,12 +356,15 @@ async function main() {
     excludedByPrivacyList: excluded,
   };
   fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
+  fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');
+  const written = appendEvents(EVENTS, [...identityEvents, ...overlayEvents], generatedAt);
+  if (written) console.log(`  ${written} new event(s) recorded in ${EVENTS}`);
 
-  console.log(`\n${deduped.length} springs across ${summary.countries} countries`);
-  console.log(`  temperature known: ${withTemp} (${Math.round((withTemp / deduped.length) * 100)}%)`);
-  console.log(`  price known:       ${withPrice} (${Math.round((withPrice / deduped.length) * 100)}%)`);
-  console.log(`  hours known:       ${withHours} (${Math.round((withHours / deduped.length) * 100)}%)`);
-  console.log(`  clothing known:    ${withClothing} (${Math.round((withClothing / deduped.length) * 100)}%)`);
+  console.log(`\n${records.length} springs across ${summary.countries} countries`);
+  console.log(`  temperature known: ${withTemp} (${Math.round((withTemp / records.length) * 100)}%)`);
+  console.log(`  price known:       ${withPrice} (${Math.round((withPrice / records.length) * 100)}%)`);
+  console.log(`  hours known:       ${withHours} (${Math.round((withHours / records.length) * 100)}%)`);
+  console.log(`  clothing known:    ${withClothing} (${Math.round((withClothing / records.length) * 100)}%)`);
   // The app fetches the dataset at runtime rather than bundling it, so the
   // shell paints immediately and the 14k points stream in after.
   const publicDir = path.join('public', 'data');

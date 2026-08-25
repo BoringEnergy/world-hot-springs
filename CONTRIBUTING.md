@@ -70,3 +70,58 @@ npm run typecheck
 If you change a tag mapping in `scripts/lib/normalize.mjs`, update the
 corresponding table in [docs/DATA.md](docs/DATA.md) in the same commit. The
 reasoning is part of the dataset.
+
+## Correcting a record
+
+The best correction is usually an edit to OpenStreetMap, which flows into the
+next build and helps every project using the same data.
+
+When the correction is specific to this dataset, add a claim. Create
+`data/overlay/<spring-id>.json`, using the `whs_` id from the record:
+
+```json
+{
+  "id": "whs_a1b2c3d4e5f6",
+  "claims": {
+    "temperature.celsius": {
+      "value": 38,
+      "source": "https://example.org/where-you-got-this",
+      "measuredAt": "2026-03-14",
+      "contributor": "github:yourname",
+      "state": "active"
+    }
+  }
+}
+```
+
+Claims are field-level. A claim overrides that one field; every field you do not
+claim keeps tracking OpenStreetMap. That is deliberate — it means correcting a
+temperature does not freeze the opening hours.
+
+Every claim needs a `source` a stranger can check. "I was there last week" is
+useful context but cannot be the only citation.
+
+### Fields you cannot claim, and why
+
+- **`type`** drives a safety warning and the completeness score, so it is
+  pipeline-owned classification. Reclassification is reviewed by a person.
+- **`temperature.source` and `temperature.measuredAt`** are derived from the
+  temperature claim's own metadata. Letting them be claimed separately would let
+  someone overwrite the provenance of a reading they did not submit.
+- **Coordinates** are not claimable at all. Moving a spring is how you would
+  defeat the privacy exclusion radius.
+
+### Fields that merge rather than replace
+
+`tags` and `warnings` merge — a claim adds entries and never removes them.
+Removing a derived safety warning is a separate, human-reviewed operation, so
+that nobody can strip a scalding notice off a 62 °C spring.
+
+### When your claim disagrees with OpenStreetMap
+
+Nothing breaks. Your value keeps rendering and the disagreement is recorded in
+`data/events.jsonl` as a `claim.contested` event for a human to resolve. The
+site never regresses to a value you have evidence against.
+
+Run `npm test` before submitting; the overlay validator names exactly what is
+wrong with a malformed claim.

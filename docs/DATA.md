@@ -10,10 +10,20 @@ argue with.
 Overpass API  ->  data/raw/osm/tile-*.json   (scripts/fetch-osm.mjs)
               ->  normalise                  (scripts/lib/normalize.mjs)
               ->  country resolve            (scripts/lib/countries.mjs)
-              ->  privacy filter             (scripts/lib/exclusions.mjs)
-              ->  dedupe
+              ->  bad-import quarantine      (data/known-bad-imports.json)
+              ->  dedupe                     (scripts/lib/identity.mjs)
+              ->  durable identity           (scripts/lib/identity.mjs)
+              ->  curated overlay            (scripts/lib/overlay.mjs)
+              ->  privacy filter             (scripts/lib/exclusions.mjs)   <- always last
               ->  data/hot-springs.{json,geojson}, data/summary.json
+                  data/registry.json, data/events.jsonl
 ```
+
+The privacy filter is last, and a test asserts it. Nothing that can add, move,
+or reintroduce a record may run below it. `mergeInto()` adopts the winner's
+coordinates, so a merge relocates a record by up to 300 m -- running dedupe
+after the filter would let a record clear the exclusion check at its own
+position and then be pulled inside an exclusion radius.
 
 Every stage prints what it dropped and why. A pipeline that silently discards
 records is a pipeline you cannot trust, so `data:build` is deliberately noisy.
@@ -229,6 +239,52 @@ those 33 are still worth reviewing by hand.
 A narrower, name-based check catches identifier-named nodes elsewhere
 (`c-175`, `0061`) that carry no other attribute — 153 records, mostly Libya and
 Egypt.
+
+## Stage 3c — durable identity and the curated overlay
+
+The dataset is derived, so a correction used to survive exactly until the next
+ingest. Two stages fix that, both running after dedupe and before the privacy
+filter.
+
+**Identity.** Each record gets a `whs_` id from `data/registry.json`, resolved by
+OSM ref first and by the same-spring predicate second. That fallback is what
+keeps a claim attached when OSM deletes a node and redraws the spring as a way.
+Registry entries that match nothing are flagged `missingSince` and emit
+`spring.disappeared` — never deleted, because one plausible cause of an upstream
+disappearance is a privacy removal we should honour.
+
+Ids are 12 hex characters of a SHA-256 of the first OSM ref. Six was tried first
+and measured: it produced **two real collisions** across the dataset's 7,638 OSM
+refs, an ~82% birthday probability. Two springs sharing a durable id means
+claims attaching to the wrong spring, silently and permanently. The mint site
+also asserts the id is unused and throws naming both refs, so a future collision
+is loud rather than silent.
+
+**Overlay.** `data/overlay/<id>.json` holds field-level claims. Claims override
+derived values; unclaimed fields keep tracking OSM. Array fields merge and never
+remove, so a claim cannot strip a derived scalding warning. `temperature.source`
+and `temperature.measuredAt` are derived from the temperature claim's own
+metadata rather than being separately claimable, so provenance cannot drift from
+the value it describes.
+
+When an active claim disagrees with upstream, the curated value keeps rendering
+and a `claim.contested` event is appended to `data/events.jsonl`. Temperature
+allows 0.5 °C of tolerance; everything else is exact.
+
+An overlay file naming a spring absent from the build is a **fatal error**. A
+claim with nowhere to land is a correction about to vanish silently. A claim
+whose spring the privacy filter removes is reported by id only — never with the
+claim contents or the matched rule, since a detailed message is an oracle for
+locating exactly what the exclusion list protects.
+
+### Reproducibility
+
+The build is byte-for-byte reproducible from committed inputs. Timestamps come
+from the newest raw tile mtime, or `SOURCE_DATE_EPOCH` when set — never the
+clock. Before this, every rebuild rewrote `lastVerified` on all 6,471 records
+and buried any real change in a ~6 MB diff. Since a later phase accepts curated
+corrections as pull requests, an unreviewable diff is a review-integrity
+problem, not just an annoyance.
 
 ## Stage 4 — privacy filter
 

@@ -225,7 +225,10 @@ test('identical names beyond 300m stay separate', () => {
 
 test('a substring name match keeps the tight 60m radius', () => {
   const near = at(64.048, -21.2222, 'Blue Spring', 'osm-node-1');
-  const far = at(64.0485, -21.2222, 'Blue Spring Lodge', 'osm-node-2');
+  // 64.049 is 111m away, unambiguously outside the 60m radius. An earlier
+  // draft used 64.0485, which is 55.6m -- inside it -- so the assertion below
+  // was wrong and the test would have failed against a correct implementation.
+  const far = at(64.049, -21.2222, 'Blue Spring Lodge', 'osm-node-2');
   assert.equal(isSameSpring(near, at(64.0481, -21.2222, 'Blue Spring Lodge', 'osm-node-2')), true);
   assert.equal(isSameSpring(near, far), false);
 });
@@ -337,18 +340,21 @@ Add to the imports at the top of the file, after the existing `exclusions.mjs` i
 
 ```js
 import { isSameSpring } from './lib/identity.mjs';
-import { distanceMeters, normName } from './lib/geo.mjs';
 ```
 
-Then update the two remaining `haversine(` call sites inside `dedupe()` to `distanceMeters(`.
+That is the only import needed. There is exactly one `haversine(` call site in the
+file and it sits inside `isSameSpring`, which moves out wholesale — so afterwards
+nothing in `build-dataset.mjs` references `distanceMeters` or `normName`, and
+importing them would be dead code. Verify before adding any import: only import
+what the file actually references.
 
 - [ ] **Step 6: Verify the build still produces the same dataset**
 
 Run: `node scripts/build-dataset.mjs`
 
-Expected output includes: `merged 1168 duplicate record(s) -> 6470 springs`
+Expected output includes: `merged 1167 duplicate record(s) -> 6471 springs`
 
-If the spring count is not 6470, the move changed behaviour. Stop and diff the predicate against git history rather than accepting a new number.
+If the spring count is not 6471, the move changed behaviour. Stop and diff the predicate against git history rather than accepting a new number.
 
 - [ ] **Step 7: Commit**
 
@@ -385,7 +391,7 @@ const rec = (id, lat, lng, name, sources = []) => ({
 
 test('mintId is deterministic and prefixed', () => {
   const a = mintId('node/4702109263');
-  assert.match(a, /^whs_[0-9a-f]{6}$/);
+  assert.match(a, /^whs_[0-9a-f]{12}$/);
   assert.equal(a, mintId('node/4702109263'), 'same ref must always mint the same id');
   assert.notEqual(a, mintId('node/4702109264'));
 });
@@ -473,9 +479,16 @@ import { createHash } from 'node:crypto';
  *
  * Hash-derived rather than sequential so that ids are reproducible: rebuilding
  * from scratch on another machine assigns the same id to the same spring.
+ *
+ * 12 hex characters, not 6. Six was measured against the live dataset and
+ * produced two real collisions across its 7,638 OSM refs -- node/13322943888
+ * and way/1313849089 both minted whs_40cd87 -- an ~82% birthday probability at
+ * that scale. Two springs sharing a durable id means claims attaching to the
+ * wrong spring, silently and permanently. 48 bits leaves room for the dataset
+ * to grow an order of magnitude and stay far below one in ten thousand.
  */
 export function mintId(osmRef) {
-  return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 6)}`;
+  return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 12)}`;
 }
 
 /** Every OSM reference a record can be traced to, including merged duplicates. */
@@ -894,7 +907,7 @@ Expected: PASS, 2 tests.
 
 Run: `node scripts/build-dataset.mjs`
 
-Expected: still `6470 springs across 129 countries`. The reorder is a correctness fix against a hazard, not a behaviour change today — the count moving would mean something else is wrong.
+Expected: still `6471 springs across 129 countries`. The reorder is a correctness fix against a hazard, not a behaviour change today — the count moving would mean something else is wrong.
 
 - [ ] **Step 6: Commit**
 
@@ -964,12 +977,12 @@ test('risk tiers track harm: temperature and clothing are high, name is not', ()
 });
 
 test('validateOverlay accepts a well-formed file', () => {
-  const errors = validateOverlay({ id: 'whs_a1b2c3', claims: { 'temperature.celsius': claim() } });
+  const errors = validateOverlay({ id: 'whs_a1b2c3d4e5f6', claims: { 'temperature.celsius': claim() } });
   assert.deepEqual(errors, []);
 });
 
 test('validateOverlay rejects a non-claimable field', () => {
-  const errors = validateOverlay({ id: 'whs_a1b2c3', claims: { 'type': claim({ value: 'resort' }) } });
+  const errors = validateOverlay({ id: 'whs_a1b2c3d4e5f6', claims: { 'type': claim({ value: 'resort' }) } });
   assert.equal(errors.length, 1);
   assert.match(errors[0], /not claimable/);
 });
@@ -977,13 +990,13 @@ test('validateOverlay rejects a non-claimable field', () => {
 test('validateOverlay requires a source on every claim', () => {
   const c = claim();
   delete c.source;
-  const errors = validateOverlay({ id: 'whs_a1b2c3', claims: { 'temperature.celsius': c } });
+  const errors = validateOverlay({ id: 'whs_a1b2c3d4e5f6', claims: { 'temperature.celsius': c } });
   assert.match(errors.join(), /source/);
 });
 
 test('validateOverlay rejects an out-of-range temperature', () => {
   const errors = validateOverlay({
-    id: 'whs_a1b2c3',
+    id: 'whs_a1b2c3d4e5f6',
     claims: { 'temperature.celsius': claim({ value: 318 }) },
   });
   assert.match(errors.join(), /between -5 and 130/);
@@ -1082,8 +1095,8 @@ export const ARRAY_FIELDS = ['tags', 'warnings'];
 export function validateOverlay(overlay) {
   const errors = [];
 
-  if (!/^whs_[0-9a-f]{6}$/.test(overlay?.id ?? '')) {
-    errors.push(`id must look like whs_a1b2c3, got ${JSON.stringify(overlay?.id)}`);
+  if (!/^whs_[0-9a-f]{12}$/.test(overlay?.id ?? '')) {
+    errors.push(`id must look like whs_a1b2c3d4e5f6, got ${JSON.stringify(overlay?.id)}`);
   }
   if (!overlay?.claims || typeof overlay.claims !== 'object') {
     errors.push('claims must be an object');
@@ -1183,7 +1196,7 @@ import { applyOverlays } from './lib/overlay.mjs';
 
 function record(over = {}) {
   return {
-    id: 'whs_a1b2c3',
+    id: 'whs_a1b2c3d4e5f6',
     name: 'Reykjadalur',
     location: { lat: 64.048, lng: -21.2222, elevation: null, country: 'IS',
                 countryName: 'Iceland', region: null, nearestTown: null },
@@ -1204,7 +1217,7 @@ function record(over = {}) {
   };
 }
 
-const overlay = (claims) => new Map([['whs_a1b2c3', { id: 'whs_a1b2c3', claims }]]);
+const overlay = (claims) => new Map([['whs_a1b2c3d4e5f6', { id: 'whs_a1b2c3d4e5f6', claims }]]);
 
 const tempClaim = {
   value: 38, source: 'https://example.org/survey', measuredAt: '2026-03-14',
@@ -1274,7 +1287,7 @@ test('a non-active claim is ignored', () => {
 test('claims for a spring absent from this build are reported, not lost', () => {
   const { applied, orphaned } = applyOverlays([], overlay({ 'temperature.celsius': tempClaim }));
   assert.equal(applied, 0);
-  assert.deepEqual(orphaned, ['whs_a1b2c3']);
+  assert.deepEqual(orphaned, ['whs_a1b2c3d4e5f6']);
 });
 ```
 
@@ -1549,7 +1562,7 @@ function tmpfile() {
 }
 
 const contested = (to) => ({
-  type: 'claim.contested', springId: 'whs_a1b2c3',
+  type: 'claim.contested', springId: 'whs_a1b2c3d4e5f6',
   claimPath: 'temperature.celsius', from: 42, to, actor: 'build',
 });
 
@@ -1713,7 +1726,7 @@ test('the shipped dataset uses durable ids', () => {
   const springs = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
   assert.ok(springs.length > 6000, `expected the full dataset, got ${springs.length}`);
   for (const s of springs.slice(0, 200)) {
-    assert.match(s.id, /^whs_[0-9a-f]{6}$/, `${s.id} is not a durable id`);
+    assert.match(s.id, /^whs_[0-9a-f]{12}$/, `${s.id} is not a durable id`);
     assert.ok(Array.isArray(s.osmRefs) && s.osmRefs.length > 0, `${s.id} has no OSM refs`);
   }
 });
@@ -1842,12 +1855,12 @@ Run: `node scripts/build-dataset.mjs`
 Expected:
 ```
 Resolving identity ...
-  6470 springs in the registry
-  6470 new since the last build
+  6471 springs in the registry
+  6471 new since the last build
 Applying curated claims ...
   0 claim(s) applied from 0 overlay file(s)
 ...
-6470 springs across 129 countries
+6471 springs across 129 countries
 ```
 
 - [ ] **Step 8: Verify reproducibility survived**
@@ -2073,7 +2086,7 @@ When the correction is specific to this dataset, add a claim. Create
 
 ```json
 {
-  "id": "whs_a1b2c3",
+  "id": "whs_a1b2c3d4e5f6",
   "claims": {
     "temperature.celsius": {
       "value": 38,
@@ -2108,7 +2121,7 @@ what is wrong.
 npm test && npm run data:build && npx tsc -b --force && npm run build
 ```
 
-Expected: tests pass, build reports `6470 springs`, typecheck clean, bundle built.
+Expected: tests pass, build reports `6471 springs`, typecheck clean, bundle built.
 
 - [ ] **Step 7: Commit**
 
@@ -2126,7 +2139,7 @@ and why type, temperature provenance, and coordinates are not claimable."
 
 - `npm test` passes with every suite green
 - `node scripts/build-dataset.mjs` twice in a row produces byte-identical output
-- `data/registry.json` holds ~6,470 entries and every shipped record has a `whs_` id
+- `data/registry.json` holds ~6,471 entries and every shipped record has a `whs_` id
 - A claim in `data/overlay/` overrides its derived field, and disagreement with upstream appends `claim.contested` to `data/events.jsonl`
 - An overlay naming an unknown spring fails the build
 - The privacy filter is the last stage that can remove a record, asserted by a test
@@ -2135,3 +2148,29 @@ and why type, temperature provenance, and coordinates are not claimable."
 ## Deliberately not in this phase
 
 Contribution gates, GitHub Actions, the LLM manager, trust levels, `_proposed/` new-spring files, `reclassify` and `retract` operations, and the drift review queue. `RISK` ships as data with a test keeping it consistent with the allowlist, but nothing enforces it until phase 2 has a reviewer to enforce it for.
+
+---
+
+## Follow-up recorded during execution
+
+**Registry fallback is O(n²).** Task 3's fallback scans every registry entry for
+each record that does not match by OSM ref. Measured against the real 6,471
+records:
+
+| Path | Time |
+|---|---|
+| Steady-state rebuild (everything matches by ref) | **31 ms** |
+| Cold bootstrap (empty registry) | 4.45 s |
+| Worst case (every ref changes at once, e.g. a mass upstream re-import) | 12.8 s |
+
+31 ms is what the routine path actually costs, so this is not urgent and was
+deliberately not optimised during phase 1. It should be bounded — spatial
+bucketing by geohash prefix, reusing the grid approach `dedupe()` already uses —
+before the build is CI-gated in phase 2, and before the dataset grows another
+order of magnitude.
+
+**`mintId` length.** Fixed during execution rather than deferred. Six hex
+characters produced two real collisions across the live dataset's 7,638 OSM
+refs (~82% birthday probability). Now 12 hex characters plus a mint-site
+assertion that throws naming both refs, so a future collision is loud rather
+than silent.

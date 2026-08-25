@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
-    "test": "node --test scripts/normalize.test.mjs",
+    "test": "node --test \"scripts/**/*.test.mjs\"",
     "data:fetch": "node scripts/fetch-osm.mjs",
     "data:verify": "node scripts/fetch-osm.mjs --verify",
     "data:build": "node scripts/build-dataset.mjs",

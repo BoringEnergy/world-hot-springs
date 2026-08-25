@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-25T04:09:17.795Z",
-  "total": 6470,
+  "generated": "2026-08-25T03:58:16.000Z",
+  "total": 6471,
   "countries": 129,
   "coverage": {
     "temperature": 87,
@@ -9,14 +9,14 @@
     "clothing": 47
   },
   "byType": {
-    "natural": 1921,
+    "natural": 1922,
     "wild": 2358,
     "developed": 2093,
     "resort": 98
   },
   "byCountry": {
     "United States of America": 2025,
-    "Japan": 949,
+    "Japan": 950,
     "Iceland": 289,
     "Russia": 185,
     "Thailand": 154,
@@ -145,7 +145,7 @@
     "Sri Lanka": 1,
     "United Arab Emirates": 1
   },
-  "droppedDuplicates": 1168,
+  "droppedDuplicates": 1167,
   "rejected": {
     "access=private/no": 60
   },

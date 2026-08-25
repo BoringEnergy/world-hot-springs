@@ -22,6 +22,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { distanceMeters } from './geo.mjs';
 
 const LIST = path.join('data', 'private', 'exclusions.json');
 
@@ -41,22 +42,12 @@ export function loadExclusions() {
   }
 }
 
-function haversine(aLat, aLng, bLat, bLng) {
-  const R = 6371000;
-  const dLat = ((bLat - aLat) * Math.PI) / 180;
-  const dLng = ((bLng - aLng) * Math.PI) / 180;
-  const la1 = (aLat * Math.PI) / 180;
-  const la2 = (bLat * Math.PI) / 180;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
 export function isExcluded(record, exclusions) {
   for (const e of exclusions.entries) {
     if (e.osmId && record.id === `osm-${e.osmId.replace('/', '-')}`) return true;
     if (typeof e.lat === 'number' && typeof e.lng === 'number') {
       const radius = typeof e.radiusMeters === 'number' ? e.radiusMeters : 1000;
-      if (haversine(record.location.lat, record.location.lng, e.lat, e.lng) <= radius) return true;
+      if (distanceMeters(record.location, { lat: e.lat, lng: e.lng }) <= radius) return true;
     }
     if (e.namePattern && record.name && new RegExp(e.namePattern, 'i').test(record.name)) return true;
   }
