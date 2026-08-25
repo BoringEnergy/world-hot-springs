@@ -20,13 +20,24 @@ export function distanceMeters(a, b) {
 }
 
 /**
- * Normalise a name for comparison: lowercase, strip everything that is not a
- * letter or a number in any script.
+ * Normalise a name for comparison: Unicode-normalise, lowercase, strip
+ * everything that is not a letter or a number in any script.
  *
  * The Unicode property escapes matter. A naive [^a-z0-9] would reduce every
  * Japanese and Arabic name to the empty string, and empty names compare equal
  * to each other, which would merge every unnamed spring in Japan into one.
+ *
+ * The NFKC normalisation matters too. Source data arrives in whatever
+ * normal form the contributor's editor happened to produce: "Café" can be
+ * one precomposed codepoint (NFC) or an "e" plus a combining acute accent
+ * (NFD). Without normalising first, the combining mark is a non-letter
+ * codepoint that the strip regex would delete, so NFC and NFD spellings of
+ * the same name would silently produce different keys and fail to match in
+ * the identity resolver.
  */
 export function normName(n) {
-  return (n || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+  return (n || '')
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '');
 }
