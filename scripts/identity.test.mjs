@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { osmType, osmRefOf, isSameSpring } from './lib/identity.mjs';
+import { osmType, osmRefOf, isSameSpring, mintId, resolveRegistry } from './lib/identity.mjs';
 
 const at = (lat, lng, name = null, id = 'osm-node-1') => ({ id, name, location: { lat, lng } });
 
@@ -109,4 +109,82 @@ test('two anonymous records merge only within 12m', () => {
     false,
     'distinct springs sit metres apart in a geyser basin; merging them deletes real data',
   );
+});
+
+const rec = (id, lat, lng, name, sources = []) => ({
+  id,
+  name,
+  location: { lat, lng },
+  sources: sources.length ? sources : [`https://www.openstreetmap.org/${osmRefOf(id)}`],
+});
+
+test('mintId is deterministic and prefixed', () => {
+  const a = mintId('node/4702109263');
+  assert.match(a, /^whs_[0-9a-f]{6}$/);
+  assert.equal(a, mintId('node/4702109263'), 'same ref must always mint the same id');
+  assert.notEqual(a, mintId('node/4702109264'));
+});
+
+test('resolveRegistry mints ids for a first run', () => {
+  const records = [rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')];
+  const { registry, assignments, events } = resolveRegistry(records, {}, '2026-08-25');
+  const id = assignments.get('osm-node-1');
+  assert.match(id, /^whs_/);
+  assert.equal(registry[id].osmRefs[0], 'node/1');
+  assert.equal(registry[id].firstSeen, '2026-08-25');
+  assert.equal(events.filter((e) => e.type === 'spring.appeared').length, 1);
+});
+
+test('resolveRegistry reuses an id when the OSM ref is unchanged', () => {
+  const records = [rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')];
+  const first = resolveRegistry(records, {}, '2026-08-25');
+  const id = first.assignments.get('osm-node-1');
+  const second = resolveRegistry(records, first.registry, '2026-09-01');
+  assert.equal(second.assignments.get('osm-node-1'), id);
+  assert.equal(second.registry[id].firstSeen, '2026-08-25', 'firstSeen must not move');
+  assert.equal(second.registry[id].lastSeen, '2026-09-01');
+  assert.equal(second.events.filter((e) => e.type === 'spring.appeared').length, 0);
+});
+
+test('resolveRegistry keeps the id when OSM redraws the spring under a new ref', () => {
+  const before = [rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')];
+  const first = resolveRegistry(before, {}, '2026-08-25');
+  const id = first.assignments.get('osm-node-1');
+
+  // Same spring, same name, 40m away, remapped as a way with a brand new id.
+  const after = [rec('osm-way-99', 64.0484, -21.2222, 'Reykjadalur')];
+  const second = resolveRegistry(after, first.registry, '2026-09-01');
+
+  assert.equal(second.assignments.get('osm-way-99'), id, 'a redraw must not orphan claims');
+  assert.ok(second.registry[id].osmRefs.includes('way/99'));
+  assert.ok(second.registry[id].osmRefs.includes('node/1'), 'the old ref is retained');
+});
+
+test('a spring that vanishes upstream is flagged, never deleted', () => {
+  const before = [rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')];
+  const first = resolveRegistry(before, {}, '2026-08-25');
+  const id = first.assignments.get('osm-node-1');
+
+  const second = resolveRegistry([], first.registry, '2026-09-01');
+  assert.ok(second.registry[id], 'the entry survives');
+  assert.equal(second.registry[id].missingSince, '2026-09-01');
+  assert.equal(second.events.filter((e) => e.type === 'spring.disappeared').length, 1);
+});
+
+test('disappearance is reported once, not on every later build', () => {
+  const first = resolveRegistry([rec('osm-node-1', 64.048, -21.2222, 'X')], {}, '2026-08-25');
+  const second = resolveRegistry([], first.registry, '2026-09-01');
+  const third = resolveRegistry([], second.registry, '2026-10-01');
+  assert.equal(third.events.filter((e) => e.type === 'spring.disappeared').length, 0);
+  const id = first.assignments.get('osm-node-1');
+  assert.equal(third.registry[id].missingSince, '2026-09-01', 'the original date is kept');
+});
+
+test('a returning spring clears its missing flag', () => {
+  const records = [rec('osm-node-1', 64.048, -21.2222, 'X')];
+  const first = resolveRegistry(records, {}, '2026-08-25');
+  const gone = resolveRegistry([], first.registry, '2026-09-01');
+  const back = resolveRegistry(records, gone.registry, '2026-10-01');
+  const id = first.assignments.get('osm-node-1');
+  assert.equal(back.registry[id].missingSince, null);
 });

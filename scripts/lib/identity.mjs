@@ -5,6 +5,7 @@
  * and redrawn, and an orphaned claim is a correction somebody lost. Springs
  * therefore carry an id of ours, resolved against a committed registry.
  */
+import { createHash } from 'node:crypto';
 import { distanceMeters, normName } from './geo.mjs';
 
 /** Different element types within this radius are one feature mapped twice. */
@@ -82,4 +83,104 @@ export function isSameSpring(a, b) {
   }
 
   return d <= ANONYMOUS_METERS;
+}
+
+/**
+ * Mint a stable id from an OSM reference.
+ *
+ * Hash-derived rather than sequential so that ids are reproducible: rebuilding
+ * from scratch on another machine assigns the same id to the same spring.
+ */
+export function mintId(osmRef) {
+  return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 6)}`;
+}
+
+/** Every OSM reference a record can be traced to, including merged duplicates. */
+function refsOf(record) {
+  const refs = new Set([osmRefOf(record.id)]);
+  for (const src of record.sources || []) {
+    const m = src.match(/openstreetmap\.org\/(node|way|relation)\/(\d+)/);
+    if (m) refs.add(`${m[1]}/${m[2]}`);
+  }
+  return [...refs];
+}
+
+/** A registry entry rendered as something isSameSpring can compare. */
+function asComparable(whsId, entry) {
+  const [lng, lat] = entry.centroid;
+  const ref = entry.osmRefs[0] || 'node/0';
+  const [type, num] = ref.split('/');
+  return { id: `osm-${type}-${num}`, name: entry.name, location: { lat, lng }, whsId };
+}
+
+/**
+ * Assign a durable id to every record and update the registry.
+ *
+ * Matching order:
+ *   1. any OSM ref the record can be traced to
+ *   2. isSameSpring against existing entries, which survives a redraw under a
+ *      new OSM id
+ *   3. mint a new id
+ *
+ * @returns {{registry: object, assignments: Map<string,string>, events: object[]}}
+ */
+export function resolveRegistry(records, existingRegistry, today) {
+  const registry = structuredClone(existingRegistry);
+  const assignments = new Map();
+  const events = [];
+
+  const byRef = new Map();
+  for (const [whsId, entry] of Object.entries(registry)) {
+    for (const ref of entry.osmRefs) byRef.set(ref, whsId);
+  }
+
+  const seen = new Set();
+
+  for (const record of records) {
+    const refs = refsOf(record);
+    let whsId = refs.map((r) => byRef.get(r)).find(Boolean);
+
+    if (!whsId) {
+      const candidate = Object.entries(registry)
+        .filter(([id]) => !seen.has(id))
+        .map(([id, entry]) => asComparable(id, entry))
+        .find((entry) => isSameSpring(entry, record));
+      whsId = candidate?.whsId;
+    }
+
+    if (!whsId) {
+      whsId = mintId(refs[0]);
+      registry[whsId] = {
+        osmRefs: [],
+        centroid: [record.location.lng, record.location.lat],
+        name: record.name,
+        firstSeen: today,
+        lastSeen: today,
+        missingSince: null,
+      };
+      events.push({ type: 'spring.appeared', springId: whsId, actor: 'build' });
+    }
+
+    const entry = registry[whsId];
+    entry.osmRefs = [...new Set([...entry.osmRefs, ...refs])].sort();
+    entry.centroid = [record.location.lng, record.location.lat];
+    entry.name = record.name ?? entry.name;
+    entry.lastSeen = today;
+    entry.missingSince = null;
+
+    for (const ref of entry.osmRefs) byRef.set(ref, whsId);
+    seen.add(whsId);
+    assignments.set(record.id, whsId);
+  }
+
+  // Entries nothing matched are flagged, never removed. One plausible cause of
+  // an upstream disappearance is a privacy removal we should honour, and a
+  // second is a mapper error we should notice. Both need a human.
+  for (const [whsId, entry] of Object.entries(registry)) {
+    if (seen.has(whsId) || entry.missingSince) continue;
+    entry.missingSince = today;
+    events.push({ type: 'spring.disappeared', springId: whsId, actor: 'build' });
+  }
+
+  return { registry, assignments, events };
 }
