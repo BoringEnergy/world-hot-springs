@@ -13,6 +13,7 @@
     "test": "node --test \"scripts/**/*.test.mjs\"",
     "data:fetch": "node scripts/fetch-osm.mjs",
     "data:verify": "node scripts/fetch-osm.mjs --verify",
+    "validate": "node scripts/validate-overlay.mjs",
     "data:build": "node scripts/build-dataset.mjs",
     "data:all": "npm run data:fetch && npm run data:verify && npm run data:build"
   },

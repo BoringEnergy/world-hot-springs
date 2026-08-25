@@ -123,5 +123,47 @@ Nothing breaks. Your value keeps rendering and the disagreement is recorded in
 `data/events.jsonl` as a `claim.contested` event for a human to resolve. The
 site never regresses to a value you have evidence against.
 
-Run `npm test` before submitting; the overlay validator names exactly what is
-wrong with a malformed claim.
+## Submitting a claim
+
+```bash
+npm run validate
+```
+
+Run it before you open a pull request. It checks every file in
+`data/overlay/`, reports all the problems at once rather than the first, and is
+the identical code CI runs — so a clean local run means a clean CI run.
+
+To check only what you changed, as CI does:
+
+```bash
+node scripts/validate-overlay.mjs --changed-only
+```
+
+### What a pull request may touch
+
+**`data/overlay/**` and nothing else.** A submission that edits a script, a
+workflow, the built dataset, or `package.json` is rejected by the path guard
+before anything else runs. This is not a judgement of the change — a pipeline
+improvement is welcome, it just travels as its own pull request from a
+different starting point, because the automation that reviews contributions
+must not be editable by the contribution it is reviewing.
+
+Files are named `<spring-id>.json` and the id inside must match the filename.
+A mismatch makes the file invisible to anyone grepping the directory for a
+spring.
+
+### The green check is feedback, not approval
+
+The `gate-1` check reports whether the validator was happy. It is contributor
+convenience and a signal to the maintainer — deliberately not a security
+boundary, because on a fork pull request the workflow file itself comes from
+the pull request. **Every submission in this phase is read by a human before it
+merges.** A green check means your file is well-formed; it says nothing about
+whether the claim is true, and nothing about whether the spring belongs on the
+map at all. That first rule at the top of this document is still the one that
+outranks everything.
+
+Removing an overlay file is a legitimate submission — retracting a claim, or a
+removal request. The validator reports it as a removal rather than an error,
+and a person reviews it, because deleting authored claims discards work no
+rebuild will bring back.

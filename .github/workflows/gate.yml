@@ -1,0 +1,32 @@
+# Gate 1 -- contributor feedback. NOT a security boundary.
+#
+# On a fork pull request the workflow file comes from the PR head, so a
+# contributor can rewrite this file to report success on anything. A green
+# check here means "the contributor's own copy of the validator was happy",
+# nothing more. Phase 3's Gate 2 re-runs all of it from default-branch code,
+# and that is the check that counts.
+#
+# No secrets. No `npm ci` -- the validator must never need the PR's dependency
+# tree, because installing it would execute the PR's install scripts.
+name: gate-1
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0        # --changed-only diffs against the base
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      # base_ref goes through the environment, never interpolated into the
+      # shell line. A branch name is attacker-influenced text.
+      - env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: node scripts/validate-overlay.mjs --changed-only
