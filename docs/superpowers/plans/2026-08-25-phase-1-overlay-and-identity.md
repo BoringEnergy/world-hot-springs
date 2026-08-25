@@ -352,9 +352,9 @@ what the file actually references.
 
 Run: `node scripts/build-dataset.mjs`
 
-Expected output includes: `merged 1168 duplicate record(s) -> 6470 springs`
+Expected output includes: `merged 1167 duplicate record(s) -> 6471 springs`
 
-If the spring count is not 6470, the move changed behaviour. Stop and diff the predicate against git history rather than accepting a new number.
+If the spring count is not 6471, the move changed behaviour. Stop and diff the predicate against git history rather than accepting a new number.
 
 - [ ] **Step 7: Commit**
 
@@ -900,7 +900,7 @@ Expected: PASS, 2 tests.
 
 Run: `node scripts/build-dataset.mjs`
 
-Expected: still `6470 springs across 129 countries`. The reorder is a correctness fix against a hazard, not a behaviour change today — the count moving would mean something else is wrong.
+Expected: still `6471 springs across 129 countries`. The reorder is a correctness fix against a hazard, not a behaviour change today — the count moving would mean something else is wrong.
 
 - [ ] **Step 6: Commit**
 
@@ -1848,12 +1848,12 @@ Run: `node scripts/build-dataset.mjs`
 Expected:
 ```
 Resolving identity ...
-  6470 springs in the registry
-  6470 new since the last build
+  6471 springs in the registry
+  6471 new since the last build
 Applying curated claims ...
   0 claim(s) applied from 0 overlay file(s)
 ...
-6470 springs across 129 countries
+6471 springs across 129 countries
 ```
 
 - [ ] **Step 8: Verify reproducibility survived**
@@ -2114,7 +2114,7 @@ what is wrong.
 npm test && npm run data:build && npx tsc -b --force && npm run build
 ```
 
-Expected: tests pass, build reports `6470 springs`, typecheck clean, bundle built.
+Expected: tests pass, build reports `6471 springs`, typecheck clean, bundle built.
 
 - [ ] **Step 7: Commit**
 
@@ -2132,7 +2132,7 @@ and why type, temperature provenance, and coordinates are not claimable."
 
 - `npm test` passes with every suite green
 - `node scripts/build-dataset.mjs` twice in a row produces byte-identical output
-- `data/registry.json` holds ~6,470 entries and every shipped record has a `whs_` id
+- `data/registry.json` holds ~6,471 entries and every shipped record has a `whs_` id
 - A claim in `data/overlay/` overrides its derived field, and disagreement with upstream appends `claim.contested` to `data/events.jsonl`
 - An overlay naming an unknown spring fails the build
 - The privacy filter is the last stage that can remove a record, asserted by a test
