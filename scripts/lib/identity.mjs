@@ -14,15 +14,26 @@ export const ANONYMOUS_METERS = 12;
 /** An identical name this far apart is one destination mapped as several pools. */
 export const EXACT_NAME_METERS = 300;
 /**
- * Shortest normalised name allowed to participate in substring matching.
+ * Below this normalised length, a substring match is weak evidence on its
+ * own and needs distance to make up the difference.
  *
- * normName strips spaces and punctuation, so short numbered/labelled names
- * collide by coincidence: "No. 4" -> "no4" and "No. 4b" -> "no4b" are two
- * distinct numbered pools at one site, measured 62m apart in the real
- * dataset -- just outside SAME_FEATURE_METERS, saved from merging only by
- * luck. A name this short is weak evidence of identity unless it matches
- * exactly, so only names longer than this threshold are eligible for the
- * substring branch; exact-equality matching is unaffected at any length.
+ * This is about evidence, not character count. normName strips spaces and
+ * punctuation, so short numbered/labelled names collide by coincidence:
+ * "No. 4" -> "no4" and "No. 4b" -> "no4b" are two distinct numbered pools
+ * at one site, measured 62m apart in the real dataset -- just outside
+ * SAME_FEATURE_METERS, saved from merging only by luck. But a short name is
+ * not inherently a fragment: "風の湯" and "大湯" are complete, meaningful
+ * three- and two-character Japanese names, and Arabic and Chinese names are
+ * similarly compact. Treating "short" as "incomplete" would wrongly split
+ * genuine CJK/Arabic duplicates that happen to sit right on top of each
+ * other.
+ *
+ * So instead of excluding short names from the substring branch, they stay
+ * eligible but only within ANONYMOUS_METERS -- the radius already reserved
+ * for cases with no name to go on. At a few metres apart, near-coincident
+ * position supplies the identity evidence the short name can't; at tens of
+ * metres, it's coincidence. Exact-equality matching is unaffected at any
+ * length or distance up to EXACT_NAME_METERS.
  */
 export const MIN_SUBSTRING_NAME_LENGTH = 4;
 
@@ -51,14 +62,13 @@ export function isSameSpring(a, b) {
   if (an && bn) {
     if (an === bn) return d <= EXACT_NAME_METERS;
     // A substring match is weaker evidence ("Blue Spring" vs "Blue Spring
-    // Lodge"), so it keeps the tight radius, and requires both names to
-    // clear MIN_SUBSTRING_NAME_LENGTH (see its comment).
-    return (
-      d <= SAME_FEATURE_METERS &&
-      an.length > MIN_SUBSTRING_NAME_LENGTH &&
-      bn.length > MIN_SUBSTRING_NAME_LENGTH &&
-      (an.includes(bn) || bn.includes(an))
-    );
+    // Lodge"), so it keeps the tight radius -- unless one of the names is
+    // short enough that the match itself is weak evidence (see
+    // MIN_SUBSTRING_NAME_LENGTH), in which case only near-coincident
+    // position can make up for it.
+    if (!(an.includes(bn) || bn.includes(an))) return false;
+    const shortName = an.length <= MIN_SUBSTRING_NAME_LENGTH || bn.length <= MIN_SUBSTRING_NAME_LENGTH;
+    return d <= (shortName ? ANONYMOUS_METERS : SAME_FEATURE_METERS);
   }
 
   // One named, one not: the source-and-pool case, which shows up as two

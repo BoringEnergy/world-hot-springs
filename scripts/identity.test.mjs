@@ -34,21 +34,33 @@ test('a substring name match keeps the tight 60m radius', () => {
   assert.equal(isSameSpring(near, far), false);
 });
 
-test('short names do not participate in substring matching', () => {
+test('a short name substring match at tens of metres is coincidence, not identity', () => {
   // "No. 4" -> "no4", "No. 4b" -> "no4b". no4b contains no4, but a 3-4
   // character token matching inside a longer name is coincidence far more
-  // often than signal (measured: "No. 4" / "No. 4b" sit 62m apart in the
-  // real dataset -- distinct numbered pools, saved only by being just
-  // outside the 60m radius).
+  // often than signal once the records aren't right on top of each other
+  // (measured: "No. 4" / "No. 4b" sit 62m apart in the real dataset --
+  // distinct numbered pools, saved only by being just outside the 60m
+  // radius). At ~44m -- well past ANONYMOUS_METERS but inside
+  // SAME_FEATURE_METERS -- a short name no longer supplies enough evidence.
   const a = at(64.048, -21.2222, 'No. 4', 'osm-node-1');
-  const b = at(64.0481, -21.2222, 'No. 4b', 'osm-node-2');
+  const b = at(64.0484, -21.2222, 'No. 4b', 'osm-node-2');
   assert.equal(isSameSpring(a, b), false);
 });
 
-test('a short name is not treated as a substring match even inside a longer name', () => {
+test('a short name inside a longer name at tens of metres does not match', () => {
   const a = at(64.048, -21.2222, 'Spa', 'osm-node-1');
-  const b = at(64.0481, -21.2222, 'Big Spa Resort', 'osm-node-2');
+  const b = at(64.0484, -21.2222, 'Big Spa Resort', 'osm-node-2');
   assert.equal(isSameSpring(a, b), false);
+});
+
+test('a short name inside a longer name at a few metres does match', () => {
+  // Real dataset fixture: 風の湯 ("no-of-yu", a complete 3-character Japanese
+  // name) sits ~3m from a record named SOLA SPA 風の湯. Short names are
+  // complete names, not fragments -- near-coincident position is enough
+  // evidence that these are the same feature.
+  const a = at(64.048, -21.2222, '風の湯', 'osm-node-1');
+  const b = at(64.04803, -21.2222, 'SOLA SPA 風の湯', 'osm-node-2');
+  assert.equal(isSameSpring(a, b), true);
 });
 
 test('exact equality still matches for short names, regardless of length', () => {
