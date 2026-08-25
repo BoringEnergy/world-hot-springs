@@ -14,83 +14,12 @@ import path from 'node:path';
 import { countryLookup } from './lib/countries.mjs';
 import { normalizeElement } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
+import { isSameSpring } from './lib/identity.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
 const OUT_GEOJSON = path.join('data', 'hot-springs.geojson');
 const OUT_SUMMARY = path.join('data', 'summary.json');
-
-/**
- * Dedupe radii.
- *
- * `SAME_FEATURE_METERS` applies when the two records are different OSM element
- * types — the classic case of one spring mapped as both a node (the source) and
- * a way (the pool built around it).
- *
- * `ANONYMOUS_METERS` is much tighter and applies to two unnamed records of the
- * same type. In a geyser basin, hundreds of genuinely distinct springs sit
- * within a few tens of metres of each other. Merging those on proximity alone
- * would delete real springs from the atlas, which is a worse failure than
- * leaving a duplicate in.
- */
-const SAME_FEATURE_METERS = 60;
-const ANONYMOUS_METERS = 12;
-
-/**
- * Two records carrying the *identical* name this far apart are one destination.
- * "Termas de Lahuen Co" appears three times within 500m — the separate pools of
- * one resort, mapped individually, only one of which carries the temperature.
- * Left unmerged, a search for it surfaces whichever copy knows least.
- */
-const EXACT_NAME_METERS = 300;
-
-function haversine(a, b) {
-  const R = 6371000;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const la1 = (a.lat * Math.PI) / 180;
-  const la2 = (b.lat * Math.PI) / 180;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
-function normName(n) {
-  return (n || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
-}
-
-function osmType(id) {
-  return id.split('-')[1]; // osm-<type>-<id>
-}
-
-/**
- * Are these two records the same physical spring?
- *
- * Erring toward "no" is the safer failure. A leftover duplicate is visible and
- * fixable; a wrongly merged record silently deletes a real spring.
- */
-function isSameSpring(a, b) {
-  const d = haversine(a.location, b.location);
-  const an = normName(a.name);
-  const bn = normName(b.name);
-
-  // Same name, near each other: the same spring, however it was mapped.
-  if (an && bn) {
-    if (an === bn) return d <= EXACT_NAME_METERS;
-    // A substring match is weaker evidence ("Blue Spring" vs "Blue Spring
-    // Lodge"), so it keeps the tight radius.
-    return d <= SAME_FEATURE_METERS && (an.includes(bn) || bn.includes(an));
-  }
-
-  // One named, one not, mapped as different element types: the source-and-pool
-  // case. Same element type means two separate features somebody mapped
-  // individually, so leave them alone.
-  if (an || bn) {
-    return d <= SAME_FEATURE_METERS && osmType(a.id) !== osmType(b.id);
-  }
-
-  // Both anonymous: only merge when they are effectively on top of each other.
-  return d <= ANONYMOUS_METERS;
-}
 
 /**
  * Fold the loser of a duplicate pair into the winner.
