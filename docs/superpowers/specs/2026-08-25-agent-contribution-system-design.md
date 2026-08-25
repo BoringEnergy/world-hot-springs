@@ -32,7 +32,7 @@ re-litigated later.
 | D6 | **Risk tiers track physical harm, not effort to fix.** Four tiers: low, elevated, high, always-human. | A wrong temperature can burn someone; a wrong name is a discoverability problem. Three tiers forced `name` into a bucket that overstated its danger. |
 | D7 | **`type` is pipeline-owned, not claimable.** | Verified in code: it drives a safety warning and the completeness score. Reclassification is a separate human-reviewed operation. |
 | D8 | **Trust counts reviewed submissions, not claims, and capabilities are named separately from levels.** | One PR touching twenty fields must not vault a stranger to `trusted`. Naming capabilities stops `level >= known` being reused later for an unrelated permission. |
-| D9 | **Gate 2 triggers via `workflow_run`; `pull_request_target` is forbidden.** | The only way a fork PR can reach a privileged reviewer without handing attacker-controlled code a secret-bearing context. |
+| D9 | **Gate 2 triggers via `workflow_run`; `pull_request_target` is forbidden.** | The only way a fork PR can reach a privileged reviewer without handing attacker-controlled code a secret-bearing context. Hardened design and threat model: [gate-2-trigger-security](2026-08-25-gate-2-trigger-security.md). Adversarial review of the first draft found a path to the secret; read that document before implementing phase 3. |
 
 ## Non-goals
 
