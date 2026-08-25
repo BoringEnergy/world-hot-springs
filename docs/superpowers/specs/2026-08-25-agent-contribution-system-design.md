@@ -29,6 +29,10 @@ re-litigated later.
 | D3 | **Upstream conflict becomes a review item.** The curated value keeps rendering; the disagreement is recorded and queued. | "Curated always wins" calcifies into stale readings. "OSM always wins" destroys contributor work. Only this option lets the dataset improve. |
 | D4 | **Open contribution, trust starts at zero.** Anyone may submit; nobody gets automated review until submissions have been accepted. | Keeps the door open without letting a stranger trigger token spend. |
 | D5 | **Privacy check runs in the trusted job, not public CI.** | See "Privacy gate" — publishing hashes of the exclusion list would leak it. |
+| D6 | **Risk tiers track physical harm, not effort to fix.** Four tiers: low, elevated, high, always-human. | A wrong temperature can burn someone; a wrong name is a discoverability problem. Three tiers forced `name` into a bucket that overstated its danger. |
+| D7 | **`type` is pipeline-owned, not claimable.** | Verified in code: it drives a safety warning and the completeness score. Reclassification is a separate human-reviewed operation. |
+| D8 | **Trust counts reviewed submissions, not claims, and capabilities are named separately from levels.** | One PR touching twenty fields must not vault a stranger to `trusted`. Naming capabilities stops `level >= known` being reused later for an unrelated permission. |
+| D9 | **Gate 2 triggers via `workflow_run`; `pull_request_target` is forbidden.** | The only way a fork PR can reach a privileged reviewer without handing attacker-controlled code a secret-bearing context. |
 
 ## Non-goals
 
@@ -136,14 +140,60 @@ protected and its disagreement is tracked.
 
 Allowlisted. Anything not on this list is rejected by Gate 1.
 
-**Claimable:** `name`, `temperature.celsius`, `temperature.measuredAt`,
-`temperature.source`, `access.price`, `access.currency`, `access.notes`,
-`clothing.policy`, `clothing.schedule`, `clothing.notes`, `hours.open`,
-`hours.seasonalNotes`, `hours.status`, `type`, `description`, `tags`, `warnings`,
-`location.elevation`, `location.region`, `location.nearestTown`.
+**Claimable:** `name`, `temperature.celsius`, `access.price`, `access.currency`,
+`access.notes`, `clothing.policy`, `clothing.schedule`, `clothing.notes`,
+`hours.open`, `hours.seasonalNotes`, `hours.status`, `description`, `tags`,
+`warnings`, `location.elevation`, `location.region`, `location.nearestTown`.
 
 **Never claimable:** `id`, `unicorn`, `quality.*`, `verified`, `sources`,
-`location.lat`, `location.lng`.
+`location.lat`, `location.lng`, `type`, `temperature.source`,
+`temperature.measuredAt`.
+
+### Why `type` is not claimable
+
+The rule is: `type` would be claimable only if it were a closed descriptive enum with
+no effect on inclusion, privacy, identity, safety derivation, or quality scoring. It
+fails on two counts, verified in the code rather than assumed:
+
+- `scripts/lib/normalize.mjs:203` — `type === 'wild'` emits the warning *"Undeveloped
+  source: no staff, no facilities, and no maintained access."* **Safety derivation.**
+- `scripts/lib/normalize.mjs:228` — a known `type` contributes to the completeness
+  score. **Quality scoring.**
+
+It also drives the UI's type filter, so it affects discoverability. It is *not* used in
+identity or dedupe — `isSameSpring()` keys off the OSM element type embedded in the id
+string, not `record.type` — and not in privacy or inclusion.
+
+`type` is therefore pipeline-owned classification, closer to `quality.*` than to
+`description`. Reclassification is a separate **always-human** operation: a `reclassify`
+proposal carrying evidence, reviewed by a person, which rewrites the derived
+classification rule or pins the record. It never arrives as an ordinary claim.
+
+### Why temperature provenance is claim metadata, not fields
+
+`temperature.source` and `temperature.measuredAt` are deliberately absent from the
+allowlist. Every claim already carries a `source`, and the merge accrues it into the
+record's `sources`. Allowing a separate claim on `temperature.source` would create two
+competing provenance concepts — the provenance *of the claim* and a claimed
+provenance-shaped *field inside the record* — which can drift apart or contradict each
+other, and would let someone submit a valid temperature and then independently
+overwrite the date it was measured.
+
+So there is exactly one temperature claim, and it carries its own provenance:
+
+```json
+"temperature.celsius": {
+  "value": 38,
+  "source": "https://example.org/survey",
+  "measuredAt": "2026-03-14",
+  "contributor": "github:someone",
+  "state": "active"
+}
+```
+
+The merge derives `temperature.source` and `temperature.measuredAt` in the output
+record from the active claim. They are readable in the dataset and unforgeable
+independently of the value they describe.
 
 `unicorn` and `quality.*` are pipeline-owned. `verified` means a human checked a
 primary source and is set by the review pipeline, not asserted by the submitter.
@@ -168,15 +218,26 @@ stricter path.
 
 ### Risk tiers
 
-Tier drives who can approve, not whether a claim is allowed.
+Tier drives who can approve, not whether a claim is allowed. Four tiers, because three
+forced `name` into a bucket that overstates its danger.
 
-- **Low** — `hours.*`, `access.*`, `description`, `tags`, `location.region`,
-  `location.nearestTown`. Cheap to reverse, low harm if wrong.
-- **High** — `temperature.*` (the scalding warnings derive from it, so a wrong value
-  is a safety issue), `clothing.policy` (wrong value walks someone into a bad
-  situation), `type`, `warnings`, `name`.
-- **Always human** — creating a new spring, any relocation, any `retract` of a derived
-  warning, anything touching a record whose registry entry is flagged.
+The tiers track **physical harm if wrong**, not effort to fix. A wrong temperature can
+burn someone; a wrong name is a discoverability problem.
+
+- **Low** — `hours.open`, `access.price`, `access.currency`, `description`, `tags`,
+  `location.region`, `location.nearestTown`, `location.elevation`. Cheap to reverse,
+  low harm if wrong.
+- **Elevated** — `name`, `access.notes`, `hours.seasonalNotes`, `hours.status`. Wrong
+  values mislead or waste a trip; none of them hurt anybody.
+- **High** — `temperature.celsius` (the scalding warnings derive from it), `clothing.*`
+  (a wrong policy walks someone into a genuinely bad situation), `warnings`.
+- **Always human** — creating a new spring, any relocation, any `reclassify` of `type`,
+  any `retract` of a derived warning, anything touching a record whose registry entry
+  is flagged.
+
+`name` interacting with privacy is handled where it belongs: new-spring names are
+checked against exclusion name patterns inside the trusted privacy gate. That does not
+require every ordinary rename to be high-risk.
 
 ### Claim state machine
 
@@ -231,6 +292,11 @@ This blocks the obvious attack: a PR that edits the workflow that reviews it.
 
 Runs on `pull_request`. No secrets, no network beyond a source `HEAD` check.
 
+Its purpose is **fast feedback for the contributor**, not security. On a fork PR the
+workflow file itself comes from the PR head, so a determined submitter can make it
+report whatever they like. Gate 2 re-runs all of it from trusted code and does not
+believe this one.
+
 - JSON schema valid; `id` exists in the registry (or the file is under
   `_proposed/`, which routes straight to human review)
 - every claim path is on the claimable allowlist
@@ -245,13 +311,48 @@ iteration rather than discovering them one at a time.
 
 ### Gate 2 — the manager (LLM, capped)
 
-Runs only when Gate 1 passes **and** the contributor's trust level permits, in a job
+Runs only when Gate 1 passes **and** the contributor holds `CAN_AI_REVIEW`, in a job
 with access to secrets.
 
-Trigger rules:
+#### Trigger mechanism — the most security-sensitive detail in this design
 
-- `new` contributors → never automatic. A maintainer applies a `review-me` label.
-- `known` and above → automatic on push.
+There is a real contradiction to resolve here, and phase 3's implementation plan should
+spend disproportionate time on it.
+
+`pull_request` gives forked PRs no secrets. That is good for safety and fatal for
+"`known` and above → automatic on push": a `known` contributor working from a fork
+cannot reach the API key either, so trust in `contributors.json` would grant a
+capability GitHub refuses to deliver.
+
+`pull_request_target` is **forbidden in this repository.** It runs with secrets in the
+base-repo context while the PR's contents are attacker-controlled, and it is the source
+of most GitHub Actions privilege-escalation writeups.
+
+The mechanism is **`workflow_run`**, with rules:
+
+1. Gate 2 triggers on Gate 1's `workflow_run: completed`. GitHub runs it using the
+   workflow definition **from the default branch**, not the PR's copy. A PR therefore
+   cannot edit the workflow that reviews it, which is the property `pull_request_target`
+   lacks.
+2. **Gate 2 never checks out or executes PR-authored code.** It fetches only the changed
+   files under `data/overlay/**` by content API at a pinned SHA, and treats every byte
+   as untrusted data.
+3. **Gate 1's result is a UX signal, never a security input.** For a fork PR, the
+   `pull_request` workflow file itself comes from the PR head and is attacker-controlled
+   — an attacker can rewrite `gate.yml` to report success. Gate 2 therefore re-runs the
+   path guard and the full deterministic validation itself, using scripts from the
+   default branch. Anything Gate 1 says is advisory.
+4. Gate 2 re-derives every security-relevant fact from trusted sources: PR author, head
+   SHA, and changed-file list from the API; trust level from `contributors.json` on the
+   default branch. Never from the artifact.
+5. The head SHA validated is pinned into the verdict. If the PR moves afterwards, the
+   verdict is void and review re-runs.
+
+Trigger rules, given that mechanism:
+
+- `new` contributors → Gate 2 exits within seconds, before any LLM call, and applies
+  `needs-human-review`. A maintainer's `review-me` label is the only way forward.
+- `CAN_AI_REVIEW` holders → the manager runs automatically on push.
 
 Emits a structured verdict — `approve`, `reject`, or `escalate`, with reasoning — as a
 PR comment.
@@ -300,19 +401,31 @@ a trust dip; it is a trust reset.
 
 ## Token budget guardrails
 
-The hard constraint is that outsiders can never spend the owner's tokens. Three
-independent mechanisms, in order of strength:
+The hard constraint is that outsiders can never spend the owner's tokens.
 
-1. **Structural.** Gate 2 uses the `pull_request` trigger, so GitHub does not expose
-   repo secrets to forked PRs. `pull_request_target` is forbidden in this repo. A
-   stranger cannot reach the API key, so the guarantee does not depend on our code
-   being careful.
-2. **Trust-gated.** `new` contributors require a maintainer label before the manager
-   runs. Spam costs one click, not tokens.
-3. **Metered.** Gate 2 checks a monthly spend ledger before each call. Over cap, it
+**A correction to an earlier draft of this document.** It claimed the guarantee was
+structural, on the grounds that GitHub withholds secrets from forked PRs. That claim
+does not survive the `workflow_run` trigger above: a stranger's PR *does* cause a
+privileged workflow to start. The protection is real but narrower than stated, and the
+weight shifts to mechanism 2.
+
+1. **Isolation.** The API key is never reachable from PR-authored code. Gate 2 runs the
+   default branch's workflow definition, checks out no PR code, and executes none. An
+   attacker can cause the workflow to *start*; they cannot influence what it *does*.
+2. **Trust-gated, and this is now the primary protection.** The trust lookup and the
+   ledger check are deterministic, free, and run in trusted default-branch code
+   **before any LLM call**. A `new` contributor's run exits in seconds having spent
+   nothing. Because this is load-bearing, it gets a dedicated test: a fork PR from an
+   unknown author must produce zero LLM calls, asserted against a mocked client.
+3. **Metered.** Gate 2 checks a monthly spend ledger before each call. Over cap it
    skips the LLM, labels `needs-human-review`, and comments that the budget is
    exhausted. Concurrent runs may overshoot slightly; the cap is a guardrail, not an
    accountant.
+
+The residual cost a stranger *can* impose is GitHub Actions minutes — two short
+workflow runs per push, against a 2,000 minute monthly allowance on a private repo.
+The early exit in mechanism 2 keeps that to seconds. If it ever becomes a problem,
+concurrency groups cancel superseded runs per PR.
 
 The key is `ANTHROPIC_API_KEY`, a **separate API key with its own spend limit set at
 the provider**, never the owner's Claude subscription credentials.
@@ -321,31 +434,70 @@ the provider**, never the owner's Claude subscription credentials.
 
 `data/contributors.json`:
 
+### Capabilities are named, not inferred from level
+
+Trust currently bundles three things that may later diverge: permission to consume LLM
+budget, historical contribution quality, and permission to auto-merge. Name the
+capabilities explicitly so nobody later writes `level >= known` for an unrelated
+permission:
+
+```text
+CAN_VALIDATE     deterministic gates only          — everyone, including anonymous
+CAN_AI_REVIEW    may trigger a paid manager run    — known and above
+CAN_AUTO_MERGE   low-risk claims merge unattended  — trusted, and only when active
+```
+
+Code checks the capability, never the level.
+
+### Counting
+
+**`accepted` and `rejected` count reviewed submissions (PRs), not individual field
+claims.** Without that rule, one PR touching twenty harmless fields would vault a
+stranger from `new` to `trusted` in a single action. Both are tracked; only submissions
+gate promotion.
+
 ```json
 {
   "github:someone": {
-    "accepted": 3, "rejected": 0, "contested": 1,
-    "level": "known", "firstSeen": "2026-03-01", "lastSeen": "2026-08-20"
+    "acceptedSubmissions": 6, "rejectedSubmissions": 1,
+    "acceptedClaims": 31, "rejectedClaims": 2,
+    "contested": 1, "level": "known",
+    "firstSeen": "2026-03-01", "lastSeen": "2026-08-20"
   }
 }
 ```
 
-Deliberately arithmetic, not statistics. There is no data to fit a model to yet.
+### Ladder
 
-| Level | Promotion rule | Grants |
+| Level | Promotion rule | Capabilities |
 |---|---|---|
-| `new` | default | Gate 1 only; manager needs a maintainer label |
-| `known` | ≥ 1 accepted, acceptance ≥ 0.7 | manager runs automatically |
-| `trusted` | ≥ 5 accepted, acceptance ≥ 0.9 | low-risk claims may auto-merge on manager approval |
+| `new` | default | `CAN_VALIDATE` |
+| `known` | ≥ 3 accepted submissions, acceptance ≥ 0.75 | `+ CAN_AI_REVIEW` |
+| `trusted` | ≥ 10 accepted submissions, acceptance ≥ 0.90 | `+ CAN_AUTO_MERGE` |
+
+Deliberately arithmetic, not statistics. **The minimum count carries almost all the
+weight; the ratio is a tiebreak.** With one accepted submission the acceptance rate is
+1.0, and with three it is also 1.0 — the percentage looks strong at sample sizes where
+it means nothing, which is the same reason this design refuses to build adaptive
+scoring before ~100 reviews. Arguing 0.70 versus 0.75 is not worth the keystrokes;
+requiring three real submissions instead of one is.
+
+Three is the first rung because promotion to `known` is a genuine privilege escalation:
+it converts an account from *cannot spend our API budget* to *every Gate-1-passing push
+can trigger a paid review*. Ten before `CAN_AUTO_MERGE` is proportionate to a
+qualitatively different power — data reaching production without a person looking.
 
 Demotions:
 
-- Any privacy rejection → straight to `new`, flagged.
+- Any privacy rejection → straight to `new`, flagged. A reset, not a dip.
 - Acceptance dropping below a level's threshold → demote immediately.
-- Dormant beyond 12 months → drop one level, because a dormant account is a
-  compromise target.
+- Dormant beyond 12 months → drop one level. A dormant account is a compromise target.
 
-High-risk claims never auto-merge regardless of level.
+`CAN_AUTO_MERGE` additionally requires activity within the last 90 days, checked
+independently of level. Twenty pristine submissions from two years ago should not mean
+a freshly compromised account merges to production unattended on its first push back.
+
+High-risk claims never auto-merge regardless of level or capability.
 
 ## Self-improvement
 
@@ -406,7 +558,9 @@ contested.
 | Manager talked into approving by PR text | No tools, strict output schema, cannot merge, injection attempt → escalate |
 | Detailed privacy rejections become a location oracle | Rejection text is deliberately uninformative |
 | Committed 6 MB artifact produces unreviewable diffs | Deterministic build; reviewers read the overlay diff, not the artifact |
-| Spend ledger races across concurrent runs | Accepted; cap is a guardrail and the structural protections are primary |
+| Spend ledger races across concurrent runs | Accepted; trust-gating is the primary protection and it precedes the ledger |
+| Gate 1's verdict is attacker-controlled on fork PRs | Gate 2 re-runs path guard and validation from default-branch code; Gate 1 is advisory only |
+| Stranger burns Actions minutes | Early exit in seconds for `new`; concurrency groups cancel superseded runs if needed |
 | Actions minutes on a private repo (2,000/mo free) | Gates are seconds; manager is label-gated for untrusted PRs |
 
 ## Build order
@@ -420,7 +574,13 @@ real data.
    format, merge, drift detection, events, tests. This is the foundation and the only
    phase that touches the existing build.
 2. **Gates 0–1 + local validator.** PRs become safe to accept manually.
-3. **Manager + budget ledger + trust levels.** Review becomes semi-automatic.
+3. **Manager + budget ledger + trust levels.** Review becomes semi-automatic. Budget
+   disproportionate time for the `workflow_run` trigger: it is the most
+   security-sensitive mechanical detail in the design, and getting it wrong is how
+   this repository would leak an API key. Required tests before it ships: a fork PR
+   from an unknown author produces zero LLM calls; a PR that rewrites `gate.yml` to
+   report success is still rejected by Gate 2's independent re-validation; a verdict
+   is void if the head SHA moves.
 4. **Drift queue.** `claim.contested` and `spring.disappeared` become review tasks.
 5. **Later, on evidence.** Adaptive trust and source reputation, once the log has ~100
    reviewed submissions.
