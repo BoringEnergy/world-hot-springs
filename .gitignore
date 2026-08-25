@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.env
+.env.*
+
+# Raw Overpass responses are large, refetchable, and not the deliverable.
+# The curated output in data/hot-springs.* IS committed.
+data/raw/
+
+# Private exclusion list. Never committed, never published. See PRIVACY.md.
+data/private/
