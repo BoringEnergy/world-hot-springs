@@ -15,6 +15,7 @@ import { countryLookup } from './lib/countries.mjs';
 import { normalizeElement } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring } from './lib/identity.mjs';
+import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
@@ -128,7 +129,9 @@ async function main() {
     process.exit(1);
   }
 
-  const ingestedAt = new Date().toISOString().slice(0, 10);
+  // Derived from the inputs so the build is reproducible. See lib/buildtime.mjs.
+  const ingestedAt = buildDate(RAW_DIR);
+  const generatedAt = buildTimestamp(RAW_DIR);
   const files = fs.readdirSync(RAW_DIR).filter((f) => f.startsWith('tile-') && f.endsWith('.json'));
   console.log(`Reading ${files.length} tile files ...`);
 
@@ -230,7 +233,7 @@ async function main() {
     // Attribution travels with the data, not just the README.
     metadata: {
       name: "World Hot Springs — public hot spring atlas",
-      generated: new Date().toISOString(),
+      generated: generatedAt,
       count: deduped.length,
       license: 'ODbL 1.0 (derived from OpenStreetMap)',
       attribution: '© OpenStreetMap contributors',
@@ -262,7 +265,7 @@ async function main() {
   }
 
   const summary = {
-    generated: new Date().toISOString(),
+    generated: generatedAt,
     total: deduped.length,
     countries: Object.keys(byCountry).length,
     coverage: {
