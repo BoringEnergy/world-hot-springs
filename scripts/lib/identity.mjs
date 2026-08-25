@@ -68,7 +68,10 @@ export function isSameSpring(a, b) {
     // position can make up for it.
     if (!(an.includes(bn) || bn.includes(an))) return false;
     const shortName = an.length <= MIN_SUBSTRING_NAME_LENGTH || bn.length <= MIN_SUBSTRING_NAME_LENGTH;
-    return d <= (shortName ? ANONYMOUS_METERS : SAME_FEATURE_METERS);
+    // Same evidentiary logic that justifies ANONYMOUS_METERS: weak identity
+    // evidence needs strong positional evidence to make up for it.
+    const WEAK_EVIDENCE_METERS = ANONYMOUS_METERS;
+    return d <= (shortName ? WEAK_EVIDENCE_METERS : SAME_FEATURE_METERS);
   }
 
   // One named, one not: the source-and-pool case, which shows up as two
