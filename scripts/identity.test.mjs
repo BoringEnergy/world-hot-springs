@@ -232,3 +232,51 @@ test('a merged duplicate carries both OSM refs, and the secondary ref alone stil
   const second = resolveRegistry([laterRecord], first.registry, '2026-09-01');
   assert.equal(second.assignments.get('osm-way-55'), id, 'the secondary ref alone must resolve to the same durable id');
 });
+
+// --- spatial index over the registry fallback ---
+// The fallback is bucketed rather than linear. These pin that bucketing never
+// hides a match the linear scan would have found.
+
+function seededRegistry(lat, lng, name) {
+  const first = resolveRegistry(
+    [{ id: 'osm-node-1', name, location: { lat, lng },
+       sources: ['https://www.openstreetmap.org/node/1'] }],
+    {}, '2026-01-01',
+  );
+  return { registry: first.registry, id: first.assignments.get('osm-node-1') };
+}
+
+test('the fallback still matches across a cell boundary', () => {
+  // 0.002 degrees of latitude is ~222m: inside EXACT_NAME_METERS but far
+  // enough to land in a different 0.01-degree cell than the registry entry.
+  const { registry, id } = seededRegistry(64.0095, -21.2222, 'Reykjadalur');
+  const moved = resolveRegistry(
+    [{ id: 'osm-way-77', name: 'Reykjadalur', location: { lat: 64.0115, lng: -21.2222 },
+       sources: ['https://www.openstreetmap.org/way/77'] }],
+    registry, '2026-02-01',
+  );
+  assert.equal(moved.assignments.get('osm-way-77'), id, 'a cell boundary must not hide a match');
+});
+
+test('the fallback still matches near the pole, where longitude cells narrow', () => {
+  // At 89N a 0.01-degree longitude cell is about 19m wide, so a fixed one-cell
+  // search would miss a match 250m away. The column span is computed from the
+  // latitude for exactly this case.
+  const { registry, id } = seededRegistry(89.0, 10.0, 'Polar Spring');
+  const nearby = resolveRegistry(
+    [{ id: 'osm-way-78', name: 'Polar Spring', location: { lat: 89.0, lng: 10.1 },
+       sources: ['https://www.openstreetmap.org/way/78'] }],
+    registry, '2026-02-01',
+  );
+  assert.equal(nearby.assignments.get('osm-way-78'), id, '0.1 lng at 89N is ~194m, well inside 300m');
+});
+
+test('the fallback does not match beyond the search radius', () => {
+  const { registry, id } = seededRegistry(64.048, -21.2222, 'Reykjadalur');
+  const far = resolveRegistry(
+    [{ id: 'osm-way-79', name: 'Reykjadalur', location: { lat: 64.1, lng: -21.2222 },
+       sources: ['https://www.openstreetmap.org/way/79'] }],
+    registry, '2026-02-01',
+  );
+  assert.notEqual(far.assignments.get('osm-way-79'), id, '5.8km apart is a different spring');
+});

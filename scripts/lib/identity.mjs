@@ -105,6 +105,63 @@ function refsOf(record) {
   return [...refs];
 }
 
+/**
+ * Spatial index over registry centroids, so the fallback match scans a handful
+ * of neighbours instead of all 6,471 entries.
+ *
+ * Measured before this existed: 31ms for an ordinary rebuild where everything
+ * matches by OSM ref and the fallback barely runs, but 4.45s to bootstrap an
+ * empty registry and 12.8s if every ref changed at once. Phase 2 runs this on
+ * every pull request, so the worst case is the one that matters.
+ */
+const CELL_DEG = 0.01;
+/** The widest distance isSameSpring can ever match at. Nothing beyond it matters. */
+const SEARCH_RADIUS_M = EXACT_NAME_METERS;
+const METERS_PER_DEG_LAT = 111_320;
+
+const cellKey = (latCell, lngCell) => `${latCell}:${lngCell}`;
+
+function buildGrid(registry) {
+  const grid = new Map();
+  for (const [id, entry] of Object.entries(registry)) {
+    const [lng, lat] = entry.centroid;
+    const key = cellKey(Math.floor(lat / CELL_DEG), Math.floor(lng / CELL_DEG));
+    if (!grid.has(key)) grid.set(key, []);
+    grid.get(key).push(id);
+  }
+  return grid;
+}
+
+/**
+ * Registry ids whose centroid could be within SEARCH_RADIUS_M of a point.
+ *
+ * Longitude cells narrow toward the poles, so the number of columns to scan is
+ * computed from the latitude rather than fixed. At 89°N a 0.01° column is about
+ * 19m wide, and scanning a fixed ±1 would miss matches 300m away — the kind of
+ * bug that only ever shows up in Svalbard.
+ */
+function nearbyIds(grid, { lat, lng }) {
+  const latSpan = Math.ceil(SEARCH_RADIUS_M / (CELL_DEG * METERS_PER_DEG_LAT));
+  const metersPerDegLng = Math.max(1, Math.cos((lat * Math.PI) / 180) * METERS_PER_DEG_LAT);
+  const lngSpan = Math.min(
+    Math.ceil(SEARCH_RADIUS_M / (CELL_DEG * metersPerDegLng)),
+    // Past this the whole latitude band is closer than the radius; scanning
+    // every column is correct and cheap, because so few entries live there.
+    Math.ceil(360 / CELL_DEG),
+  );
+
+  const latCell = Math.floor(lat / CELL_DEG);
+  const lngCell = Math.floor(lng / CELL_DEG);
+  const ids = [];
+  for (let dy = -latSpan; dy <= latSpan; dy++) {
+    for (let dx = -lngSpan; dx <= lngSpan; dx++) {
+      const bucket = grid.get(cellKey(latCell + dy, lngCell + dx));
+      if (bucket) ids.push(...bucket);
+    }
+  }
+  return ids;
+}
+
 /** A registry entry rendered as something isSameSpring can compare. */
 function asComparable(whsId, entry) {
   const [lng, lat] = entry.centroid;
@@ -134,6 +191,15 @@ export function resolveRegistry(records, existingRegistry, today) {
     for (const ref of entry.osmRefs) byRef.set(ref, whsId);
   }
 
+  // Spatial index over the registry so the fallback scans neighbours rather
+  // than every entry. Built once and never rebuilt, which is sound because an
+  // entry is added to `seen` in the same step that moves its centroid, and the
+  // fallback skips everything in `seen` -- so no un-scanned entry ever moves.
+  const grid = buildGrid(registry);
+  // Insertion order, so the bucketed scan returns the same match the old
+  // linear scan did when several entries qualify.
+  const order = new Map(Object.keys(registry).map((id, i) => [id, i]));
+
   const seen = new Set();
 
   for (const record of records) {
@@ -141,11 +207,16 @@ export function resolveRegistry(records, existingRegistry, today) {
     let whsId = refs.map((r) => byRef.get(r)).find(Boolean);
 
     if (!whsId) {
-      const candidate = Object.entries(registry)
-        .filter(([id]) => !seen.has(id))
-        .map(([id, entry]) => asComparable(id, entry))
-        .find((entry) => isSameSpring(entry, record));
-      whsId = candidate?.whsId;
+      let best = null;
+      let bestOrder = Infinity;
+      for (const id of nearbyIds(grid, record.location)) {
+        if (seen.has(id) || order.get(id) >= bestOrder) continue;
+        if (isSameSpring(asComparable(id, registry[id]), record)) {
+          best = id;
+          bestOrder = order.get(id);
+        }
+      }
+      whsId = best ?? undefined;
     }
 
     if (!whsId) {
