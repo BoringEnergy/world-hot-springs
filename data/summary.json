@@ -1,22 +1,22 @@
 {
-  "generated": "2026-08-25T04:09:17.795Z",
-  "total": 6470,
+  "generated": "2026-08-25T14:40:55.360Z",
+  "total": 6474,
   "countries": 129,
   "coverage": {
     "temperature": 87,
     "price": 878,
-    "hours": 466,
+    "hours": 467,
     "clothing": 47
   },
   "byType": {
-    "natural": 1921,
-    "wild": 2358,
-    "developed": 2093,
+    "natural": 1923,
+    "wild": 2357,
+    "developed": 2096,
     "resort": 98
   },
   "byCountry": {
-    "United States of America": 2025,
-    "Japan": 949,
+    "United States of America": 2026,
+    "Japan": 951,
     "Iceland": 289,
     "Russia": 185,
     "Thailand": 154,
@@ -47,7 +47,7 @@
     "South Korea": 38,
     "Colombia": 37,
     "Palestine": 36,
-    "Egypt": 34,
+    "Egypt": 35,
     "Iraq": 33,
     "Canada": 32,
     "Algeria": 31,
@@ -145,7 +145,7 @@
     "Sri Lanka": 1,
     "United Arab Emirates": 1
   },
-  "droppedDuplicates": 1168,
+  "droppedDuplicates": 1164,
   "rejected": {
     "access=private/no": 60
   },

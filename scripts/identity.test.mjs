@@ -34,6 +34,43 @@ test('a substring name match keeps the tight 60m radius', () => {
   assert.equal(isSameSpring(near, far), false);
 });
 
+test('short names do not participate in substring matching', () => {
+  // "No. 4" -> "no4", "No. 4b" -> "no4b". no4b contains no4, but a 3-4
+  // character token matching inside a longer name is coincidence far more
+  // often than signal (measured: "No. 4" / "No. 4b" sit 62m apart in the
+  // real dataset -- distinct numbered pools, saved only by being just
+  // outside the 60m radius).
+  const a = at(64.048, -21.2222, 'No. 4', 'osm-node-1');
+  const b = at(64.0481, -21.2222, 'No. 4b', 'osm-node-2');
+  assert.equal(isSameSpring(a, b), false);
+});
+
+test('a short name is not treated as a substring match even inside a longer name', () => {
+  const a = at(64.048, -21.2222, 'Spa', 'osm-node-1');
+  const b = at(64.0481, -21.2222, 'Big Spa Resort', 'osm-node-2');
+  assert.equal(isSameSpring(a, b), false);
+});
+
+test('exact equality still matches for short names, regardless of length', () => {
+  const a = at(35.0, 135.0, '株湯', 'osm-node-1');
+  const b = at(35.0009, 135.0, '株湯', 'osm-node-2');
+  assert.equal(isSameSpring(a, b), true);
+});
+
+test('substring matching still works for genuinely long names', () => {
+  const a = at(64.048, -21.2222, 'Blue Spring', 'osm-node-1');
+  const b = at(64.0481, -21.2222, 'Blue Spring Lodge', 'osm-node-2');
+  assert.equal(isSameSpring(a, b), true);
+});
+
+test('a name of exactly 5 normalised characters still participates in substring matching', () => {
+  // normName strips spaces/punctuation, so pick names that normalise to
+  // exactly 5 characters on the shorter side.
+  const a = at(64.048, -21.2222, 'Alpha', 'osm-node-1');
+  const b = at(64.0481, -21.2222, 'Alpha Lodge', 'osm-node-2');
+  assert.equal(isSameSpring(a, b), true);
+});
+
 test('one named and one unnamed merge only across different element types', () => {
   const node = at(64.048, -21.2222, 'Reykjadalur', 'osm-node-1');
   const way = at(64.0482, -21.2222, null, 'osm-way-2');

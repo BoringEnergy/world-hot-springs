@@ -13,6 +13,18 @@ export const SAME_FEATURE_METERS = 60;
 export const ANONYMOUS_METERS = 12;
 /** An identical name this far apart is one destination mapped as several pools. */
 export const EXACT_NAME_METERS = 300;
+/**
+ * Shortest normalised name allowed to participate in substring matching.
+ *
+ * normName strips spaces and punctuation, so short numbered/labelled names
+ * collide by coincidence: "No. 4" -> "no4" and "No. 4b" -> "no4b" are two
+ * distinct numbered pools at one site, measured 62m apart in the real
+ * dataset -- just outside SAME_FEATURE_METERS, saved from merging only by
+ * luck. A name this short is weak evidence of identity unless it matches
+ * exactly, so only names longer than this threshold are eligible for the
+ * substring branch; exact-equality matching is unaffected at any length.
+ */
+export const MIN_SUBSTRING_NAME_LENGTH = 4;
 
 /** 'osm-node-123' -> 'node' */
 export function osmType(id) {
@@ -39,8 +51,14 @@ export function isSameSpring(a, b) {
   if (an && bn) {
     if (an === bn) return d <= EXACT_NAME_METERS;
     // A substring match is weaker evidence ("Blue Spring" vs "Blue Spring
-    // Lodge"), so it keeps the tight radius.
-    return d <= SAME_FEATURE_METERS && (an.includes(bn) || bn.includes(an));
+    // Lodge"), so it keeps the tight radius, and requires both names to
+    // clear MIN_SUBSTRING_NAME_LENGTH (see its comment).
+    return (
+      d <= SAME_FEATURE_METERS &&
+      an.length > MIN_SUBSTRING_NAME_LENGTH &&
+      bn.length > MIN_SUBSTRING_NAME_LENGTH &&
+      (an.includes(bn) || bn.includes(an))
+    );
   }
 
   // One named, one not: the source-and-pool case, which shows up as two
