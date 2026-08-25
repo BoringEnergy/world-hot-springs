@@ -201,7 +201,20 @@ async function main() {
     );
   }
 
-  // --- The privacy guard. This runs last so nothing can slip past it. ---
+  // --- Deduplicate ---
+  // Runs before the privacy guard, not after. mergeInto() adopts the winner's
+  // coordinates, so a merge can move a record several hundred metres. Merging
+  // after the exclusion check would let a record clear the filter at its own
+  // position and then be pulled inside an exclusion radius, published.
+  console.log('Deduplicating ...');
+  const { records: deduped, dropped } = dedupe(records);
+  records = deduped;
+  console.log(`  merged ${dropped} duplicate record(s) -> ${records.length} springs`);
+
+  // --- The privacy guard ---
+  // Genuinely last: nothing that can add, move, or reintroduce a record may run
+  // below this point. This is the promise in PRIVACY.md, and build.test.mjs
+  // asserts the ordering so it cannot quietly regress.
   const exclusions = loadExclusions();
   const before = records.length;
   records = records.filter((r) => !isExcluded(r, exclusions));
@@ -216,17 +229,13 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('Deduplicating ...');
-  const { records: deduped, dropped } = dedupe(records);
-  console.log(`  merged ${dropped} duplicate record(s) -> ${deduped.length} springs`);
-
-  deduped.sort((a, b) =>
+  records.sort((a, b) =>
     (a.location.countryName || '').localeCompare(b.location.countryName || '') ||
     (a.name || '￿').localeCompare(b.name || '￿'),
   );
 
   // --- Outputs ---
-  fs.writeFileSync(OUT_JSON, JSON.stringify(deduped));
+  fs.writeFileSync(OUT_JSON, JSON.stringify(records));
 
   const geojson = {
     type: 'FeatureCollection',
@@ -234,12 +243,12 @@ async function main() {
     metadata: {
       name: "World Hot Springs — public hot spring atlas",
       generated: generatedAt,
-      count: deduped.length,
+      count: records.length,
       license: 'ODbL 1.0 (derived from OpenStreetMap)',
       attribution: '© OpenStreetMap contributors',
       note: 'Hidden local springs are deliberately excluded. See PRIVACY.md.',
     },
-    features: deduped.map((r) => ({
+    features: records.map((r) => ({
       type: 'Feature',
       id: r.id,
       geometry: { type: 'Point', coordinates: [r.location.lng, r.location.lat] },
@@ -254,7 +263,7 @@ async function main() {
   let withPrice = 0;
   let withHours = 0;
   let withClothing = 0;
-  for (const r of deduped) {
+  for (const r of records) {
     const key = `${r.location.country}|${r.location.countryName}`;
     byCountry[key] = (byCountry[key] || 0) + 1;
     byType[r.type] = (byType[r.type] || 0) + 1;
@@ -266,7 +275,7 @@ async function main() {
 
   const summary = {
     generated: generatedAt,
-    total: deduped.length,
+    total: records.length,
     countries: Object.keys(byCountry).length,
     coverage: {
       temperature: withTemp,
@@ -286,11 +295,11 @@ async function main() {
   };
   fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
 
-  console.log(`\n${deduped.length} springs across ${summary.countries} countries`);
-  console.log(`  temperature known: ${withTemp} (${Math.round((withTemp / deduped.length) * 100)}%)`);
-  console.log(`  price known:       ${withPrice} (${Math.round((withPrice / deduped.length) * 100)}%)`);
-  console.log(`  hours known:       ${withHours} (${Math.round((withHours / deduped.length) * 100)}%)`);
-  console.log(`  clothing known:    ${withClothing} (${Math.round((withClothing / deduped.length) * 100)}%)`);
+  console.log(`\n${records.length} springs across ${summary.countries} countries`);
+  console.log(`  temperature known: ${withTemp} (${Math.round((withTemp / records.length) * 100)}%)`);
+  console.log(`  price known:       ${withPrice} (${Math.round((withPrice / records.length) * 100)}%)`);
+  console.log(`  hours known:       ${withHours} (${Math.round((withHours / records.length) * 100)}%)`);
+  console.log(`  clothing known:    ${withClothing} (${Math.round((withClothing / records.length) * 100)}%)`);
   // The app fetches the dataset at runtime rather than bundling it, so the
   // shell paints immediately and the 14k points stream in after.
   const publicDir = path.join('public', 'data');
