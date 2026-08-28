@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-08-25, end of phase 2.
+Last updated 2026-08-28, end of phase 2.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -9,8 +9,9 @@ Read this first in a new session. It is the shortest path to being useful.
 An open atlas of the world's public hot springs. **6,471 springs across 129
 countries**, derived from OpenStreetMap and published as a static site.
 
-Repo: `https://github.com/HudsonR-D/world-hot-springs` (private).
-Platform: Windows 11, Node 24, Git Bash available. No CI configured yet.
+Repo: `https://github.com/BoringEnergy/world-hot-springs` (**public**).
+Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` and nothing
+else; there is no deploy pipeline, so nothing is hosted anywhere yet.
 
 ## Current state
 
@@ -19,7 +20,9 @@ Platform: Windows 11, Node 24, Git Bash available. No CI configured yet.
 - **Phase 2 complete.** A pull request from a stranger is safe to review by
   hand: a path guard, a deterministic validator, and a Gate 1 workflow. No
   secret exists in the repository yet, which is why nothing here can leak one.
-  **Three repository settings are still outstanding — see below.**
+  **All three repository settings are applied and verified** — see below. The
+  one thing still unproven is that `gate-1` runs at all; no pull request has
+  ever triggered it.
 - **128 tests**, `npm test`. All passing.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
@@ -111,21 +114,84 @@ implementing.
   affects the one-named-one-unnamed branch for refs that did not already match
   directly. Minor; noted, not fixed.
 
-## Outstanding: three repository settings
+## Repository settings — applied and verified 2026-08-28
 
-Phase 2's code is done. These are GitHub settings, cannot be committed, and two
-of them matter more than anything in the code. **They are not applied.** Record
-the date beside each when it is, because "we meant to" is indistinguishable
-from "we did" six months later.
+All three are done. Each was verified by reading the API back, not by trusting
+the settings UI, because two of them silently did not apply the first time.
 
-| Setting | Applied |
-|---|---|
-| Actions → Fork PR workflows → **Require approval for all external contributors** (the default covers only first-time contributors, which is exactly the population that costs nothing) | not yet |
-| Org-level: **disable** "Allow GitHub Actions reviews to count towards required approval" (on by default; lets a workflow token satisfy branch protection) | not yet |
-| Branch protection on `main`: require the `gate-1` check, require review, disallow force-push | not yet |
+| Setting | State | Verified |
+|---|---|---|
+| Fork PR workflows → require approval for **all** external contributors | `approval_policy: all_external_contributors` | 2026-08-28 |
+| "Allow GitHub Actions reviews to count towards required approval" **off** | `can_approve_pull_request_reviews: false` | 2026-08-28 |
+| Branch protection on `main` | `validate` check required, strict, 1 review, stale reviews dismissed, no force-push, no deletion | 2026-08-28 |
+
+Re-verify all three at any time:
+
+```bash
+R=repos/BoringEnergy/world-hot-springs
+gh api $R/actions/permissions/fork-pr-contributor-approval
+gh api $R/actions/permissions/workflow
+gh api $R/branches/main/protection
+```
+
+**`enforce_admins` is deliberately `false`.** GitHub does not let anyone
+approve their own pull request, so with a single maintainer, `enforce_admins:
+true` plus a required review is a lock with the key inside — no change could
+ever merge. Admins bypass; outside contributors do not, which is the boundary
+that was wanted. Turn it on the day a second maintainer exists.
+
+### What was actually wrong before
+
+Worth recording, because the settings UI reported success for two things that
+had not happened:
+
+- **Fork PR approval could not be set at all while the repo was private.** The
+  API rejects it outright: *"Fork PR approval is not allowed for private
+  repositories."* The toggle appeared to work and applied to nothing.
+- **Branch protection was never a plan-tier problem the way it looked.** The
+  blocker was private-repo-on-free, not personal-versus-org. A free
+  *organization* does not get protected branches on private repos either, so
+  moving the repo without also publishing it would have changed nothing.
+
+Both unblocked the moment the repository went public, which it needed to be
+regardless — see below.
+
+## The repository is public, and had to be
+
+`https://github.com/BoringEnergy/world-hot-springs` — public since 2026-08-28,
+transferred from `HudsonR-D/` the same day. The old URL redirects.
+
+This was not cosmetic. **Nobody can fork or open a pull request against a
+private repository.** Every gate phase 2 built was guarding a door with no
+entrance: at the moment of publication `forks: 0` and `gate-1` had been
+registered and active for hours without ever running once.
+
+**Git history was rewritten on 2026-08-28**, before publication, to replace a
+personal email in all 34 commits with a GitHub noreply address. Content was
+unchanged — the tree hash of `main` is identical before and after
+(`1a2e9804…`) and the commit count is the same. Any clone predating that day
+has incompatible history and must be re-cloned rather than pulled.
 
 Everything in the Gate 2 security note assumes an uncompromised default branch.
-Until the third row is done, that assumption is not held up by anything.
+Branch protection is now what holds that assumption up.
+
+### Still unproven
+
+**`gate-1` has never actually run.** It is registered, active, and required by
+branch protection, but no pull request has ever triggered it. Until one does,
+"the gate works" is a claim resting on unit tests and a YAML read-through, not
+on evidence. Opening a throwaway PR that touches one overlay file — and a
+second that touches a forbidden path — is the cheapest way to find out, and
+should happen before phase 3 builds on top of it.
+
+Optional hardening, not applied: `sha_pinning_required` is `false`.
+`scripts/workflows.test.mjs` enforces SHA pinning on a laptop, which a fork can
+simply skip; this enforces it at the platform.
+
+```bash
+gh api -X PUT repos/BoringEnergy/world-hot-springs/actions/permissions \
+  -F sha_pinning_required=true -f allowed_actions=all -F enabled=true
+```
 
 ## What phase 2 built
 
