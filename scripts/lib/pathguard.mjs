@@ -52,3 +52,5 @@ export function checkPaths(files) {
   }
   return errors;
 }
+
+// Gate verification PR. Not a real change; will be reverted.
