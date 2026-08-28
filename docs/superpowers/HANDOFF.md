@@ -20,9 +20,8 @@ else; there is no deploy pipeline, so nothing is hosted anywhere yet.
 - **Phase 2 complete.** A pull request from a stranger is safe to review by
   hand: a path guard, a deterministic validator, and a Gate 1 workflow. No
   secret exists in the repository yet, which is why nothing here can leak one.
-  **All three repository settings are applied and verified** — see below. The
-  one thing still unproven is that `gate-1` runs at all; no pull request has
-  ever triggered it.
+  **All three repository settings are applied and verified**, and `gate-1` is
+  proven by two real pull requests — see below.
 - **128 tests**, `npm test`. All passing.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
@@ -175,23 +174,25 @@ has incompatible history and must be re-cloned rather than pulled.
 Everything in the Gate 2 security note assumes an uncompromised default branch.
 Branch protection is now what holds that assumption up.
 
-### Still unproven
+### `gate-1` is proven, not just configured — 2026-08-28
 
-**`gate-1` has never actually run.** It is registered, active, and required by
-branch protection, but no pull request has ever triggered it. Until one does,
-"the gate works" is a claim resting on unit tests and a YAML read-through, not
-on evidence. Opening a throwaway PR that touches one overlay file — and a
-second that touches a forbidden path — is the cheapest way to find out, and
-should happen before phase 3 builds on top of it.
+Two throwaway PRs, since a workflow that has never run is a hypothesis:
 
-Optional hardening, not applied: `sha_pinning_required` is `false`.
-`scripts/workflows.test.mjs` enforces SHA pinning on a laptop, which a fork can
-simply skip; this enforces it at the platform.
+| PR | Change | Result |
+|---|---|---|
+| #1 | one file in `data/overlay/` | `validate` **SUCCESS** — `1 file(s) checked, 0 with problems.` |
+| #2 | one file in `scripts/lib/` | `validate` **FAILURE** — `scripts/lib/pathguard.mjs: a contribution may only modify data/overlay/**` |
 
-```bash
-gh api -X PUT repos/BoringEnergy/world-hot-springs/actions/permissions \
-  -F sha_pinning_required=true -f allowed_actions=all -F enabled=true
-```
+The failure message was checked, not just the red X. A gate that fails for an
+incidental reason looks identical to one that works, and that mistake has
+already been made once in this repo — see the traversal test in the phase 2
+defect table.
+
+Both PRs are closed and their branches deleted.
+
+`sha_pinning_required: true` was also applied on 2026-08-28.
+`scripts/workflows.test.mjs` enforces SHA pinning on a laptop, which a fork
+simply skips; this enforces it at the platform.
 
 ## What phase 2 built
 
@@ -222,13 +223,59 @@ The CRLF one is the one to remember: it was caught **only** because a mutation
 run passed when it should have failed. A guard that quietly stops guarding
 looks exactly like a guard that is working.
 
-## Next: phase 3
+## Next: phase 3 — not ready to start
 
 **Do not begin until
 [specs/2026-08-25-gate-2-trigger-security.md](specs/2026-08-25-gate-2-trigger-security.md)
-has been read in full.** Its first draft contained a path to the API key.
+has been read in full.** Its first draft contained a path to the API key. Read
+2026-08-28; the summary below is not a substitute for reading it.
 
 Phase 3 introduces the first secret in the repository, so
 `scripts/workflows.test.mjs`'s "no workflow references a secret" test must be
 deliberately changed. That is the point of it: the change is a decision
 someone makes on purpose, not a thing that drifts in.
+
+### Three things block phase 3, and two of them are not code
+
+**1. No phase 3 plan exists.** `plans/` holds phase 1 and phase 2 only. The
+security spec is a design, not an implementation plan — it names components
+(`resolve-pr.mjs`, `path-guard.mjs`, `check-eligibility.mjs`,
+`fetch-overlay-diff.mjs`, `assert-checkout-pristine.mjs`, `manager.mjs`) and 14
+required tests, but nothing sequences them. Given that every defect in phases 1
+and 2 was in the plan rather than the implementation, writing this one
+carefully is the highest-leverage hour available.
+
+**2. F9 is not done, and the spec rates it above all the code.** A *dedicated
+Anthropic workspace holding this key, with a hard monthly spend limit* set
+below the pain threshold, plus rotation and spend alerting. Only the account
+owner can do this. Every other control in the spec lives on the GitHub side of
+the boundary; this is the one that converts "the owner's card is drained" into
+"the reviewer stops working and the owner gets an email." The spec calls its
+absence from the first draft the most instructive miss in the review.
+
+**3. F8 needs an infrastructure decision.** The spend ledger cannot be a file
+on `main` under `contents: read`, and the Actions cache is branch-scoped and
+evicts after 7 idle days — so idling the repo resets the budget, which is a
+spend attack by itself. The store must be named before anything is built:
+a GitHub App token with `contents: write` scoped to one ledger file on a
+protected orphan branch, or an external KV with compare-and-swap.
+
+Already satisfied from the spec's configuration section: **F10** (fork PR
+approval for all external contributors) and the Actions-review-approval
+toggle. Both verified above.
+
+## Known defect: `gate-1` fails every maintainer pull request
+
+`validate-overlay.mjs --changed-only` applies `checkPaths` to *every* pull
+request, but the path guard exists to constrain strangers. Any maintainer PR
+touching `scripts/`, `src/`, `docs/`, or `package.json` therefore fails a
+**required** check. Demonstrated on PR #2 above; the only reason work still
+lands is `enforce_admins: false` letting an admin bypass.
+
+This does not weaken the Gate 2 design — an overlay-only contribution passes
+gate-1 normally, and a failed gate-1 simply means `workflow_run` never fires,
+so no spend occurs. It is a maintainer-workflow defect, not a security one.
+
+The fix is to enforce the path guard only on fork PRs while still running the
+job on every PR. It must keep running: a required check that gets *skipped*
+sits pending forever and blocks the merge just as hard as a failing one.
