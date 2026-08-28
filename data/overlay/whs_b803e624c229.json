@@ -1,0 +1,10 @@
+{
+  "id": "whs_b803e624c229",
+  "claims": {
+    "access.notes": {
+      "value": "Gate verification PR. This file is not a real claim and will be reverted.",
+      "source": "https://github.com/BoringEnergy/world-hot-springs",
+      "contributor": "github:HudsonR-D"
+    }
+  }
+}
