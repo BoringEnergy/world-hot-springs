@@ -4,6 +4,13 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    // Vite does not read PORT on its own. Honouring it lets a supervisor
+    // assign a free port instead of colliding with whatever already holds
+    // the default. Nothing here is bound to a fixed port -- no OAuth
+    // callback, no webhook, no CORS allowlist -- so any port will do.
+    port: Number(process.env.PORT) || 5177,
+  },
   build: {
     rollupOptions: {
       output: {
