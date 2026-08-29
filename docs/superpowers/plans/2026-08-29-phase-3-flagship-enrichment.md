@@ -1491,11 +1491,37 @@ function flagValue(args, name) {
  * Run the plan. Every path is a parameter so this is testable without a
  * network, a credential, or the real data directory.
  */
+/**
+ * Spring ids some earlier run already tried and got nothing from.
+ *
+ * Derived from the refutation log rather than kept as separate state: a spring
+ * with a refutation and no overlay file is one that was paid for and yielded
+ * nothing. Reusing the log means there is no second bookkeeping file to get
+ * out of step with reality.
+ */
+export function alreadyAttempted(refutationsFile) {
+  if (!fs.existsSync(refutationsFile)) return new Set();
+  const ids = new Set();
+  for (const line of fs.readFileSync(refutationsFile, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      ids.add(JSON.parse(line).springId);
+    } catch {
+      // A half-written final line is expected here: this file is appended to
+      // by runs that get killed mid-flight. Skip it rather than refusing to
+      // resume -- one lost record must not cost the whole resumption.
+    }
+  }
+  return ids;
+}
+
 export async function runPlan({
   plan, byId, knownIds, providers, roles,
   overlayDir, refutationsFile, coverageFile,
-  writeCoverage = true, now = () => new Date().toISOString(),
+  writeCoverage = true, retryRefuted = false,
+  now = () => new Date().toISOString(),
 }) {
+  const attemptedBefore = retryRefuted ? new Set() : alreadyAttempted(refutationsFile);
   const results = [];
 
   for (const { country, candidates } of plan) {
@@ -1514,6 +1540,21 @@ export async function runPlan({
       // was already met chewed through all five candidates every time.
       if (fs.existsSync(file)) {
         verified++;
+        continue;
+      }
+
+      // A spring that was tried and produced nothing leaves no overlay file,
+      // so without this it is retried -- and paid for -- on every resumed run.
+      // This run is expected to be killed by a credit limit and restarted many
+      // times, which turns "retry the hopeless ones" into the dominant cost:
+      // the springs with no findable sources are exactly the ones every
+      // resumption reaches first and spends on again.
+      //
+      // Skipping is the default, not the only option. Sources appear and a
+      // different provider pair may succeed, so --retry-refuted exists; it
+      // just should not be what an interrupted run does by itself.
+      if (!retryRefuted && attemptedBefore.has(id)) {
+        console.log(`${id}: skipped, already attempted in an earlier run`);
         continue;
       }
 
@@ -1550,6 +1591,7 @@ export async function runPlan({
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const retryRefuted = args.includes('--retry-refuted');
   const onlyCountry = flagValue(args, '--country');
   const limitRaw = flagValue(args, '--limit');
   const limit = limitRaw === null ? Infinity : Number(limitRaw);
@@ -1580,7 +1622,7 @@ async function main() {
     plan, byId, knownIds: new Set(byId.keys()),
     providers: await loadProviders(roles), roles,
     overlayDir: OVERLAY_DIR, refutationsFile: REFUTATIONS, coverageFile: COVERAGE,
-    writeCoverage: !filtered,
+    writeCoverage: !filtered, retryRefuted,
   });
 
   const met = results.filter((r) => r.verified >= TARGET_PER_COUNTRY).length;
