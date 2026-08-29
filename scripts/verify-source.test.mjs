@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { textOf, valueAppears, fetchSource, MAX_SOURCE_BYTES } from './lib/verify-source.mjs';
+import { OUTCOMES } from './lib/refutations.mjs';
 
 test('html is reduced to searchable text', () => {
   const html = '<html><head><style>.a{color:red}</style></head><body><p>The spring is 42.5&nbsp;&deg;C</p><script>var x=1</script></body></html>';
@@ -152,34 +153,90 @@ function okResponse(body, headers = {}) {
   };
 }
 
-const UNREACHABLE = { ok: false, outcome: 'source-unreachable' };
+/**
+ * Every failure exit of fetchSource, each driven by the narrowest stub that
+ * reaches it. Named so the per-exit tests and the enum-membership test cannot
+ * drift apart: if an exit stops being reachable the set assert below fires,
+ * and if one is renamed the membership assert does.
+ */
+const FAILURE_EXITS = {
+  'unparseable url': () => fetchSource('not a url', { fetchImpl: stubFetch(okResponse('anything')).impl }),
+  'refused scheme': () => fetchSource('file:///etc/passwd', { fetchImpl: stubFetch(okResponse('anything')).impl }),
+  'http error status': () => fetchSource('https://example.com/a', {
+    fetchImpl: stubFetch({ ok: false, status: 404, headers: { get: () => null }, text: async () => 'x' }).impl,
+  }),
+  'network error': () => fetchSource('https://example.com/a', { fetchImpl: stubFetch(new Error('ECONNRESET')).impl }),
+  'abort during body read': () => fetchSource('https://example.com/a', {
+    fetchImpl: stubFetch({
+      ok: true,
+      headers: { get: () => null },
+      text: async () => { throw Object.assign(new Error('The operation was aborted'), { name: 'TimeoutError' }); },
+    }).impl,
+  }),
+  'declared length over the cap': () => fetchSource('https://example.com/a', {
+    fetchImpl: stubFetch(okResponse('<p>small</p>', { 'content-length': MAX_SOURCE_BYTES + 1 })).impl,
+  }),
+  'body over the cap': () => fetchSource('https://example.com/a', {
+    fetchImpl: stubFetch(okResponse('x'.repeat(MAX_SOURCE_BYTES + 1))).impl,
+  }),
+};
 
-test('a non-http scheme never reaches the fetch', async () => {
+test('every outcome fetchSource can return is a member of the enum', async () => {
+  // A typo'd outcome string is otherwise invisible until it reaches the log,
+  // where it becomes an unqueryable one-off row in a public benchmark.
+  const seen = new Set();
+  for (const [name, run] of Object.entries(FAILURE_EXITS)) {
+    const { ok, outcome } = await run();
+    assert.equal(ok, false, name);
+    assert.ok(OUTCOMES.has(outcome), name + ' returned ' + JSON.stringify(outcome) + ', not in OUTCOMES');
+    seen.add(outcome);
+  }
+  // Membership alone would pass if all seven exits returned one string --
+  // precisely the pre-split bug. The split itself is what is asserted here.
+  assert.deepEqual([...seen].sort(), [
+    'source-malformed',
+    'source-not-found',
+    'source-too-large',
+    'source-unreachable',
+  ]);
+});
+
+test('a non-http scheme never reaches the fetch, and is malformed not unreachable', async () => {
   // This proves one narrow thing: a non-HTTP scheme cannot become a request.
   // It is NOT an SSRF test -- localhost and link-local hosts are not covered.
+  // The outcome must say "not a URL we will follow": a refused scheme is a
+  // fact about the provider, not about the network.
   for (const url of ['file:///etc/passwd', 'data:text/html,<p>42.5 °C</p>']) {
     const { impl, calls } = stubFetch(okResponse('<p>42.5 °C</p>'));
     const res = await fetchSource(url, { fetchImpl: impl });
-    assert.deepEqual(res, UNREACHABLE, url);
-    assert.equal(calls.length, 0, `${url} must not be fetched`);
+    assert.deepEqual(res, { ok: false, outcome: 'source-malformed' }, url);
+    assert.equal(calls.length, 0, url + ' must not be fetched');
   }
 });
 
-test('an unparseable url is unreachable', async () => {
+test('an unparseable url is malformed', async () => {
   const { impl, calls } = stubFetch(okResponse('anything'));
   const res = await fetchSource('not a url', { fetchImpl: impl });
-  assert.deepEqual(res, UNREACHABLE);
+  assert.deepEqual(res, { ok: false, outcome: 'source-malformed' });
   assert.equal(calls.length, 0);
 });
 
-test('a non-ok response is unreachable', async () => {
-  const { impl } = stubFetch({ ok: false, headers: { get: () => null }, text: async () => '42.5 °C' });
-  assert.deepEqual(await fetchSource('https://example.com/a', { fetchImpl: impl }), UNREACHABLE);
+test('a non-ok response is not-found, not unreachable', async () => {
+  // The URL parsed and the host answered. "The agent invented this page" and
+  // "the network is down" are different facts about the provider.
+  const { impl } = stubFetch({ ok: false, status: 404, headers: { get: () => null }, text: async () => '42.5 °C' });
+  assert.deepEqual(
+    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    { ok: false, outcome: 'source-not-found' },
+  );
 });
 
 test('a throwing fetch is unreachable, not an exception', async () => {
   const { impl } = stubFetch(new Error('ECONNRESET'));
-  assert.deepEqual(await fetchSource('https://example.com/a', { fetchImpl: impl }), UNREACHABLE);
+  assert.deepEqual(
+    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    { ok: false, outcome: 'source-unreachable' },
+  );
 });
 
 test('the timeout is wired to a signal the fetch receives', async () => {
@@ -196,7 +253,8 @@ test('the timeout is wired to a signal the fetch receives', async () => {
 test('an abort during the body read is an outcome, not an exception', async () => {
   // The timeout covers the body stream, so on a slow server the abort lands
   // here rather than at the header exchange. Uncaught, one slow source takes
-  // down the whole enrichment run.
+  // down the whole enrichment run. A timeout is unreachable -- possibly
+  // transient -- never a claim that nothing is there.
   const failing = {
     ok: true,
     headers: { get: () => null },
@@ -205,13 +263,19 @@ test('an abort during the body read is an outcome, not an exception', async () =
     },
   };
   const { impl } = stubFetch(failing);
-  assert.deepEqual(await fetchSource('https://example.com/a', { fetchImpl: impl }), UNREACHABLE);
+  assert.deepEqual(
+    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    { ok: false, outcome: 'source-unreachable' },
+  );
 });
 
 test('a declared content-length over the cap is rejected before the body is read', async () => {
   const res = okResponse('<p>small</p>', { 'content-length': MAX_SOURCE_BYTES + 1 });
   const { impl } = stubFetch(res);
-  assert.deepEqual(await fetchSource('https://example.com/a', { fetchImpl: impl }), UNREACHABLE);
+  assert.deepEqual(
+    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    { ok: false, outcome: 'source-too-large' },
+  );
   assert.equal(res.read.count, 0, 'the body must never be buffered');
 });
 
@@ -220,11 +284,11 @@ test('an oversized body is rejected whole, not truncated', async () => {
   // an injection primitive: it lets the page author choose where the evidence
   // stops.
   assert.equal(MAX_SOURCE_BYTES, 2_000_000);
-  const body = `<p>42.5 °C</p>${'x'.repeat(MAX_SOURCE_BYTES)}`;
+  const body = '<p>42.5 °C</p>' + 'x'.repeat(MAX_SOURCE_BYTES);
   const { impl } = stubFetch(okResponse(body));
   const out = await fetchSource('https://example.com/a', { fetchImpl: impl });
   assert.equal(out.ok, false);
-  assert.equal(out.outcome, 'source-unreachable');
+  assert.equal(out.outcome, 'source-too-large');
   assert.equal(out.text, undefined, 'no partial evidence may escape');
 });
 

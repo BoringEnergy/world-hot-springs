@@ -7,6 +7,8 @@
  * of its answer.
  */
 
+import { OUTCOMES } from './refutations.mjs';
+
 /**
  * Hard cap on fetched content. Rejected, never truncated -- truncation lets
  * whoever wrote the page choose where the evidence stops, which is an
@@ -101,19 +103,24 @@ export function valueAppears(value, text) {
  * http://localhost:6379/ and http://169.254.169.254/ pass, and redirect
  * following lets a public host send us to either.
  *
+ * Each failure returns its own outcome rather than one collapsed
+ * "unreachable". "The provider invented this URL" and "the page is 3 MB" are
+ * the same non-result to a run and completely different facts about the
+ * provider, and telling them apart is most of the value of the cross-provider
+ * record. Every string here is a member of OUTCOMES, asserted by a test.
+ *
  * @returns {Promise<{ok: true, text: string} | {ok: false, outcome: string}>}
  */
 export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 } = {}) {
-  const unreachable = { ok: false, outcome: 'source-unreachable' };
-
   let parsed;
   try {
     parsed = new URL(url);
   } catch {
-    return unreachable;
+    return failure('source-malformed');
   }
+  // A refused scheme is malformed, not unreachable: nothing was ever tried.
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-    return unreachable;
+    return failure('source-malformed');
   }
 
   const signal = AbortSignal.timeout(timeoutMs);
@@ -121,14 +128,15 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
   try {
     res = await fetchImpl(url, { signal, redirect: 'follow' });
   } catch {
-    return unreachable;
+    return failure('source-unreachable');
   }
-  if (!res.ok) return unreachable;
+  // The host answered and said no. That is a fact about the page, not the net.
+  if (!res.ok) return failure('source-not-found');
 
   // Reject on the declared length before reading a byte. The cap is a memory
   // bound as much as an evidence bound, and a hostile host streams forever.
   const declared = Number(res.headers?.get('content-length'));
-  if (Number.isFinite(declared) && declared > MAX_SOURCE_BYTES) return unreachable;
+  if (Number.isFinite(declared) && declared > MAX_SOURCE_BYTES) return failure('source-too-large');
 
   let body;
   try {
@@ -137,10 +145,20 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
     // reset. Either way it is an outcome, not an exception thrown at the run.
     body = await res.text();
   } catch {
-    return unreachable;
+    return failure('source-unreachable');
   }
   // Backstop for a missing or lying content-length.
-  if (Buffer.byteLength(body, 'utf8') > MAX_SOURCE_BYTES) return unreachable;
+  if (Buffer.byteLength(body, 'utf8') > MAX_SOURCE_BYTES) return failure('source-too-large');
 
   return { ok: true, text: textOf(body) };
+}
+
+/**
+ * Fail loudly on an outcome string this module invented. A typo would
+ * otherwise travel silently into the public refutation log, where it is an
+ * unqueryable one-off row rather than a benchmark category.
+ */
+function failure(outcome) {
+  if (!OUTCOMES.has(outcome)) throw new Error(`unknown outcome: ${outcome}`);
+  return { ok: false, outcome };
 }
