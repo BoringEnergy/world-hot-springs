@@ -2,9 +2,16 @@
 
 Design note — 2026-08-29
 
-Companion to `2026-08-25-agent-contribution-system-design.md`. This is the
-first sub-project of the enrichment track, and it is deliberately independent
-of phase 3: it introduces no secret, no CI trigger, and no trust levels.
+Companion to `2026-08-25-agent-contribution-system-design.md`.
+
+**This is phase 3.** The work previously numbered phase 3 — the LLM manager
+running under Gate 2 in CI — is renumbered **phase 4** and remains blocked on
+F8 (naming a durable ledger store) and F9 (a spend-capped credential), neither
+of which is done. This sub-project was promoted ahead of it because it is
+unblocked today and because it produces the thing every earlier phase was built
+to carry: an authored claim, of which the repository currently has none.
+
+It introduces no secret, no CI trigger, and no trust levels.
 
 ## The problem this exists to solve
 
@@ -388,13 +395,40 @@ here so nobody implements from a stale summary.
 - **Refutations.** Recorded, in their own log, with the three rules that keep
   the record honest and non-injectable.
 
+## The coverage map is published — decided 2026-08-29
+
+The per-country unmet report ships as a committed artifact,
+**`data/coverage.json`**, regenerated on every run and part of the permanent
+record.
+
+The reasoning that made this a question was that it is a public statement about
+which countries the internet has failed to document. On reflection that is an
+argument *for* publishing, not against. The map does not measure a country; it
+measures the reach of English-language, indexable, public web sources — and
+saying so out loud is more honest than quietly holding a thin record and
+letting a reader assume the springs are thin.
+
+It is also the only part of this system that improves by being wrong in public.
+Someone who knows the Bolivian sources exists is far more likely to appear if
+the atlas says plainly that it could not find them.
+
+The artifact must therefore carry its own framing, in the file, not only in a
+README somebody will not read:
+
+```json
+{
+  "generatedAt": "2026-08-29T12:00:00.000Z",
+  "measures": "reach of public, indexable sources this run could verify — not the number of hot springs a country has, and not their quality",
+  "countries": [
+    { "country": "CL", "candidates": 5, "attempted": 3, "verified": 2, "unmet": 0 },
+    { "country": "BO", "candidates": 5, "attempted": 5, "verified": 0, "unmet": 2 }
+  ]
+}
+```
+
 ## Still genuinely open
 
-- **Whether to publish the "where knowledge does not exist" map.** The
-  per-country unmet report is the most novel output here, and it is also a
-  public statement about which countries the internet has failed to document.
-  That deserves a deliberate decision, not a default.
 - **Candidate ordering within a country.** Deterministic is required; *which*
   deterministic order — completeness score, name presence, OSM edit recency —
   is unmeasured. Pick it the way the cap was picked, not the way the cap was
-  first guessed.
+  first guessed. Task 2 of the plan measures it rather than assuming it.
