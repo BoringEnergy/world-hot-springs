@@ -17,13 +17,19 @@ export const ALLOWED_PREFIX = 'data/overlay/';
 export const ALLOWED_FILES = ['data/coverage.json', 'data/refutations.jsonl'];
 
 /**
- * One enrichment run writes up to 237 overlay files -- two per country across
- * 129 -- plus the two artifacts above. The old limit of 50 predated any
- * process that produced claims in bulk and would have rejected every run.
+ * One enrichment run writes up to 258 overlay files -- TARGET_PER_COUNTRY (2)
+ * x 129 countries -- plus the two artifacts above, so 260. The old limit of 50
+ * predated any process that produced claims in bulk and would have rejected
+ * every run.
  *
- * 237 is TARGET_PER_COUNTRY (2) x 129 countries, computed once and hardcoded
- * here rather than imported: deriving a security cap from generated data
- * would let the data decide its own ceiling. If the per-country target
+ * A run cannot actually reach 258, because 21 countries hold exactly one
+ * spring, capping the real ceiling at 237. The limit is set from the
+ * structural maximum rather than that empirical one: the spring count moves
+ * with every OSM refresh, and a cap that tracks the data would fail the day a
+ * 22nd single-spring country gained a neighbour.
+ *
+ * Hardcoded rather than imported on purpose -- deriving a security cap from
+ * generated data lets the data decide its own ceiling. If TARGET_PER_COUNTRY
  * changes, this constant must be revisited by hand.
  *
  * Still a limit, and still outright: this is a data-correction atlas, and
