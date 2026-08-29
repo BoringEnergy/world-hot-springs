@@ -44,38 +44,88 @@ how hot every spring is"* is a cleaner public claim than *"the atlas with 200
 great entries."* Breadth on temperature remains the obvious second pass, and it
 will be cheaper and better-aimed for having done this one first.
 
-## Selection: country spread, capped
+## Selection: two per country, over-provisioned
 
 The dataset is lopsided. The United States (2,025) and Japan (950) are 46% of
 all records. Selecting by name recognition would deepen that into a superb
 atlas of American and Japanese springs with a thin tail everywhere else.
 
-Selection therefore caps at **5–10 springs per country** and prioritises spread
-across the 129. This makes the first 200 records genuinely global, which is what
-"world's first" has to mean to be worth saying.
+### The cap does not do what it looks like it does
 
-It is also the harder choice, and that is the point: sources for Bolivian,
+Measured against the real distribution before choosing a number:
+
+| Cap | Countries reached | Springs selected |
+|---|---|---|
+| 1 | 129 | 129 |
+| 2 | 129 | 237 |
+| 3 | 129 | 331 |
+| 5 | 129 | 492 |
+| 10 | 129 | 827 |
+
+**Every cap reaches all 129 countries.** A cap only trims the top of the
+distribution; every country still contributes `min(n, cap)`, which is at least
+one. Country spread is achieved at a cap of 1 and cannot be improved by raising
+it.
+
+This corrects an earlier draft of this document, which set the cap at 5–10 "to
+prioritise spread across the 129." That reasoning was wrong — it attributed to
+the cap a property the cap does not have. The mistake is preserved here because
+it is the third time in this repository that a number in a plan turned out to
+be an assertion nobody had measured, and the first two each shipped a defect.
+
+**The cap is a volume dial, nothing more.** It is therefore chosen from the
+target volume: **2**, giving 237 springs, the middle of the 100–300 band. 108
+countries have two or more springs; the remaining 21 contribute their only one.
+
+### Two per country is a target, not a quota
+
+A flat "take exactly two" fails badly on contact with reality: where both
+candidates have no findable source, that country silently gets nothing, and the
+run cannot tell that outcome apart from not having tried.
+
+So `data/flagship.json` records, per country, an **ordered candidate list** of
+up to five ids. A run works down each country's list until **two claims survive
+verification** or the list is exhausted. Candidate order is deterministic, so
+the file stays reviewable, stable, and diffable — never recomputed differently
+on each run by a function nobody inspected.
+
+This makes the unit of success per-country rather than global, which is what
+makes a partial run legible: *Chile got its two, Bolivia got none from five
+candidates.* Aggregated, that is a map of **where public information about hot
+springs does not exist** — an output of the run that is arguably more
+interesting than the claims themselves, and one no amount of model capability
+can fake.
+
+It is also the harder selection, and that is the point: sources for Bolivian,
 Georgian, or Taiwanese springs are thinner and frequently not in English. That
 is exactly where a multi-provider setup earns its complexity, because models
 differ far more in non-English retrieval than they do on the Blue Lagoon.
 
-The selected set is written to **`data/flagship.json` as a committed list of
-ids**. The target set must be reviewable, stable, and diffable — not recomputed
-differently on every run by a function nobody inspected.
-
 ## Pipeline
 
 ```
-select flagship set  →  propose (provider A)  →  fetch-check  →  refute (provider B)  →  emit
-   deterministic          value + source URL      does the source     survives → claim      overlay JSON
-   country-capped                                 actually say it?    fails → Unknown       + PR
+per country, next candidate
+        │
+        ▼
+   propose (provider A) ──▶ fetch-check ──▶ refute (provider B) ──▶ overlay JSON
+   value + source URL      does the source   survives → claim         + PR
+                           actually say it?
+                                 │                   │
+                            fails│              fails│
+                                 ▼                   ▼
+                          data/refutations.jsonl (outcome + stripped note)
+                                 │
+                                 ▼
+                    next candidate, until 2 succeed or list exhausted
+                    exhausted → country reported unmet, no file written
 ```
 
 | File | Responsibility |
 |---|---|
-| `scripts/lib/flagship.mjs` | Pure. Dataset + per-country cap → the target set. Deterministic. |
+| `scripts/lib/flagship.mjs` | Pure. Dataset → ordered per-country candidate lists. Deterministic. |
 | `scripts/lib/providers/*.mjs` | One uniform interface per provider: `complete({system, user, schema}) → object`. |
 | `scripts/lib/verify-source.mjs` | Fetch a cited URL; confirm the claimed value appears in it. |
+| `scripts/lib/refutations.mjs` | Append to the refutation log. Owns the outcome enum and the note stripper. |
 | `scripts/enrich.mjs` | The CLI composing the above. |
 
 ## Where it runs, and why that matters
@@ -140,6 +190,66 @@ models agreeing on a hallucination is correlated error, not evidence.
 Refutation is strictly stronger than agreement, and it is the pattern that has
 already found real defects in this repository twice — the six-hex id collision
 and the F1 path to the API key.
+
+## Recording refutations
+
+What the atlas *declined* to assert is recorded. It is the more interesting
+half of the output: an assertion is one fact, a refutation is a fact about the
+state of public knowledge.
+
+**A separate log: `data/refutations.jsonl`.** Append-only, committed, one JSON
+object per line — the same shape as `data/events.jsonl` but deliberately not
+the same file, for two reasons. `events.jsonl` is written by the build and
+deduplicated on `[type, springId, claimPath, to]`, which would collapse "GPT
+proposed 40 °C and was refuted" and "Gemini proposed 40 °C and was refuted"
+into a single line — destroying exactly the comparative signal that makes this
+worth logging. And the two have different producers and cadences: the build
+writes one on every run, the enrichment CLI writes the other only when a human
+runs it.
+
+```json
+{
+  "ts": "2026-08-29T12:00:00.000Z",
+  "springId": "whs_b803e624c229",
+  "field": "temperature.celsius",
+  "proposed": 40,
+  "source": "https://example.org/page",
+  "proposer": "openai:gpt-5",
+  "verifier": "anthropic:claude-opus-5",
+  "stage": "fetch-check",
+  "outcome": "value-absent-from-source",
+  "note": "<= 280 chars, plaintext"
+}
+```
+
+### Three rules, each load-bearing
+
+**1. `outcome` is a closed enum written by our code, never by a model.**
+`source-unreachable`, `value-absent-from-source`, `different-subject`,
+`refuted-by-verifier`. A free-text outcome is unqueryable within a month and
+lets the model grade its own homework.
+
+**2. `note` is treated as hostile on output.** It is model-authored text
+committed to a public repository that future agents will read. That is
+precisely the second-order injection the Gate 2 spec identifies as F2 — the
+containment there was insufficient for the same reason it would be here. Cap
+the length, strip to plaintext, remove links, images, HTML, and `@`/`#`
+references before writing. The threat model does not weaken because the sink is
+a file rather than a pull request comment.
+
+**3. A refuted value must never reach the site.** These are research artifacts,
+not claims. The build must not read `data/refutations.jsonl`, and a test
+asserts it — otherwise the file becomes a back door for publishing exactly the
+values the verification step rejected.
+
+### Say "we could not confirm", not "the source is wrong"
+
+The log records our inability to verify, not a verdict on a third party. Our
+fetch-check can be wrong: the page changed, JavaScript rendered the value,
+the crawler was blocked. `value-absent-from-source` is an honest description of
+what we observed. "This source publishes false information" is an accusation
+this pipeline is not entitled to make, and it would be committed to a public
+repository under the project's name.
 
 ## Unknown is a valid answer
 
@@ -219,18 +329,28 @@ known about a public spring, never make a marginal one easier to find.
 Mirroring what worked in phases 1 and 2 — each test maps to a way this fails.
 
 1. Selection is deterministic: same dataset and cap produce the same set.
-2. Selection respects the per-country cap and spans the expected country count.
-3. `verify-source` detects a value present in fixture HTML, and detects its
+2. Selection spans all 129 countries and no country exceeds its candidate list
+   length.
+3. A country whose first candidates all fail falls through to later ones, and a
+   country whose whole list is exhausted yields no file and is reported as
+   unmet rather than skipped silently.
+4. A refutation is written with a closed-enum `outcome`; a model-supplied
+   outcome string is rejected.
+5. A `note` containing a markdown image, a link, and an `@mention` is stripped
+   before being written.
+6. The build does not read `data/refutations.jsonl` — asserted, so a refuted
+   value can never reach the site.
+7. `verify-source` detects a value present in fixture HTML, and detects its
    absence — both directions, since a checker that always passes looks
    identical to one that works.
-4. A claim whose cited URL does not contain the value is rejected.
-5. Proposer and verifier being the same provider is refused, not warned about.
-6. A single configured provider fails the run with an explanatory error.
-7. **A spring with no findable sources produces zero files.** The most
-   important test here.
-8. An overlay file naming a nonexistent spring id is rejected by the validator.
-9. `nearestTown` is refused from an agent-authored claim.
-10. End-to-end against mocked providers produces overlay files that pass the
+8. A claim whose cited URL does not contain the value is rejected.
+9. Proposer and verifier being the same provider is refused, not warned about.
+10. A single configured provider fails the run with an explanatory error.
+11. **A spring with no findable sources produces zero files.** The most
+    important test here.
+12. An overlay file naming a nonexistent spring id is rejected by the validator.
+13. `nearestTown` is refused from an agent-authored claim.
+14. End-to-end against mocked providers produces overlay files that pass the
     existing `validate-overlay` CLI unmodified.
 
 ## Cost
@@ -258,13 +378,23 @@ The CI lift, the spend ledger, trust levels, `contributors.json`, auto-merge,
 new-spring proposals, the breadth pass on temperature, and any change to the
 site itself. Each is its own spec.
 
-## Open questions
+## Decisions closed since the first draft
 
-- The exact per-country cap (5 or 10) should be set by looking at how many
-  countries actually clear a source-availability bar, not chosen in advance.
-  Measure before fixing it — thresholds in a plan are assertions, not
-  decisions, and this repository has been bitten by that twice.
-- Whether a refuted claim should be recorded anywhere. Logging what the atlas
-  declined to assert may be more interesting than what it asserted, but it is
-  also a public record of "this source is wrong," which deserves its own
-  thought.
+Both open questions are settled, and the answers are recorded above rather than
+here so nobody implements from a stale summary.
+
+- **The cap.** Measured, and the measurement invalidated the reasoning behind
+  the original number. Two per country, over-provisioned to five candidates.
+- **Refutations.** Recorded, in their own log, with the three rules that keep
+  the record honest and non-injectable.
+
+## Still genuinely open
+
+- **Whether to publish the "where knowledge does not exist" map.** The
+  per-country unmet report is the most novel output here, and it is also a
+  public statement about which countries the internet has failed to document.
+  That deserves a deliberate decision, not a default.
+- **Candidate ordering within a country.** Deterministic is required; *which*
+  deterministic order — completeness score, name presence, OSM edit recency —
+  is unmeasured. Pick it the way the cap was picked, not the way the cap was
+  first guessed.
