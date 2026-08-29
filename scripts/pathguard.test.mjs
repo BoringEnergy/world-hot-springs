@@ -75,3 +75,39 @@ test('an oversized changeset is rejected outright', () => {
 test('ALLOWED_PREFIX is the overlay directory and nothing else', () => {
   assert.equal(ALLOWED_PREFIX, 'data/overlay/');
 });
+
+test('the two enrichment artifacts are allowed alongside overlay files', () => {
+  assert.deepEqual(checkPaths(['data/coverage.json']), []);
+  assert.deepEqual(checkPaths(['data/refutations.jsonl']), []);
+  assert.deepEqual(
+    checkPaths(['data/overlay/whs_a1b2c3d4e5f6.json', 'data/coverage.json', 'data/refutations.jsonl']),
+    [],
+  );
+});
+
+test('allowing those two does not open data/ generally', () => {
+  // The prefix rule is what keeps a PR away from the built dataset.
+  for (const p of ['data/hot-springs.json', 'data/registry.json', 'data/events.jsonl', 'data/flagship.json']) {
+    assert.equal(checkPaths([p]).length, 1, `${p} must still be rejected`);
+  }
+});
+
+test('a traversal that resolves onto an allowed file is still normalised first', () => {
+  assert.deepEqual(checkPaths(['data/overlay/../coverage.json']), []);
+  assert.equal(checkPaths(['data/coverage.json/../../package.json']).length, 1);
+});
+
+test('a full enrichment run is not rejected by a stale cap', () => {
+  const run = Array.from({ length: 237 }, (_, i) =>
+    `data/overlay/whs_${String(i).padStart(12, '0')}.json`);
+  assert.deepEqual(checkPaths([...run, 'data/coverage.json', 'data/refutations.jsonl']), []);
+});
+
+test('a changeset at exactly the cap is accepted', () => {
+  // The rejection test uses MAX_CHANGED_FILES + 1, so nothing exercises the
+  // boundary itself. A `>` silently becoming `>=` would reject a legitimate
+  // full run with no test to catch it.
+  const exact = Array.from({ length: MAX_CHANGED_FILES }, (_, i) =>
+    `data/overlay/whs_${String(i).padStart(12, '0')}.json`);
+  assert.deepEqual(checkPaths(exact), []);
+});
