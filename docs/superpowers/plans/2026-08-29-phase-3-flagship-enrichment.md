@@ -462,7 +462,11 @@ for (const s of springs) (byCountry[s.location.country] ??= []).push(s);
 const countries = Object.keys(byCountry);
 let completenessTop2 = 0, namedFirstTop2 = 0;
 for (const c of countries) {
-  const byComplete = byCountry[c].slice().sort((a,b) => (b.quality.completeness) - (a.quality.completeness));
+  // The id tiebreak is not cosmetic. Without it V8's stable sort falls back to
+  // dataset arrival order, so the baseline measures 'completeness plus however
+  // the file happened to be ordered'. Reversing the input moved it 217 -> 210.
+  const byComplete = byCountry[c].slice().sort((a,b) =>
+    (b.quality.completeness - a.quality.completeness) || (a.id < b.id ? -1 : 1));
   completenessTop2 += byComplete.slice(0,2).filter(s => s.name).length;
   const namedFirst = byCountry[c].slice().sort((a,b) =>
     (Number(Boolean(b.name)) - Number(Boolean(a.name))) || (b.quality.completeness - a.quality.completeness));
@@ -627,7 +631,7 @@ export function selectFlagship(springs) {
 - [ ] **Step 5: Run, confirm pass**
 
 Run: `node --test scripts/flagship.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 8 tests.
 
 - [ ] **Step 6: Generate the committed artifact**
 
