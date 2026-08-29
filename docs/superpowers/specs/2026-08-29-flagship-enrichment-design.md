@@ -279,11 +279,20 @@ Both were found while designing this, and both are the kind that only an agent
 operating at scale would ever hit.
 
 **`validateOverlay` never checks that a spring id exists.** It validates the
-*shape* of an id — `whs_` plus 12 hex characters — but an overlay file for
-`whs_000000000000` validates cleanly today and silently attaches to nothing. A
-human writing one file by hand would never hit this. An agent generating
-hundreds will. The validator must check membership against the published
-dataset.
+*shape* of an id — `whs_` plus 12 hex characters — but not that anything
+answers to it.
+
+An earlier draft of this section said such a file "silently attaches to
+nothing." That was half wrong, and blind review caught it:
+`scripts/build-dataset.mjs:254` already fatals on orphaned overlays. The real
+gap is narrower and worse-shaped than "silent" — **gate-1 goes green and the
+maintainer's build then goes red.** The failure is deferred from the
+contributor, who could fix it, to the maintainer, who has to work out whose
+file broke the build. An agent generating hundreds of files makes that a
+routine event rather than a curiosity.
+
+The fix is the same either way: check membership against the published dataset,
+**in the CLI that gate-1 runs**, not only in the library function.
 
 **`location.nearestTown` is claimable.** On a borderline spring, an agent
 adding a nearest town is a material increase in findability — the one thing

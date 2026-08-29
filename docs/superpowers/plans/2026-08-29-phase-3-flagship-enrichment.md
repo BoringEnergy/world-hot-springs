@@ -22,7 +22,7 @@
 
 **This phase writes to `data/overlay/`, the only irreplaceable layer in the repository.** Everything else — `data/raw/`, `data/hot-springs.*`, the registry — is derived and can be rebuilt from OSM. An overlay file destroyed by a buggy run is gone.
 
-Every task here writes *new* files only. Nothing in this plan modifies or deletes an existing overlay file, and Task 8 asserts it.
+Every task here writes *new* files only. Nothing in this plan modifies or deletes an existing overlay file, and Task 10 asserts it.
 
 ## File Structure
 
@@ -38,11 +38,140 @@ Every task here writes *new* files only. Nothing in this plan modifies or delete
 
 ---
 
+## Task 0: Make gate-1 able to accept this phase's output
+
+**Without this task, nothing else in the plan can be merged.** Blind review
+found two independent blocks, both verified against the real guard:
+
+- `scripts/lib/pathguard.mjs:9` — `ALLOWED_PREFIX = 'data/overlay/'`. The spec
+  requires `data/coverage.json` and `data/refutations.jsonl` be **committed**.
+  Both are outside the prefix, so `checkPaths` rejects the changeset and
+  `validate-overlay.mjs` exits 1.
+- `scripts/lib/pathguard.mjs:12` — `MAX_CHANGED_FILES = 50`. A successful run
+  writes up to 237 overlay files. The guard rejects the changeset *outright*,
+  before examining any file.
+
+The plan's own claim that "the output is overlay JSON, which gate-1 already
+validates" was false in both directions.
+
+**Files:** Modify `scripts/lib/pathguard.mjs`, `scripts/pathguard.test.mjs`
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `scripts/pathguard.test.mjs`:
+
+```js
+test('the two enrichment artifacts are allowed alongside overlay files', () => {
+  assert.deepEqual(checkPaths(['data/coverage.json']), []);
+  assert.deepEqual(checkPaths(['data/refutations.jsonl']), []);
+  assert.deepEqual(
+    checkPaths(['data/overlay/whs_a1b2c3d4e5f6.json', 'data/coverage.json', 'data/refutations.jsonl']),
+    [],
+  );
+});
+
+test('allowing those two does not open data/ generally', () => {
+  // The prefix rule is what keeps a PR away from the built dataset.
+  for (const p of ['data/hot-springs.json', 'data/registry.json', 'data/events.jsonl', 'data/flagship.json']) {
+    assert.equal(checkPaths([p]).length, 1, `${p} must still be rejected`);
+  }
+});
+
+test('a traversal that resolves onto an allowed file is still normalised first', () => {
+  assert.deepEqual(checkPaths(['data/overlay/../coverage.json']), []);
+  assert.equal(checkPaths(['data/coverage.json/../../package.json']).length, 1);
+});
+
+test('an enrichment-sized changeset fits under the file cap', () => {
+  const run = Array.from({ length: 237 }, (_, i) =>
+    `data/overlay/whs_${String(i).padStart(12, '0')}.json`);
+  assert.deepEqual(checkPaths([...run, 'data/coverage.json', 'data/refutations.jsonl']), []);
+});
+
+test('the cap still rejects an absurd changeset', () => {
+  const many = Array.from({ length: MAX_CHANGED_FILES + 1 }, (_, i) =>
+    `data/overlay/whs_${String(i).padStart(12, '0')}.json`);
+  assert.match(checkPaths(many)[0], /too many files/i);
+});
+```
+
+Update the existing `an oversized changeset is rejected outright` test to build
+`MAX_CHANGED_FILES + 1` files, which it already does — it needs no change, but
+re-read it to confirm it still asserts what it claims after the cap moves.
+
+- [ ] **Step 2: Run, confirm failure**
+
+Run: `node --test scripts/pathguard.test.mjs`
+Expected: FAIL — `data/coverage.json: a contribution may only modify data/overlay/**`.
+
+- [ ] **Step 3: Implement**
+
+In `scripts/lib/pathguard.mjs`, replace the constants and add the file check:
+
+```js
+export const ALLOWED_PREFIX = 'data/overlay/';
+
+/**
+ * Two artifacts an enrichment run must commit alongside its claims. Named
+ * individually rather than by widening the prefix: `data/` also holds the
+ * built dataset and the registry, and a contribution has no business in
+ * either.
+ */
+export const ALLOWED_FILES = ['data/coverage.json', 'data/refutations.jsonl'];
+
+/**
+ * One enrichment run writes up to 237 overlay files -- two per country across
+ * 129 -- plus the two artifacts above. The old limit of 50 predated any
+ * process that produced claims in bulk and would have rejected every run.
+ *
+ * Still a limit, and still outright: this is a data-correction atlas, and
+ * nothing legitimate here touches a thousand files.
+ */
+export const MAX_CHANGED_FILES = 260;
+```
+
+Then, inside the per-file loop, immediately after `const clean = normalised.join('/');`:
+
+```js
+    if (ALLOWED_FILES.includes(clean)) continue;
+```
+
+Placed *after* normalisation, so a traversal cannot reach it by a path that
+only looks like an allowed file.
+
+- [ ] **Step 4: Run, confirm pass**
+
+Run: `npm test`
+Expected: PASS, 133 tests.
+
+- [ ] **Step 5: Mutation-check**
+
+Move the `ALLOWED_FILES` check to *before* `const clean = ...` and test against
+`raw` instead. Run the tests. Expected: the traversal test FAILS. Restore.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add scripts/lib/pathguard.mjs scripts/pathguard.test.mjs
+git commit -m "feat: let gate-1 accept an enrichment run
+
+The guard rejected the output of the process it exists to check. coverage.json
+and refutations.jsonl sit outside data/overlay/, and a 50-file cap rejected a
+237-file run outright before looking at anything.
+
+The two artifacts are named individually rather than by widening the prefix --
+data/ also holds the built dataset and the registry, and a contribution has no
+business in either. The check runs after normalisation so a traversal cannot
+reach it by a path that merely resembles an allowed file."
+```
+
+---
+
 ## Task 1: Fix the two existing-code defects
 
-Do this first. Both are guards the rest of the phase relies on, and both are cheap.
+Both are guards the rest of the phase relies on, and both are cheap.
 
-**Files:** Modify `scripts/lib/overlay.mjs`, `scripts/overlay.test.mjs`
+**Files:** Modify `scripts/lib/overlay.mjs`, `scripts/validate-overlay.mjs`, `scripts/overlay.test.mjs`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -170,17 +299,117 @@ export function validateOverlay(overlay, opts = {}) {
     // ... rest of the loop unchanged
 ```
 
-- [ ] **Step 4: Run, confirm pass**
+- [ ] **Step 4: Wire it into the CLI that gate-1 actually runs**
+
+**A guard the CLI never passes is a guard that does not exist.**
+`scripts/validate-overlay.mjs:79` calls `validateOverlay(parsed)` with one
+argument, and that CLI is the only thing `gate.yml` runs. Without this step,
+Task 1's unit tests pass while a PR containing `whs_000000000000` still goes
+green — the plan-defect pattern this project has hit in both prior phases.
+
+In `scripts/validate-overlay.mjs`, add near the other imports:
+
+```js
+const DATASET = path.join('data', 'hot-springs.json');
+
+/**
+ * Every id in the published dataset, or null when it cannot be read.
+ *
+ * Null disables the existence check rather than failing the run: a
+ * contributor validating a claim in a fresh clone before the first build has
+ * no dataset yet, and refusing to check anything at all is worse than checking
+ * everything except existence.
+ */
+function knownSpringIds() {
+  if (!fs.existsSync(DATASET)) return null;
+  try {
+    return new Set(JSON.parse(fs.readFileSync(DATASET, 'utf8')).map((s) => s.id));
+  } catch {
+    return null;
+  }
+}
+```
+
+Then in `main()`, before the loop over `present`:
+
+```js
+  const knownIds = knownSpringIds();
+```
+
+and change the call:
+
+```js
+    const errors = validateOverlay(parsed, knownIds ? { knownIds } : {});
+```
+
+- [ ] **Step 5: Test the CLI, not just the library**
+
+Create `scripts/validate-overlay.test.mjs`:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+
+function runCli(file) {
+  try {
+    execFileSync('node', ['scripts/validate-overlay.mjs', '--files', file], { encoding: 'utf8' });
+    return { code: 0, out: '' };
+  } catch (err) {
+    return { code: err.status, out: `${err.stdout ?? ''}${err.stderr ?? ''}` };
+  }
+}
+
+test('the CLI rejects an overlay naming a nonexistent spring', () => {
+  // Exercises the wiring, not the library. The library test passes even when
+  // the CLI forgets to pass knownIds -- which is exactly what it did.
+  const dir = path.join('data', 'overlay');
+  fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, 'whs_000000000000.json');
+  fs.writeFileSync(file, JSON.stringify({ id: 'whs_000000000000', claims: {} }));
+  try {
+    const { code, out } = runCli(file);
+    assert.equal(code, 1);
+    assert.match(out, /not a spring in this dataset/);
+  } finally {
+    fs.unlinkSync(file);
+  }
+});
+
+test('the CLI accepts an overlay for a real spring', () => {
+  const springs = JSON.parse(fs.readFileSync(path.join('data', 'hot-springs.json'), 'utf8'));
+  const id = springs[0].id;
+  const dir = path.join('data', 'overlay');
+  fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, `${id}.json`);
+  assert.equal(fs.existsSync(file), false, 'test would clobber a real overlay file; pick another spring');
+  fs.writeFileSync(file, JSON.stringify({
+    id,
+    claims: { description: { value: 'x', source: 'https://e.org', contributor: 'test' } },
+  }));
+  try {
+    assert.equal(runCli(file).code, 0);
+  } finally {
+    fs.unlinkSync(file);
+  }
+});
+```
+
+- [ ] **Step 6: Run, confirm pass**
 
 Run: `npm test`
-Expected: PASS, 134 tests.
+Expected: PASS, 141 tests.
 
-- [ ] **Step 5: Mutation-check the existence guard**
+- [ ] **Step 7: Mutation-check the wiring, not just the guard**
 
-Change `!opts.knownIds.has(overlay.id)` to `false`. Run `node --test scripts/overlay.test.mjs`.
-Expected: the nonexistent-id test FAILS. Restore.
+Revert the CLI call to `validateOverlay(parsed)`. Run `npm test`.
+Expected: the **CLI** test fails while the library tests still pass — which is
+the whole point of having both. Restore.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add scripts/lib/overlay.mjs scripts/overlay.test.mjs
@@ -448,9 +677,24 @@ test('a numeric value that is absent is reported absent', () => {
   assert.equal(valueAppears(42.5, 'the water is 38 °C and pleasant'), false);
 });
 
-test('a near-miss is not a match', () => {
-  // 425 contains "42.5" only if you strip punctuation carelessly.
+test('a near-miss is not a match, on either side of the number', () => {
+  // Left-side collapse: 425 contains "42.5" only if you strip punctuation.
   assert.equal(valueAppears(42.5, 'elevation 425 metres'), false);
+  // Right-side extension. These are the dangerous ones, and an earlier draft
+  // of this module matched all three: the decimal branch had a lookbehind but
+  // no lookahead. "42,500" is not contrived -- accepting decimal commas for
+  // non-English sources is exactly what makes a European thousands separator
+  // collide with a temperature.
+  assert.equal(valueAppears(42.5, 'a crowd of 42,500 people'), false);
+  assert.equal(valueAppears(42.5, 'elevation 42.55 metres'), false);
+  assert.equal(valueAppears(42.5, 'the price is 42.51 euros'), false);
+});
+
+test('a thousands separator does not hide an integer value', () => {
+  // OSM prices are plain integers; sources write them grouped.
+  assert.equal(valueAppears(2000, 'entry is 2,000 yen'), true);
+  assert.equal(valueAppears(2000, 'entry is 2.000 yen'), true);
+  assert.equal(valueAppears(2000, 'entry is 20,000 yen'), false);
 });
 
 test('an integer does not match a longer number containing it', () => {
@@ -520,12 +764,15 @@ export function valueAppears(value, text) {
   const hay = text.toLowerCase();
 
   if (typeof value === 'number') {
-    const digits = String(value);
-    const [whole, frac] = digits.split('.');
-    const pattern = frac
+    const [whole, frac] = String(value).split('.');
+    // Both branches need a boundary on BOTH sides. Without the trailing guard
+    // on the decimal branch, 42.5 matches "42,500", "42.55", and "42.51" --
+    // and the left-side test alone passes green while it does.
+    const body = frac
       ? `${whole}[.,]${frac}`
-      : `${whole}(?![\\d.,]*\\d)`;
-    return new RegExp(`(?<![\\d.,])${pattern}`).test(hay);
+      // An integer may be written grouped: 2000 appears as "2,000" or "2.000".
+      : whole.replace(/\B(?=(\d{3})+$)/g, '[.,]?');
+    return new RegExp(`(?<![\\d.,])${body}(?![\\d.,]*\\d)`).test(hay);
   }
 
   const needle = String(value).toLowerCase().trim();
@@ -636,8 +883,18 @@ test('a note is capped rather than trusted to be short', () => {
 });
 
 test('stripping leaves ordinary prose readable', () => {
-  // A stripper that destroys everything looks identical to one that works.
+  // The fixture must contain the characters the stripper touches, in innocent
+  // positions. Plain prose with no @, #, or angle brackets cannot detect
+  // over-stripping, and an earlier draft passed this test while turning
+  // "C#12 is fine" into "C is fine".
   assert.equal(stripNote('The page lists 38 C for a different pool.'), 'The page lists 38 C for a different pool.');
+  assert.equal(stripNote('C#12 is fine'), 'C#12 is fine');
+  assert.equal(stripNote('rated 5 < 7 and 9 > 2'), 'rated 5 7 and 9 2');
+  assert.equal(stripNote('the pool is #2 on site'), 'the pool is on site');
+});
+
+test('an unterminated angle bracket does not survive', () => {
+  assert.doesNotMatch(stripNote('a <b unterminated'), /</);
 });
 
 test('a refutation is appended as one line of json', () => {
@@ -727,9 +984,16 @@ export function stripNote(note) {
   if (typeof note !== 'string') return '';
   return note
     .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')   // markdown links and images
-    .replace(/<[^>]*>/g, '')                      // html
+    // Requires a tag-like character after `<`, or "rated 5 < 7 and 9 > 2"
+    // is swallowed as a tag. Verified: a looser /<[^>]*>/ eats the middle.
+    .replace(/<\/?[a-z][^>]*>/gi, '')             // html tags
+    .replace(/[<>]/g, '')                         // and unterminated angles
     .replace(/\bhttps?:\/\/\S+/gi, '')            // bare urls
-    .replace(/[@#]\S+/g, '')                      // mentions and issue refs
+    // Only a mention at the start of a token, and only the sigil plus its
+    // word. `[@#]\S+` deleted the whole following token, turning "C#12 is
+    // fine" into "C is fine" and "me@evil.com" into "me" -- over-stripping
+    // that a fixture of plain prose could never detect.
+    .replace(/(^|\s)[@#][\w-]+/g, '$1')
     .replace(/\s+/g, ' ')                         // newlines included
     .trim()
     .slice(0, MAX_NOTE_CHARS);
@@ -807,6 +1071,18 @@ test('a country exceeding its target never reports negative unmet', () => {
   assert.equal(cov.countries[0].unmet, 0);
 });
 
+test('a one-spring country that verified its only spring is not unmet', () => {
+  // 21 countries have exactly one spring. Reporting unmet: 1 for a perfect
+  // run would make the published artifact say the opposite of what happened.
+  const cov = buildCoverage([{ country: 'VU', candidates: 1, attempted: 1, verified: 1 }], 'x');
+  assert.equal(cov.countries[0].unmet, 0);
+});
+
+test('a one-spring country that verified nothing is unmet by one, not two', () => {
+  const cov = buildCoverage([{ country: 'VU', candidates: 1, attempted: 1, verified: 0 }], 'x');
+  assert.equal(cov.countries[0].unmet, 1);
+});
+
 test('the artifact carries its own framing', () => {
   // A reader who finds this file with no context must not conclude that
   // Bolivia has no hot springs.
@@ -861,7 +1137,12 @@ export function buildCoverage(results, timestamp) {
         candidates: r.candidates,
         attempted: r.attempted,
         verified: r.verified,
-        unmet: Math.max(0, TARGET_PER_COUNTRY - r.verified),
+        // Capped by what the country can actually offer. 21 countries have
+        // exactly one spring in the dataset; a perfect run there verifies one
+        // of one, and reporting `unmet: 1` forever would make the artifact
+        // say the opposite of what happened -- in the one file the spec
+        // insists must not mislead a reader.
+        unmet: Math.max(0, Math.min(TARGET_PER_COUNTRY, r.candidates) - r.verified),
       })),
   };
 }
@@ -921,6 +1202,21 @@ test('two models from one vendor are still the same provider', () => {
   );
 });
 
+test('vendor comparison is case-insensitive', () => {
+  // Otherwise "OpenAI:gpt-5" vs "openai:gpt-5" passes the distinctness rule
+  // and then resolves to the same file on a case-insensitive filesystem --
+  // self-review, reported as verification.
+  assert.throws(
+    () => resolveRoles({ proposer: 'OpenAI:gpt-5', verifier: 'openai:gpt-5' }),
+    /must be different providers/,
+  );
+});
+
+test('a vendor name that is not a plain identifier is refused', () => {
+  // vendorOf feeds a dynamic import path.
+  assert.throws(() => resolveRoles({ proposer: '../../evil:x', verifier: 'openai:gpt-5' }), /vendor/i);
+});
+
 test('a missing role fails with an explanation', () => {
   assert.throws(() => resolveRoles({ proposer: 'openai:gpt-5' }), /verifier/);
 });
@@ -954,7 +1250,10 @@ Create `scripts/lib/providers/index.mjs`:
 
 /** `vendor:model` -> `vendor`. */
 export function vendorOf(id) {
-  return String(id).split(':')[0];
+  // Lowercased, or "OpenAI:gpt-5" and "openai:gpt-5" read as two providers
+  // while resolving to the same module on Windows and macOS -- turning the
+  // one hard rule into self-review without any error.
+  return String(id).toLowerCase().split(':')[0];
 }
 
 /**
@@ -965,12 +1264,19 @@ export function vendorOf(id) {
  * other is nearly as circular as a model refuting itself. This is why N-way
  * agreement was rejected -- correlated error is not evidence.
  */
+const VENDOR = /^[a-z0-9-]+$/;
+
 export function resolveRoles(config) {
   for (const role of ['proposer', 'verifier']) {
     if (!config?.[role]) {
       throw new Error(
         `enrichment requires a ${role}; configure one in enrichment.config.json`,
       );
+    }
+    if (!VENDOR.test(vendorOf(config[role]))) {
+      // vendorOf feeds a dynamic import path. This repo path-guards anything
+      // that reaches a filesystem lookup; config is no exception.
+      throw new Error(`vendor in ${role} must match ${VENDOR}, got ${JSON.stringify(config[role])}`);
     }
   }
   if (vendorOf(config.proposer) === vendorOf(config.verifier)) {
@@ -1036,6 +1342,18 @@ const OVERLAY_DIR = path.join('data', 'overlay');
 const REFUTATIONS = path.join('data', 'refutations.jsonl');
 const COVERAGE = path.join('data', 'coverage.json');
 
+/**
+ * Fields whose value a source states verbatim, so the deterministic
+ * fetch-check can decide them. Everything else in AGENT_CLAIMABLE is prose or
+ * a normalised syntax and is decided by the verifier reading the page.
+ */
+const LITERAL_FIELDS = [
+  'temperature.celsius',
+  'access.price',
+  'access.currency',
+  'location.elevation',
+];
+
 function loadJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -1048,7 +1366,7 @@ function loadJson(file) {
  * returning nothing, so every exit here that is not a verified claim must
  * produce no file at all.
  */
-async function attempt(spring, roles, providers, now) {
+export async function attempt(spring, roles, providers, refutationsFile, now) {
   const proposal = await providers.proposer.complete({
     system: `Propose verifiable facts about a hot spring. You may only propose these fields: ${AGENT_CLAIMABLE.join(', ')}. Every field needs a public source URL that states the value. If you cannot find a real source, return an empty claims object. Returning nothing is correct and expected.`,
     user: JSON.stringify({ id: spring.id, name: spring.name, country: spring.location.country }),
@@ -1074,20 +1392,32 @@ async function attempt(spring, roles, providers, now) {
 
     const fetched = await fetchSource(claim.source);
     if (!fetched.ok) {
-      appendRefutation(REFUTATIONS, {
+      appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: claim.source,
         proposer: roles.proposer, stage: 'fetch-check', outcome: fetched.outcome,
         note: 'source could not be retrieved',
-      }, now);
+      }, now());
       continue;
     }
 
-    if (!valueAppears(claim.value, fetched.text)) {
-      appendRefutation(REFUTATIONS, {
+    // A literal fetch-check only makes sense for a value a page states
+    // verbatim. Measured against a realistic page, temperature and elevation
+    // pass; access.notes, hours.open ("Mo-Su 09:00-21:00"), clothing.policy,
+    // and description essentially never do -- an OSM-normalised or summarised
+    // value is not a substring of prose. Sending them through it would record
+    // them all as value-absent-from-source, which is a fact about the checker
+    // masquerading as a fact about the world, in a published artifact.
+    //
+    // So prose fields skip the literal check and are decided by the verifier
+    // alone, which reads the fetched text. They are strictly less protected;
+    // that is the reason the set is small and the reason to keep it small.
+    const literal = LITERAL_FIELDS.includes(field);
+    if (literal && !valueAppears(claim.value, fetched.text)) {
+      appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: claim.source,
         proposer: roles.proposer, stage: 'fetch-check', outcome: 'value-absent-from-source',
         note: 'value not found in the retrieved page',
-      }, now);
+      }, now());
       continue;
     }
 
@@ -1102,11 +1432,11 @@ async function attempt(spring, roles, providers, now) {
     });
 
     if (verdict?.refuted !== false) {
-      appendRefutation(REFUTATIONS, {
+      appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: claim.source,
         proposer: roles.proposer, verifier: roles.verifier, stage: 'refutation',
         outcome: 'refuted-by-verifier', note: verdict?.reason,
-      }, now);
+      }, now());
       continue;
     }
 
@@ -1121,19 +1451,103 @@ async function attempt(spring, roles, providers, now) {
   return Object.keys(verified).length ? { id: spring.id, claims: verified } : null;
 }
 
+/**
+ * Read a flag's value, refusing the two silent failures.
+ *
+ * `--country` with no value left onlyCountry undefined, which is falsy, which
+ * skipped the filter and ran all 129 countries -- spending the operator's
+ * whole credential on a typo. `--limit` with no value gave Number(undefined)
+ * = NaN, and slice(0, NaN) is zero countries: a silent no-op that still wrote
+ * coverage.json and looked like success. Both fail loudly now.
+ */
+function flagValue(args, name) {
+  const i = args.indexOf(name);
+  if (i === -1) return null;
+  const value = args[i + 1];
+  if (value === undefined || value.startsWith('--')) {
+    throw new Error(`${name} needs a value`);
+  }
+  return value;
+}
+
+/**
+ * Run the plan. Every path is a parameter so this is testable without a
+ * network, a credential, or the real data directory.
+ */
+export async function runPlan({
+  plan, byId, knownIds, providers, roles,
+  overlayDir, refutationsFile, coverageFile,
+  writeCoverage = true, now = () => new Date().toISOString(),
+}) {
+  const results = [];
+
+  for (const { country, candidates } of plan) {
+    let verified = 0;
+    let attempted = 0;
+
+    for (const id of candidates) {
+      if (verified >= TARGET_PER_COUNTRY) break;
+      const spring = byId.get(id);
+      if (!spring) continue;
+
+      const file = path.join(overlayDir, `${id}.json`);
+      // Checked BEFORE spending. The check used to sit after the proposal and
+      // refutation calls, so a re-run paid for every claim it then discarded --
+      // and because it did not count toward `verified`, a country whose target
+      // was already met chewed through all five candidates every time.
+      if (fs.existsSync(file)) {
+        verified++;
+        continue;
+      }
+
+      attempted++;
+      const overlay = await attempt(spring, roles, providers, refutationsFile, now);
+      if (!overlay) continue;
+
+      const errors = validateOverlay(overlay, { knownIds, agentAuthored: true });
+      if (errors.length) {
+        console.error(`${id}: produced an invalid overlay, discarding:\n  ${errors.join('\n  ')}`);
+        continue;
+      }
+
+      fs.mkdirSync(overlayDir, { recursive: true });
+      fs.writeFileSync(file, JSON.stringify(overlay, null, 2) + '\n');
+      verified++;
+    }
+
+    results.push({ country, candidates: candidates.length, attempted, verified });
+    console.log(`${country}: ${verified}/${TARGET_PER_COUNTRY} from ${attempted} attempted`);
+  }
+
+  // Only on a full run. A --country CL run holds one country's results, and
+  // writing them would replace the published 129-country map with a stub.
+  if (writeCoverage) {
+    fs.writeFileSync(coverageFile, JSON.stringify(buildCoverage(results, now()), null, 2) + '\n');
+  } else {
+    console.log('Filtered run: data/coverage.json left unchanged.');
+  }
+
+  return results;
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
-  const onlyCountry = args.includes('--country') ? args[args.indexOf('--country') + 1] : null;
-  const limit = args.includes('--limit') ? Number(args[args.indexOf('--limit') + 1]) : Infinity;
+  const onlyCountry = flagValue(args, '--country');
+  const limitRaw = flagValue(args, '--limit');
+  const limit = limitRaw === null ? Infinity : Number(limitRaw);
+  if (!Number.isFinite(limit) || limit < 1) {
+    throw new Error(`--limit must be a positive number, got ${JSON.stringify(limitRaw)}`);
+  }
 
   // A bare array, not {springs: [...]}.
   const springs = loadJson(path.join('data', 'hot-springs.json'));
   const byId = new Map(springs.map((s) => [s.id, s]));
-  const knownIds = new Set(byId.keys());
   let plan = loadJson(path.join('data', 'flagship.json'));
+  const filtered = Boolean(onlyCountry) || limitRaw !== null;
   if (onlyCountry) plan = plan.filter((c) => c.country === onlyCountry);
   plan = plan.slice(0, limit);
+  if (plan.length === 0) throw new Error('the filters selected no countries');
 
   const config = fs.existsSync('enrichment.config.json') ? loadJson('enrichment.config.json') : {};
   const roles = resolveRoles(config);
@@ -1145,52 +1559,27 @@ async function main() {
     return;
   }
 
-  const providers = await loadProviders(roles);
-  const now = new Date().toISOString();
-  const results = [];
-
-  for (const { country, candidates } of plan) {
-    let verified = 0;
-    let attempted = 0;
-
-    for (const id of candidates) {
-      if (verified >= TARGET_PER_COUNTRY) break;
-      const spring = byId.get(id);
-      if (!spring) continue;
-      attempted++;
-
-      const overlay = await attempt(spring, roles, providers, now);
-      if (!overlay) continue;
-
-      const errors = validateOverlay(overlay, { knownIds, agentAuthored: true });
-      if (errors.length) {
-        console.error(`${id}: produced an invalid overlay, discarding:\n  ${errors.join('\n  ')}`);
-        continue;
-      }
-
-      const file = path.join(OVERLAY_DIR, `${overlay.id}.json`);
-      // Never overwrite. data/overlay is the only irreplaceable layer here.
-      if (fs.existsSync(file)) {
-        console.error(`${file} already exists; leaving it alone.`);
-        continue;
-      }
-      fs.mkdirSync(OVERLAY_DIR, { recursive: true });
-      fs.writeFileSync(file, JSON.stringify(overlay, null, 2) + '\n');
-      verified++;
-    }
-
-    results.push({ country, candidates: candidates.length, attempted, verified });
-    console.log(`${country}: ${verified}/${TARGET_PER_COUNTRY} from ${attempted} attempted`);
-  }
-
-  fs.writeFileSync(COVERAGE, JSON.stringify(buildCoverage(results, now), null, 2) + '\n');
+  const results = await runPlan({
+    plan, byId, knownIds: new Set(byId.keys()),
+    providers: await loadProviders(roles), roles,
+    overlayDir: OVERLAY_DIR, refutationsFile: REFUTATIONS, coverageFile: COVERAGE,
+    writeCoverage: !filtered,
+  });
 
   const met = results.filter((r) => r.verified >= TARGET_PER_COUNTRY).length;
   console.log(`\n${met}/${results.length} countries met the target.`);
   console.log('Countries with no verified claim are the point, not the failure.');
 }
 
-main();
+// Guarded so the module can be imported by tests without executing a run.
+if (import.meta.filename === process.argv[1]) {
+  main().catch((err) => {
+    // Without this, a failure on country 90 of 129 is an unhandled rejection:
+    // a stack trace, and no coverage map for the 89 that succeeded.
+    console.error(err.message);
+    process.exit(1);
+  });
+}
 ```
 
 - [ ] **Step 2: Add `loadProviders` and the config example**
@@ -1262,7 +1651,199 @@ overlay file: data/overlay is the only layer here that cannot be rebuilt."
 
 ---
 
-## Task 8: Guards on the irreplaceable layer
+## Task 8: One real provider module
+
+Tasks 6 and 7 define the interface and the loader. **Neither creates a vendor
+file**, so `loadProviders` throws `ERR_MODULE_NOT_FOUND` on the first
+candidate and the CLI cannot produce a single claim. Without this task the
+phase can be declared done having achieved nothing, because the "Done when"
+list only exercises the dry run.
+
+Build **one** vendor to prove the interface. A second is a copy of this file
+with a different endpoint and is not needed to finish the phase — but nothing
+runs until at least one exists, and the distinctness rule means a real run
+needs two.
+
+**Files:** Create `scripts/lib/providers/anthropic.mjs`, `scripts/lib/providers/openai.mjs`
+
+- [ ] **Step 1: Consult the current API reference**
+
+**REQUIRED:** load the `claude-api` skill before writing the Anthropic module.
+Model ids, the request shape, and the structured-output mechanism change, and
+writing them from memory is how a plan ships a call that 400s. Take the model
+id, endpoint, headers, and the schema-enforcement mechanism from the skill, not
+from this document — which is why none are reproduced here.
+
+- [ ] **Step 2: Implement each vendor as a factory returning `{ complete }`**
+
+Each file default-exports `(model) => ({ complete })`, where `complete({system, user, schema})` resolves to a parsed object matching `schema`, and throws on transport or parse failure. Credentials come from the environment — `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` — read at call time, never logged, never written to any artifact.
+
+Keep each file to that one responsibility. Adding a vendor must remain "add one file"; if request-building logic starts being shared, it belongs in `index.mjs`, not in a second vendor copying the first.
+
+- [ ] **Step 3: Verify one real call end to end**
+
+```bash
+node scripts/enrich.mjs --country IS --limit 1
+```
+
+Iceland has 289 springs and good English sources, so it is the friendliest first target. Expected: at least one overlay file in `data/overlay/`, `data/refutations.jsonl` created if anything failed, and `Filtered run: data/coverage.json left unchanged.`
+
+Inspect the produced file by hand. Open its `source` URL and confirm the page says what the claim says. **This is the only step in the plan where a human reads the actual output, and the entire phase is worthless if these are wrong.**
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add scripts/lib/providers/anthropic.mjs scripts/lib/providers/openai.mjs
+git commit -m "feat: anthropic and openai provider modules
+
+Adding a vendor is adding one file; nothing else in the codebase learns its
+name. Credentials are read from the environment at call time and never reach
+an artifact."
+```
+
+---
+
+## Task 9: Tests for the CLI
+
+Three spec tests have no task, and one of them the spec calls the most important test here. They live in `enrich.mjs`, which Task 7 made testable by exporting `attempt` and `runPlan`, parameterising every path, and guarding `main()`.
+
+**Files:** Create `scripts/enrich.test.mjs`
+
+- [ ] **Step 1: Write the tests**
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { runPlan } from './enrich.mjs';
+
+const NOW = () => '2026-08-29T12:00:00.000Z';
+
+function tmp() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'enrich-'));
+  return {
+    overlayDir: path.join(dir, 'overlay'),
+    refutationsFile: path.join(dir, 'refutations.jsonl'),
+    coverageFile: path.join(dir, 'coverage.json'),
+  };
+}
+
+/** A proposer that always returns nothing, which is the correct answer. */
+const silent = { complete: async () => ({ claims: {} }) };
+const springs = [
+  { id: 'whs_00000000000a', name: 'A', location: { country: 'CL' } },
+  { id: 'whs_00000000000b', name: 'B', location: { country: 'CL' } },
+];
+const byId = new Map(springs.map((s) => [s.id, s]));
+const knownIds = new Set(byId.keys());
+const plan = [{ country: 'CL', candidates: ['whs_00000000000a', 'whs_00000000000b'] }];
+
+test('a spring with no findable sources produces zero files', async () => {
+  // The spec calls this the most important test here. The characteristic
+  // failure of an enrichment agent is inventing a plausible value rather than
+  // returning nothing, so "no file" must be a first-class outcome.
+  const paths = tmp();
+  const results = await runPlan({
+    plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+  });
+  assert.equal(fs.existsSync(paths.overlayDir), false, 'no overlay directory should be created');
+  assert.equal(results[0].verified, 0);
+  assert.equal(results[0].attempted, 2);
+});
+
+test('a country reports unmet rather than being skipped silently', async () => {
+  const paths = tmp();
+  const results = await runPlan({
+    plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+  });
+  const cov = JSON.parse(fs.readFileSync(paths.coverageFile, 'utf8'));
+  assert.equal(cov.countries[0].unmet, 2);
+  assert.equal(results.length, 1, 'the country must appear in the results, not vanish');
+});
+
+test('an existing overlay file is never re-proposed and counts toward the target', async () => {
+  const paths = tmp();
+  fs.mkdirSync(paths.overlayDir, { recursive: true });
+  fs.writeFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), '{}');
+  let calls = 0;
+  const counting = { complete: async () => { calls++; return { claims: {} }; } };
+  const results = await runPlan({
+    plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+  });
+  assert.equal(results[0].verified, 1, 'the existing file must count');
+  assert.equal(calls, 1, 'only the second candidate may be proposed');
+});
+
+test('a filtered run leaves the coverage map alone', async () => {
+  const paths = tmp();
+  fs.writeFileSync(paths.coverageFile, '{"sentinel":true}');
+  await runPlan({
+    plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+    writeCoverage: false,
+  });
+  assert.deepEqual(JSON.parse(fs.readFileSync(paths.coverageFile, 'utf8')), { sentinel: true });
+});
+
+test('end to end, a verified claim produces a file that validate-overlay accepts', async () => {
+  const paths = tmp();
+  const page = '<html><body>The water at A is 42.5 degrees.</body></html>';
+  const proposer = { complete: async () => ({
+    claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } },
+  }) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
+  const fetchImpl = async () => ({ ok: true, text: async () => page });
+
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+  });
+
+  const file = path.join(paths.overlayDir, 'whs_00000000000a.json');
+  assert.ok(fs.existsSync(file), 'a verified claim must produce a file');
+  const written = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(written.id, 'whs_00000000000a');
+  assert.equal(written.claims['temperature.celsius'].value, 42.5);
+  assert.equal(written.claims['temperature.celsius'].contributor, 'a:1',
+    'the provider must be recorded, since that is the benchmark');
+});
+```
+
+- [ ] **Step 2: Thread `fetchImpl` through**
+
+The last test passes `fetchImpl`. `runPlan` must accept it and pass it to `attempt`, which passes it to `fetchSource` as `{ fetchImpl }`. Add the parameter to both signatures, defaulting to the global `fetch`. Without this the end-to-end test makes a real network call and is not a test.
+
+- [ ] **Step 3: Run, confirm pass**
+
+Run: `node --test scripts/enrich.test.mjs`
+Expected: PASS, 5 tests.
+
+- [ ] **Step 4: Mutation-check the most important one**
+
+In `attempt`, change the final `return` to always return a claim object regardless of verification. Run the tests.
+Expected: `a spring with no findable sources produces zero files` FAILS. Restore.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add scripts/enrich.test.mjs scripts/enrich.mjs
+git commit -m "test: the CLI's three untested behaviours
+
+Covers the spec's tests 3, 11 and 14, including the one it calls the most
+important here: a spring with no findable sources must produce zero files.
+Stub providers throughout, and fetchImpl is injected so the end-to-end test
+makes no network call."
+```
+
+---
+
+## Task 10: Guards on the irreplaceable layer
 
 Assertions that this phase cannot destroy authored work or leak refuted values into the site.
 
@@ -1334,7 +1915,7 @@ refutation log into the published site."
 
 ---
 
-## Task 9: Documentation
+## Task 11: Documentation
 
 **Files:** Modify `CONTRIBUTING.md`, `docs/superpowers/HANDOFF.md`
 
@@ -1377,13 +1958,32 @@ Expected: all tests pass, `merged 1167 duplicate record(s) -> 6471 springs`, cle
 
 ## Done when
 
-- `npm test` passes, including all six new suites
+- `npm test` passes, including all new suites
 - `npm run enrich:plan` prints a 129-country plan and makes no network call
-- Same-vendor proposer and verifier is refused with an explanation
-- An overlay naming a nonexistent spring id is rejected
+- Same-vendor proposer and verifier is refused, in either letter case
+- **The `validate-overlay` CLI** rejects an overlay naming a nonexistent spring
+  — the CLI, not only the library function
 - An agent claim on `nearestTown` is rejected; a human one is accepted
 - `data/flagship.json` exists with 129 countries
+- `checkPaths` accepts a 237-file run plus the two artifacts, and still rejects
+  `data/hot-springs.json`
 - The guards fail if the CLI gains a delete, or the build gains a refutation read
+- **At least one real claim exists in `data/overlay/`, and a human has opened
+  its source URL and confirmed the page says what the claim says.**
+
+That last one is the only bullet that measures the phase's actual goal. An
+earlier version of this list stopped at the dry run, which would have let the
+phase be declared complete having produced nothing — while the stated Goal is
+to produce the atlas's first authored claims, and the spec's whole premise is
+that none exist.
+
+## Not a success metric
+
+**Fields filled.** A run that enriches 40 springs of 200 and correctly declines
+the other 160 is a good run. Anyone building a dashboard from
+`data/coverage.json` should read that sentence first: `unmet` is a measurement
+of the reachable public record, not a backlog to burn down, and driving it to
+zero by loosening verification would destroy the only thing here worth having.
 
 ## Explicitly not done in this phase
 
