@@ -1,6 +1,15 @@
 # Phase 3: Flagship Enrichment — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+>
+> **Git rules for implementers, learned the hard way during Task 3.** Make new
+> commits only. **Never `--amend`, never `git reset`, never rewrite history.**
+> A coordinator may be committing to the same branch while you work: an amend
+> issued after someone else's commit lands rewrites *their* commit, not yours,
+> silently absorbing their files under your message. That happened, and only
+> luck kept it to a lost commit message rather than lost work. If review asks
+> for changes, add a follow-up commit — the history being slightly longer costs
+> nothing, and squashing is the merge's job, not yours.
 
 **Goal:** Produce the atlas's first authored claims — two verified springs per country, across all 129 — and a published map of where public knowledge does not exist.
 
