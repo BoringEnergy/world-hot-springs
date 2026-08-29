@@ -842,7 +842,7 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/verify-source.test.mjs`
-Expected: PASS, 25 tests.
+Expected: PASS, 26 tests.
 
 > **The double backslash in the decimal pattern is load-bearing.** Inside a
 > template literal, `\.` is stripped to a bare `.` — a regex wildcard — and
@@ -901,10 +901,42 @@ import path from 'node:path';
 import { stripNote, OUTCOMES, appendRefutation, MAX_NOTE_CHARS } from './lib/refutations.mjs';
 
 test('the outcome set is closed', () => {
-  assert.deepEqual(
-    [...OUTCOMES].sort(),
-    ['different-subject', 'refuted-by-verifier', 'source-unreachable', 'value-absent-from-source'],
-  );
+  assert.deepEqual([...OUTCOMES].sort(), [
+    'different-subject',
+    'refuted-by-verifier',
+    'source-malformed',
+    'source-not-found',
+    'source-too-large',
+    'source-unreachable',
+    'value-absent-from-source',
+  ]);
+});
+
+test('an html tag is removed whole, not reduced to its letters', () => {
+  // Deleting the tag strip leaves every `doesNotMatch(/<[^>]+>/)` assertion
+  // passing, because the bare-angle strip below it still removes < and >.
+  // What actually breaks is readability: `<b>bold</b>` becomes `bbold/b` and
+  // the note is turned to noise with the suite green. Found by mutation.
+  assert.equal(stripNote('<b>bold</b> text'), 'bold text');
+  assert.equal(stripNote('a <a href="http://evil">click</a> b'), 'a click b');
+});
+
+test('a non-string note becomes empty rather than crashing the run', () => {
+  assert.equal(stripNote(undefined), '');
+  assert.equal(stripNote(42), '');
+});
+
+test('a hostile note is stripped on the way to disk, not only in stripNote', () => {
+  // stripNote being correct is not the property that matters; appendRefutation
+  // actually calling it is. Without this, `note: record.note` ships raw.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ref-'));
+  const file = path.join(dir, 'r.jsonl');
+  appendRefutation(file, {
+    springId: 'whs_00000000000a', field: 'temperature.celsius',
+    outcome: 'refuted-by-verifier', note: 'see ![x](http://evil) @maintainer',
+  }, '2026-08-29T12:00:00.000Z');
+  const rec = JSON.parse(fs.readFileSync(file, 'utf8').trim());
+  assert.doesNotMatch(rec.note, /http|!\[|@/);
 });
 
 test('an outcome outside the enum is refused', () => {
@@ -1083,7 +1115,7 @@ export function appendRefutation(file, record, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/refutations.test.mjs`
-Expected: PASS, 8 tests.
+Expected: PASS, 11 tests.
 
 - [ ] **Step 5: Commit**
 
