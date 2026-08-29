@@ -833,7 +833,7 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/verify-source.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 15 tests.
 
 - [ ] **Step 5: Mutation-check the boundary logic**
 
@@ -1043,7 +1043,7 @@ export function appendRefutation(file, record, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/refutations.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 8 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -1168,7 +1168,7 @@ export function buildCoverage(results, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/coverage.test.mjs`
-Expected: PASS, 4 tests.
+Expected: PASS, 6 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -1309,7 +1309,7 @@ export function resolveRoles(config) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/providers.test.mjs`
-Expected: PASS, 5 tests.
+Expected: PASS, 7 tests.
 
 - [ ] **Step 5: Commit**
 

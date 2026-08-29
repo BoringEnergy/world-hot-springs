@@ -14,10 +14,25 @@
  */
 export const MAX_SOURCE_BYTES = 2_000_000;
 
-/** Strip markup to searchable text. Not a parser; a reducer. */
+/**
+ * Strip markup to searchable text. Not a parser; a reducer.
+ *
+ * Script and style bodies are dropped before the generic tag strip, including
+ * when the close tag carries whitespace (`</script >`) or never arrives --
+ * otherwise code and JSON blobs become quotable evidence on a page whose
+ * author we do not trust.
+ *
+ * What still survives, deliberately: only the three named entities below are
+ * decoded, so numeric forms like `&#176;` pass through as themselves; a
+ * comment containing `>` leaves its tail as text; and an attribute value
+ * containing `>` ends the tag strip early, leaking the rest of the attribute.
+ * None of those manufacture a number that was not already on the page.
+ */
 export function textOf(html) {
   return html
-    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<(script|style|noscript|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
+    // An unclosed script runs to the end of input; so does the leak.
+    .replace(/<(script|style|noscript|template)\b[^>]*>[\s\S]*$/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/&deg;/gi, '°')
@@ -34,6 +49,12 @@ export function textOf(html) {
  * where opening hours and elevations sit beside temperatures. European decimal
  * commas are accepted because a great many of these sources are not English.
  *
+ * A sign is part of the number: "-40" does not certify a claim of 40. The cost
+ * is that in "range 40-45 °C" a claim of 45 is rejected while 40 still matches.
+ * That asymmetry is the conservative direction and is the intended trade -- a
+ * false negative costs a claim, a false positive on temperature can burn
+ * someone.
+ *
  * Known limitation, ASCII only: full-width and CJK numerals do not match
  * ("２０００円", "二千" against 2000), and the string branch's word
  * boundary is an ASCII class, so a needle abutting CJK text counts as whole.
@@ -45,6 +66,10 @@ export function valueAppears(value, text) {
   const hay = text.toLowerCase();
 
   if (typeof value === 'number') {
+    // No literal spelling exists for these on a page, and "1e+21" would splice
+    // a quantifier into the pattern rather than a digit.
+    if (!Number.isFinite(value) || String(value).includes('e')) return false;
+
     const [whole, frac] = String(value).split('.');
     // Both branches need a boundary on BOTH sides. Without the trailing guard
     // on the decimal branch, 42.5 matches "42,500", "42.55", and "42.51" --
@@ -56,9 +81,11 @@ export function valueAppears(value, text) {
       // comma branch stays strict, and a European "42,50" is a miss we accept
       // rather than reopen the thousands-separator collision.
       ? `${whole}(?:\\.${frac}0*|,${frac})`
-      // An integer may be written grouped: 2000 appears as "2,000" or "2.000".
-      : whole.replace(/\B(?=(\d{3})+$)/g, '[.,]?');
-    return new RegExp(`(?<![\\d.,])${body}(?![\\d.,]*\\d)`).test(hay);
+      // An integer may be written grouped: 2000 appears as "2,000" or "2.000",
+      // and it may carry the same meaningless trailing zeros: "40.0".
+      : `${whole.replace(/\B(?=(\d{3})+$)/g, '[.,]?')}(?:\\.0+)?`;
+    // The leading class carries the sign characters a source might use.
+    return new RegExp(`(?<![-\\u2212\\u2013\\d.,])${body}(?![\\d.,]*\\d)`).test(hay);
   }
 
   const needle = String(value).toLowerCase().trim();
@@ -69,17 +96,24 @@ export function valueAppears(value, text) {
 
 /**
  * Fetch a URL and return its text, or a reason it could not be used.
+ *
+ * The scheme check is the only network guard: host-level SSRF is NOT covered.
+ * http://localhost:6379/ and http://169.254.169.254/ pass, and redirect
+ * following lets a public host send us to either.
+ *
  * @returns {Promise<{ok: true, text: string} | {ok: false, outcome: string}>}
  */
 export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 } = {}) {
+  const unreachable = { ok: false, outcome: 'source-unreachable' };
+
   let parsed;
   try {
     parsed = new URL(url);
   } catch {
-    return { ok: false, outcome: 'source-unreachable' };
+    return unreachable;
   }
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-    return { ok: false, outcome: 'source-unreachable' };
+    return unreachable;
   }
 
   const signal = AbortSignal.timeout(timeoutMs);
@@ -87,13 +121,26 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
   try {
     res = await fetchImpl(url, { signal, redirect: 'follow' });
   } catch {
-    return { ok: false, outcome: 'source-unreachable' };
+    return unreachable;
   }
-  if (!res.ok) return { ok: false, outcome: 'source-unreachable' };
+  if (!res.ok) return unreachable;
 
-  const body = await res.text();
-  if (Buffer.byteLength(body, 'utf8') > MAX_SOURCE_BYTES) {
-    return { ok: false, outcome: 'source-unreachable' };
+  // Reject on the declared length before reading a byte. The cap is a memory
+  // bound as much as an evidence bound, and a hostile host streams forever.
+  const declared = Number(res.headers?.get('content-length'));
+  if (Number.isFinite(declared) && declared > MAX_SOURCE_BYTES) return unreachable;
+
+  let body;
+  try {
+    // The timeout covers the body stream too, so on a slow server the abort
+    // lands here rather than at the header exchange. So does a mid-stream
+    // reset. Either way it is an outcome, not an exception thrown at the run.
+    body = await res.text();
+  } catch {
+    return unreachable;
   }
+  // Backstop for a missing or lying content-length.
+  if (Buffer.byteLength(body, 'utf8') > MAX_SOURCE_BYTES) return unreachable;
+
   return { ok: true, text: textOf(body) };
 }
