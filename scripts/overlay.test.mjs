@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { CLAIMABLE, RISK, validateOverlay, loadOverlays } from './lib/overlay.mjs';
+import { CLAIMABLE, AGENT_CLAIMABLE, ARRAY_FIELDS, RISK, validateOverlay, loadOverlays } from './lib/overlay.mjs';
 
 const ID = 'whs_a1b2c3d4e5f6';
 
@@ -298,4 +298,66 @@ test('array fields never contest, because they merge', () => {
     overlay({ tags: { value: ['sulfur'], source: 'https://x.test', contributor: 'github:a', state: 'active' } }),
   );
   assert.equal(events.filter((e) => e.type === 'claim.contested').length, 0);
+});
+
+test('an overlay for a nonexistent spring id is rejected', () => {
+  const known = new Set(['whs_b803e624c229']);
+  const errors = validateOverlay(
+    { id: 'whs_000000000000', claims: {} },
+    { knownIds: known },
+  );
+  assert.ok(
+    errors.some((e) => /not a spring in this dataset/.test(e)),
+    'a well-formed id that matches nothing must be rejected',
+  );
+});
+
+test('a known spring id passes the existence check', () => {
+  const known = new Set(['whs_b803e624c229']);
+  assert.deepEqual(validateOverlay({ id: 'whs_b803e624c229', claims: {} }, { knownIds: known }), []);
+});
+
+test('the existence check is skipped when no id set is supplied', () => {
+  // Back-compat: every existing caller passes one argument.
+  assert.deepEqual(validateOverlay({ id: 'whs_000000000000', claims: {} }), []);
+});
+
+test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
+  assert.deepEqual(
+    CLAIMABLE.filter((f) => !AGENT_CLAIMABLE.includes(f)).sort(),
+    ['location.nearestTown', 'name', 'tags', 'warnings'].sort(),
+  );
+  assert.equal(AGENT_CLAIMABLE.length, 13);
+});
+
+test('an agent may claim every permitted field', () => {
+  const claims = Object.fromEntries(AGENT_CLAIMABLE.map((f) => [f, {
+    value: ARRAY_FIELDS.includes(f) ? [] : (f === 'temperature.celsius' ? 40 : 'x'),
+    source: 'https://e.org',
+    contributor: 'openai:gpt-5',
+  }]));
+  assert.deepEqual(validateOverlay({ id: 'whs_b803e624c229', claims }, { agentAuthored: true }), []);
+});
+
+test('an agent claim on a human-only field is rejected', () => {
+  const errors = validateOverlay(
+    {
+      id: 'whs_b803e624c229',
+      claims: {
+        'location.nearestTown': { value: 'Springfield', source: 'https://e.org', contributor: 'openai:gpt-5' },
+      },
+    },
+    { agentAuthored: true },
+  );
+  assert.ok(errors.some((e) => /not claimable by an agent/.test(e)));
+});
+
+test('the same field is accepted from a human author', () => {
+  const errors = validateOverlay({
+    id: 'whs_b803e624c229',
+    claims: {
+      'location.nearestTown': { value: 'Springfield', source: 'https://e.org', contributor: 'github:someone' },
+    },
+  });
+  assert.deepEqual(errors, []);
 });

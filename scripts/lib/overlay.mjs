@@ -53,6 +53,23 @@ export const CLAIMABLE = [
 ];
 
 /**
+ * Fields an *agent* may claim: CLAIMABLE minus four, each withheld for its own
+ * reason. See the phase 3 spec for the full argument.
+ *
+ *   location.nearestTown  findability; the privacy rule outranks completeness
+ *   name                  OSM is usually right, and a bad rename hides itself
+ *   warnings              safety-critical and merge-only: a fabricated warning
+ *                         can never be removed by another claim
+ *   tags                  merge-only and unbounded; agent fill is unprunable noise
+ *
+ * A first-pass posture, not a permanent judgement. A withheld field can be
+ * granted later; a bad claim is already published.
+ */
+export const AGENT_HELD_BACK = ['location.nearestTown', 'name', 'warnings', 'tags'];
+
+export const AGENT_CLAIMABLE = CLAIMABLE.filter((f) => !AGENT_HELD_BACK.includes(f));
+
+/**
  * Risk tiers track physical harm if wrong, not effort to fix. A wrong
  * temperature can burn someone; a wrong name is a discoverability problem.
  *
@@ -92,13 +109,23 @@ export const ARRAY_FIELDS = ['tags', 'warnings'];
 /** Matches a durable spring id. 12 hex characters; see identity.mjs on why. */
 export const SPRING_ID = /^whs_[0-9a-f]{12}$/;
 
-/** @returns {string[]} human-readable errors; empty means valid. */
-export function validateOverlay(overlay) {
+/**
+ * @param {object} overlay
+ * @param {{knownIds?: Set<string>, agentAuthored?: boolean}} [opts]
+ * @returns {string[]} human-readable errors; empty means valid.
+ */
+export function validateOverlay(overlay, opts = {}) {
   const errors = [];
 
   if (!SPRING_ID.test(overlay?.id ?? '')) {
     errors.push(`id must look like whs_a1b2c3d4e5f6, got ${JSON.stringify(overlay?.id)}`);
+  } else if (opts.knownIds && !opts.knownIds.has(overlay.id)) {
+    // A well-formed id that matches nothing validates cleanly and attaches to
+    // nothing. A human writing one file by hand would notice; an agent
+    // generating hundreds will not.
+    errors.push(`${overlay.id} is not a spring in this dataset`);
   }
+
   if (!overlay?.claims || typeof overlay.claims !== 'object') {
     errors.push('claims must be an object');
     return errors;
@@ -107,6 +134,10 @@ export function validateOverlay(overlay) {
   for (const [field, claim] of Object.entries(overlay.claims)) {
     if (!CLAIMABLE.includes(field)) {
       errors.push(`${field} is not claimable`);
+      continue;
+    }
+    if (opts.agentAuthored && !AGENT_CLAIMABLE.includes(field)) {
+      errors.push(`${field} is not claimable by an agent; it is reviewed by a person`);
       continue;
     }
     if (claim?.value === undefined) errors.push(`${field}: value is required`);
@@ -146,6 +177,10 @@ export function loadOverlays(dir) {
     } catch (err) {
       throw new Error(`${full} is not valid JSON: ${err.message}`);
     }
+    // Deliberately no knownIds: this runs mid-build, and build-dataset.mjs
+    // already fatals on an overlay that lands on nothing. Neither check is
+    // redundant -- that one catches orphans here, validate-overlay.mjs catches
+    // them in CI, before a contributor's PR is merged.
     const errors = validateOverlay(parsed);
     if (errors.length) {
       throw new Error(`${full} is invalid:\n  ${errors.join('\n  ')}`);

@@ -17,6 +17,31 @@ import { validateOverlay } from './lib/overlay.mjs';
 import { checkPaths, ALLOWED_PREFIX } from './lib/pathguard.mjs';
 
 const OVERLAY_DIR = path.join('data', 'overlay');
+const DATASET = path.join('data', 'hot-springs.json');
+
+/**
+ * Every id in the published dataset, or null when it cannot be read.
+ *
+ * Null disables the existence check rather than failing the whole run: a
+ * contributor's claim should not be blocked because the dataset is unreadable
+ * on their machine, and checking everything except existence beats checking
+ * nothing. But the skip is announced -- a gate that quietly turns itself off
+ * and still prints success is worse than one that fails.
+ */
+function knownSpringIds() {
+  if (!fs.existsSync(DATASET)) {
+    console.warn(`WARNING: ${DATASET} is missing; skipping the spring-existence check.`);
+    return null;
+  }
+  try {
+    return new Set(JSON.parse(fs.readFileSync(DATASET, 'utf8')).map((s) => s.id));
+  } catch (err) {
+    // Broader than a parse failure: an unexpected shape makes .map throw, and
+    // an unreadable or half-written file lands here too.
+    console.warn(`WARNING: ${DATASET} unreadable (${err.message}); skipping the spring-existence check.`);
+    return null;
+  }
+}
 
 const slash = (p) => p.replace(/\\/g, '/');
 
@@ -67,6 +92,9 @@ function main() {
     console.error(`${f}: not an overlay file; this validator only checks ${ALLOWED_PREFIX}**`);
   }
 
+  // Only when there is something to check against it; the dataset is 5.5 MB.
+  const knownIds = present.length ? knownSpringIds() : null;
+
   for (const file of present) {
     let parsed;
     try {
@@ -76,7 +104,7 @@ function main() {
       failed++;
       continue;
     }
-    const errors = validateOverlay(parsed);
+    const errors = validateOverlay(parsed, { knownIds });
     // The filename must match the id inside, or the file is invisible to
     // anyone grepping the directory for a spring.
     const expected = `${parsed?.id}.json`;
