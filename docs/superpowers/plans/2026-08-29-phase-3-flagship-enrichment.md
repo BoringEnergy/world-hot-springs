@@ -833,7 +833,15 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/verify-source.test.mjs`
-Expected: PASS, 15 tests.
+Expected: PASS, 25 tests.
+
+> **The double backslash in the decimal pattern is load-bearing.** Inside a
+> template literal, `\.` is stripped to a bare `.` — a regex wildcard — and
+> `42.5` immediately starts matching `42,500` again, which is the exact
+> collision this whole branch exists to prevent. It must be `\\.`. This was
+> lost in transcription once during execution; the near-miss test caught it on
+> the first run, before any mutation check, which is the clearest evidence
+> available that those boundary assertions earn their place.
 
 - [ ] **Step 5: Mutation-check the boundary logic**
 
@@ -856,7 +864,20 @@ truncation lets the page author choose where the evidence stops."
 
 ## Task 4: The refutation log
 
-**Files:** Create `scripts/lib/refutations.mjs`, `scripts/refutations.test.mjs`
+**Files:** Create `scripts/lib/refutations.mjs`, `scripts/refutations.test.mjs`; modify `scripts/lib/verify-source.mjs`, `scripts/verify-source.test.mjs`
+
+**This task also splits `fetchSource`'s failure outcome.** Task 3 shipped it
+returning `source-unreachable` for five distinct failures — bad scheme,
+unparseable URL, HTTP error, network error, and oversize. Review found that
+collapsing them destroys the single most useful signal an enrichment run
+produces: *did the provider invent this URL, or is the page merely unusable?*
+
+The enum below splits them. Update `fetchSource` to return the specific
+outcome at each of its five exit points, and update its tests to assert the
+specific one rather than the generic. The outcome strings are owned here, in
+`refutations.mjs`, so `verify-source.mjs` should import `OUTCOMES` and a test
+should assert every outcome `fetchSource` can return is a member of it — a
+typo'd outcome string is otherwise invisible until it reaches the log.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -981,7 +1002,17 @@ import path from 'node:path';
  * entitled to make in a public repository under the project's name.
  */
 export const OUTCOMES = new Set([
-  'source-unreachable',
+  // Why a source failed, split four ways rather than collapsed into one.
+  // "The agent invented a URL" and "the page is 3 MB" are the same outcome to
+  // the run and completely different facts about the provider -- and telling
+  // them apart is most of what makes the cross-provider record worth keeping.
+  // A fabrication rate is computable from the first two; the second two are
+  // properties of the web, not of the model.
+  'source-malformed',   // unparseable, or a scheme we refuse. Not a URL at all.
+  'source-not-found',   // well-formed, HTTP error. Nothing is there.
+  'source-unreachable', // network failure or timeout. May be transient.
+  'source-too-large',   // rejected by the byte cap, never truncated.
+
   'value-absent-from-source',
   'different-subject',
   'refuted-by-verifier',
