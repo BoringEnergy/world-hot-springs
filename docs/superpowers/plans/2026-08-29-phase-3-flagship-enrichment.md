@@ -411,12 +411,25 @@ the whole point of having both. Restore.
 
 - [ ] **Step 8: Commit**
 
+**All four files.** An earlier version of this step staged only the two
+library files, which would have committed the guard while leaving Steps 4 and 5
+— the CLI wiring, the point of the exercise — unstaged. `npm test` would still
+have been green on a tree where the guard CI actually runs was absent. Caught
+during execution; recorded because it is the same defect shape the plan exists
+to prevent.
+
 ```bash
-git add scripts/lib/overlay.mjs scripts/overlay.test.mjs
+git add scripts/lib/overlay.mjs scripts/overlay.test.mjs \
+        scripts/validate-overlay.mjs scripts/validate-overlay.test.mjs
 git commit -m "fix: reject overlays for nonexistent springs; narrow the agent field set
 
-A well-formed id matching no spring validated cleanly and attached to nothing.
+A well-formed id matching no spring passed validation, and gate-1 went green
+while the maintainer's build then failed -- the failure deferred from the
+contributor who could fix it to the maintainer who has to diagnose it.
 Harmless when a person writes one file; not when an agent writes hundreds.
+
+The check is wired into validate-overlay.mjs, not only the library: a guard the
+CLI never passes is a guard that does not exist.
 
 Agents get 13 of the 17 claimable fields. nearestTown is withheld because
 findability is the one thing SPEC.md calls non-negotiable."
