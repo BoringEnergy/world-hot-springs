@@ -47,5 +47,16 @@ test('a missing role fails with an explanation', () => {
 
 test('no provider is privileged by the interface', () => {
   // Any vendor pair is acceptable; the code must hold no opinion about which.
-  assert.doesNotThrow(() => resolveRoles({ proposer: 'google:gemini-3', verifier: 'xai:grok-4' }));
+  // Asserting the returned value here and not only in the openai/anthropic
+  // test is what stops resolveRoles being a constant: with a single happy-path
+  // assertion whose input is exactly the expected output, a hardcoded return
+  // passed all seven tests.
+  const roles = resolveRoles({ proposer: 'google:gemini-3', verifier: 'xai:grok-4' });
+  assert.equal(roles.proposer, 'google:gemini-3');
+  assert.equal(roles.verifier, 'xai:grok-4');
+});
+
+test('the ids come back as given, only the comparison is lowercased', () => {
+  const roles = resolveRoles({ proposer: 'Google:Gemini-3', verifier: 'xai:grok-4' });
+  assert.equal(roles.proposer, 'Google:Gemini-3');
 });
