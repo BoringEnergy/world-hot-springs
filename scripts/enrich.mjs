@@ -48,7 +48,7 @@ function loadJson(file) {
  * returning nothing, so every exit here that is not a verified claim must
  * produce no file at all.
  */
-export async function attempt(spring, roles, providers, refutationsFile, now) {
+export async function attempt(spring, roles, providers, refutationsFile, now, fetchImpl = fetch) {
   const proposal = await providers.proposer.complete({
     system: `Propose verifiable facts about a hot spring. You may only propose these fields: ${AGENT_CLAIMABLE.join(', ')}. Every field needs a public source URL that states the value. If you cannot find a real source, return an empty claims object. Returning nothing is correct and expected.`,
     user: JSON.stringify({ id: spring.id, name: spring.name, country: spring.location.country }),
@@ -68,11 +68,34 @@ export async function attempt(spring, roles, providers, refutationsFile, now) {
     },
   });
 
-  const verified = {};
-  for (const [field, claim] of Object.entries(proposal?.claims ?? {})) {
-    if (!AGENT_CLAIMABLE.includes(field)) continue;
+  const claims = Object.entries(proposal?.claims ?? {});
+  // The expected outcome, and the one that otherwise leaves no trace at all.
+  // No overlay file and no refutation is indistinguishable from never having
+  // tried, so every resumption re-proposes exactly the springs with no
+  // findable sources -- the ones each restart reaches first.
+  if (claims.length === 0) {
+    appendRefutation(refutationsFile, {
+      springId: spring.id, field: null, proposer: roles.proposer, stage: 'proposal',
+      outcome: 'no-claim-proposed', note: 'the proposer found nothing to claim',
+    }, now());
+    return null;
+  }
 
-    const fetched = await fetchSource(claim.source);
+  const verified = {};
+  for (const [field, claim] of claims) {
+    if (!AGENT_CLAIMABLE.includes(field)) {
+      // Recorded, not dropped. A provider reaching for `name` or `warnings` --
+      // fields deliberately withheld from agents -- is one of the more
+      // interesting things this log can hold, and it was previously invisible.
+      appendRefutation(refutationsFile, {
+        springId: spring.id, field, proposed: claim?.value, source: claim?.source,
+        proposer: roles.proposer, stage: 'proposal',
+        outcome: 'field-not-agent-claimable', note: 'field is withheld from agents',
+      }, now());
+      continue;
+    }
+
+    const fetched = await fetchSource(claim.source, { fetchImpl });
     if (!fetched.ok) {
       appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: claim.source,
@@ -183,8 +206,12 @@ export function alreadyAttempted(refutationsFile) {
 export async function runPlan({
   plan, byId, knownIds, providers, roles,
   overlayDir, refutationsFile, coverageFile,
-  writeCoverage = true, retryRefuted = false,
+  // Defaults to off: this is called repeatedly by tests, and the failure mode
+  // of the other default is overwriting a published 129-country artifact.
+  // `main` passes it explicitly for the only run that should write one.
+  writeCoverage = false, retryRefuted = false,
   now = () => new Date().toISOString(),
+  fetchImpl = fetch,
 }) {
   const attemptedBefore = retryRefuted ? new Set() : alreadyAttempted(refutationsFile);
   const results = [];
@@ -192,9 +219,10 @@ export async function runPlan({
   for (const { country, candidates } of plan) {
     let verified = 0;
     let attempted = 0;
+    let alreadyHad = 0;
 
     for (const id of candidates) {
-      if (verified >= TARGET_PER_COUNTRY) break;
+      if (verified + alreadyHad >= TARGET_PER_COUNTRY) break;
       const spring = byId.get(id);
       if (!spring) continue;
 
@@ -204,7 +232,10 @@ export async function runPlan({
       // and because it did not count toward `verified`, a country whose target
       // was already met chewed through all five candidates every time.
       if (fs.existsSync(file)) {
-        verified++;
+        // Counted apart from `verified`. It satisfies the target -- the atlas
+        // has the claim -- but this run did not verify it, and coverage.json
+        // says in its own text that it reports what this run could verify.
+        alreadyHad++;
         continue;
       }
 
@@ -224,12 +255,18 @@ export async function runPlan({
       }
 
       attempted++;
-      const overlay = await attempt(spring, roles, providers, refutationsFile, now);
+      const overlay = await attempt(spring, roles, providers, refutationsFile, now, fetchImpl);
       if (!overlay) continue;
 
       const errors = validateOverlay(overlay, { knownIds, agentAuthored: true });
       if (errors.length) {
         console.error(`${id}: produced an invalid overlay, discarding:\n  ${errors.join('\n  ')}`);
+        // Discarding silently left no trace and no resume-skip, so the same
+        // unusable overlay was proposed and paid for again on every restart.
+        appendRefutation(refutationsFile, {
+          springId: id, field: null, proposer: roles.proposer, verifier: roles.verifier,
+          stage: 'validation', outcome: 'overlay-rejected', note: errors.join('; '),
+        }, now());
         continue;
       }
 
@@ -238,8 +275,11 @@ export async function runPlan({
       verified++;
     }
 
-    results.push({ country, candidates: candidates.length, attempted, verified });
-    console.log(`${country}: ${verified}/${TARGET_PER_COUNTRY} from ${attempted} attempted`);
+    results.push({ country, candidates: candidates.length, attempted, verified, alreadyHad });
+    console.log(
+      `${country}: ${verified}/${TARGET_PER_COUNTRY} from ${attempted} attempted` +
+        (alreadyHad ? `, ${alreadyHad} already held` : ''),
+    );
   }
 
   // Only on a full run. A --country CL run holds one country's results, and
@@ -293,12 +333,16 @@ async function main() {
     writeCoverage: !filtered, retryRefuted,
   });
 
-  const met = results.filter((r) => r.verified >= TARGET_PER_COUNTRY).length;
+  const met = results.filter((r) => r.verified + r.alreadyHad >= TARGET_PER_COUNTRY).length;
   console.log(`\n${met}/${results.length} countries met the target.`);
   console.log('Countries with no verified claim are the point, not the failure.');
 }
 
 // Guarded so the module can be imported by tests without executing a run.
+// Known fragility: this compares resolved paths, so an invocation through a
+// symlink -- or, on Windows, a differing drive-letter case -- makes the CLI
+// exit 0 having silently done nothing. Left as is: the failure is quiet but
+// harmless, and every alternative guard has an edge of its own.
 if (import.meta.filename === process.argv[1]) {
   main().catch((err) => {
     // Without this, a failure on country 90 of 129 is an unhandled rejection:

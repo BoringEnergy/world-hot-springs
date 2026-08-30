@@ -28,12 +28,24 @@ export function buildCoverage(results, timestamp) {
         candidates: r.candidates,
         attempted: r.attempted,
         verified: r.verified,
+        // Overlay files that already existed when this run started. Kept apart
+        // from `verified` because MEASURES promises what THIS run could
+        // verify: folding a human-authored overlay into `verified` would let a
+        // resumed run that made no calls report a country as freshly proven.
+        alreadyHad: r.alreadyHad ?? 0,
         // Capped by what the country can actually offer. 21 countries have
         // exactly one spring in the dataset; a perfect run there verifies one
         // of one, and reporting `unmet: 1` forever would make the artifact
         // say the opposite of what happened -- in the one file the spec
         // insists must not mislead a reader.
-        unmet: Math.max(0, Math.min(TARGET_PER_COUNTRY, r.candidates) - r.verified),
+        //
+        // Counts both halves: what is missing is missing from the atlas, not
+        // from this particular run, so a resumption must not re-report a
+        // target it already met as unmet.
+        unmet: Math.max(
+          0,
+          Math.min(TARGET_PER_COUNTRY, r.candidates) - (r.verified + (r.alreadyHad ?? 0)),
+        ),
       })),
   };
 }

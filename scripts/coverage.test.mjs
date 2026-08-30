@@ -53,8 +53,35 @@ test('the three counts a reader needs travel through unchanged', () => {
     candidates: 5,
     attempted: 3,
     verified: 2,
+    // Present on every row, so a reader can always tell how much of a
+    // country's coverage this run actually produced.
+    alreadyHad: 0,
     unmet: 0,
   });
+});
+
+test('a target met entirely by pre-existing overlays reports no fresh verification', () => {
+  // The case the split exists for. Folding these into `verified` would let a
+  // resumed run that made no provider call at all publish a map claiming it
+  // verified two springs -- under a `measures` string promising the number is
+  // what THIS run could verify.
+  const cov = buildCoverage([{ country: 'IS', candidates: 5, attempted: 0, verified: 0, alreadyHad: 2 }], 'x');
+  assert.deepEqual(cov.countries[0], {
+    country: 'IS',
+    candidates: 5,
+    attempted: 0,
+    verified: 0,
+    alreadyHad: 2,
+    unmet: 0,
+  });
+});
+
+test('unmet counts what the atlas holds, not what this run added', () => {
+  // A resumption that verified one more on top of one already held has met
+  // the target. Computing unmet from `verified` alone would report the
+  // country short forever, however many runs it takes.
+  const cov = buildCoverage([{ country: 'PE', candidates: 5, attempted: 4, verified: 1, alreadyHad: 1 }], 'x');
+  assert.equal(cov.countries[0].unmet, 0);
 });
 
 test('the artifact records when it was generated and what it aimed for', () => {

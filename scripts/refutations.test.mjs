@@ -12,6 +12,13 @@ test('the outcome set is closed', () => {
     [...OUTCOMES].sort(),
     [
       'different-subject',
+      // Three outcomes of a run rather than of a source. They exist so that a
+      // spring which produced no overlay file still leaves a trace: without
+      // them a resumed run cannot tell "never tried" from "tried and got
+      // nothing", and re-pays for the second every restart.
+      'field-not-agent-claimable',
+      'no-claim-proposed',
+      'overlay-rejected',
       'refuted-by-verifier',
       'source-malformed',
       'source-not-found',

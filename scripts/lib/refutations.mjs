@@ -35,6 +35,14 @@ export const OUTCOMES = new Set([
   'value-absent-from-source',
   'different-subject',
   'refuted-by-verifier',
+
+  // Outcomes of a run rather than of a source. A spring that produced no
+  // overlay file leaves no other trace, so without these three a resumed run
+  // cannot tell "never tried" from "tried and got nothing" -- and re-pays for
+  // the second on every restart.
+  'no-claim-proposed',         // the proposer found nothing. Correct, and expected.
+  'overlay-rejected',          // it produced something validateOverlay refused.
+  'field-not-agent-claimable', // it tried a field withheld from agents.
 ]);
 
 export const MAX_NOTE_CHARS = 280;
