@@ -1970,6 +1970,12 @@ test('a country reports unmet rather than being skipped silently', async () => {
   const results = await runPlan({
     plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
     providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+    // Required: writeCoverage defaults to false, so without this the file the
+    // next line reads is never created and the test dies on ENOENT. The
+    // default is deliberately the safe one -- tests call runPlan repeatedly,
+    // and the other default's failure mode is overwriting a published
+    // 129-country artifact.
+    writeCoverage: true,
   });
   const cov = JSON.parse(fs.readFileSync(paths.coverageFile, 'utf8'));
   assert.equal(cov.countries[0].unmet, 2);
@@ -2057,12 +2063,21 @@ The last test passes `fetchImpl`. `runPlan` must accept it and pass it to `attem
 - [ ] **Step 3: Run, confirm pass**
 
 Run: `node --test scripts/enrich.test.mjs`
-Expected: PASS, 5 tests.
+Expected: PASS, 14 tests.
 
 - [ ] **Step 4: Mutation-check the most important one**
 
-In `attempt`, change the final `return` to always return a claim object regardless of verification. Run the tests.
+Mutate the **early return** in `attempt` — the `claims.length === 0` branch that
+fires when the proposer finds nothing — so it invents a claim instead.
 Expected: `a spring with no findable sources produces zero files` FAILS. Restore.
+
+> An earlier version of this step mutated `attempt`'s *final* return instead.
+> That leaves the early return intact, so the proposer-found-nothing path still
+> produces no file and **the test this step names keeps passing** — four other
+> tests fail, which reads like a successful mutation check unless you look at
+> which ones. Verified during execution: 10 pass, 4 fail, and the named test is
+> among the passes. A mutation check that kills the wrong tests is worse than
+> none, because it certifies the assertion you did not actually exercise.
 
 - [ ] **Step 5: Commit**
 
