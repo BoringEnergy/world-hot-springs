@@ -901,8 +901,13 @@ import path from 'node:path';
 import { stripNote, OUTCOMES, appendRefutation, MAX_NOTE_CHARS } from './lib/refutations.mjs';
 
 test('the outcome set is closed', () => {
+  // Enumerated, never counted. A length assertion would pass against any ten
+  // strings, including a typo'd one.
   assert.deepEqual([...OUTCOMES].sort(), [
     'different-subject',
+    'field-not-agent-claimable',
+    'no-claim-proposed',
+    'overlay-rejected',
     'refuted-by-verifier',
     'source-malformed',
     'source-not-found',
@@ -1057,6 +1062,15 @@ export const OUTCOMES = new Set([
   'value-absent-from-source',
   'different-subject',
   'refuted-by-verifier',
+
+  // Outcomes of a run rather than of a source. A spring that produced no
+  // overlay file leaves no other trace, so without these three a resumed run
+  // cannot tell "never tried" from "tried and got nothing" -- and re-pays for
+  // the second on every restart, which is exactly what the operator's
+  // stop-start credit model reaches first.
+  'no-claim-proposed',         // the proposer found nothing. Correct, and expected.
+  'overlay-rejected',          // it produced something validateOverlay refused.
+  'field-not-agent-claimable', // it tried a field withheld from agents.
 ]);
 
 export const MAX_NOTE_CHARS = 280;
@@ -1257,12 +1271,24 @@ export function buildCoverage(results, timestamp) {
         candidates: r.candidates,
         attempted: r.attempted,
         verified: r.verified,
+        // Claims that were already on disk when the run started. Kept separate
+        // from `verified` because this file's own `measures` string promises it
+        // reports what *this run* could verify -- folding pre-existing overlays
+        // into that number would let a resumed run read as fresh work.
+        alreadyHad: r.alreadyHad ?? 0,
         // Capped by what the country can actually offer. 21 countries have
         // exactly one spring in the dataset; a perfect run there verifies one
         // of one, and reporting `unmet: 1` forever would make the artifact
         // say the opposite of what happened -- in the one file the spec
         // insists must not mislead a reader.
-        unmet: Math.max(0, Math.min(TARGET_PER_COUNTRY, r.candidates) - r.verified),
+        //
+        // Counted against what the atlas now holds, not what this run added,
+        // or a resumption that legitimately did nothing would report a
+        // shortfall that does not exist.
+        unmet: Math.max(
+          0,
+          Math.min(TARGET_PER_COUNTRY, r.candidates) - (r.verified + (r.alreadyHad ?? 0)),
+        ),
       })),
   };
 }
@@ -1271,7 +1297,7 @@ export function buildCoverage(results, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/coverage.test.mjs`
-Expected: PASS, 9 tests.
+Expected: PASS, 11 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -1502,7 +1528,7 @@ function loadJson(file) {
  * returning nothing, so every exit here that is not a verified claim must
  * produce no file at all.
  */
-export async function attempt(spring, roles, providers, refutationsFile, now) {
+export async function attempt(spring, roles, providers, refutationsFile, now, fetchImpl = fetch) {
   const proposal = await providers.proposer.complete({
     system: `Propose verifiable facts about a hot spring. You may only propose these fields: ${AGENT_CLAIMABLE.join(', ')}. Every field needs a public source URL that states the value. If you cannot find a real source, return an empty claims object. Returning nothing is correct and expected.`,
     user: JSON.stringify({ id: spring.id, name: spring.name, country: spring.location.country }),
@@ -1526,7 +1552,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now) {
   for (const [field, claim] of Object.entries(proposal?.claims ?? {})) {
     if (!AGENT_CLAIMABLE.includes(field)) continue;
 
-    const fetched = await fetchSource(claim.source);
+    const fetched = await fetchSource(claim.source, { fetchImpl });
     if (!fetched.ok) {
       appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: claim.source,
@@ -1637,7 +1663,11 @@ export function alreadyAttempted(refutationsFile) {
 export async function runPlan({
   plan, byId, knownIds, providers, roles,
   overlayDir, refutationsFile, coverageFile,
-  writeCoverage = true, retryRefuted = false,
+  // Defaults to off: tests call this repeatedly, and the failure mode of the
+  // other default is overwriting a published 129-country artifact. `main`
+  // passes it explicitly for the only run that should write one.
+  writeCoverage = false, retryRefuted = false,
+  fetchImpl = fetch,
   now = () => new Date().toISOString(),
 }) {
   const attemptedBefore = retryRefuted ? new Set() : alreadyAttempted(refutationsFile);
@@ -1956,8 +1986,32 @@ test('an existing overlay file is never re-proposed and counts toward the target
     plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
     providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
   });
-  assert.equal(results[0].verified, 1, 'the existing file must count');
+  // Counted as alreadyHad, not verified. The distinction is what stops
+  // coverage.json reporting a country as met by this run when the claims were
+  // already on disk -- under a `measures` string promising it reports what
+  // this run could verify.
+  assert.equal(results[0].alreadyHad, 1, 'the existing file must count toward the target');
+  assert.equal(results[0].verified, 0, 'but not as work this run did');
   assert.equal(calls, 1, 'only the second candidate may be proposed');
+});
+
+test('a spring that yields nothing is not re-proposed on the next run', async () => {
+  // The proposer returning {claims:{}} is the correct and expected outcome, and
+  // it leaves no overlay file. Without a refutation record marking the attempt,
+  // every resumption re-pays for exactly the springs that have no sources --
+  // which are the ones each restart reaches first.
+  const paths = tmp();
+  let calls = 0;
+  const counting = { complete: async () => { calls++; return { claims: {} }; } };
+  const args = {
+    plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+  };
+  await runPlan(args);
+  const afterFirst = calls;
+  assert.ok(afterFirst > 0, 'the first run must actually propose');
+  await runPlan(args);
+  assert.equal(calls, afterFirst, 'the second run must propose nothing');
 });
 
 test('a filtered run leaves the coverage map alone', async () => {
