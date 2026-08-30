@@ -2063,7 +2063,7 @@ The last test passes `fetchImpl`. `runPlan` must accept it and pass it to `attem
 - [ ] **Step 3: Run, confirm pass**
 
 Run: `node --test scripts/enrich.test.mjs`
-Expected: PASS, 14 tests.
+Expected: PASS, 18 tests.
 
 - [ ] **Step 4: Mutation-check the most important one**
 
