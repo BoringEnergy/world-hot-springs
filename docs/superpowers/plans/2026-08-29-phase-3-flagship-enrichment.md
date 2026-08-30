@@ -1343,7 +1343,23 @@ test('a missing role fails with an explanation', () => {
 
 test('no provider is privileged by the interface', () => {
   // Any vendor pair is acceptable; the code must hold no opinion about which.
-  assert.doesNotThrow(() => resolveRoles({ proposer: 'google:gemini-3', verifier: 'xai:grok-4' }));
+  //
+  // Asserting the returned value here, and not only in the openai/anthropic
+  // test, is what stops resolveRoles being a constant. With a single happy-path
+  // assertion whose input is exactly its expected output, a hardcoded
+  // `return {proposer: 'openai:gpt-5', verifier: 'anthropic:claude-opus-5'}`
+  // passed all seven tests -- every other test is a throws/doesNotThrow that
+  // never looks at the result.
+  const roles = resolveRoles({ proposer: 'google:gemini-3', verifier: 'xai:grok-4' });
+  assert.equal(roles.proposer, 'google:gemini-3');
+  assert.equal(roles.verifier, 'xai:grok-4');
+});
+
+test('the ids come back as given, only the comparison is lowercased', () => {
+  // loadProviders builds an import path from the returned id, so normalising
+  // it here would silently change which file a capitalised vendor resolves to.
+  const roles = resolveRoles({ proposer: 'Google:Gemini-3', verifier: 'xai:grok-4' });
+  assert.equal(roles.proposer, 'Google:Gemini-3');
 });
 ```
 
@@ -1412,7 +1428,7 @@ export function resolveRoles(config) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/providers.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 8 tests.
 
 - [ ] **Step 5: Commit**
 
