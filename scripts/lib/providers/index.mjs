@@ -48,3 +48,19 @@ export function resolveRoles(config) {
   }
   return { proposer: config.proposer, verifier: config.verifier };
 }
+
+/**
+ * Load the two role implementations by vendor.
+ *
+ * Each vendor module default-exports a factory taking the model name and
+ * returning `{ complete }`. Adding a vendor is adding one file; nothing else
+ * in this codebase learns its name.
+ */
+export async function loadProviders(roles) {
+  const load = async (id) => {
+    const [vendor, model] = String(id).split(':');
+    const mod = await import(`./${vendor}.mjs`);
+    return mod.default(model);
+  };
+  return { proposer: await load(roles.proposer), verifier: await load(roles.verifier) };
+}

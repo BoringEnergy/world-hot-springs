@@ -15,7 +15,9 @@
     "data:verify": "node scripts/fetch-osm.mjs --verify",
     "validate": "node scripts/validate-overlay.mjs",
     "data:build": "node scripts/build-dataset.mjs",
-    "data:all": "npm run data:fetch && npm run data:verify && npm run data:build"
+    "data:all": "npm run data:fetch && npm run data:verify && npm run data:build",
+    "enrich": "node scripts/enrich.mjs",
+    "enrich:plan": "node scripts/enrich.mjs --dry-run"
   },
   "dependencies": {
     "maplibre-gl": "^5.6.0",
