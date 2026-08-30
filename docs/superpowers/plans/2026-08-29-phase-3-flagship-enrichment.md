@@ -1714,7 +1714,10 @@ async function main() {
   const onlyCountry = flagValue(args, '--country');
   const limitRaw = flagValue(args, '--limit');
   const limit = limitRaw === null ? Infinity : Number(limitRaw);
-  if (!Number.isFinite(limit) || limit < 1) {
+  // Guarded on limitRaw, not on limit. Infinity is the no-flag default and is
+  // not finite, so validating `limit` unconditionally rejected every ordinary
+  // invocation -- including the full run this tool exists to perform.
+  if (limitRaw !== null && (!Number.isFinite(limit) || limit < 1)) {
     throw new Error(`--limit must be a positive number, got ${JSON.stringify(limitRaw)}`);
   }
 
