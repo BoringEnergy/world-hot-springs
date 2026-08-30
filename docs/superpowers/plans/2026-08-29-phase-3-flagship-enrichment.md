@@ -1143,6 +1143,7 @@ Create `scripts/coverage.test.mjs`:
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCoverage, MEASURES } from './lib/coverage.mjs';
+import { TARGET_PER_COUNTRY } from './lib/flagship.mjs';
 
 const results = [
   { country: 'CL', candidates: 5, attempted: 3, verified: 2 },
@@ -1176,8 +1177,38 @@ test('the artifact carries its own framing', () => {
   // A reader who finds this file with no context must not conclude that
   // Bolivia has no hot springs.
   const cov = buildCoverage(results, 'x');
+  // This first line catches a deleted or renamed field, and nothing more: it
+  // compares the output against the same constant the implementation returns,
+  // so rewriting MEASURES to anything at all still passes it. The regex below
+  // is what actually pins the wording -- do not read this as testing it twice.
   assert.equal(cov.measures, MEASURES);
   assert.match(cov.measures, /not the number of hot springs/);
+});
+
+test('the three counts a reader needs travel through unchanged', () => {
+  // Without this, buildCoverage could return a largely hardcoded shape and
+  // still pass: candidates, attempted and verified are the entire evidentiary
+  // substance of the artifact for a stranger, and nothing else asserts them.
+  // A stub omitting all three passed 3 of the plan's original 6 tests.
+  const cov = buildCoverage([{ country: 'CL', candidates: 5, attempted: 3, verified: 2 }], 'x');
+  assert.deepEqual(cov.countries[0], {
+    country: 'CL', candidates: 5, attempted: 3, verified: 2, unmet: 0,
+  });
+});
+
+test('the artifact records when it was generated and what it aimed for', () => {
+  const cov = buildCoverage(results, '2026-08-29T12:00:00.000Z');
+  assert.equal(cov.generatedAt, '2026-08-29T12:00:00.000Z');
+  assert.equal(cov.target, TARGET_PER_COUNTRY);
+});
+
+test('buildCoverage leaves the caller results array untouched', () => {
+  // The .slice() before sorting is otherwise entirely untested, and a sort in
+  // place would reorder the caller's array under it.
+  const input = [{ country: 'CL', candidates: 1, attempted: 1, verified: 1 },
+                 { country: 'BO', candidates: 1, attempted: 1, verified: 0 }];
+  buildCoverage(input, 'x');
+  assert.deepEqual(input.map((r) => r.country), ['CL', 'BO']);
 });
 
 test('countries are sorted so the artifact is diffable', () => {
@@ -1240,7 +1271,7 @@ export function buildCoverage(results, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/coverage.test.mjs`
-Expected: PASS, 6 tests.
+Expected: PASS, 9 tests.
 
 - [ ] **Step 5: Commit**
 
