@@ -111,6 +111,26 @@ useful context but cannot be the only citation.
 - **Coordinates** are not claimable at all. Moving a spring is how you would
   defeat the privacy exclusion radius.
 
+### Agents get a narrower set than people
+
+An agent-authored claim may touch 13 of the 17 claimable fields. Four are
+withheld: `location.nearestTown`, `name`, `warnings`, and `tags`.
+
+`nearestTown` is withheld because findability is the one thing this project
+treats as non-negotiable, and a nearest town on a borderline spring is a
+material increase in it. `warnings` and `tags` merge rather than replace, so a
+fabricated entry can never be removed by a later claim. `name` is withheld
+because OpenStreetMap is usually right and a bad rename is hard to recognise
+as wrong later.
+
+This is a first-pass posture. A withheld field can be granted once the
+refutation record shows it is earned; a bad claim is already published.
+
+The allowlist lives in `AGENT_HELD_BACK` in `scripts/lib/overlay.mjs` and the
+enrichment run enforces it: a proposal naming a withheld field is recorded as
+`field-not-agent-claimable` and never becomes an overlay file. No agent claim
+exists in the atlas yet — no provider is wired up.
+
 ### Fields that merge rather than replace
 
 `tags` and `warnings` merge — a claim adds entries and never removes them.

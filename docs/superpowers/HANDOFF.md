@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-08-28, end of phase 2.
+Last updated 2026-08-30, end of phase 3.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -22,7 +22,12 @@ else; there is no deploy pipeline, so nothing is hosted anywhere yet.
   secret exists in the repository yet, which is why nothing here can leak one.
   **All three repository settings are applied and verified**, and `gate-1` is
   proven by two real pull requests — see below.
-- **128 tests**, `npm test`. All passing.
+- **Phase 3 complete except Task 8, and Task 8 is the one that makes it run.**
+  The flagship enrichment pipeline is built end to end — candidate selection,
+  deterministic source verification, the refutation log, the coverage map, the
+  provider interface, and the CLI. **No vendor module exists**, so
+  `npm run enrich` cannot make a single model call. See below.
+- **231 tests**, `npm test`. All passing.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
 - The app runs: `npm run dev` (port 5177 via `.claude/launch.json`).
@@ -45,7 +50,8 @@ That is the full green-path check. The build prints its counts; expect
    — threat model for the CI trigger. **Read before touching `.github/`.**
    Adversarial review of its first draft found a path to the API key.
 
-Plans live in [plans/](plans/). Phase 1's is complete; phase 2's is ready.
+Plans live in [plans/](plans/). Phases 1, 2 and 3 are written and executed;
+phase 3's Task 8 is the only step left unimplemented. No phase 4 plan exists.
 
 ## Pipeline shape
 
@@ -66,6 +72,9 @@ by up to 300 m, so ordering here is a correctness property, not style.
 | `data/events.jsonl` | Append-only decision log. |
 | `data/private/` | Exclusion list. Gitignored, never published, never logged. |
 | `data/hot-springs.*` | Derived output. Committed as an artifact. |
+| `data/flagship.json` | Enrichment work list. 129 countries, 492 ordered candidates. Committed. |
+| `data/coverage.json` | Where public sources could not be found. Written by a run; does not exist yet. |
+| `data/refutations.jsonl` | Append-only record of every claim that did *not* become a file. Written by a run; does not exist yet. |
 
 ## Things that will bite you
 
@@ -85,6 +94,17 @@ by up to 300 m, so ordering here is a correctness property, not style.
   records.
 - **Do not put anything derived from the exclusion list in a public artifact.**
   Geohash space is small enough to enumerate offline.
+- **`Number.isFinite(Infinity)` is `false`.** A `--limit` guard defaulting to
+  `Infinity` and validating with `Number.isFinite` rejects every run that omits
+  `--limit` — that is, every real run. Guard the parsed argument, not the
+  default.
+- **A guard that is unit-tested is not a guard that runs.** One was written,
+  tested, and never wired into `enrich.mjs`, which is the code CI executes. Ask
+  what calls it, not whether it has a test.
+- **`data/coverage.json` and `data/refutations.jsonl` are run outputs, not
+  fixtures.** Neither exists until an enrichment run writes it, so a test that
+  reads them from the repo passes on absence. `pathguard.mjs` already lists
+  both in `ALLOWED_FILES` in anticipation.
 
 ## Where the bodies are buried
 
@@ -108,7 +128,8 @@ implementing.
 - ~~Registry fallback is O(n²)~~ — **done**, bounded with a spatial index.
   44 ms cold bootstrap, 101 ms worst case, verified behaviour-identical.
 - ~~Gate 2 trigger security~~ — **done**, hardened design written and
-  adversarially reviewed. Implementation is phase 3.
+  adversarially reviewed. Implementation is **phase 4**; phase 3 became
+  flagship enrichment instead. Still blocked on F8 and F9.
 - `asComparable()` picks `osmRefs[0]`, which sorts `node` before `way`. Only
   affects the one-named-one-unnamed branch for refs that did not already match
   directly. Minor; noted, not fixed.
@@ -205,7 +226,7 @@ simply skips; this enforces it at the platform.
 
 **Gate 1 is not a security boundary and the workflow says so in its header.**
 On a fork PR the workflow file comes from the PR head, so a contributor can
-rewrite it to report success on anything. Phase 3's Gate 2 re-runs it from
+rewrite it to report success on anything. Phase 4's Gate 2 re-runs it from
 default-branch code; that is the check that counts.
 
 ### Phase 2's defects were also all in the plan
@@ -223,26 +244,96 @@ The CRLF one is the one to remember: it was caught **only** because a mutation
 run passed when it should have failed. A guard that quietly stops guarding
 looks exactly like a guard that is working.
 
-## Next: phase 3 — not ready to start
+### Phase 3 made it four phases in a row
+
+Eleven tasks, and **every defect found was in the plan, not the
+implementation.** The new shape is what to take forward: **ten separate tests
+were caught passing for the wrong reason.** A test that passes is evidence
+about the test until you have watched it fail.
+
+| Defect | Would have caused |
+|---|---|
+| Candidate test asserted only a length | "Select the worst five candidates" passing the whole suite |
+| Test sorted its own result before comparing | A reversed sort certified as correct |
+| Guard unit-tested but never wired into `enrich.mjs` | A guard proven on a laptop and absent from the run CI executes |
+| Mutation check killed four tests, not the one it named | An assertion certified without ever being exercised |
+| `Number.isFinite(Infinity)` in the `--limit` guard | Every run that omitted `--limit` rejected |
+
+The generalisation on top of phase 1's: **a plan's tests are assertions too.**
+Mutate the code each one names and confirm that specific test is the one that
+dies.
+
+## What phase 3 built — and why it cannot run yet
+
+Phase 3 was **not** Gate 2. Gate 2 stayed blocked on F8 and F9 (below), so the
+phase was re-scoped to producing the atlas's first authored claims from a
+script the operator runs **locally on their own credential**. That is why
+`scripts/workflows.test.mjs`'s "no workflow references a secret" test still
+passes unchanged: no secret entered the repository, no maintainer carries the
+spend, and there is no CI trigger to secure.
+
+| File | What it does |
+|---|---|
+| `scripts/lib/flagship.mjs` | Picks the springs worth enriching. Two per country, over-provisioned to five ordered candidates. |
+| `scripts/lib/verify-source.mjs` | Deterministic fetch-check: retrieves the cited page, byte-capped, and looks for the value. No model involved. |
+| `scripts/lib/refutations.mjs` | Appends to `data/refutations.jsonl`. Closed 10-member outcome enum; an unknown outcome throws. |
+| `scripts/lib/coverage.mjs` | Builds `data/coverage.json`. Tracks `verified` and `alreadyHad` separately, on purpose. |
+| `scripts/lib/providers/index.mjs` | Provider interface, plus the one hard rule: proposer and verifier must be different **vendors**. |
+| `scripts/enrich.mjs` | The CLI. `npm run enrich`, `npm run enrich:plan` (dry run). |
+
+Two design points worth not re-litigating:
+
+- **The proposer and the verifier must come from different vendors**, enforced
+  in `resolveRoles`. Two models from one vendor share training data and failure
+  modes, so one refuting the other is nearly as circular as self-review. This
+  is also why N-way agreement was rejected — correlated error is not evidence.
+- **`coverage.json` counts `verified` and `alreadyHad` apart.** Folding a
+  pre-existing human overlay into `verified` would let a resumed run that made
+  no calls report a country as freshly proven, in the one artifact the spec
+  insists must not mislead.
+
+Agents may claim **13 of the 17** claimable fields; `AGENT_HELD_BACK` in
+`scripts/lib/overlay.mjs` withholds `location.nearestTown`, `name`, `warnings`,
+and `tags`. The reasoning is in CONTRIBUTING.md.
+
+### Task 8 is the blocker: there is no vendor module
+
+`loadProviders` imports `./<vendor>.mjs`, and **`scripts/lib/providers/` holds
+`index.mjs` and nothing else.** Every other piece is built and tested, but the
+pipeline cannot make a single model call — a real run fails at the dynamic
+import. `enrichment.config.example.json` names `openai:gpt-5` and
+`anthropic:claude-opus-5` as an illustration, not a commitment.
+
+This is deliberate and it is not a code problem. The distinctness rule means
+credentials are needed from **two different vendors**, and obtaining them is
+the operator's to do. Nothing about the rest of the phase should be reworked to
+avoid it: writing one vendor module is one file, and nothing else in the
+codebase learns that vendor's name.
+
+Until then `npm run enrich:plan` is the only useful invocation — it plans
+without calling anything — and neither `data/coverage.json` nor
+`data/refutations.jsonl` exists.
+
+## Next: phase 4 — Gate 2, still blocked
 
 **Do not begin until
 [specs/2026-08-25-gate-2-trigger-security.md](specs/2026-08-25-gate-2-trigger-security.md)
 has been read in full.** Its first draft contained a path to the API key. Read
 2026-08-28; the summary below is not a substitute for reading it.
 
-Phase 3 introduces the first secret in the repository, so
+Phase 4 introduces the first secret in the repository, so
 `scripts/workflows.test.mjs`'s "no workflow references a secret" test must be
 deliberately changed. That is the point of it: the change is a decision
 someone makes on purpose, not a thing that drifts in.
 
-### Three things block phase 3, and two of them are not code
+### Three things block it, and two of them are not code
 
-**1. No phase 3 plan exists.** `plans/` holds phase 1 and phase 2 only. The
-security spec is a design, not an implementation plan — it names components
+**1. No phase 4 plan exists.** `plans/` holds phases 1, 2 and 3. The security
+spec is a design, not an implementation plan — it names components
 (`resolve-pr.mjs`, `path-guard.mjs`, `check-eligibility.mjs`,
 `fetch-overlay-diff.mjs`, `assert-checkout-pristine.mjs`, `manager.mjs`) and 14
-required tests, but nothing sequences them. Given that every defect in phases 1
-and 2 was in the plan rather than the implementation, writing this one
+required tests, but nothing sequences them. Given that every defect in phases
+1 through 3 was in the plan rather than the implementation, writing this one
 carefully is the highest-leverage hour available.
 
 **2. F9 is not done, and the spec rates it above all the code.** A *dedicated
