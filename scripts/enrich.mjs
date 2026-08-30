@@ -165,7 +165,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
  * = NaN, and slice(0, NaN) is zero countries: a silent no-op that still wrote
  * coverage.json and looked like success. Both fail loudly now.
  */
-function flagValue(args, name) {
+export function flagValue(args, name) {
   const i = args.indexOf(name);
   if (i === -1) return null;
   const value = args[i + 1];

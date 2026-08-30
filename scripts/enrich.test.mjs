@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { runPlan } from './enrich.mjs';
+import { runPlan, flagValue } from './enrich.mjs';
 import { validateOverlay } from './lib/overlay.mjs';
 
 const NOW = () => '2026-08-29T12:00:00.000Z';
@@ -342,4 +342,60 @@ test('a candidate id absent from the dataset is skipped without spending', async
   assert.equal(calls, 0);
   assert.equal(results[0].attempted, 0);
   assert.equal(results.length, 1, 'the country must still be reported');
+});
+
+test('flagValue reads a value, and reports an absent flag as null', () => {
+  assert.equal(flagValue(['--country', 'CL'], '--country'), 'CL');
+  // Absent is not an error -- the no-flag default is a legitimate full run.
+  assert.equal(flagValue(['--dry-run'], '--country'), null);
+});
+
+test('flagValue refuses a flag with no value at all', () => {
+  // `--limit` with no value gave Number(undefined) = NaN and slice(0, NaN) =
+  // zero countries: a silent no-op that still looked like a successful run.
+  assert.throws(() => flagValue(['--limit'], '--limit'), /--limit needs a value/);
+});
+
+test('flagValue refuses a flag whose value is the next flag', () => {
+  // `--country` swallowing the following flag left onlyCountry falsy, which
+  // skipped the filter and ran all 129 countries -- the operator's whole
+  // credential spent on a typo.
+  assert.throws(() => flagValue(['--country', '--limit', '3'], '--country'), /--country needs a value/);
+});
+
+test('each country is counted on its own', async () => {
+  // Every other test here runs one country, so a counter shared across the
+  // loop would go unnoticed -- and coverage.json is per-country.
+  const paths = tmp();
+  const wide = [
+    ...springs,
+    { id: 'whs_00000000000c', name: 'C', location: { country: 'BO' } },
+  ];
+  const wideById = new Map(wide.map((s) => [s.id, s]));
+  fs.mkdirSync(paths.overlayDir, { recursive: true });
+  fs.writeFileSync(path.join(paths.overlayDir, 'whs_00000000000c.json'), '{}');
+
+  const page = '<html><body>The water is 42.5 degrees.</body></html>';
+  // CL's one candidate verifies; BO's only candidate is already on disk.
+  const proposer = { complete: async ({ user }) => (
+    JSON.parse(user).country === 'CL'
+      ? { claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } } }
+      : { claims: {} }
+  ) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
+  const fetchImpl = async () => ({ ok: true, text: async () => page });
+
+  const results = await runPlan({
+    plan: [
+      { country: 'CL', candidates: ['whs_00000000000a'] },
+      { country: 'BO', candidates: ['whs_00000000000c'] },
+    ],
+    byId: wideById, knownIds: new Set(wideById.keys()), roles,
+    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+  });
+
+  assert.deepEqual(results, [
+    { country: 'CL', candidates: 1, attempted: 1, verified: 1, alreadyHad: 0 },
+    { country: 'BO', candidates: 1, attempted: 0, verified: 0, alreadyHad: 1 },
+  ]);
 });
