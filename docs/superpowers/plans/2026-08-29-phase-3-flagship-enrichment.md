@@ -2397,6 +2397,148 @@ in minutes. **Make the first real call early. It is a test nothing else
 replaces.**
 ---
 
+## Task 13: What the first working run found
+
+**Added 2026-09-02.** Task 12 succeeded: the proposer now finds real pages and
+extracts real values. Steps 1–6 are done and committed. **Step 7 remains
+unmet** — no claim has yet survived to become an overlay file — and this task
+is the four reasons why, all found by running it.
+
+### Retrieval works. This is the result Task 12 existed to produce.
+
+```
+springId  whs_c61dcaec4739   (Gamla Laugin)
+field     temperature.celsius   proposed "40"    source https://secretlagoon.is/
+field     access.price          proposed "3300"  source https://secretlagoon.is/
+```
+
+Both values are correct — the Secret Lagoon publishes 38-40 °C and 3300 ISK on
+its own site — and both were extracted from text the pipeline fetched itself,
+not recalled. The search → fetch → extract inversion is proven.
+
+Every claim was then refuted, none reached `data/overlay/`, and the four
+defects below are why.
+
+### Defect 1: proposed values are strings, and would fail validation anyway
+
+The proposer returns `"40"` and `"3300"`. `validateOverlay` requires a number:
+
+```
+validateOverlay(value: "40") -> ['temperature.celsius: must be a number between -5 and 130, got "40"']
+validateOverlay(value: 40)   -> []
+```
+
+So even a claim the verifier accepted would have been discarded as
+`overlay-rejected`. **Do not fix this by coercing in `enrich.mjs`.** A silent
+`Number(value)` would turn `"about 40"` into `40` and `""` into `0`, inventing
+precision the page never stated — the exact failure the literal-value rule
+exists to prevent. Constrain it in the proposal JSON schema, and reject a
+non-numeric value for a numeric field as a refutation with its own outcome.
+
+### Defect 2: the verifier refuses the range endpoint the prompt tells the proposer to claim
+
+```
+proposed 40 from a page reading "stays at 38-40 Celsius all year round"
+verdict  refuted: "indicating that the temperature is not 40 Celsius
+         specifically, but within that range"
+```
+
+The proposer prompt says *"if the page says 38-40 C you may claim 38 or 40"*.
+The verifier prompt says *"default to refuted when uncertain"*. A range endpoint
+is exactly the uncertain case, so the two instructions are in direct conflict
+and the pipeline cannot produce a temperature from a range — which is how hot
+spring temperatures are usually published.
+
+Decide which is right and make both prompts say it. If a range endpoint is a
+claimable fact, the verifier must be told so explicitly. If it is not, the
+proposer must stop claiming one and the atlas accepts that ranges are
+unclaimable until the schema can hold one.
+
+### Defect 3: a refutation whose reason argues the claim is correct
+
+```
+proposed access.price 3300 from https://secretlagoon.is/
+outcome  refuted-by-verifier
+reason   "The source provides information about Gamla Laugin, also known as
+          Secret Lagoon, and its pricing. Therefore, it states this value
+          about this spring."
+```
+
+The reason argues **for** the claim; the verdict refuted it. The model did not
+reliably produce the boolean, and `verdict?.refuted !== false` treats anything
+that is not exactly `false` as a refusal.
+
+That default is correct and must stay — failing closed is right when the
+question is whether to publish. But a malformed verdict is not a refutation,
+and recording it as one writes a false fact into a permanent log and poisons
+the resume-skip. Detect a non-boolean `refuted` and record it under its own
+outcome, so "the verifier refused" and "the verifier did not answer" stop being
+the same line.
+
+### Defect 4: the free tier restricts models, and nothing in the API says which
+
+```
+anthropic/claude-haiku-4.5     403 no_providers_available
+google/gemini-2.5-flash-lite   403 byok_requires_paid_credits
+google/gemini-3-flash          403 byok_requires_paid_credits
+openai/gpt-4.1-nano            allowed
+spacexai/*                     allowed, tightly rate-limited
+```
+
+The `/v1/models` metadata has **no tier or access field** — 364 models are
+listed, and only a real call reveals which of them the account may use. The
+plan's cost table priced `claude-haiku-4.5` as the verifier; the account cannot
+call it at all.
+
+Two consequences. The distinctness rule plus the free tier leaves exactly one
+usable vendor pair, **openai + xai**. And `gpt-4.1-nano` is the weakest model in
+the catalogue being asked to make the judgement the whole design rests on —
+defects 2 and 3 are both plausibly it being too small for the job.
+
+Before building around this, establish empirically which models the account can
+actually call, and record the list. A capability that cannot be discovered from
+the API must be discovered once and written down.
+
+### Also observed
+
+**The rate limit behaved correctly.** Exhausted retries ended the run with a
+message naming it as an account fact, and wrote **no refutations** — verified
+by inspecting the log afterwards. The design decision from Task 12 Step 5 held
+under real conditions.
+
+**The free-tier window is long.** Six retries over five minutes did not clear
+it. Diagnostic probing consumed the quota for the rest of the session, which is
+itself worth knowing: on this tier, debugging and running compete for the same
+budget.
+
+**One spring's first result was `sundlaugar.is/en/hot-springs/`** — a directory
+page listing many springs, from which the proposer correctly extracted nothing.
+The URL-level fallthrough moved on. Working as intended, and a good sign the
+"different subject" instruction is landing.
+
+### Steps
+
+- [ ] **Step 1: constrain the proposal schema to typed values**, and refuse a
+      non-numeric value for a numeric field with its own outcome. No coercion.
+- [ ] **Step 2: resolve the range conflict** between the two prompts, in
+      whichever direction you decide, and test a range page end to end.
+- [ ] **Step 3: separate a malformed verdict from a refusal**, with its own
+      outcome, keeping fail-closed behaviour.
+- [ ] **Step 4: probe and record which models the account can call**, since the
+      API will not say. Re-price against that list rather than the full catalogue.
+- [ ] **Step 5: re-run Gamla Laugin** and confirm a claim reaches
+      `data/overlay/`. Then open the cited URL by hand.
+
+### The lesson, again and more cheaply than last time
+
+Task 12's lesson was *make the first real call early*. This run is the sequel:
+**the first call that succeeds teaches more than the first call that fails.**
+The 403 taught us the tier restricts models. The 429 proved the backoff. And
+the two refutations — a pedantic one and an incoherent one — are worth more
+than any number of stub-provider assertions, because no stub would have
+produced a verdict whose reason contradicts its own boolean.
+---
+
 ## Done when
 
 - `npm test` passes, including all new suites

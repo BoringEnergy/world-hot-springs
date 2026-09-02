@@ -111,6 +111,19 @@ by up to 300 m, so ordering here is a correctness property, not style.
   the assumption that ranges were rare; hot spring temperatures are published
   as ranges more often than not, so half of every range is unverifiable.
   Task 12 fixes it. The `-40` case must keep passing.
+- **The Vercel free tier restricts which models you may call, and the API will
+  not tell you which.** `/v1/models` lists 364 models with no tier or access
+  field; `anthropic/*` returns 403 `no_providers_available` and `google/*`
+  returns 403 `byok_requires_paid_credits`, discoverable only by calling them.
+  Combined with the proposer/verifier distinctness rule this leaves exactly one
+  usable vendor pair on the free tier: **openai + xai**. The free-tier rate
+  window is also long — six retries across five minutes did not clear it, and
+  diagnostic probing competes with real runs for the same quota.
+- **A verifier can return a reason that contradicts its own verdict.** A real
+  run produced `refuted-by-verifier` whose note argued the claim was correct.
+  `verdict?.refuted !== false` treats anything not exactly `false` as a refusal,
+  which is the right default — but a malformed verdict is not a refutation, and
+  recording it as one writes a false fact into a permanent log.
 - **The fetch-check answers "does this number appear", not "does this page say
   this".** `valueAppears(39, ...)` returned true against a page whose only 39
   was inside `WhatsApp +354 777 39 35`. The verifier is what catches that, and
