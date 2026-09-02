@@ -17,3 +17,6 @@ dist/
 
 # Local provider selection. enrichment.config.example.json is the committed one.
 enrichment.config.json
+
+.vercel
+.env*

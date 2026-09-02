@@ -1,4 +1,4 @@
 {
-  "proposer": "openai:gpt-5",
+  "proposer": "xai:grok-4.6",
   "verifier": "anthropic:claude-opus-5"
 }
