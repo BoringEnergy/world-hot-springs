@@ -32,10 +32,27 @@ const COVERAGE = path.join('data', 'coverage.json');
  * fetch-check can decide them. Everything else in AGENT_CLAIMABLE is prose or
  * a normalised syntax and is decided by the verifier reading the page.
  */
-const LITERAL_FIELDS = [
+export const LITERAL_FIELDS = [
   'temperature.celsius',
   'access.price',
   'access.currency',
+  'location.elevation',
+];
+
+/**
+ * Fields whose value must arrive as a JSON number.
+ *
+ * The first working run proposed `"40"` and `"3300"`, which validateOverlay
+ * rejects -- so a claim the verifier accepted would have been thrown away at
+ * the gate as `overlay-rejected`, a label describing none of what happened.
+ *
+ * Listed rather than derived from LITERAL_FIELDS by removing the one string:
+ * "stated verbatim on a page" and "is a number" are different properties, and
+ * the next literal field added should have to say which it is.
+ */
+export const NUMERIC_FIELDS = [
+  'temperature.celsius',
+  'access.price',
   'location.elevation',
 ];
 
@@ -116,6 +133,32 @@ export const PROPOSER_SYSTEM = [
   'Returning nothing is correct and expected.',
 ].join(' ');
 
+/**
+ * The refutation prompt.
+ *
+ * The range sentence is here because its absence cost the pipeline every
+ * temperature it could have produced. The proposer is told it may claim 38 or
+ * 40 from a page reading "38-40"; the verifier was told only to default to
+ * refuted when uncertain, and duly refuted a correct 40 for "not 40
+ * specifically, but within that range". Hot springs publish temperatures as
+ * ranges more often than not, so the two instructions together meant no
+ * temperature could ever be claimed.
+ *
+ * Resolved in favour of the endpoint: a page reading "38-40" states 38 and
+ * states 40, as characters you could point to, which is exactly the literal
+ * evidence the proposer was sent to look for. The midpoint remains
+ * unclaimable and the general default stays -- one named case is carved out,
+ * not the rule weakened.
+ */
+export const VERIFIER_SYSTEM = [
+  'You are refuting a claim.',
+  'Does this source state this value about THIS spring, or about a different pool, resort, or place?',
+  'A value that is an endpoint of a range the source states is supported, not uncertain:',
+  'if the source says "38-40 C" then both 38 and 40 are stated, and a claim of either is supported.',
+  'A value between the endpoints is not stated: from "38-40 C", refute 39.',
+  'Otherwise, default to refuted when uncertain.',
+].join(' ');
+
 /** What we ask the web for. The name is dataset text; `search` sanitises it. */
 export function searchQuery(spring) {
   return `${spring.name} ${spring.location.country} hot spring water temperature`;
@@ -189,12 +232,22 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
     // so we own the citation. That deletes the hallucinated-URL failure mode
     // rather than catching it downstream -- and it makes the fetch-check
     // meaningful, since the text checked is provably the text quoted.
+    // A number is asked for by name, per field, rather than left to the
+    // untyped `value: {}` that produced "40". This is a request, not a
+    // guarantee -- a model may ignore a schema -- so the type is also checked
+    // below and refused there. Asking is still worth it: it is what stops the
+    // string being produced at all on a provider that enforces the schema.
     schema: {
       type: 'object',
       required: ['claims'],
       properties: {
         claims: {
           type: 'object',
+          properties: Object.fromEntries(NUMERIC_FIELDS.map((field) => [field, {
+            type: 'object',
+            required: ['value'],
+            properties: { value: { type: 'number' } },
+          }])),
           additionalProperties: {
             type: 'object',
             required: ['value'],
@@ -233,6 +286,20 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
       continue;
     }
 
+    // Refused, never coerced. `Number(value)` would turn "about 40" into 40
+    // and "" into 0 -- inventing precision the page never stated, which is the
+    // exact failure the literal-value rule exists to prevent. Checked before
+    // the fetch-check because valueAppears("40", page) is true, so a string
+    // would otherwise reach the verifier and be paid for.
+    if (NUMERIC_FIELDS.includes(field) && !Number.isFinite(claim?.value)) {
+      appendRefutation(refutationsFile, {
+        springId: spring.id, field, proposed: claim?.value, source: page.url,
+        proposer: roles.proposer, stage: 'proposal', outcome: 'value-not-numeric',
+        note: `${field} must be a number; the proposer returned ${typeof claim?.value}`,
+      }, now());
+      continue;
+    }
+
     // A literal fetch-check only makes sense for a value a page states
     // verbatim. Measured against a realistic page, temperature and elevation
     // pass; access.notes, hours.open ("Mo-Su 09:00-21:00"), clothing.policy,
@@ -255,7 +322,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
     }
 
     const verdict = await providers.verifier.complete({
-      system: 'You are refuting a claim. Default to refuted when uncertain. Does this source state this value about THIS spring, or about a different pool, resort, or place?',
+      system: VERIFIER_SYSTEM,
       user: JSON.stringify({
         spring: spring.name,
         field,
@@ -269,11 +336,26 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
       },
     });
 
-    if (verdict?.refuted !== false) {
+    // Anything that is not a boolean is not an answer. Still fails closed --
+    // no file is written either way, which is right when the question is
+    // whether to publish -- but it is logged as its own outcome, because a run
+    // that recorded `refuted-by-verifier` under a reason arguing the claim was
+    // correct put a false fact into a permanent public log and poisoned the
+    // resume-skip with it.
+    if (typeof verdict?.refuted !== 'boolean') {
       appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: page.url,
         proposer: roles.proposer, verifier: roles.verifier, stage: 'refutation',
-        outcome: 'refuted-by-verifier', note: verdict?.reason,
+        outcome: 'verifier-verdict-malformed', note: verdict?.reason,
+      }, now());
+      continue;
+    }
+
+    if (verdict.refuted) {
+      appendRefutation(refutationsFile, {
+        springId: spring.id, field, proposed: claim.value, source: page.url,
+        proposer: roles.proposer, verifier: roles.verifier, stage: 'refutation',
+        outcome: 'refuted-by-verifier', note: verdict.reason,
       }, now());
       continue;
     }

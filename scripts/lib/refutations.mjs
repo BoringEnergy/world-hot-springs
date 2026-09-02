@@ -36,6 +36,16 @@ export const OUTCOMES = new Set([
   'different-subject',
   'refuted-by-verifier',
 
+  // A string where a number belongs. Separate from value-absent-from-source
+  // because the page may state the value perfectly well -- what failed is the
+  // proposer's typing, and only this outcome can tell a reader which.
+  'value-not-numeric',
+  // The verifier answered with something that is not a verdict. Recording it
+  // as a refusal writes a false fact into a permanent log: the run that found
+  // this produced `refuted-by-verifier` under a reason arguing the claim was
+  // correct. Publishing still fails closed; only the label differs.
+  'verifier-verdict-malformed',
+
   // Outcomes of a run rather than of a source. A spring that produced no
   // overlay file leaves no other trace, so without these three a resumed run
   // cannot tell "never tried" from "tried and got nothing" -- and re-pays for

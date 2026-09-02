@@ -30,6 +30,14 @@ test('the outcome set is closed', () => {
       'source-too-large',
       'source-unreachable',
       'value-absent-from-source',
+      // A string where a number belongs is not the page failing to state the
+      // value -- it states it, and the proposer typed it. Kept apart from
+      // value-absent-from-source so the log can say which.
+      'value-not-numeric',
+      // "The verifier refused" and "the verifier did not answer" are different
+      // facts about a provider. Collapsing them writes a reason arguing FOR a
+      // claim under a line that says it was refuted.
+      'verifier-verdict-malformed',
     ],
   );
 });

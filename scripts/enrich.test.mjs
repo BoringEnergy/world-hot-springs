@@ -5,7 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   attempt, runPlan, flagValue, sourceExcerpt, searchQuery,
-  SOURCE_EXCERPT_CHARS, PROPOSER_SYSTEM, MAX_URLS_PER_SPRING,
+  SOURCE_EXCERPT_CHARS, PROPOSER_SYSTEM, VERIFIER_SYSTEM, MAX_URLS_PER_SPRING,
+  NUMERIC_FIELDS, LITERAL_FIELDS,
 } from './enrich.mjs';
 import { validateOverlay } from './lib/overlay.mjs';
 import { valueAppears } from './lib/verify-source.mjs';
@@ -251,9 +252,7 @@ test('a verifier that refuses the claim writes no file', async () => {
   const proposer = { complete: async () => ({
     claims: { 'temperature.celsius': { value: 42.5 } },
   }) };
-  // Not `refuted: true` but a malformed verdict: the code defaults to refuted
-  // on anything that is not an explicit false, and that default is the point.
-  const verifier = { complete: async () => ({ reason: 'no verdict field at all' }) };
+  const verifier = { complete: async () => ({ refuted: true, reason: 'a different pool' }) };
 
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
@@ -656,4 +655,211 @@ test('the search query names the spring and its country', () => {
     searchQuery({ name: 'Gamla Laugin', location: { country: 'IS' } }),
     'Gamla Laugin IS hot spring water temperature',
   );
+});
+
+
+// --- Step 1: a numeric field's value must arrive as a number --------------
+
+test('a numeric field proposed as a string is refused, never coerced', async () => {
+  // The real run returned "40" and "3300". Number("40") would have published
+  // the right answer here and the wrong one for "about 40" and "", inventing
+  // precision the page never stated -- so this must refuse, not repair.
+  const paths = tmp();
+  const proposer = { complete: async () => ({
+    claims: { 'temperature.celsius': { value: '42.5' } },
+  }) };
+  const verifier = { complete: async () => { throw new Error('the verifier must never be reached'); } };
+
+  const results = await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+  });
+
+  assert.equal(fs.existsSync(paths.overlayDir), false, 'no overlay directory should be created');
+  assert.equal(results[0].verified, 0);
+  const log = refutations(paths.refutationsFile);
+  assert.deepEqual(log.map((r) => r.outcome), ['value-not-numeric']);
+  // Logged as what arrived. A record showing 42.5 would say the proposer did
+  // the right thing and something else went wrong.
+  assert.equal(log[0].proposed, '42.5');
+  assert.equal(typeof log[0].proposed, 'string');
+  assert.equal(log[0].field, 'temperature.celsius');
+});
+
+test('every non-numeric shape of a numeric value is refused', async () => {
+  // A numeric-looking string, an empty one, a bare object and null all reach
+  // `value` through the same untyped JSON. None may become a claim, and none
+  // may crash a run.
+  for (const value of ['40', '', 'about 40', null, true, [40], { c: 40 }]) {
+    const paths = tmp();
+    const proposer = { complete: async () => ({ claims: { 'access.price': { value } } }) };
+    const verifier = { complete: async () => { throw new Error('the verifier must never be reached'); } };
+    await runPlan({
+      plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+      byId, knownIds, roles,
+      providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+    });
+    assert.equal(fs.existsSync(paths.overlayDir), false, `${JSON.stringify(value)} must produce no file`);
+    assert.deepEqual(
+      refutations(paths.refutationsFile).map((r) => r.outcome),
+      ['value-not-numeric'],
+      `${JSON.stringify(value)} must be refused as non-numeric`,
+    );
+  }
+});
+
+test('a string-valued literal field is untouched by the numeric rule', async () => {
+  // access.currency is a LITERAL_FIELD and is not a number. Refusing it would
+  // turn the numeric rule into a rule against literal fields.
+  const paths = tmp();
+  const proposer = { complete: async () => ({ claims: { 'access.currency': { value: 'ISK' } } }) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'the page prices in ISK' }) };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult, fetchImpl: serving('<html><body>Entry to A costs 3300 ISK.</body></html>'),
+  });
+  const written = JSON.parse(fs.readFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), 'utf8'));
+  assert.equal(written.claims['access.currency'].value, 'ISK');
+  assert.deepEqual(refutations(paths.refutationsFile), []);
+});
+
+test('the numeric fields are the literal fields that hold numbers', () => {
+  assert.deepEqual(NUMERIC_FIELDS, ['temperature.celsius', 'access.price', 'location.elevation']);
+  for (const f of NUMERIC_FIELDS) {
+    assert.ok(LITERAL_FIELDS.includes(f), `${f} must also be fetch-checkable`);
+  }
+});
+
+test('the proposal schema demands a number for each numeric field', async () => {
+  // The refusal above is the enforcement; this is the request that should stop
+  // most models producing the string in the first place. Both are needed: a
+  // schema in a prompt is asked for, not guaranteed.
+  const paths = tmp();
+  let schema;
+  const proposer = { complete: async (input) => { schema = input.schema; return { claims: {} }; } };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier: silent }, ...paths, ...wired, now: NOW,
+  });
+  for (const field of NUMERIC_FIELDS) {
+    assert.equal(
+      schema?.properties?.claims?.properties?.[field]?.properties?.value?.type,
+      'number',
+      `${field} must be typed as a number in the proposal schema`,
+    );
+  }
+  // And a prose field must still accept what it actually holds, or the schema
+  // has silently narrowed the whole claim set to numbers.
+  assert.equal(schema.properties.claims.properties['access.notes'], undefined);
+  assert.equal(schema.properties.claims.additionalProperties.properties.value.type, undefined);
+});
+
+// --- Step 2: a range endpoint is claimable, and the verifier is told so ----
+
+test('a temperature published as a range reaches the overlay through its endpoint', async () => {
+  // The failure that produced no claim at all: the page publishes 38-40, the
+  // proposer correctly claims 40, and the pipeline must carry it end to end.
+  const paths = tmp();
+  const page = '<html><body>The water at A stays at 38-40 Celsius all year round.</body></html>';
+  const proposer = { complete: async () => ({ claims: { 'temperature.celsius': { value: 40 } } }) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'the page states 38-40' }) };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult, fetchImpl: serving(page),
+  });
+  const file = path.join(paths.overlayDir, 'whs_00000000000a.json');
+  assert.ok(fs.existsSync(file), 'a range endpoint must be publishable');
+  const written = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(written.claims['temperature.celsius'].value, 40);
+  assert.deepEqual(validateOverlay(written, { knownIds }), []);
+});
+
+test('the verifier is told a range endpoint is stated, not uncertain', () => {
+  // The two prompts contradicted each other: the proposer was told to claim an
+  // endpoint and the verifier to refute when uncertain, which is how a correct
+  // 40 was refuted for "not 40 specifically, but within that range".
+  assert.match(VERIFIER_SYSTEM, /endpoint of a range/i);
+  assert.match(VERIFIER_SYSTEM, /38\D{0,3}40/, 'both prompts must carry the same worked example');
+  assert.match(PROPOSER_SYSTEM, /38\D{0,3}40/);
+  // The general default must survive. Weakening it everywhere would be a
+  // different and much worse fix than naming the one case.
+  assert.match(VERIFIER_SYSTEM, /uncertain/i);
+});
+
+test('the verifier is actually sent the prompt that permits the endpoint', async () => {
+  // An exported constant nobody passes is a comment. This is the only
+  // assertion connecting the wording above to a running verifier.
+  const paths = tmp();
+  let seen;
+  const proposer = { complete: async () => ({ claims: { 'temperature.celsius': { value: 42.5 } } }) };
+  const verifier = { complete: async (input) => { seen = input; return { refuted: true, reason: 'no' }; } };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+  });
+  assert.equal(seen.system, VERIFIER_SYSTEM);
+});
+
+// --- Step 3: a verdict that is not a boolean is not a refusal --------------
+
+test('a verdict with no boolean is recorded as unanswered, not as a refusal', async () => {
+  // The real run logged refuted-by-verifier under a reason arguing the claim
+  // was correct. That line is a false fact in a permanent public log.
+  const paths = tmp();
+  const proposer = { complete: async () => ({ claims: { 'temperature.celsius': { value: 42.5 } } }) };
+  const verifier = { complete: async () => ({ reason: 'Therefore, it states this value about this spring.' }) };
+
+  const results = await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+  });
+
+  assert.equal(fs.existsSync(paths.overlayDir), false, 'fail-closed: still no file');
+  assert.equal(results[0].verified, 0);
+  const log = refutations(paths.refutationsFile);
+  assert.deepEqual(log.map((r) => r.outcome), ['verifier-verdict-malformed']);
+  assert.equal(log[0].verifier, 'b:1', 'the provider that failed to answer must be named');
+});
+
+test('every non-boolean verdict fails closed under the unanswered outcome', async () => {
+  // "false" as a string is the dangerous one: a check for a falsy `refuted`
+  // would publish it, and `!== false` would call it a refusal.
+  for (const verdict of [{ refuted: 'false' }, { refuted: 'true' }, { refuted: 0 }, { refuted: null }, null, 'refuted']) {
+    const paths = tmp();
+    const proposer = { complete: async () => ({ claims: { 'temperature.celsius': { value: 42.5 } } }) };
+    const verifier = { complete: async () => verdict };
+    await runPlan({
+      plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+      byId, knownIds, roles,
+      providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+    });
+    assert.equal(fs.existsSync(paths.overlayDir), false, `${JSON.stringify(verdict)} must publish nothing`);
+    assert.deepEqual(
+      refutations(paths.refutationsFile).map((r) => r.outcome),
+      ['verifier-verdict-malformed'],
+      `${JSON.stringify(verdict)} is not an answer`,
+    );
+  }
+});
+
+test('an explicit refusal is still a refutation, distinct from an unanswered one', async () => {
+  const paths = tmp();
+  const proposer = { complete: async () => ({ claims: { 'temperature.celsius': { value: 42.5 } } }) };
+  const verifier = { complete: async () => ({ refuted: true, reason: 'this is a different pool' }) };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+  });
+  const log = refutations(paths.refutationsFile);
+  assert.deepEqual(log.map((r) => r.outcome), ['refuted-by-verifier']);
+  assert.equal(log[0].note, 'this is a different pool');
 });
