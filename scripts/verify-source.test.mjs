@@ -73,11 +73,36 @@ test('a sign is part of the number', () => {
   assert.equal(valueAppears(40, 'it is -40 °C'), false);
   assert.equal(valueAppears(40, 'it is −40 °C'), false);
   assert.equal(valueAppears(40, 'it is –40 °C'), false);
-  // Accepted consequence: in a range, the upper bound reads as negative and is
-  // rejected, while the lower bound still matches. A false negative costs a
-  // claim; a false positive on temperature can burn someone.
-  assert.equal(valueAppears(45, 'range 40-45 °C'), false);
+  // A dash with no digit before it is a sign wherever it sits in the line.
+  assert.equal(valueAppears(40, 'lows of -40 °C in winter'), false);
+  assert.equal(valueAppears(40, 'sub-40 °C only'), false, 'a word before the dash is not a range');
+  // Was `false` until Task 12 defect 1: the upper bound of a range read as a
+  // negative. Hot spring temperatures are published as ranges more often than
+  // as single values, so that rejected half of every published range.
+  assert.equal(valueAppears(45, 'range 40-45 °C'), true);
   assert.equal(valueAppears(40, 'range 40-45 °C'), true);
+});
+
+test('both endpoints of a range verify, and a sign still does not', () => {
+  // The four rows from the live Gamla Laugin page that exposed defect 1.
+  assert.equal(valueAppears(40, 'stays at 38-40 Celsius all year'), true);
+  assert.equal(valueAppears(38, 'stays at 38-40 Celsius all year'), true);
+  assert.equal(valueAppears(40, 'stays at 38 to 40 Celsius'), true);
+  assert.equal(valueAppears(40, 'water is -40 C'), false);
+
+  // The other dashes a source might set a range with, each still a sign when
+  // no digit precedes it.
+  assert.equal(valueAppears(45, 'range 40−45 °C'), true, 'minus sign as range dash');
+  assert.equal(valueAppears(45, 'range 40–45 °C'), true, 'en dash as range dash');
+  assert.equal(valueAppears(45, 'from 40 to −45 °C'), false);
+  assert.equal(valueAppears(45, 'from 40 to –45 °C'), false);
+
+  // A range endpoint is still a number: the digit-boundary guards outrank the
+  // range clause, or "38-405" would certify a claim of 40.
+  assert.equal(valueAppears(40, 'the 38-405 series'), false);
+  assert.equal(valueAppears(42.5, 'the 38-42,500 range'), false);
+  // A decimal endpoint is a real published form.
+  assert.equal(valueAppears(42.5, 'water is 38-42.5 °C'), true);
 });
 
 test('a thousands separator does not hide an integer value', () => {

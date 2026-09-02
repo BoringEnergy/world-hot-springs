@@ -51,11 +51,14 @@ export function textOf(html) {
  * where opening hours and elevations sit beside temperatures. European decimal
  * commas are accepted because a great many of these sources are not English.
  *
- * A sign is part of the number: "-40" does not certify a claim of 40. The cost
- * is that in "range 40-45 °C" a claim of 45 is rejected while 40 still matches.
- * That asymmetry is the conservative direction and is the intended trade -- a
- * false negative costs a claim, a false positive on temperature can burn
- * someone.
+ * A sign is part of the number: "-40" does not certify a claim of 40. What
+ * separates a sign from a range dash is the character before it -- "38-40" has
+ * a digit there, "-40" and "sub-40" do not -- so both endpoints of a published
+ * range verify while a negative reading still cannot certify a positive claim.
+ * That distinction matters because these sources publish temperatures as
+ * ranges more often than as single values; rejecting the upper bound rejected
+ * half of every published range. A false positive on temperature can burn
+ * someone, so the sign half of this stays strict.
  *
  * Known limitation, ASCII only: full-width and CJK numerals do not match
  * ("２０００円", "二千" against 2000), and the string branch's word
@@ -86,8 +89,12 @@ export function valueAppears(value, text) {
       // An integer may be written grouped: 2000 appears as "2,000" or "2.000",
       // and it may carry the same meaningless trailing zeros: "40.0".
       : `${whole.replace(/\B(?=(\d{3})+$)/g, '[.,]?')}(?:\\.0+)?`;
-    // The leading class carries the sign characters a source might use.
-    return new RegExp(`(?<![-\\u2212\\u2013\\d.,])${body}(?![\\d.,]*\\d)`).test(hay);
+    // Two separate left-side guards. The first is the digit boundary. The
+    // second rejects a leading dash only when no digit precedes THAT dash --
+    // nested lookbehind, so "38-40" is a range and "-40"/"sub-40" are signs.
+    return new RegExp(
+      `(?<![\\d.,])(?<!(?<!\\d)[-\\u2212\\u2013])${body}(?![\\d.,]*\\d)`,
+    ).test(hay);
   }
 
   const needle = String(value).toLowerCase().trim();
