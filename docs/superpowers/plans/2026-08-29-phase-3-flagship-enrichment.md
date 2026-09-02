@@ -2206,6 +2206,112 @@ Expected: all tests pass, `merged 1167 duplicate record(s) -> 6471 springs`, cle
 
 ---
 
+## Task 12: Give the proposer retrieval
+
+**Added 2026-09-02, after the first real run produced nothing.** This is not a
+refinement of the previous eleven tasks — it is a gap none of them could have
+caught, because every test to this point used stub providers that return
+whatever the test hands them. The pipeline was verified end to end against
+mocks and is architecturally unable to produce a claim against reality.
+
+### The evidence
+
+Three Icelandic springs attempted, three `no-claim-proposed` — including
+**Gamla Laugin**, the Secret Lagoon, which publishes its water temperature on
+its own site. Probing the exact prompt the pipeline sends:
+
+```
+completion_tokens: 1350   of which reasoning_tokens: 1345
+content:           {"claims":{}}
+cost:              $0.008878    (one proposal call)
+```
+
+The proposer is asked for "a public source URL that states the value" and has
+no tool with which to find one. It declines rather than inventing a URL, which
+is the model behaving **well**: a worse one would fabricate, and the fetch-check
+would record `source-not-found`. Either way the run yields nothing.
+
+The gateway named the fix itself, in a 400 response:
+
+```
+Expected 'function' | 'custom' | 'vercel:exa_search'
+       | 'vercel:parallel_search' | 'vercel:perplexity_search' | 'vercel:tako_search'
+```
+
+### Resolve these before writing code
+
+Three unknowns, and this project's history says guessing them is how a plan
+ships a defect. Each must be answered by consulting current documentation or by
+one probe call, and the answer recorded in the commit message.
+
+1. **Which search tool.** Four are offered. They differ in cost, index, and
+   result shape. Pick one deliberately; do not default to the first.
+2. **Its request and response shape.** How results reach the model, and whether
+   the tool returns URLs the model then cites, or content it summarises. The
+   distinction matters: this pipeline needs a **URL that `fetchSource` can
+   retrieve**, not a summary. A search tool that returns content without a
+   fetchable citation is useless here, however good its answers.
+3. **Its cost.** The model listing prices `web_search` separately (`"5"` for
+   grok, `"10"` for opus — units unverified). A search call per candidate is a
+   third cost line the estimate does not currently contain.
+
+### What to build
+
+- [ ] **Step 1: Attach a search tool to the proposer call only**
+
+The verifier must **not** get search. It is given the fetched page and asked
+whether that page supports the claim; letting it search would let it confirm a
+claim from a source nobody fetched, checked, or recorded — which defeats the
+entire deterministic layer. This is a correctness boundary, not a cost saving.
+A test should assert the verifier's request carries no search tool.
+
+- [ ] **Step 2: Handle HTTP 429**
+
+The first run hit `Free tier requests on this model are rate-limited`. There is
+no retry anywhere in `gateway.mjs`, so a full run will abort partway. Add
+bounded exponential backoff, and treat exhausted retries as a run-ending error
+rather than a per-spring refutation — a rate limit is a fact about the account,
+not about the spring, and recording it as `source-unreachable` would poison the
+resume-skip exactly as the deleted Iceland log would have.
+
+- [ ] **Step 3: Re-price the run**
+
+The current estimate is wrong and low. It assumed 400 output tokens per
+proposal; the real figure is 1,350 because grok-4.6 spends nearly all output on
+reasoning. Proposals alone are ~$4.37 across 492 candidates, not $1.77, before
+search costs. Re-measure with real usage numbers from a handful of calls, and
+state whether a full run still fits the $5 monthly credit. If it does not, say
+so plainly and adjust `--max-attempts` guidance rather than hiding it.
+
+- [ ] **Step 4: Prove it end to end on one spring**
+
+`node scripts/enrich.mjs --country IS --limit 1 --max-attempts 1 --retry-refuted`
+
+Then **open the cited URL by hand** and confirm the page states the claimed
+value. Until a human has done that once, nothing here is known to work.
+
+### Tests
+
+Stub providers cannot catch what this task fixes, so the tests must target the
+request rather than the answer:
+
+1. The proposer's request carries the chosen search tool.
+2. The verifier's request carries **no** search tool.
+3. A 429 retries with backoff and eventually succeeds.
+4. Exhausted retries end the run and write no refutation.
+5. A claim whose source is unfetchable is still refuted, with search enabled —
+   retrieval must not become a way around the fetch-check.
+
+### The lesson worth carrying
+
+Eleven tasks of tests, ten defects caught, and the thing that stopped the
+pipeline working was invisible to all of them. Mocked providers verify the
+plumbing between components; they cannot verify that the component at the edge
+can do its job. **The first real call is a test no amount of unit testing
+replaces, and it should have come earlier.**
+
+---
+
 ## Done when
 
 - `npm test` passes, including all new suites
@@ -2226,6 +2332,12 @@ earlier version of this list stopped at the dry run, which would have let the
 phase be declared complete having produced nothing — while the stated Goal is
 to produce the atlas's first authored claims, and the spec's whole premise is
 that none exist.
+
+**As of 2026-09-02 every bullet passes except the last, and the last is
+blocked by Task 12.** Tasks 0–11 are done; the pipeline runs, spends, records,
+and resumes correctly. It cannot yet produce a claim, because the proposer has
+no retrieval. Writing the bullet this way was worth it: a list that stopped at
+"the tests pass" would be reporting success right now.
 
 ## Not a success metric
 

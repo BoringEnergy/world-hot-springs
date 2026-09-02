@@ -22,12 +22,15 @@ else; there is no deploy pipeline, so nothing is hosted anywhere yet.
   secret exists in the repository yet, which is why nothing here can leak one.
   **All three repository settings are applied and verified**, and `gate-1` is
   proven by two real pull requests — see below.
-- **Phase 3 complete except Task 8, and Task 8 is the one that makes it run.**
-  The flagship enrichment pipeline is built end to end — candidate selection,
-  deterministic source verification, the refutation log, the coverage map, the
-  provider interface, and the CLI. **No vendor module exists**, so
-  `npm run enrich` cannot make a single model call. See below.
-- **231 tests**, `npm test`. All passing.
+- **Phase 3 built and running, but it has never produced a claim.** Tasks 0–11
+  are done: selection, deterministic source verification, the refutation log,
+  the coverage map, the provider interface, the CLI, and four providers behind
+  Vercel AI Gateway on short-lived OIDC. It spends, records, caps, and resumes
+  correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
+  has no way to look up and correctly returns nothing. **Task 12** fixes that;
+  until it lands, `npm run enrich` costs money and yields zero overlay files.
+- **242 tests**, `npm test`. All passing — and note that all 242 passed while
+  the pipeline could not do its job. See the Task 12 lesson below.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
 - The app runs: `npm run dev` (port 5177 via `.claude/launch.json`).
@@ -77,6 +80,30 @@ by up to 300 m, so ordering here is a correctness property, not style.
 | `data/refutations.jsonl` | Append-only record of every claim that did *not* become a file. Written by a run; does not exist yet. |
 
 ## Things that will bite you
+
+- **Mocked providers cannot tell you the pipeline works.** 242 tests passed
+  against stub providers while the proposer was architecturally unable to
+  produce a claim. Stubs verify the plumbing between components; they say
+  nothing about whether the component at the edge can do its job. Make the
+  first real call early — it is a test nothing else replaces.
+- **A wrong reason in `data/refutations.jsonl` is permanent.** `alreadyAttempted`
+  skips any spring already recorded, so a run that failed for a *configuration*
+  reason writes "no sources exist" and that spring is never retried without
+  `--retry-refuted`. The first Iceland run recorded three such lines — including
+  one claiming the Secret Lagoon has no findable sources — and the log was
+  deleted rather than committed. Check *why* a run produced nothing before you
+  let its log stand.
+- **The config vendor id is the provider filename.** `xai:grok-4.6` loads
+  `providers/xai.mjs`; the gateway prefix inside that file is `spacexai/`,
+  which is a different string for a different purpose. Writing
+  `spacexai:grok-4.6` in the config fails instantly with a module-not-found.
+- **Free-tier gateway requests are rate-limited per model**, returning HTTP 429
+  with an upgrade link. There is no retry in `gateway.mjs` yet, so a long run
+  will abort partway.
+- **Reasoning models bill for thinking.** One grok-4.6 proposal returned 13
+  characters of content and cost $0.0089 — 1,345 of its 1,350 output tokens
+  were reasoning. Any cost estimate built on visible output length is wrong and
+  low.
 
 - **Durable ids are 12 hex characters, not 6.** Six produced two real collisions
   across the dataset's 7,638 OSM refs. Two springs sharing an id means claims
