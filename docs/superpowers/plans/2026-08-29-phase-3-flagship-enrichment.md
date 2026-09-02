@@ -2206,110 +2206,195 @@ Expected: all tests pass, `merged 1167 duplicate record(s) -> 6471 springs`, cle
 
 ---
 
-## Task 12: Give the proposer retrieval
+## Task 12: Retrieval, and the three defects the first real run exposed
 
-**Added 2026-09-02, after the first real run produced nothing.** This is not a
-refinement of the previous eleven tasks — it is a gap none of them could have
-caught, because every test to this point used stub providers that return
-whatever the test hands them. The pipeline was verified end to end against
-mocks and is architecturally unable to produce a claim against reality.
+**Rewritten 2026-09-02 after testing TinyFish against Gamla Laugin.** The
+original Task 12 said "attach a gateway search tool." Testing showed a better
+shape and, more usefully, exposed three defects in code that already shipped.
 
-### The evidence
+### Why the pipeline produced nothing
 
-Three Icelandic springs attempted, three `no-claim-proposed` — including
-**Gamla Laugin**, the Secret Lagoon, which publishes its water temperature on
-its own site. Probing the exact prompt the pipeline sends:
+Three Icelandic springs attempted, three `no-claim-proposed` — including Gamla
+Laugin, which publishes its temperature on its own site. Probing the exact
+prompt the pipeline sends:
 
 ```
 completion_tokens: 1350   of which reasoning_tokens: 1345
 content:           {"claims":{}}
-cost:              $0.008878    (one proposal call)
+cost:              $0.008878     (one proposal call)
 ```
 
-The proposer is asked for "a public source URL that states the value" and has
-no tool with which to find one. It declines rather than inventing a URL, which
-is the model behaving **well**: a worse one would fabricate, and the fetch-check
-would record `source-not-found`. Either way the run yields nothing.
+The proposer is asked to cite a public URL and has no tool to find one, so it
+declines rather than inventing one. That is the model behaving **well** against
+a design that cannot work. A worse model would fabricate a URL and the
+fetch-check would record `source-not-found`; either way, no claims.
 
-The gateway named the fix itself, in a 400 response:
+**No test could have caught this.** All 242 use stub providers that return
+whatever the test hands them. They verify the plumbing between components and
+say nothing about whether the component at the edge can do its job.
+
+### The retrieval layer: TinyFish, and the flow inverts
+
+Verified against the real service:
 
 ```
-Expected 'function' | 'custom' | 'vercel:exa_search'
-       | 'vercel:parallel_search' | 'vercel:perplexity_search' | 'vercel:tako_search'
+tinyfish search query "Gamla Laugin Secret Lagoon Fludir Iceland water temperature"
+  -> 8 results, official site secretlagoon.is ranked first
+fetchSource('https://secretlagoon.is/')
+  -> ok, 8816 chars, contains "stays at 38-40 Celsius all year round"
+  -> valueAppears(38, text) === true
 ```
 
-### Resolve these before writing code
+Free at **30 search req/min and 150 fetch url/min**, so retrieval costs nothing
+and only needs throttling.
 
-Three unknowns, and this project's history says guessing them is how a plan
-ships a defect. Each must be answered by consulting current documentation or by
-one probe call, and the answer recorded in the commit message.
+`search` and `fetch` being separate commands is the property that matters. It
+lets the flow invert:
 
-1. **Which search tool.** Four are offered. They differ in cost, index, and
-   result shape. Pick one deliberately; do not default to the first.
-2. **Its request and response shape.** How results reach the model, and whether
-   the tool returns URLs the model then cites, or content it summarises. The
-   distinction matters: this pipeline needs a **URL that `fetchSource` can
-   retrieve**, not a summary. A search tool that returns content without a
-   fetchable citation is useless here, however good its answers.
-3. **Its cost.** The model listing prices `web_search` separately (`"5"` for
-   grok, `"10"` for opus — units unverified). A search call per candidate is a
-   third cost line the estimate does not currently contain.
+```
+before:  ask the model to recall a URL   -> it declines, or fabricates
+after:   search -> fetch ourselves -> ask the model to extract from real text
+```
 
-### What to build
+The proposer stops *recalling* a citation and starts *extracting claims from
+text we retrieved*. That removes the hallucinated-citation failure mode at its
+source rather than catching it downstream, and it keeps the deterministic
+fetch-check fully intact — which a gateway-side search tool would have muddied.
 
-- [ ] **Step 1: Attach a search tool to the proposer call only**
+**Use TinyFish for search only; keep `fetchSource` for retrieval.** Our fetcher
+owns the byte cap, the scheme guard, the timeout, and the outcome enum. Handing
+that to a third party would move a security boundary out of this repository for
+no gain.
 
-The verifier must **not** get search. It is given the fetched page and asked
-whether that page supports the claim; letting it search would let it confirm a
-claim from a source nobody fetched, checked, or recorded — which defeats the
-entire deterministic layer. This is a correctness boundary, not a cost saving.
-A test should assert the verifier's request carries no search tool.
+### Defect 1: the sign guard rejects the top of every temperature range
 
-- [ ] **Step 2: Handle HTTP 429**
+```
+valueAppears(40, "stays at 38-40 Celsius all year")  === false   <-- wrong
+valueAppears(38, "stays at 38-40 Celsius all year")  === true
+valueAppears(40, "stays at 38 to 40 Celsius")        === true
+valueAppears(40, "water is -40 C")                   === false   <-- correct
+```
 
-The first run hit `Free tier requests on this model are rate-limited`. There is
-no retry anywhere in `gateway.mjs`, so a full run will abort partway. Add
-bounded exponential backoff, and treat exhausted retries as a run-ending error
-rather than a per-spring refutation — a rate limit is a fact about the account,
-not about the spring, and recording it as `source-unreachable` would poison the
-resume-skip exactly as the deleted Iceland log would have.
+`-` was added to the numeric lookbehind so a page reading `-40 °C` could not
+certify a claim of `40`. The cost was predicted and accepted at the time —
+*"in `range 40-45 °C`, claiming 45 will now be rejected"* — on the assumption
+that ranges were an edge case.
 
-- [ ] **Step 3: Re-price the run**
+**They are not.** Hot spring temperatures are published as ranges more often
+than as single values, so half of every published range is currently
+unverifiable. Fix: treat `N-M` as a range and accept either endpoint, while
+still rejecting a sign that has no digit before it. Keep the `-40` case passing;
+it is the reason the guard exists.
 
-The current estimate is wrong and low. It assumed 400 output tokens per
-proposal; the real figure is 1,350 because grok-4.6 spends nearly all output on
-reasoning. Proposals alone are ~$4.37 across 492 candidates, not $1.77, before
-search costs. Re-measure with real usage numbers from a handful of calls, and
-state whether a full run still fits the $5 monthly credit. If it does not, say
-so plainly and adjust `--max-attempts` guidance rather than hiding it.
+### Defect 2: an incidental number passes the fetch-check
 
-- [ ] **Step 4: Prove it end to end on one spring**
+```
+valueAppears(39, guidetoiceland_page) === true
+```
 
-`node scripts/enrich.mjs --country IS --limit 1 --max-attempts 1 --retry-refuted`
+39 is not a temperature on that page. It is in a phone number:
 
-Then **open the cited URL by hand** and confirm the page states the claimed
-value. Until a human has done that once, nothing here is known to work.
+```
+...WhatsApp +354 777 39 35 Join Our Team...
+```
+
+A proposer claiming the midpoint `39 °C` would clear the deterministic check
+against a page that never states it. Two consequences:
+
+- **The proposer must claim a value the page states literally** — `38` or `40`,
+  never a computed midpoint. Put it in the system prompt and test it.
+- **This is evidence the verifier is load-bearing.** The fetch-check answers
+  "does this number appear", not "does this page say this about this spring".
+  Dropping the verifier to save money would remove the only layer that catches
+  this. Do not.
+
+### Defect 3: no URL-level fallthrough
+
+TripAdvisor returned `source-not-found`. Four of the eight results were
+aggregators or booking sites — TripAdvisor, Viator, Facebook, Marriott — which
+commonly block crawlers.
+
+The pipeline falls through to the next *spring* when one fails, but takes only
+one URL per spring. It must try the next URL first: a spring is not
+unenrichable because the first result was TripAdvisor. Prefer official domains,
+and consider `--include-domains` to bias the search itself.
+
+### Re-priced, and the conclusion is not the obvious one
+
+Search is free, so only model calls cost. But the proposal call changes shape —
+it now reads a fetched excerpt instead of a spring name — so the estimate must
+be rebuilt, not adjusted. Measured against live gateway pricing, 492
+candidates:
+
+```
+$ 7.26   1.5x over   grok-4.6 (reasoning) + haiku-4.5
+$ 1.96   fits $5     grok-4.1-fast-non-reasoning + haiku-4.5
+$13.87   2.8x over   gpt-5.4 + haiku-4.5
+```
+
+**Reasoning tokens are the entire cost problem** — a 3.7x spread between the
+same vendor's reasoning and non-reasoning models. And the task no longer needs
+reasoning: once retrieval is done, the proposer reads supplied text and extracts
+values from it. Giving the model a search tool makes it need *less* intelligence,
+not more. Default to the non-reasoning model and let `--max-attempts` bound the
+rest.
+
+### Steps
+
+- [ ] **Step 1: `scripts/lib/search.mjs`** — one function wrapping
+      `tinyfish search query --pretty`, returning `[{title, url, snippet}]`.
+      Shell out with `execFile`, never string interpolation: the query contains
+      a spring name from the dataset, which is contributor-influenced text.
+      Throttle to 30/min. Missing CLI or missing auth must produce an
+      actionable error naming `npx @tiny-fish/cli auth login`, not a stack trace.
+
+- [ ] **Step 2: fix `valueAppears` for ranges** (defect 1). Test all four rows
+      above, then mutation-check by removing the range clause and confirming
+      the `38-40` row fails while the `-40` row still passes.
+
+- [ ] **Step 3: URL-level fallthrough in `attempt`** (defect 3). Try search
+      results in order until one fetches; record each failure with its existing
+      outcome. Cap the attempts per spring so a spring cannot consume the run.
+
+- [ ] **Step 4: rewrite the proposer prompt.** It receives fetched text and
+      must extract only values the text states **literally** (defect 2), citing
+      the URL that text came from. Returning nothing stays correct and expected.
+
+- [ ] **Step 5: 429 backoff in `gateway.mjs`.** The first run hit
+      `Free tier requests on this model are rate-limited`. Bounded exponential
+      backoff; exhausted retries end the run rather than writing a refutation —
+      a rate limit is a fact about the account, not the spring, and recording it
+      would poison the resume-skip.
+
+- [ ] **Step 6: default the config to the non-reasoning proposer.**
+
+- [ ] **Step 7: prove it on Gamla Laugin.**
+      `node scripts/enrich.mjs --country IS --limit 1 --max-attempts 2 --retry-refuted`
+      Then **open the cited URL and confirm the page states the value.** Until a
+      human has done that once, nothing here is known to work.
 
 ### Tests
 
-Stub providers cannot catch what this task fixes, so the tests must target the
-request rather than the answer:
+Stubs cannot catch what this task fixes, so target the request and the seams:
 
-1. The proposer's request carries the chosen search tool.
-2. The verifier's request carries **no** search tool.
-3. A 429 retries with backoff and eventually succeeds.
-4. Exhausted retries end the run and write no refutation.
-5. A claim whose source is unfetchable is still refuted, with search enabled —
-   retrieval must not become a way around the fetch-check.
+1. `valueAppears` accepts both endpoints of `38-40` and still rejects `-40`.
+2. A midpoint absent from the page is rejected.
+3. Search results are tried in order; the second is used when the first 404s.
+4. A spring whose every result is unfetchable produces no file and one
+   refutation per attempted URL.
+5. The proposer's prompt carries the fetched text; the verifier still gets no
+   search tool.
+6. A 429 retries and succeeds; exhausted retries end the run and write nothing.
+7. The search wrapper passes the query as an argument, not through a shell.
 
-### The lesson worth carrying
+### The lesson
 
-Eleven tasks of tests, ten defects caught, and the thing that stopped the
-pipeline working was invisible to all of them. Mocked providers verify the
-plumbing between components; they cannot verify that the component at the edge
-can do its job. **The first real call is a test no amount of unit testing
-replaces, and it should have come earlier.**
-
+Eleven tasks, ten defects caught by review and mutation, 242 green tests — and
+the thing that stopped the pipeline working was invisible to all of them until
+one real call cost nine-tenths of a cent. Two of the three defects above were in
+code that had been reviewed, mutation-tested, and shipped; real data found them
+in minutes. **Make the first real call early. It is a test nothing else
+replaces.**
 ---
 
 ## Done when

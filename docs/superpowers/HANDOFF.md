@@ -103,7 +103,18 @@ by up to 300 m, so ordering here is a correctness property, not style.
 - **Reasoning models bill for thinking.** One grok-4.6 proposal returned 13
   characters of content and cost $0.0089 — 1,345 of its 1,350 output tokens
   were reasoning. Any cost estimate built on visible output length is wrong and
-  low.
+  low. Across 492 candidates that is a 3.7x spread between the same vendor's
+  reasoning and non-reasoning models: $7.26 versus $1.96.
+- **`valueAppears` rejects the top of a range.** `valueAppears(40, "38-40
+  Celsius")` is `false`, because `-` was added to the lookbehind so a page
+  reading `-40 °C` could not certify `40`. The trade was made deliberately on
+  the assumption that ranges were rare; hot spring temperatures are published
+  as ranges more often than not, so half of every range is unverifiable.
+  Task 12 fixes it. The `-40` case must keep passing.
+- **The fetch-check answers "does this number appear", not "does this page say
+  this".** `valueAppears(39, ...)` returned true against a page whose only 39
+  was inside `WhatsApp +354 777 39 35`. The verifier is what catches that, and
+  it is why dropping the verifier to save money would be a false economy.
 
 - **Durable ids are 12 hex characters, not 6.** Six produced two real collisions
   across the dataset's 7,638 OSM refs. Two springs sharing an id means claims
