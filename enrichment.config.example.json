@@ -1,4 +1,4 @@
 {
-  "proposer": "xai:grok-4.6",
+  "proposer": "xai:grok-4.1-fast-non-reasoning",
   "verifier": "anthropic:claude-haiku-4.5"
 }

@@ -8,6 +8,8 @@ import {
   completeViaGateway,
   gatewayToken,
   parseJsonContent,
+  RateLimitedError,
+  RATE_LIMIT_RETRIES,
 } from './lib/providers/gateway.mjs';
 
 const two = { proposer: 'openai:gpt-5', verifier: 'anthropic:claude-opus-5' };
@@ -121,6 +123,66 @@ test('a gateway error does not echo the OIDC token', async () => {
       return true;
     },
   );
+});
+
+test('a 429 is retried, and the wait doubles between attempts', async () => {
+  // The first real run died on `Free tier requests on this model are
+  // rate-limited`. Asserting only "it retried" would pass against a fixed
+  // 0 ms loop, which is a hammer, not a backoff -- so the waits themselves
+  // are the assertion.
+  const slept = [];
+  let call = 0;
+  const fetchImpl = async () => {
+    call++;
+    return call <= 3
+      ? jsonResponse('Free tier requests on this model are rate-limited', 429)
+      : jsonResponse({ choices: [{ message: { content: '{"claims":{}}' } }] });
+  };
+  const result = await completeViaGateway('spacexai/grok-4.1-fast-non-reasoning', INPUT, {
+    fetchImpl, env: { VERCEL_OIDC_TOKEN: TOKEN }, skipEnvFile: true,
+    sleep: async (ms) => { slept.push(ms); }, rateLimitBaseMs: 1000,
+  });
+  assert.deepEqual(result, { claims: {} });
+  assert.equal(call, 4, 'three throttled calls and one that answered');
+  assert.deepEqual(slept, [1000, 2000, 4000], 'each wait must be twice the last');
+});
+
+test('exhausted 429 retries throw a RateLimitedError naming the account, not the spring', async () => {
+  // The failure this prevents is subtle and expensive: recorded as a per-spring
+  // outcome, a throttled window marks every spring it touched as hopeless and
+  // the resume-skip never tries them again.
+  let calls = 0;
+  const fetchImpl = async () => { calls++; return jsonResponse('rate-limited', 429); };
+  await assert.rejects(
+    () => completeViaGateway('spacexai/grok-4.1-fast-non-reasoning', INPUT, {
+      fetchImpl, env: { VERCEL_OIDC_TOKEN: TOKEN }, skipEnvFile: true,
+      sleep: async () => {}, rateLimitRetries: 2,
+    }),
+    (err) => {
+      assert.ok(err instanceof RateLimitedError, `got ${err.name}`);
+      assert.match(err.message, /limit on the account, not a fact about any spring/);
+      return true;
+    },
+  );
+  assert.equal(calls, 3, 'the original call plus exactly two retries');
+});
+
+test('the retry budget is bounded, and is not the same number as a success', async () => {
+  // A default of Infinity would hang the run rather than end it; a default of
+  // 0 would make the backoff decorative.
+  assert.ok(Number.isInteger(RATE_LIMIT_RETRIES) && RATE_LIMIT_RETRIES > 0);
+  assert.ok(RATE_LIMIT_RETRIES < 10, 'a long ladder stalls the run instead of ending it');
+});
+
+test('a non-429 error is not retried', async () => {
+  // Backing off a 401 just delays the message that says the token expired.
+  let calls = 0;
+  const fetchImpl = async () => { calls++; return jsonResponse('unauthorized', 401); };
+  await assert.rejects(() => completeViaGateway('openai/gpt-5.6-sol', INPUT, {
+    fetchImpl, env: { VERCEL_OIDC_TOKEN: TOKEN }, skipEnvFile: true,
+    sleep: async () => {},
+  }), /401/);
+  assert.equal(calls, 1);
 });
 
 test('non-JSON content is a parse failure', () => {

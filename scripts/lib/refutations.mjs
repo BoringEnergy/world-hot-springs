@@ -40,6 +40,7 @@ export const OUTCOMES = new Set([
   // overlay file leaves no other trace, so without these three a resumed run
   // cannot tell "never tried" from "tried and got nothing" -- and re-pays for
   // the second on every restart.
+  'no-source-found',           // search returned nothing to even try. Not the proposer's doing.
   'no-claim-proposed',         // the proposer found nothing. Correct, and expected.
   'overlay-rejected',          // it produced something validateOverlay refused.
   'field-not-agent-claimable', // it tried a field withheld from agents.

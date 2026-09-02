@@ -21,6 +21,7 @@ import { fetchSource, valueAppears } from './lib/verify-source.mjs';
 import { appendRefutation } from './lib/refutations.mjs';
 import { buildCoverage } from './lib/coverage.mjs';
 import { resolveRoles, loadProviders } from './lib/providers/index.mjs';
+import { search } from './lib/search.mjs';
 
 const OVERLAY_DIR = path.join('data', 'overlay');
 const REFUTATIONS = path.join('data', 'refutations.jsonl');
@@ -79,6 +80,48 @@ export function sourceExcerpt(text, value, max = SOURCE_EXCERPT_CHARS) {
 }
 
 /**
+ * How much of a fetched page the proposer is shown.
+ *
+ * Same budget as the verifier's. The proposer used to read a spring name and
+ * nothing else, which is why it declined every time: it was being asked to
+ * recall a citation rather than read one.
+ */
+export const PROPOSER_EXCERPT_CHARS = 6_000;
+
+/**
+ * How many search results one spring may cost before the run moves on.
+ *
+ * Four of eight results for a real spring were aggregators that block
+ * crawlers. Four attempts clears that band without letting a spring whose
+ * every result is junk walk the whole page of them.
+ */
+export const MAX_URLS_PER_SPRING = 4;
+
+/**
+ * The extraction prompt.
+ *
+ * "States it literally" is not a stylistic preference. `valueAppears(39, page)`
+ * returned true against a page whose only 39 was inside `WhatsApp +354 777 39
+ * 35`, so a midpoint computed from a published `38-40` range would clear the
+ * deterministic fetch-check against a page that never states it. Claim 38 or
+ * claim 40; the one number that must never be claimed is the one in between.
+ */
+export const PROPOSER_SYSTEM = [
+  'You extract facts about one hot spring from a web page that has already been retrieved for you.',
+  `You may only propose these fields: ${AGENT_CLAIMABLE.join(', ')}.`,
+  'Propose a value ONLY if the supplied page text states it literally, as characters you could point to in that text.',
+  'Never compute, convert, average, round, or infer a value. If the page says "38-40 C" you may claim 38 or 40, never 39.',
+  'Do not use anything you know about this spring from elsewhere. The supplied text is the only evidence.',
+  'If the page is about a different pool, resort, or place, or states none of these fields, return an empty claims object.',
+  'Returning nothing is correct and expected.',
+].join(' ');
+
+/** What we ask the web for. The name is dataset text; `search` sanitises it. */
+export function searchQuery(spring) {
+  return `${spring.name} ${spring.location.country} hot spring water temperature`;
+}
+
+/**
  * Attempt one spring. Returns a claim object, or null having logged why not.
  *
  * Null is a first-class result, not a failure path. The characteristic error
@@ -86,10 +129,66 @@ export function sourceExcerpt(text, value, max = SOURCE_EXCERPT_CHARS) {
  * returning nothing, so every exit here that is not a verified claim must
  * produce no file at all.
  */
-export async function attempt(spring, roles, providers, refutationsFile, now, fetchImpl = fetch) {
+export async function attempt(spring, roles, providers, refutationsFile, now, {
+  fetchImpl = fetch,
+  searchImpl = search,
+  maxUrls = MAX_URLS_PER_SPRING,
+} = {}) {
+  // Left to throw, deliberately. A search failure is a fact about this machine
+  // -- a missing CLI, an expired credential -- not about the spring. Catching
+  // it here would write a refutation and mark the spring hopeless for every
+  // later run, which is the same poisoning a rate limit would cause.
+  const results = await searchImpl(searchQuery(spring));
+
+  if (results.length === 0) {
+    appendRefutation(refutationsFile, {
+      springId: spring.id, field: null, proposer: roles.proposer, stage: 'search',
+      outcome: 'no-source-found', note: 'search returned no candidate URLs',
+    }, now());
+    return null;
+  }
+
+  // Fall through the result list until one actually fetches. Four of the eight
+  // real results for a real spring were TripAdvisor, Viator, Facebook and
+  // Marriott, and TripAdvisor blocks crawlers: a spring is not unenrichable
+  // because an aggregator ranked first. Capped, so one spring walking a page
+  // of junk cannot consume the run.
+  let page = null;
+  for (const result of results.slice(0, maxUrls)) {
+    const fetched = await fetchSource(result.url, { fetchImpl });
+    if (fetched.ok) {
+      page = { url: result.url, text: fetched.text };
+      break;
+    }
+    // Each failure keeps its own outcome. "The URL 404s" and "the page is
+    // 3 MB" are different facts about the web and about the search backend,
+    // and collapsing them would lose the only signal that says which.
+    appendRefutation(refutationsFile, {
+      springId: spring.id, field: null, source: result.url,
+      proposer: roles.proposer, stage: 'fetch-check', outcome: fetched.outcome,
+      note: 'candidate source could not be retrieved',
+    }, now());
+  }
+  // Every candidate refused us. Each one is already logged with its reason, so
+  // a second record here would double-count the same spring.
+  if (!page) return null;
+
   const proposal = await providers.proposer.complete({
-    system: `Propose verifiable facts about a hot spring. You may only propose these fields: ${AGENT_CLAIMABLE.join(', ')}. Every field needs a public source URL that states the value. If you cannot find a real source, return an empty claims object. Returning nothing is correct and expected.`,
-    user: JSON.stringify({ id: spring.id, name: spring.name, country: spring.location.country }),
+    system: PROPOSER_SYSTEM,
+    user: JSON.stringify({
+      spring: spring.name,
+      country: spring.location.country,
+      url: page.url,
+      // Centred on the spring's name rather than sliced from the head, for the
+      // same reason the verifier's excerpt is: a head slice on a long page
+      // drops the sentence that states the value, and the proposer then
+      // correctly declines a fact the page does publish.
+      page: sourceExcerpt(page.text, spring.name, PROPOSER_EXCERPT_CHARS),
+    }),
+    // No `source` field. The model does not get to cite: we fetched the text,
+    // so we own the citation. That deletes the hallucinated-URL failure mode
+    // rather than catching it downstream -- and it makes the fetch-check
+    // meaningful, since the text checked is provably the text quoted.
     schema: {
       type: 'object',
       required: ['claims'],
@@ -98,8 +197,8 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
           type: 'object',
           additionalProperties: {
             type: 'object',
-            required: ['value', 'source'],
-            properties: { value: {}, source: { type: 'string' } },
+            required: ['value'],
+            properties: { value: {} },
           },
         },
       },
@@ -113,8 +212,9 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
   // findable sources -- the ones each restart reaches first.
   if (claims.length === 0) {
     appendRefutation(refutationsFile, {
-      springId: spring.id, field: null, proposer: roles.proposer, stage: 'proposal',
-      outcome: 'no-claim-proposed', note: 'the proposer found nothing to claim',
+      springId: spring.id, field: null, source: page.url,
+      proposer: roles.proposer, stage: 'proposal',
+      outcome: 'no-claim-proposed', note: 'the retrieved page stated nothing claimable',
     }, now());
     return null;
   }
@@ -126,19 +226,9 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
       // fields deliberately withheld from agents -- is one of the more
       // interesting things this log can hold, and it was previously invisible.
       appendRefutation(refutationsFile, {
-        springId: spring.id, field, proposed: claim?.value, source: claim?.source,
+        springId: spring.id, field, proposed: claim?.value, source: page.url,
         proposer: roles.proposer, stage: 'proposal',
         outcome: 'field-not-agent-claimable', note: 'field is withheld from agents',
-      }, now());
-      continue;
-    }
-
-    const fetched = await fetchSource(claim.source, { fetchImpl });
-    if (!fetched.ok) {
-      appendRefutation(refutationsFile, {
-        springId: spring.id, field, proposed: claim.value, source: claim.source,
-        proposer: roles.proposer, stage: 'fetch-check', outcome: fetched.outcome,
-        note: 'source could not be retrieved',
       }, now());
       continue;
     }
@@ -155,9 +245,9 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
     // alone, which reads the fetched text. They are strictly less protected;
     // that is the reason the set is small and the reason to keep it small.
     const literal = LITERAL_FIELDS.includes(field);
-    if (literal && !valueAppears(claim.value, fetched.text)) {
+    if (literal && !valueAppears(claim.value, page.text)) {
       appendRefutation(refutationsFile, {
-        springId: spring.id, field, proposed: claim.value, source: claim.source,
+        springId: spring.id, field, proposed: claim.value, source: page.url,
         proposer: roles.proposer, stage: 'fetch-check', outcome: 'value-absent-from-source',
         note: 'value not found in the retrieved page',
       }, now());
@@ -170,7 +260,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
         spring: spring.name,
         field,
         value: claim.value,
-        source: sourceExcerpt(fetched.text, claim.value),
+        source: sourceExcerpt(page.text, claim.value),
       }),
       schema: {
         type: 'object',
@@ -181,7 +271,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
 
     if (verdict?.refuted !== false) {
       appendRefutation(refutationsFile, {
-        springId: spring.id, field, proposed: claim.value, source: claim.source,
+        springId: spring.id, field, proposed: claim.value, source: page.url,
         proposer: roles.proposer, verifier: roles.verifier, stage: 'refutation',
         outcome: 'refuted-by-verifier', note: verdict?.reason,
       }, now());
@@ -190,7 +280,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
 
     verified[field] = {
       value: claim.value,
-      source: claim.source,
+      source: page.url,
       contributor: roles.proposer,
       state: 'active',
     };
@@ -255,6 +345,7 @@ export async function runPlan({
   writeCoverage = false, retryRefuted = false,
   now = () => new Date().toISOString(),
   fetchImpl = fetch,
+  searchImpl = search,
   // A hard ceiling on springs attempted, so a bug in the fallthrough or the
   // resume-skip cannot spend an unbounded amount. The budget lives here rather
   // than in a token ledger because a call count is the one quantity this code
@@ -314,7 +405,7 @@ export async function runPlan({
       spent++;
 
       attempted++;
-      const overlay = await attempt(spring, roles, providers, refutationsFile, now, fetchImpl);
+      const overlay = await attempt(spring, roles, providers, refutationsFile, now, { fetchImpl, searchImpl });
       if (!overlay) continue;
 
       const errors = validateOverlay(overlay, { knownIds, agentAuthored: true });

@@ -18,6 +18,11 @@ test('the outcome set is closed', () => {
       // nothing", and re-pays for the second every restart.
       'field-not-agent-claimable',
       'no-claim-proposed',
+      // Retrieval failing is not the proposer declining: search finding no URL
+      // at all is a different fact about a spring than a page that states
+      // nothing, and collapsing them would hide which half of the pipeline is
+      // the limit.
+      'no-source-found',
       'overlay-rejected',
       'refuted-by-verifier',
       'source-malformed',

@@ -17,6 +17,39 @@ export const OIDC_HELP =
   '  npx vercel env pull .env.local\n' +
   'Enable AI Gateway for the linked project. Tokens last about 12 hours; re-run env pull when they expire.';
 
+/**
+ * Bounded backoff for a rate-limited account.
+ *
+ * The first real run died on `Free tier requests on this model are
+ * rate-limited`. Four retries at 2s, 4s, 8s, 16s waits out a per-minute
+ * window without turning one throttled call into a stalled run.
+ */
+export const RATE_LIMIT_RETRIES = 4;
+export const RATE_LIMIT_BASE_MS = 2_000;
+
+/**
+ * Distinct from every other gateway failure, and deliberately not turned into
+ * a refutation anywhere.
+ *
+ * A rate limit is a fact about the account, not about the spring. Recorded as
+ * a per-spring outcome it would poison the resume-skip: every spring the run
+ * touched while throttled would be marked already-attempted and never tried
+ * again -- the log asserting no sources exist when the truth is the account
+ * was throttled. Ending the run costs nothing; the next run resumes here.
+ */
+export class RateLimitedError extends Error {
+  constructor(model, detail) {
+    super(
+      `AI Gateway rate-limited ${model}, and the retries are exhausted: ${String(detail).slice(0, 300)}\n` +
+        'This is a limit on the account, not a fact about any spring, so the run ends here ' +
+        'rather than recording refutations. Wait for the window to reset and re-run; ' +
+        'completed springs are skipped without spending.',
+    );
+    this.name = 'RateLimitedError';
+    this.model = model;
+  }
+}
+
 let envLoaded = false;
 
 export function loadLocalEnv() {
@@ -66,8 +99,11 @@ export async function completeViaGateway(model, { system, user, schema }, option
   if (!options.skipEnvFile) loadLocalEnv();
   const token = gatewayToken(options.env ?? process.env);
   const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+  const sleep = options.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
+  const retries = options.rateLimitRetries ?? RATE_LIMIT_RETRIES;
+  const baseMs = options.rateLimitBaseMs ?? RATE_LIMIT_BASE_MS;
 
-  const res = await fetchImpl(GATEWAY_URL, {
+  const request = {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -85,9 +121,22 @@ export async function completeViaGateway(model, { system, user, schema }, option
       stream: false,
       response_format: { type: 'json_object' },
     }),
-  });
+  };
 
-  const text = await res.text();
+  let res;
+  let text;
+  for (let retry = 0; ; retry++) {
+    res = await fetchImpl(GATEWAY_URL, request);
+    text = await res.text();
+    if (res.status !== 429) break;
+    // Exhaustion throws rather than returning, so no caller can mistake a
+    // throttled account for an answer about a spring.
+    if (retry >= retries) throw new RateLimitedError(model, text);
+    // Doubling, so a limiter that resets on a window boundary is waited out
+    // rather than hammered at a fixed interval.
+    await sleep(baseMs * 2 ** retry);
+  }
+
   if (!res.ok) {
     throw new Error(`AI Gateway ${res.status} for ${model}: ${text.slice(0, 500)}`);
   }

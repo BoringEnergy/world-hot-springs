@@ -11,6 +11,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { resolveRoles, vendorOf } from './lib/providers/index.mjs';
 
 const ENRICH = 'scripts/enrich.mjs';
 
@@ -58,6 +59,34 @@ test('the enrichment CLI checks for an existing overlay file before writing one'
 test('the provider config is gitignored', () => {
   // It names models and may carry endpoints; the example file is the committed one.
   assert.match(fs.readFileSync('.gitignore', 'utf8'), /enrichment\.config\.json/);
+});
+
+test('the example config names a vendor that has a module, and two of them', () => {
+  // The coupling is invisible until it costs a run: `xai:` loads
+  // providers/xai.mjs, whose gateway prefix is `spacexai/`. Writing the
+  // gateway prefix into the config instead of the vendor fails at
+  // module-resolution time, after the plan has been loaded -- which is exactly
+  // when it happened.
+  const config = JSON.parse(fs.readFileSync('enrichment.config.example.json', 'utf8'));
+  const roles = resolveRoles(config);
+  for (const id of [roles.proposer, roles.verifier]) {
+    const vendor = vendorOf(id);
+    assert.ok(
+      fs.existsSync(path.join('scripts', 'lib', 'providers', `${vendor}.mjs`)),
+      `${id} names vendor "${vendor}", which has no module in scripts/lib/providers/`,
+    );
+    assert.ok(String(id).includes(':'), `${id} is missing the vendor:model separator`);
+  }
+});
+
+test('the default proposer is not a reasoning model', () => {
+  // Measured on the live gateway over 492 candidates: grok-4.6 costs $7.26 a
+  // run against a $5 credit, grok-4.1-fast-non-reasoning $1.96. Reasoning
+  // tokens were 1345 of 1350 on a proposal call. Now that retrieval is solved
+  // the proposer extracts from supplied text, which does not need reasoning.
+  const config = JSON.parse(fs.readFileSync('enrichment.config.example.json', 'utf8'));
+  assert.match(config.proposer, /non-reasoning/,
+    'the default proposer must be a non-reasoning model, or a full run does not fit the credit');
 });
 
 test('no unreviewed script reaches the overlay directory', () => {

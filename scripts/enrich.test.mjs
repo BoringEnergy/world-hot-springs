@@ -3,8 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { runPlan, flagValue, sourceExcerpt, SOURCE_EXCERPT_CHARS } from './enrich.mjs';
+import {
+  attempt, runPlan, flagValue, sourceExcerpt, searchQuery,
+  SOURCE_EXCERPT_CHARS, PROPOSER_SYSTEM, MAX_URLS_PER_SPRING,
+} from './enrich.mjs';
 import { validateOverlay } from './lib/overlay.mjs';
+import { valueAppears } from './lib/verify-source.mjs';
+import { RateLimitedError } from './lib/providers/gateway.mjs';
 
 const NOW = () => '2026-08-29T12:00:00.000Z';
 
@@ -22,6 +27,17 @@ function tmp() {
   };
 }
 
+/**
+ * Search and fetch are both stubbed in every test here.
+ *
+ * TinyFish is a shared, rate-limited service and the gateway costs money; a
+ * suite that reached either would be a bill and a flake rather than a test.
+ */
+const found = (...urls) => async () => urls.map((url) => ({ title: url, url, snippet: '' }));
+const oneResult = found('https://example.org/a');
+const PAGE = '<html><body>The water at A is 42.5 degrees.</body></html>';
+const serving = (html = PAGE) => async () => ({ ok: true, text: async () => html });
+
 /** A proposer that always returns nothing, which is the correct answer. */
 const silent = { complete: async () => ({ claims: {} }) };
 const springs = [
@@ -32,6 +48,9 @@ const byId = new Map(springs.map((s) => [s.id, s]));
 const knownIds = new Set(byId.keys());
 const plan = [{ country: 'CL', candidates: ['whs_00000000000a', 'whs_00000000000b'] }];
 const roles = { proposer: 'a:1', verifier: 'b:1' };
+
+/** The stubs every test shares unless it is specifically about one of them. */
+const wired = { searchImpl: oneResult, fetchImpl: serving() };
 
 /** Lines of the refutation log, parsed. */
 function refutations(file) {
@@ -46,7 +65,7 @@ test('a spring with no findable sources produces zero files', async () => {
   const paths = tmp();
   const results = await runPlan({
     plan, byId, knownIds, roles,
-    providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+    providers: { proposer: silent, verifier: silent }, ...paths, ...wired, now: NOW,
   });
   assert.equal(fs.existsSync(paths.overlayDir), false, 'no overlay directory should be created');
   assert.equal(results[0].verified, 0);
@@ -63,7 +82,7 @@ test('a country reports unmet rather than being skipped silently', async () => {
   const paths = tmp();
   const results = await runPlan({
     plan, byId, knownIds, roles,
-    providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+    providers: { proposer: silent, verifier: silent }, ...paths, ...wired, now: NOW,
     // The coverage map is only written on a full run, and this assertion is
     // about what that map says.
     writeCoverage: true,
@@ -83,7 +102,7 @@ test('an existing overlay file is never re-proposed and counts toward the target
   const counting = { complete: async () => { calls++; return { claims: {} }; } };
   const results = await runPlan({
     plan, byId, knownIds, roles,
-    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+    providers: { proposer: counting, verifier: counting }, ...paths, ...wired, now: NOW,
   });
   // Counted as alreadyHad, not verified. The distinction is what stops
   // coverage.json reporting a country as met by this run when the claims were
@@ -105,7 +124,7 @@ test('a spring that yields nothing is not re-proposed on the next run', async ()
   const counting = { complete: async () => { calls++; return { claims: {} }; } };
   const args = {
     plan, byId, knownIds, roles,
-    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+    providers: { proposer: counting, verifier: counting }, ...paths, ...wired, now: NOW,
   };
   await runPlan(args);
   const afterFirst = calls;
@@ -123,7 +142,7 @@ test('--retry-refuted re-proposes a spring an earlier run gave up on', async () 
   const counting = { complete: async () => { calls++; return { claims: {} }; } };
   const args = {
     plan, byId, knownIds, roles,
-    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+    providers: { proposer: counting, verifier: counting }, ...paths, ...wired, now: NOW,
   };
   await runPlan(args);
   const afterFirst = calls;
@@ -137,7 +156,7 @@ test('a filtered run leaves the coverage map alone', async () => {
   fs.writeFileSync(paths.coverageFile, '{"sentinel":true}');
   await runPlan({
     plan, byId, knownIds, roles,
-    providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+    providers: { proposer: silent, verifier: silent }, ...paths, ...wired, now: NOW,
     writeCoverage: false,
   });
   assert.deepEqual(JSON.parse(fs.readFileSync(paths.coverageFile, 'utf8')), { sentinel: true });
@@ -145,30 +164,33 @@ test('a filtered run leaves the coverage map alone', async () => {
 
 test('end to end, a verified claim produces a file that validateOverlay accepts', async () => {
   const paths = tmp();
-  const page = '<html><body>The water at A is 42.5 degrees.</body></html>';
+  // No `source` in the proposal: the citation is the URL we fetched, not one
+  // the model recalled. That is the whole shape of the inverted flow.
   const proposer = { complete: async () => ({
-    claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } },
+    claims: { 'temperature.celsius': { value: 42.5 } },
   }) };
   const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
   const fetched = [];
-  const fetchImpl = async (url) => { fetched.push(url); return { ok: true, text: async () => page }; };
+  const fetchImpl = async (url) => { fetched.push(url); return { ok: true, text: async () => PAGE }; };
 
   await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult, fetchImpl,
   });
 
   // Without this the pipeline could be reading nothing at all and the rest of
   // the assertions would still hold: they would be testing the stub proposer.
-  assert.deepEqual(fetched, ['https://example.org/a'], 'the cited source must actually be fetched');
+  assert.deepEqual(fetched, ['https://example.org/a'], 'the searched source must actually be fetched');
 
   const file = path.join(paths.overlayDir, 'whs_00000000000a.json');
   assert.ok(fs.existsSync(file), 'a verified claim must produce a file');
   const written = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.equal(written.id, 'whs_00000000000a');
   assert.equal(written.claims['temperature.celsius'].value, 42.5);
-  assert.equal(written.claims['temperature.celsius'].source, 'https://example.org/a');
+  assert.equal(written.claims['temperature.celsius'].source, 'https://example.org/a',
+    'the recorded citation must be the URL whose text was checked');
   assert.equal(written.claims['temperature.celsius'].state, 'active');
   assert.equal(written.claims['temperature.celsius'].contributor, 'a:1',
     'the provider must be recorded, since that is the benchmark');
@@ -185,17 +207,16 @@ test('a value the source does not state is refuted, and writes no file', async (
   // The deterministic half of verification. A verifier that says "not refuted"
   // must not be able to carry a claim the page never made.
   const paths = tmp();
-  const page = '<html><body>The water at A is pleasant.</body></html>';
   const proposer = { complete: async () => ({
-    claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } },
+    claims: { 'temperature.celsius': { value: 42.5 } },
   }) };
   const verifier = { complete: async () => ({ refuted: false, reason: 'looks fine to me' }) };
-  const fetchImpl = async () => ({ ok: true, text: async () => page });
 
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult, fetchImpl: serving('<html><body>The water at A is pleasant.</body></html>'),
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false, 'no overlay directory should be created');
@@ -208,16 +229,13 @@ test('a value the source does not state is refuted, and writes no file', async (
 
 test('a field withheld from agents is recorded, not silently dropped', async () => {
   const paths = tmp();
-  const proposer = { complete: async () => ({
-    claims: { name: { value: 'Renamed', source: 'https://example.org/a' } },
-  }) };
+  const proposer = { complete: async () => ({ claims: { name: { value: 'Renamed' } } }) };
   const verifier = { complete: async () => { throw new Error('the verifier must never be reached'); } };
-  const fetchImpl = async () => { throw new Error('a withheld field must never be fetched'); };
 
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false);
@@ -230,19 +248,17 @@ test('a field withheld from agents is recorded, not silently dropped', async () 
 
 test('a verifier that refuses the claim writes no file', async () => {
   const paths = tmp();
-  const page = '<html><body>The water at A is 42.5 degrees.</body></html>';
   const proposer = { complete: async () => ({
-    claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } },
+    claims: { 'temperature.celsius': { value: 42.5 } },
   }) };
   // Not `refuted: true` but a malformed verdict: the code defaults to refuted
   // on anything that is not an explicit false, and that default is the point.
   const verifier = { complete: async () => ({ reason: 'no verdict field at all' }) };
-  const fetchImpl = async () => ({ ok: true, text: async () => page });
 
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false);
@@ -253,18 +269,17 @@ test('a verifier that refuses the claim writes no file', async () => {
   );
 });
 
-test('an unretrievable source is recorded with the reason it failed', async () => {
+test('a search result that is not a fetchable URL is recorded with the reason', async () => {
   const paths = tmp();
-  const proposer = { complete: async () => ({
-    claims: { 'temperature.celsius': { value: 42.5, source: 'ftp://example.org/a' } },
-  }) };
+  const proposer = { complete: async () => { throw new Error('the proposer must never be reached'); } };
   const verifier = { complete: async () => { throw new Error('the verifier must never be reached'); } };
-  const fetchImpl = async () => { throw new Error('a refused scheme must never be fetched'); };
 
   await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: found('ftp://example.org/a'),
+    fetchImpl: async () => { throw new Error('a refused scheme must never be fetched'); },
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false);
@@ -281,17 +296,16 @@ test('an overlay the validator refuses is discarded and recorded', async () => {
   // fetch-check and the verifier and is then thrown out at the gate. Without a
   // record, the same unusable overlay is proposed and paid for on every restart.
   const paths = tmp();
-  const page = '<html><body>The water at A is 900 degrees.</body></html>';
   const proposer = { complete: async () => ({
-    claims: { 'temperature.celsius': { value: 900, source: 'https://example.org/a' } },
+    claims: { 'temperature.celsius': { value: 900 } },
   }) };
   const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
-  const fetchImpl = async () => ({ ok: true, text: async () => page });
 
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult, fetchImpl: serving('<html><body>The water at A is 900 degrees.</body></html>'),
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false, 'an invalid overlay must not be written');
@@ -311,18 +325,16 @@ test('the target stops the run before the candidate list is exhausted', async ()
   ];
   const wideById = new Map(wide.map((s) => [s.id, s]));
   let calls = 0;
-  const page = '<html><body>The water is 42.5 degrees.</body></html>';
   const proposer = { complete: async () => {
     calls++;
-    return { claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } } };
+    return { claims: { 'temperature.celsius': { value: 42.5 } } };
   } };
   const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
-  const fetchImpl = async () => ({ ok: true, text: async () => page });
 
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: wide.map((s) => s.id) }],
     byId: wideById, knownIds: new Set(wideById.keys()), roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
   });
 
   assert.equal(results[0].verified, 2);
@@ -337,7 +349,7 @@ test('a candidate id absent from the dataset is skipped without spending', async
   const results = await runPlan({
     plan: [{ country: 'CL', candidates: ['whs_0000000000ff'] }],
     byId, knownIds, roles,
-    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+    providers: { proposer: counting, verifier: counting }, ...paths, ...wired, now: NOW,
   });
   assert.equal(calls, 0);
   assert.equal(results[0].attempted, 0);
@@ -375,15 +387,13 @@ test('each country is counted on its own', async () => {
   fs.mkdirSync(paths.overlayDir, { recursive: true });
   fs.writeFileSync(path.join(paths.overlayDir, 'whs_00000000000c.json'), '{}');
 
-  const page = '<html><body>The water is 42.5 degrees.</body></html>';
   // CL's one candidate verifies; BO's only candidate is already on disk.
   const proposer = { complete: async ({ user }) => (
     JSON.parse(user).country === 'CL'
-      ? { claims: { 'temperature.celsius': { value: 42.5, source: 'https://example.org/a' } } }
+      ? { claims: { 'temperature.celsius': { value: 42.5 } } }
       : { claims: {} }
   ) };
   const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
-  const fetchImpl = async () => ({ ok: true, text: async () => page });
 
   const results = await runPlan({
     plan: [
@@ -391,7 +401,7 @@ test('each country is counted on its own', async () => {
       { country: 'BO', candidates: ['whs_00000000000c'] },
     ],
     byId: wideById, knownIds: new Set(wideById.keys()), roles,
-    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
   });
 
   assert.deepEqual(results, [
@@ -434,7 +444,7 @@ test('maxAttempts stops the run before spending past it', async () => {
     plan: wide, byId: ids, knownIds: new Set(ids.keys()),
     roles: { proposer: 'a:1', verifier: 'b:1' },
     providers: { proposer: counting, verifier: counting },
-    ...paths, now: NOW, writeCoverage: true, maxAttempts: 1,
+    ...paths, ...wired, now: NOW, writeCoverage: true, maxAttempts: 1,
   });
   assert.equal(calls, 1, 'the cap must bind before the provider is called');
   assert.equal(results.length, 1, 'the second country is never started');
@@ -443,4 +453,207 @@ test('maxAttempts stops the run before spending past it', async () => {
   // truth is the budget ran out.
   assert.equal(fs.existsSync(paths.coverageFile), false,
     'a partial run must not publish a coverage map');
+});
+
+// --- Retrieval: search, URL fallthrough, and the extraction prompt ---------
+
+test('search results are tried in order, and the second is used when the first fails', async () => {
+  // Four of eight real results were TripAdvisor, Viator, Facebook and
+  // Marriott. TripAdvisor blocks crawlers, and a spring is not unenrichable
+  // because an aggregator ranked first.
+  const paths = tmp();
+  const tried = [];
+  const fetchImpl = async (url) => {
+    tried.push(url);
+    if (url.includes('tripadvisor')) return { ok: false, status: 403, text: async () => '' };
+    return { ok: true, text: async () => PAGE };
+  };
+  const proposer = { complete: async () => ({
+    claims: { 'temperature.celsius': { value: 42.5 } },
+  }) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'stated plainly' }) };
+
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, now: NOW, fetchImpl,
+    searchImpl: found('https://tripadvisor.com/x', 'https://secretlagoon.is/'),
+  });
+
+  assert.deepEqual(tried, ['https://tripadvisor.com/x', 'https://secretlagoon.is/'],
+    'the blocked result must be tried first, then the next one');
+  const written = JSON.parse(
+    fs.readFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), 'utf8'),
+  );
+  assert.equal(written.claims['temperature.celsius'].source, 'https://secretlagoon.is/',
+    'the citation must be the URL that actually served the text');
+  // The blocked one is still logged: a silent skip loses the only evidence of
+  // which domains this pipeline cannot read.
+  assert.deepEqual(
+    refutations(paths.refutationsFile).map((r) => [r.outcome, r.source]),
+    [['source-not-found', 'https://tripadvisor.com/x']],
+  );
+});
+
+test('a spring whose every result is unfetchable writes no file and logs each URL', async () => {
+  const paths = tmp();
+  const proposer = { complete: async () => { throw new Error('the proposer must never be reached'); } };
+  const results = await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier: silent }, ...paths, now: NOW,
+    searchImpl: found('https://a.example/1', 'https://b.example/2'),
+    fetchImpl: async () => ({ ok: false, status: 403, text: async () => '' }),
+  });
+  assert.equal(fs.existsSync(paths.overlayDir), false);
+  assert.equal(results[0].verified, 0);
+  assert.deepEqual(
+    refutations(paths.refutationsFile).map((r) => r.source),
+    ['https://a.example/1', 'https://b.example/2'],
+    'one refutation per attempted URL, each naming the URL it was about',
+  );
+});
+
+test('the per-spring URL cap bounds how much one spring can cost', async () => {
+  // Without a cap, a spring whose whole result page is aggregators walks every
+  // result -- and the fetch pool is shared with every other spring in the run.
+  const paths = tmp();
+  let fetches = 0;
+  const urls = Array.from({ length: 12 }, (_, i) => `https://junk.example/${i}`);
+  const out = await attempt(
+    springs[0], roles, { proposer: silent, verifier: silent }, paths.refutationsFile, NOW,
+    {
+      searchImpl: found(...urls),
+      fetchImpl: async () => { fetches++; return { ok: false, status: 404, text: async () => '' }; },
+    },
+  );
+  assert.equal(out, null);
+  assert.equal(fetches, MAX_URLS_PER_SPRING, `at most ${MAX_URLS_PER_SPRING} URLs may be tried`);
+  assert.ok(MAX_URLS_PER_SPRING < urls.length, 'the fixture must have more results than the cap');
+  assert.equal(refutations(paths.refutationsFile).length, MAX_URLS_PER_SPRING);
+});
+
+test('a search with no results is recorded, and never reaches the proposer', async () => {
+  const paths = tmp();
+  const proposer = { complete: async () => { throw new Error('the proposer must never be reached'); } };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier: silent }, ...paths, now: NOW,
+    searchImpl: async () => [], fetchImpl: async () => { throw new Error('nothing to fetch'); },
+  });
+  // Distinct from no-claim-proposed: retrieval finding nothing and a page
+  // stating nothing are different facts, and only one of them is the model's.
+  assert.deepEqual(
+    refutations(paths.refutationsFile).map((r) => r.outcome), ['no-source-found'],
+  );
+});
+
+test('a broken search ends the run instead of marking springs hopeless', async () => {
+  // Same rule as the rate limit: a missing CLI or an expired credential is a
+  // fact about this machine. Logged as a refutation it would mark every spring
+  // the run touched as already-attempted, and the resume-skip would never try
+  // them again.
+  const paths = tmp();
+  await assert.rejects(
+    () => runPlan({
+      plan, byId, knownIds, roles,
+      providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+      searchImpl: async () => { throw new Error('TinyFish search could not run (ENOENT)'); },
+      fetchImpl: serving(),
+    }),
+    /TinyFish search could not run/,
+  );
+  assert.equal(fs.existsSync(paths.refutationsFile), false,
+    'a broken search must leave no per-spring record at all');
+  assert.equal(fs.existsSync(paths.overlayDir), false);
+});
+
+test('an exhausted rate limit ends the run and writes nothing', async () => {
+  // A throttled account is not evidence about a spring. If this were caught
+  // into a refutation, every spring touched during the throttled window would
+  // be skipped forever by the resume logic.
+  const paths = tmp();
+  const proposer = { complete: async () => { throw new RateLimitedError('spacexai/x', 'rate-limited'); } };
+  await assert.rejects(
+    () => runPlan({
+      plan, byId, knownIds, roles,
+      providers: { proposer, verifier: silent }, ...paths, ...wired, now: NOW,
+    }),
+    (err) => {
+      assert.ok(err instanceof RateLimitedError);
+      return true;
+    },
+  );
+  assert.equal(fs.existsSync(paths.refutationsFile), false,
+    'a rate limit must not be recorded as a fact about a spring');
+  assert.equal(fs.existsSync(paths.overlayDir), false);
+});
+
+test('the proposer is given the retrieved text and the URL it came from', async () => {
+  // The old prompt sent a spring name and asked the model to recall a
+  // citation; it declined every time, correctly. This asserts the flow really
+  // inverted rather than the prompt merely being reworded.
+  const paths = tmp();
+  let seen;
+  const proposer = { complete: async (input) => { seen = input; return { claims: {} }; } };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier: silent }, ...paths, now: NOW,
+    searchImpl: oneResult,
+    fetchImpl: serving('<html><body>Njarsvik pool stays at 38-40 Celsius all year.</body></html>'),
+  });
+  const payload = JSON.parse(seen.user);
+  assert.equal(payload.url, 'https://example.org/a');
+  assert.match(payload.page, /stays at 38-40 Celsius/, 'the fetched text must reach the proposer');
+  assert.equal(payload.spring, 'A');
+  // The schema must not invite a citation: the URL is ours, and a model-chosen
+  // one could name a page whose text was never checked.
+  assert.equal(seen.schema.properties.claims.additionalProperties.properties.source, undefined);
+  assert.deepEqual(seen.schema.properties.claims.additionalProperties.required, ['value']);
+});
+
+test('the proposer prompt forbids computing a value the page never states', async () => {
+  // Not stylistic. See the test below: the deterministic check cannot catch a
+  // midpoint, so this instruction is the only thing standing between a
+  // published 39 and a page that says 38-40.
+  assert.match(PROPOSER_SYSTEM, /literally/i);
+  assert.match(PROPOSER_SYSTEM, /never 39/);
+  assert.match(PROPOSER_SYSTEM, /Never compute, convert, average, round, or infer/);
+});
+
+test('the fetch-check alone cannot catch a midpoint, which is why the prompt must', async () => {
+  // Measured against a real page: the only 39 on it was inside
+  // `WhatsApp +354 777 39 35`, and valueAppears said yes.
+  const page = 'The lagoon stays at 38-40 Celsius. WhatsApp +354 777 39 35 Join Our Team';
+  assert.equal(valueAppears(39, page), true,
+    'if this ever becomes false the deterministic check has grown teeth -- keep the prompt anyway');
+  assert.equal(valueAppears(38, page), true);
+  assert.equal(valueAppears(40, page), true);
+});
+
+test('the verifier reads page text, never a URL it could go fetch itself', async () => {
+  // The verifier's independence is the point of the two-provider design. Hand
+  // it a URL and it stops checking the text we retrieved.
+  const paths = tmp();
+  let seen;
+  const proposer = { complete: async () => ({ claims: { 'temperature.celsius': { value: 42.5 } } }) };
+  const verifier = { complete: async (input) => { seen = input; return { refuted: true, reason: 'no' }; } };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, ...wired, now: NOW,
+  });
+  const payload = JSON.parse(seen.user);
+  assert.deepEqual(Object.keys(payload).sort(), ['field', 'source', 'spring', 'value']);
+  assert.doesNotMatch(payload.source, /^https?:/, 'the verifier gets text, not a link');
+  assert.equal(seen.tools, undefined, 'no tool is ever handed to the verifier');
+});
+
+test('the search query names the spring and its country', () => {
+  assert.equal(
+    searchQuery({ name: 'Gamla Laugin', location: { country: 'IS' } }),
+    'Gamla Laugin IS hot spring water temperature',
+  );
 });
