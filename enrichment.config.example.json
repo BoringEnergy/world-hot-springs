@@ -1,4 +1,4 @@
 {
-  "proposer": "xai:grok-4.6",
-  "verifier": "anthropic:claude-opus-5"
+  "proposer": "spacexai:grok-4.6",
+  "verifier": "anthropic:claude-haiku-4.5"
 }

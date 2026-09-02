@@ -10,6 +10,8 @@
  *   node scripts/enrich.mjs --dry-run              # plan only, no calls
  *   node scripts/enrich.mjs --country CL           # one country
  *   node scripts/enrich.mjs --limit 10             # first N countries
+ *   node scripts/enrich.mjs --max-attempts 40      # stop after N springs
+ *   node scripts/enrich.mjs --retry-refuted        # re-try springs that yielded nothing
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,6 +40,42 @@ const LITERAL_FIELDS = [
 
 function loadJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+/**
+ * How much of a fetched page the verifier is shown.
+ *
+ * The verifier's input is ~90% of a run's cost -- it reads a page excerpt at
+ * every candidate, while the proposer reads a spring name. Cutting this is the
+ * single biggest lever on whether a full run fits the free credit.
+ */
+export const SOURCE_EXCERPT_CHARS = 6_000;
+
+/**
+ * The slice of a page most likely to contain the evidence.
+ *
+ * Centred on the first occurrence of the claimed value, not taken from the
+ * top. Naively truncating to the head is worse than not trimming at all: on a
+ * long page it removes the very sentence that states the value, and the
+ * verifier then correctly refutes a claim that was true. That turns a cost
+ * saving into a silent accuracy loss, which is the wrong trade in a pipeline
+ * whose whole purpose is not asserting things it cannot support.
+ *
+ * Falls back to the head when the value is not found verbatim -- for prose
+ * fields it usually is not, and the head is where a page states its subject.
+ */
+export function sourceExcerpt(text, value, max = SOURCE_EXCERPT_CHARS) {
+  if (text.length <= max) return text;
+
+  const hay = text.toLowerCase();
+  const raw = String(value).toLowerCase();
+  // A decimal may be written either way on the page; try both before giving up.
+  const forms = [raw, raw.replace('.', ','), raw.replace(',', '.')];
+  const at = forms.map((f) => hay.indexOf(f)).find((i) => i >= 0);
+  if (at === undefined) return text.slice(0, max);
+
+  const start = Math.max(0, at - Math.floor(max / 2));
+  return text.slice(start, start + max);
 }
 
 /**
@@ -128,7 +166,12 @@ export async function attempt(spring, roles, providers, refutationsFile, now, fe
 
     const verdict = await providers.verifier.complete({
       system: 'You are refuting a claim. Default to refuted when uncertain. Does this source state this value about THIS spring, or about a different pool, resort, or place?',
-      user: JSON.stringify({ spring: spring.name, field, value: claim.value, source: fetched.text.slice(0, 20_000) }),
+      user: JSON.stringify({
+        spring: spring.name,
+        field,
+        value: claim.value,
+        source: sourceExcerpt(fetched.text, claim.value),
+      }),
       schema: {
         type: 'object',
         required: ['refuted', 'reason'],
@@ -212,11 +255,19 @@ export async function runPlan({
   writeCoverage = false, retryRefuted = false,
   now = () => new Date().toISOString(),
   fetchImpl = fetch,
+  // A hard ceiling on springs attempted, so a bug in the fallthrough or the
+  // resume-skip cannot spend an unbounded amount. The budget lives here rather
+  // than in a token ledger because a call count is the one quantity this code
+  // can know before spending, and cannot be wrong about.
+  maxAttempts = Infinity,
 }) {
   const attemptedBefore = retryRefuted ? new Set() : alreadyAttempted(refutationsFile);
   const results = [];
+  let spent = 0;
+  let capped = false;
 
   for (const { country, candidates } of plan) {
+    if (capped) break;
     let verified = 0;
     let attempted = 0;
     let alreadyHad = 0;
@@ -254,6 +305,14 @@ export async function runPlan({
         continue;
       }
 
+      // Checked here, immediately before the only place a run spends money,
+      // so no path can reach a provider without passing it.
+      if (spent >= maxAttempts) {
+        capped = true;
+        break;
+      }
+      spent++;
+
       attempted++;
       const overlay = await attempt(spring, roles, providers, refutationsFile, now, fetchImpl);
       if (!overlay) continue;
@@ -284,7 +343,17 @@ export async function runPlan({
 
   // Only on a full run. A --country CL run holds one country's results, and
   // writing them would replace the published 129-country map with a stub.
-  if (writeCoverage) {
+  if (capped) {
+    // Deliberately no coverage write. A capped run stopped part-way, so every
+    // country it never reached would be published as unmet -- the artifact
+    // saying the sources do not exist when the truth is the budget ran out.
+    // That is the exact failure the `measures` string exists to prevent.
+    console.log(
+      `\nStopped at the ${maxAttempts}-attempt cap. ` +
+        'data/coverage.json left unchanged: a partial run cannot describe coverage.',
+    );
+    console.log('Re-run to continue; completed springs are skipped without spending.');
+  } else if (writeCoverage) {
     fs.writeFileSync(coverageFile, JSON.stringify(buildCoverage(results, now()), null, 2) + '\n');
   } else {
     console.log('Filtered run: data/coverage.json left unchanged.');
@@ -305,6 +374,12 @@ async function main() {
   // every run that did not pass --limit -- including the real full run.
   if (limitRaw !== null && (!Number.isFinite(limit) || limit < 1)) {
     throw new Error(`--limit must be a positive number, got ${JSON.stringify(limitRaw)}`);
+  }
+
+  const maxRaw = flagValue(args, '--max-attempts');
+  const maxAttempts = maxRaw === null ? Infinity : Number(maxRaw);
+  if (maxRaw !== null && (!Number.isFinite(maxAttempts) || maxAttempts < 1)) {
+    throw new Error(`--max-attempts must be a positive number, got ${JSON.stringify(maxRaw)}`);
   }
 
   // A bare array, not {springs: [...]}.
@@ -330,7 +405,7 @@ async function main() {
     plan, byId, knownIds: new Set(byId.keys()),
     providers: await loadProviders(roles), roles,
     overlayDir: OVERLAY_DIR, refutationsFile: REFUTATIONS, coverageFile: COVERAGE,
-    writeCoverage: !filtered, retryRefuted,
+    writeCoverage: !filtered, retryRefuted, maxAttempts,
   });
 
   const met = results.filter((r) => r.verified + r.alreadyHad >= TARGET_PER_COUNTRY).length;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { runPlan, flagValue } from './enrich.mjs';
+import { runPlan, flagValue, sourceExcerpt, SOURCE_EXCERPT_CHARS } from './enrich.mjs';
 import { validateOverlay } from './lib/overlay.mjs';
 
 const NOW = () => '2026-08-29T12:00:00.000Z';
@@ -398,4 +398,49 @@ test('each country is counted on its own', async () => {
     { country: 'CL', candidates: 1, attempted: 1, verified: 1, alreadyHad: 0 },
     { country: 'BO', candidates: 1, attempted: 0, verified: 0, alreadyHad: 1 },
   ]);
+});
+
+test('the source excerpt is centred on the evidence, not taken from the head', () => {
+  // Trimming the verifier's input is the main cost lever, but trimming it
+  // naively is worse than not trimming: a head slice drops the sentence that
+  // states the value, and the verifier then correctly refutes a true claim.
+  // Cost saving traded for silent accuracy loss is the wrong trade here.
+  const long = 'x'.repeat(50_000) + ' the water is 42.5 degrees ' + 'y'.repeat(50_000);
+  const excerpt = sourceExcerpt(long, 42.5);
+  assert.ok(excerpt.length <= SOURCE_EXCERPT_CHARS);
+  assert.match(excerpt, /42\.5 degrees/, 'the evidence must survive the trim');
+  assert.doesNotMatch(long.slice(0, SOURCE_EXCERPT_CHARS), /42\.5 degrees/,
+    'a head slice would have lost it -- that is why this is centred');
+});
+
+test('the excerpt finds a comma-decimal, and leaves short pages whole', () => {
+  const page = 'a'.repeat(20_000) + ' 42,5 C ' + 'b'.repeat(20_000);
+  assert.match(sourceExcerpt(page, 42.5), /42,5/);
+  assert.equal(sourceExcerpt('short page', 42.5), 'short page');
+});
+
+test('maxAttempts stops the run before spending past it', async () => {
+  const paths = tmp();
+  let calls = 0;
+  const counting = { complete: async () => { calls++; return { claims: {} }; } };
+  const wide = [
+    { country: 'CL', candidates: ['whs_00000000000a', 'whs_00000000000b'] },
+    { country: 'BO', candidates: ['whs_00000000000c'] },
+  ];
+  const ids = new Map(wide.flatMap((c) => c.candidates).map((id, i) => [
+    id, { id, name: id, location: { country: i < 2 ? 'CL' : 'BO' } },
+  ]));
+  const results = await runPlan({
+    plan: wide, byId: ids, knownIds: new Set(ids.keys()),
+    roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: counting, verifier: counting },
+    ...paths, now: NOW, writeCoverage: true, maxAttempts: 1,
+  });
+  assert.equal(calls, 1, 'the cap must bind before the provider is called');
+  assert.equal(results.length, 1, 'the second country is never started');
+  // A capped run stopped part-way, so every country it never reached would
+  // publish as unmet -- the artifact claiming sources do not exist when the
+  // truth is the budget ran out.
+  assert.equal(fs.existsSync(paths.coverageFile), false,
+    'a partial run must not publish a coverage map');
 });
