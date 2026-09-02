@@ -2526,8 +2526,89 @@ The URL-level fallthrough moved on. Working as intended, and a good sign the
       outcome, keeping fail-closed behaviour.
 - [ ] **Step 4: probe and record which models the account can call**, since the
       API will not say. Re-price against that list rather than the full catalogue.
-- [ ] **Step 5: re-run Gamla Laugin** and confirm a claim reaches
-      `data/overlay/`. Then open the cited URL by hand.
+- [x] **Step 5: re-run Gamla Laugin.** Done 2026-09-02. Steps 1–3 all worked;
+      no claim reached `data/overlay/`, and the reason is Task 14.
+
+### Step 5 result: the fixes landed, and the verifier is now the whole problem
+
+Steps 1–3 are confirmed in production. Values arrive **typed** — `proposed: 4500`
+and `proposed: 38`, not `"4500"` and `"38"` — so Step 1 is proven. The proposer
+extracted three fields from `secretlagoon.is` where it previously extracted
+none.
+
+Every one was refuted, and the verdicts are not judgements. Verbatim from the
+log, all four from `openai/gpt-4.1-nano`:
+
+```
+access.price 4500  -> refuted
+  "The claim matches this value, so it supports the claim."
+
+access.currency "kr" -> refuted
+  "The source states that the pool stays at 38-40 Celsius all year round..."
+
+temperature.celsius 38 -> refuted
+  "The claim of exactly 38 C as a fixed value is not supported, as the
+   temperature range includes values above and below 38 C."
+
+access.price 4500 -> refuted
+  "...refuting 39 Celsius is correct, but the claim of 38 Celsius is supported by
+```
+
+Four distinct failures in four calls. It refutes while reasoning the claim is
+**supported**. It answers about *temperature* when asked about *currency*. It
+still rejects a range endpoint **after** Step 2 explicitly permitted it. And the
+last reason is truncated mid-sentence.
+
+**Step 2's prompt fix did not fail — the model failed to follow it.** No prompt
+change reaches a model that confuses which field it was asked about.
+
+`gpt-4.1-nano` is the only verifier this account may call, and it is not
+competent to make the judgement the entire design rests on. That is not a
+tuning problem.
+
+---
+
+## Task 14: the free tier cannot run this, and the reason is not cost
+
+**Established 2026-09-02 by running it.** Three separate free-tier limits, in
+increasing order of how fundamental they are:
+
+**Cost is not the problem.** A full 492-candidate run prices at **$1.96**
+against a $5 monthly credit. There is headroom.
+
+**Rate limits are a serious problem.** Each model has its own window. A single
+two-spring run exhausts it, and it did not clear across a nine-minute wait.
+Diagnostic probing and real runs draw on the same quota, so debugging the
+pipeline makes it unrunnable. A 492-candidate run at this throughput is not
+weeks away — it is arithmetically impossible.
+
+**Model access is the fundamental problem.** The free tier admits only
+`openai/*` and `spacexai/*`; `anthropic/*` and `google/*` both 403, and nothing
+in `/v1/models` says so — 364 models are listed with no tier field. With the
+proposer/verifier distinctness rule that leaves exactly one usable pair, and it
+puts the catalogue's smallest model in the verifier seat.
+
+**The recommendation is to buy credits, and it is a small number.** Adding paid
+credits removes the rate limit and unlocks `anthropic/claude-haiku-4.5` as the
+verifier — the model the cost table was built around. The full run then costs
+**$1.96**. Ten dollars covers the run several times over with the rate limit
+gone.
+
+Do not respond by weakening the verifier's role. It is the only layer that
+catches a claim whose number appears on the page for an unrelated reason — the
+`WhatsApp +354 777 39 35` case — and this run is evidence of what a pipeline
+looks like when the verifier cannot do its job. Make it competent rather than
+optional.
+
+- [ ] **Step 1: add paid credits**, and confirm `anthropic/claude-haiku-4.5`
+      answers.
+- [ ] **Step 2: set the verifier to a competent model** in
+      `enrichment.config.example.json` and locally.
+- [ ] **Step 3: re-run Gamla Laugin.** A claim must reach `data/overlay/`.
+- [ ] **Step 4: open the cited URL by hand** and confirm the page states the
+      claimed value. Nothing here is known to work until a human has.
+- [ ] **Step 5: only then, widen** — `--country IS` without `--max-attempts`,
+      then a real batch with `--max-attempts` sized to the budget.
 
 ### The lesson, again and more cheaply than last time
 
