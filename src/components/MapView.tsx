@@ -5,6 +5,7 @@ import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
 import { useStore } from '../store/useStore';
 
 const SOURCE = 'springs';
+const HEAT_SOURCE = 'springs-heat';
 const SATELLITE = 'satellite';
 
 /**
@@ -32,11 +33,12 @@ const STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 /**
  * Colour ramp driven by the same bands the legend and filters use, expressed as
  * a MapLibre step expression so every point is coloured on the GPU rather than
- * in JS.
+ * in JS. Parameterised by the value expression so clusters can colour by their
+ * mean temperature with the identical ramp.
  */
-function tempColorExpression() {
+function tempColorExpression(value: unknown[] = ['get', 'tc']) {
   // step(tc, coolColor, 30, warmColor, 38, hotColor, ...)
-  const step: unknown[] = ['step', ['get', 'tc'], TEMP_BANDS[0].color];
+  const step: unknown[] = ['step', value, TEMP_BANDS[0].color];
   TEMP_BANDS.forEach((band, i) => {
     const next = TEMP_BANDS[i + 1];
     if (!next) return;
@@ -44,7 +46,44 @@ function tempColorExpression() {
   });
   // -999 is the "no reading" sentinel; it must not fall through to the coolest
   // band, or every unmeasured spring would render as a cold one.
-  return ['case', ['==', ['get', 'tc'], -999], UNKNOWN_TEMP_COLOR, step] as never;
+  return ['case', ['==', value, -999], UNKNOWN_TEMP_COLOR, step] as never;
+}
+
+/**
+ * A cluster's warmth is the mean of its measured members. Unmeasured members
+ * contribute to neither the sum nor the count, so a hundred Unknowns around
+ * one hot spring do not dilute it — and a cluster with no readings at all
+ * keeps the -999 sentinel and renders as Unknown, not as cold.
+ */
+function clusterMeanTemp(): unknown[] {
+  return [
+    'case',
+    ['==', ['get', 'nTc'], 0],
+    -999,
+    ['/', ['get', 'sumTc'], ['get', 'nTc']],
+  ];
+}
+
+/** Faint atlas graticule so the dark globe reads as an instrument, not a void. */
+function graticule(): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (let lng = -180; lng < 180; lng += 20) {
+    features.push({
+      type: 'Feature',
+      id: undefined,
+      geometry: { type: 'LineString', coordinates: [[lng, -84], [lng, 84]] },
+      properties: {},
+    });
+  }
+  for (let lat = -80; lat <= 80; lat += 20) {
+    features.push({
+      type: 'Feature',
+      id: undefined,
+      geometry: { type: 'LineString', coordinates: [[-180, lat], [180, lat]] },
+      properties: {},
+    });
+  }
+  return { type: 'FeatureCollection', features };
 }
 
 function toFeatureCollection(springs: HotSpring[]): GeoJSON.FeatureCollection {
@@ -130,7 +169,36 @@ export function MapView() {
       // pattern reads as "hot springs are a northern thing". They are not.
       m.setProjection({ type: 'globe' });
 
+      // Ember atmosphere: near-black zenith, scorched horizon. The blend
+      // eases off as you descend so satellite close-ups read as daylight.
+      m.setSky({
+        'sky-color': '#060504',
+        'horizon-color': '#46230f',
+        'fog-color': '#0b0a09',
+        'fog-ground-blend': 0.6,
+        'horizon-fog-blend': 0.5,
+        'sky-horizon-blend': 0.55,
+        'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 12, 0],
+      });
+
       m.addSource(SOURCE, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+        // Clusters take over the regional view; clusterMaxZoom matches the
+        // label layer's minzoom so points resolve just as names appear.
+        cluster: true,
+        clusterRadius: 56,
+        clusterMaxZoom: 7,
+        clusterProperties: {
+          sumTc: ['+', ['case', ['==', ['get', 'tc'], -999], 0, ['get', 'tc']]],
+          nTc: ['+', ['case', ['==', ['get', 'tc'], -999], 0, 1]],
+        },
+      });
+
+      // The heat bloom reads the same points unclustered: a heatmap over
+      // clustered features would double-count through point_count and smear
+      // the geothermal pattern.
+      m.addSource(HEAT_SOURCE, {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       });
@@ -144,10 +212,13 @@ export function MapView() {
       });
 
       // Soft outer glow: reads as heat without drawing a literal steam sprite.
+      // Clustered features are excluded — the cluster circle below speaks
+      // for them, and double-rendering would halo every dense region.
       m.addLayer({
         id: 'springs-glow',
         type: 'circle',
         source: SOURCE,
+        filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': tempColorExpression(),
           'circle-blur': 1,
@@ -160,6 +231,7 @@ export function MapView() {
         id: 'springs',
         type: 'circle',
         source: SOURCE,
+        filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': tempColorExpression(),
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.8, 6, 4, 12, 9],
@@ -183,11 +255,14 @@ export function MapView() {
       });
 
       // Labels only once you are close enough for them to mean something.
+      // Unclustered points only: past clusterMaxZoom every point is its own
+      // feature, so the filter is a no-op exactly where labels appear.
       m.addLayer({
         id: 'springs-label',
         type: 'symbol',
         source: SOURCE,
         minzoom: 7,
+        filter: ['!', ['has', 'point_count']],
         layout: {
           'text-field': ['get', 'name'],
           'text-size': 11,
@@ -200,6 +275,49 @@ export function MapView() {
           'text-color': '#e4dcd1',
           'text-halo-color': '#0b0a09',
           'text-halo-width': 1.4,
+        },
+      });
+
+      // Cluster discs, coloured by the members' mean temperature on the same
+      // ramp as everything else — a hot region glows hot, an unmeasured one
+      // stays steam-grey rather than pretending to be cold.
+      m.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: SOURCE,
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': tempColorExpression(clusterMeanTemp()),
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['get', 'point_count'],
+            10, 13,
+            100, 19,
+            750, 27,
+          ],
+          'circle-opacity': 0.88,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': 'rgba(11,10,9,0.9)',
+        },
+      });
+
+      m.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: SOURCE,
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-size': 11,
+          // Same stacks as the spring labels: these glyphs provably exist in
+          // the CARTO style, so counts never render as tofu.
+          'text-font': ['Open Sans Regular', 'Noto Sans Regular'],
+        },
+        paint: {
+          'text-color': '#f5efe5',
+          'text-halo-color': '#0b0a09',
+          'text-halo-width': 1.2,
         },
       });
 
@@ -231,10 +349,62 @@ export function MapView() {
         'springs-glow',
       );
 
+      // Geothermal bloom for the planetary view: unmeasured springs carry no
+      // weight, so grey unknowns never masquerade as heat. Fades out as
+      // clusters take over the regional view; maxzoom 5 is a backstop.
+      m.addLayer(
+        {
+          id: 'springs-heat',
+          type: 'heatmap',
+          source: HEAT_SOURCE,
+          maxzoom: 5,
+          paint: {
+            'heatmap-weight': [
+              'case',
+              ['==', ['get', 'tc'], -999],
+              0,
+              ['interpolate', ['linear'], ['get', 'tc'], 0, 0.15, 40, 0.7, 60, 1],
+            ],
+            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 1, 0.9, 4, 2.2],
+            'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 1, 14, 4, 34],
+            'heatmap-color': [
+              'interpolate',
+              ['linear'],
+              ['heatmap-density'],
+              0, 'rgba(11,10,9,0)',
+              0.25, '#3a1c10',
+              0.5, '#7e3418',
+              0.72, '#d9663a',
+              0.9, '#e0a33a',
+              1, '#f5efe5',
+            ],
+            'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.85, 3.5, 0.5, 4.5, 0],
+          },
+        },
+        'satellite',
+      );
+
+      m.addSource('graticule', { type: 'geojson', data: graticule() });
+      m.addLayer(
+        {
+          id: 'graticule',
+          type: 'line',
+          source: 'graticule',
+          paint: {
+            'line-color': '#4a413c',
+            'line-opacity': 0.3,
+            'line-width': 1,
+          },
+        },
+        'satellite',
+      );
+
       const onEnter = () => (m.getCanvas().style.cursor = 'pointer');
       const onLeave = () => (m.getCanvas().style.cursor = '');
       m.on('mouseenter', 'springs', onEnter);
       m.on('mouseleave', 'springs', onLeave);
+      m.on('mouseenter', 'clusters', onEnter);
+      m.on('mouseleave', 'clusters', onLeave);
 
       // The vignette deepens once satellite takes over (see index.css), so
       // bright daylight imagery keeps the ember-on-basalt mood at its edges.
@@ -250,9 +420,23 @@ export function MapView() {
         const f = e.features?.[0] as MapGeoJSONFeature | undefined;
         if (f?.properties?.id) select(String(f.properties.id));
       });
+      // A cluster click drills in rather than selecting: the expansion zoom
+      // is computed from the actual members, so one click lands exactly
+      // where the cluster resolves into points.
+      m.on('click', 'clusters', (e) => {
+        const f = e.features?.[0];
+        const clusterId = f?.properties?.cluster_id;
+        const geometry = f?.geometry;
+        if (typeof clusterId !== 'number' || geometry?.type !== 'Point') return;
+        const src = m.getSource(SOURCE) as maplibregl.GeoJSONSource;
+        const center = geometry.coordinates as [number, number];
+        void src.getClusterExpansionZoom(clusterId).then((zoom) => {
+          m.easeTo({ center, zoom, duration: 700 });
+        });
+      });
       // Clicking empty ocean closes the card.
       m.on('click', (e) => {
-        const hits = m.queryRenderedFeatures(e.point, { layers: ['springs'] });
+        const hits = m.queryRenderedFeatures(e.point, { layers: ['springs', 'clusters'] });
         if (hits.length === 0) select(null);
       });
 
@@ -272,9 +456,12 @@ export function MapView() {
         m.on('idle', report);
         report();
       }
-      // Push whatever the store already has.
+      // Push whatever the store already has. Both point sources carry the
+      // same data: the clustered one for points, the plain one for the heat
+      // bloom (see the layer setup for why they must stay separate).
       const data = toFeatureCollection(useStore.getState().visible);
       (m.getSource(SOURCE) as maplibregl.GeoJSONSource)?.setData(data);
+      (m.getSource(HEAT_SOURCE) as maplibregl.GeoJSONSource)?.setData(data);
     };
 
     m.on('styledata', setup);
@@ -289,13 +476,80 @@ export function MapView() {
     };
   }, [select]);
 
+  // --- idle drift ---
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    // After 10s untouched, the globe turns over slowly — a living planet, not
+    // a paused video. Any interaction, any selection, any zoom past the
+    // regional view, or reduced-motion stops it. The per-frame guard (rather
+    // than only a start-time check) is what keeps a mid-spin select from
+    // fighting the camera flight: the next frame simply declines.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let spinRaf = 0;
+    let lastInteract = Date.now();
+    let retryTimer = 0;
+    const stopSpin = () => {
+      cancelAnimationFrame(spinRaf);
+      spinRaf = 0;
+      window.clearTimeout(retryTimer);
+    };
+    const kick = () => {
+      if (!spinRaf && !reduceMotion.matches) spinRaf = requestAnimationFrame(spinStep);
+    };
+    const spinStep = () => {
+      spinRaf = 0;
+      if (
+        reduceMotion.matches ||
+        useStore.getState().selectedId !== null ||
+        m.getZoom() >= 4 ||
+        Date.now() - lastInteract < 10_000 ||
+        !m.isStyleLoaded()
+      ) {
+        return;
+      }
+      const c = m.getCenter();
+      // ~1.5°/s at 60fps: a full turn takes four unhurried minutes.
+      m.setCenter([c.lng + 0.025, c.lat]);
+      spinRaf = requestAnimationFrame(spinStep);
+    };
+    const noteInteract = () => {
+      lastInteract = Date.now();
+      stopSpin();
+      retryTimer = window.setTimeout(kick, 10_500);
+    };
+    // Deselecting also releases the camera: without this the globe would sit
+    // still after the card closes, since closing fires no map event.
+    const unsub = useStore.subscribe((s, prev) => {
+      if (prev.selectedId !== null && s.selectedId === null) {
+        lastInteract = Date.now();
+        retryTimer = window.setTimeout(kick, 10_500);
+      }
+      if (s.selectedId !== null) stopSpin();
+    });
+    m.on('mousedown', noteInteract);
+    m.on('touchstart', noteInteract);
+    m.on('wheel', noteInteract);
+    m.on('idle', kick);
+    kick();
+    return () => {
+      // A stray frame after unmount would drive a removed map.
+      stopSpin();
+      unsub();
+      m.off('mousedown', noteInteract);
+      m.off('touchstart', noteInteract);
+      m.off('wheel', noteInteract);
+      m.off('idle', kick);
+    };
+  }, []);
+
   // --- data ---
   useEffect(() => {
     const m = map.current;
     if (!m || !ready.current) return;
-    const src = m.getSource(SOURCE) as maplibregl.GeoJSONSource | undefined;
     const data = toFeatureCollection(visible);
-    src?.setData(data);
+    (m.getSource(SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData(data);
+    (m.getSource(HEAT_SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData(data);
     if (import.meta.env.DEV) {
       document.documentElement.dataset.mapSourceFeatures = String(data.features.length);
     }
