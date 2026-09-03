@@ -79,6 +79,26 @@ by up to 300 m, so ordering here is a correctness property, not style.
 | `data/coverage.json` | Where public sources could not be found. Written by a run; does not exist yet. |
 | `data/refutations.jsonl` | Append-only record of every claim that did *not* become a file. Written by a run; does not exist yet. |
 
+## Open defect: selecting a spring crashes the app in a small viewport
+
+Found 2026-09-03 while verifying the safety banner. Search for a spring, click
+the result, and React unmounts the whole tree — `#root` has zero children and
+the page goes blank. The console shows
+`TypeError: Cannot read properties of undefined (reading 'top')` from inside
+`react-dom_client`.
+
+**Not caused by the safety layer.** Reproduced identically on `4ce394c~1` in a
+separate worktree: same click, same viewport, same blank page. It is
+pre-existing and was simply never noticed, because nothing in this repository
+tests the React app — `npm test` only runs `scripts/**/*.test.mjs`.
+
+Nothing in `src/` reads `.top`, so it is library-internal — most likely a
+MapLibre `flyTo`/popup measurement against a viewport of 317x270. Unconfirmed
+at a normal desktop size. Worth pinning down before the next deploy, and worth
+treating as the argument for the frontend tests the research review asks for:
+a data pipeline with 320 passing tests sits behind a UI where selecting a
+result can blank the screen.
+
 ## Things that will bite you
 
 - **Mocked providers cannot tell you the pipeline works.** 242 tests passed
