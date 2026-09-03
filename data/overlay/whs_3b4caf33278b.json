@@ -1,0 +1,17 @@
+{
+  "id": "whs_3b4caf33278b",
+  "claims": {
+    "access.price": {
+      "value": "Daily 13,200 Ft (locker)",
+      "source": "https://www.szechenyibath.hu/prices",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.currency": {
+      "value": "HUF",
+      "source": "https://www.szechenyibath.hu/prices",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    }
+  }
+}
