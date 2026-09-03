@@ -32,6 +32,8 @@
   --color-steam-100: #f5efe5;
   --color-ember: #d9663a;
   --color-ember-bright: #f08a55;
+  --color-ember-deep: #7e3418;
+  --color-gold: #e0a33a;
   --color-mineral: #4bab8f;
 
   --font-sans: 'Inter var', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -106,8 +108,72 @@ body {
   animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/*
+ * Cinematic motion for the globe-to-soak ladder. Steam wisps rise and spread
+ * as they fade; shimmer breathes a soft glow on heat elements. Both are
+ * disabled under reduced-motion below — a static end-frame must always be the
+ * default, never a frozen mid-animation state.
+ */
+@keyframes steam-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10%) scaleX(1);
+  }
+  30% {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-48%) scaleX(1.4);
+  }
+}
+.animate-steam {
+  animation: steam-rise 5.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate-shimmer {
+  animation: shimmer 3.2s ease-in-out infinite;
+}
+
+/*
+ * Cinematic vignette over the map. Always on but subtle on the dark globe;
+ * deepens once the satellite layer takes over (MapView toggles data-sat on
+ * the container past the crossfade), so bright daylight imagery keeps the
+ * ember-on-basalt mood at its edges. Purely decorative: pointer-events-none.
+ */
+.map-vignette {
+  background: radial-gradient(ellipse 120% 105% at 50% 42%, transparent 58%, rgb(11 10 9 / 0.42) 100%);
+  opacity: 0.55;
+  transition: opacity 0.6s ease;
+}
+[data-sat='on'] .map-vignette {
+  opacity: 1;
+}
+.maplibregl-ctrl-top-right,
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-bottom-left {
+  z-index: 2;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise {
     animation: none;
+  }
+  .animate-steam,
+  .animate-shimmer {
+    animation: none;
+  }
+  .map-vignette {
+    transition: none;
   }
 }

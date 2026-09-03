@@ -5,6 +5,22 @@ import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
 import { useStore } from '../store/useStore';
 
 const SOURCE = 'springs';
+const SATELLITE = 'satellite';
+
+/**
+ * The basemap ladder: CARTO dark-matter carries the globe and regional views,
+ * Esri World Imagery crossfades in for the close descent. Both are keyless,
+ * so the atlas keeps its no-token philosophy — attribution is the price, paid
+ * in the map control (via the source option) and the About panel.
+ */
+const SAT_TILES = [
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+];
+const SAT_ATTRIBUTION = 'Imagery © Esri, Maxar, Earthstar Geographics';
+// Zoom stops for the dark-to-satellite crossfade. Keep in sync with the
+// data-sat threshold on the vignette below.
+const SAT_FADE_NEAR = 8;
+const SAT_FADE_FAR = 10;
 
 /**
  * CARTO's dark basemap is keyless and free, so the atlas has no API-token
@@ -119,6 +135,14 @@ export function MapView() {
         data: { type: 'FeatureCollection', features: [] },
       });
 
+      m.addSource(SATELLITE, {
+        type: 'raster',
+        tiles: SAT_TILES,
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: SAT_ATTRIBUTION,
+      });
+
       // Soft outer glow: reads as heat without drawing a literal steam sprite.
       m.addLayer({
         id: 'springs-glow',
@@ -179,10 +203,48 @@ export function MapView() {
         },
       });
 
+      // Satellite imagery, crossfading in across the descent band. minzoom
+      // starts prefetching one level early so tiles are already arriving when
+      // the fade begins; raster-fade-duration is zero because the
+      // zoom-interpolated opacity IS the fade — the built-in fade would lag it.
+      // Inserted beneath the springs layers: imagery is the ground, never the
+      // subject, so points and labels stay legible over bright terrain.
+      m.addLayer(
+        {
+          id: 'satellite',
+          type: 'raster',
+          source: SATELLITE,
+          minzoom: SAT_FADE_NEAR - 1,
+          paint: {
+            'raster-opacity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              SAT_FADE_NEAR,
+              0,
+              SAT_FADE_FAR,
+              1,
+            ],
+            'raster-fade-duration': 0,
+          },
+        },
+        'springs-glow',
+      );
+
       const onEnter = () => (m.getCanvas().style.cursor = 'pointer');
       const onLeave = () => (m.getCanvas().style.cursor = '');
       m.on('mouseenter', 'springs', onEnter);
       m.on('mouseleave', 'springs', onLeave);
+
+      // The vignette deepens once satellite takes over (see index.css), so
+      // bright daylight imagery keeps the ember-on-basalt mood at its edges.
+      const onZoom = () => {
+        if (container.current) {
+          container.current.dataset.sat = m.getZoom() >= SAT_FADE_NEAR ? 'on' : '';
+        }
+      };
+      m.on('zoom', onZoom);
+      onZoom();
 
       m.on('click', 'springs', (e) => {
         const f = e.features?.[0] as MapGeoJSONFeature | undefined;
@@ -275,5 +337,9 @@ export function MapView() {
     };
   }, [userLocation]);
 
-  return <div ref={container} className="absolute inset-0" aria-label="Map of hot springs" role="application" />;
+  return (
+    <div ref={container} className="absolute inset-0" aria-label="Map of hot springs" role="application">
+      <div className="map-vignette pointer-events-none absolute inset-0 z-[1]" aria-hidden />
+    </div>
+  );
 }
