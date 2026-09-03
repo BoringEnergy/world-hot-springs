@@ -18,6 +18,7 @@ import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
+import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
@@ -260,6 +261,19 @@ async function main() {
     process.exit(1);
   }
 
+  // --- Land-manager restrictions ---
+  // After the overlay, deliberately. Running last of the two means no authored
+  // claim can weaken an agency prohibition: a contributor cannot assert that
+  // bathing is allowed in Yellowstone and have it stick. This stage only ever
+  // tightens, and it only ever modifies fields on records that already exist —
+  // it never adds, moves or removes one — which is why it is safe above the
+  // privacy filter.
+  console.log('Applying land-manager restrictions ...');
+  const landManagers = loadLandManagers();
+  const { applied: restricted, byManager } = applyLandManagers(records, landManagers);
+  console.log(`  ${restricted} spring(s) restricted by ${landManagers.length} land manager(s)`);
+  for (const [id, n] of byManager) console.log(`    ${id}: ${n}`);
+
   // --- The privacy guard ---
   // Genuinely last: nothing that can add, move, or reintroduce a record may run
   // below this point. This is the promise in PRIVACY.md, and build.test.mjs
@@ -354,6 +368,7 @@ async function main() {
     droppedDuplicates: dropped,
     rejected: Object.fromEntries(rejects),
     excludedByPrivacyList: excluded,
+    landManagerRestricted: Object.fromEntries(byManager),
   };
   fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
   fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');

@@ -90,7 +90,17 @@ export function parseAccess(tags) {
     price = 'Donation';
   }
 
-  return { price, currency, notes: notes.length ? notes.join('. ') : null };
+  // status/bathingAllowed are owned by the land-manager stage, never by OSM
+  // tags: `access=yes` on a Yellowstone geyser means the ground is walkable,
+  // not that the water is. Defaulted here so every record carries the fields
+  // structurally, per the schema rule that unknown is stored, not omitted.
+  return {
+    price,
+    currency,
+    notes: notes.length ? notes.join('. ') : null,
+    status: 'unknown',
+    bathingAllowed: null,
+  };
 }
 
 /**

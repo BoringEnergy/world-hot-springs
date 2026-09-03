@@ -149,5 +149,8 @@
   "rejected": {
     "access=private/no": 60
   },
-  "excludedByPrivacyList": 0
+  "excludedByPrivacyList": 0,
+  "landManagerRestricted": {
+    "us-nps-yellowstone": 1289
+  }
 }

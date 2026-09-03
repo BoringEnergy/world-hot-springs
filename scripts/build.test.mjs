@@ -162,3 +162,26 @@ test('end to end: a claim survives a rebuild and an upstream redraw', () => {
     'the claim reattaches to the redrawn spring',
   );
 });
+
+test('land-manager restrictions run after the overlay and before the privacy filter', () => {
+  // Ordering is the safety property, not a style choice. After the overlay,
+  // no authored claim can weaken an agency prohibition. Before the privacy
+  // filter, because the stage only edits fields on records that already
+  // exist — it never adds, moves or removes one.
+  const overlayAt = SOURCE.indexOf('applyOverlays(');
+  const landAt = SOURCE.indexOf('applyLandManagers(');
+  const privacyAt = SOURCE.indexOf('isExcluded(');
+  assert.ok(landAt > 0, 'the land-manager stage must be wired into the build');
+  assert.ok(landAt > overlayAt, 'an overlay claim must not be able to override a land manager');
+  assert.ok(privacyAt > landAt, 'the privacy filter still runs last');
+});
+
+test('the land-manager stage cannot silently no-op when its list is missing', () => {
+  // loadLandManagers throws rather than returning []. The build has no catch
+  // around it, so a missing or malformed list fails the build instead of
+  // publishing every restricted spring unwarned.
+  assert.match(SOURCE, /loadLandManagers\(\)/);
+  const at = SOURCE.indexOf('loadLandManagers()');
+  const block = SOURCE.slice(at - 400, at + 400);
+  assert.ok(!/try\s*\{/.test(block), 'a swallowed load failure would publish restricted springs');
+});

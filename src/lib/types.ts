@@ -53,6 +53,22 @@ export interface HotSpring {
     /** ISO 4217 when the price is a known amount in a known currency. */
     currency: string | null;
     notes: string | null;
+    /**
+     * What the agency that manages the land permits. Set by the land-manager
+     * stage of the build from data/land-managers.json, never from OSM tags:
+     * `access=yes` on a Yellowstone geyser means the ground is walkable, not
+     * that the water is.
+     */
+    status: AccessStatus;
+    /**
+     * Whether entering the water is permitted. `false` is a prohibition the
+     * UI must state before anything else; `null` is genuinely unknown and
+     * says nothing either way. Mandatory rather than optional so no call site
+     * can reach it through an optional chain that quietly yields undefined —
+     * `spring.access.bathingAllowed === false` is the only test that matters
+     * and it must not be defeated by a missing field.
+     */
+    bathingAllowed: boolean | null;
   };
   clothing: {
     policy: ClothingPolicy;
@@ -87,6 +103,7 @@ export interface HotSpring {
   quality: DataQuality;
 }
 
+export type AccessStatus = 'public' | 'permit' | 'view-only' | 'closed' | 'unknown';
 export type ClothingPolicy = 'optional' | 'required' | 'textile-only' | 'mixed' | 'unknown';
 export type HoursStatus = 'open' | 'seasonal' | 'closed' | 'unknown';
 export type SpringType = 'natural' | 'developed' | 'resort' | 'wild' | 'unknown';
