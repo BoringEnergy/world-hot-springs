@@ -135,7 +135,8 @@ export function AboutPanel() {
         </section>
 
         <footer className="mt-6 border-t border-basalt-800 pt-4 text-[11px] leading-relaxed text-steam-400">
-          Map data © OpenStreetMap contributors, ODbL 1.0. Basemap © CARTO. Dataset
+          Map data © OpenStreetMap contributors, ODbL 1.0. Basemap © CARTO,
+          satellite imagery © Esri, Maxar, Earthstar Geographics. Dataset
           {summary ? ` built ${summary.generated.slice(0, 10)}` : ''}. Code MIT.
         </footer>
       </div>
