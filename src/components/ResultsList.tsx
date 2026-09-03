@@ -8,7 +8,7 @@ const MAX_ROWS = 60;
 /**
  * The list only appears when the user has expressed an intent that a list can
  * answer — a search, or "near me". Otherwise the globe is the interface and a
- * permanent sidebar of 14,000 rows would just be noise.
+ * permanent sidebar of several thousand rows would just be noise.
  */
 export function ResultsList() {
   const visible = useStore((s) => s.visible);

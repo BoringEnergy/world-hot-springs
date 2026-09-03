@@ -15,7 +15,7 @@ const STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
 /**
  * Colour ramp driven by the same bands the legend and filters use, expressed as
- * a MapLibre step expression so 14k points are coloured on the GPU rather than
+ * a MapLibre step expression so every point is coloured on the GPU rather than
  * in JS.
  */
 function tempColorExpression() {

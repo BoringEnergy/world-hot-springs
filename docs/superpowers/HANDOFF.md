@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-08-30, end of phase 3.
+Last updated 2026-09-03.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -11,7 +11,8 @@ countries**, derived from OpenStreetMap and published as a static site.
 
 Repo: `https://github.com/BoringEnergy/world-hot-springs` (**public**).
 Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` and nothing
-else; there is no deploy pipeline, so nothing is hosted anywhere yet.
+else. **The site is deployed on Vercel** (19 deployments as of 2026-09-03),
+which is why a data defect is a live defect, not a hypothetical one.
 
 ## Current state
 
@@ -29,8 +30,9 @@ else; there is no deploy pipeline, so nothing is hosted anywhere yet.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **242 tests**, `npm test`. All passing — and note that all 242 passed while
-  the pipeline could not do its job. See the Task 12 lesson below.
+- **325 tests**, `npm test`. All passing. Worth remembering that 242 of them
+  passed while the enrichment pipeline could not do its job at all, and 320
+  passed over a UI where clicking a search result blanked the page.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
 - The app runs: `npm run dev` (port 5177 via `.claude/launch.json`).
@@ -54,7 +56,8 @@ That is the full green-path check. The build prints its counts; expect
    Adversarial review of its first draft found a path to the API key.
 
 Plans live in [plans/](plans/). Phases 1, 2 and 3 are written and executed;
-phase 3's Task 8 is the only step left unimplemented. No phase 4 plan exists.
+phase 3 runs end to end. Tasks 13-14 and the research-review integration are
+the open work; no phase 4 plan exists.
 
 ## Pipeline shape
 

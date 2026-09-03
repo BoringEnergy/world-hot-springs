@@ -38,7 +38,7 @@ interface State {
   /**
    * The filtered set. Held in the store rather than derived per-component so the
    * map and the results list are guaranteed to be showing the same springs, and
-   * so the 14k-record filter pass runs once per change instead of once per
+   * so the whole-dataset filter pass runs once per change instead of once per
    * subscriber.
    */
   visible: HotSpring[];

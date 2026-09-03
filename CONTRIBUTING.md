@@ -41,7 +41,7 @@ If the correction is specific to this dataset (a bad parse, a wrong country
 resolution, a duplicate we failed to merge), open an issue or a PR against the
 normaliser with:
 
-- The spring's `id` (e.g. `osm-node-123456789`)
+- The spring's `id` (e.g. `whs_a1b2c3d4e5f6`) from the record
 - What the record says now and what it should say
 - **A public source.** Every record has to be checkable by a stranger. "I was
   there last week" is genuinely useful context, but it cannot be the only
