@@ -8,7 +8,7 @@ import {
   SOURCE_EXCERPT_CHARS, PROPOSER_SYSTEM, VERIFIER_SYSTEM, MAX_URLS_PER_SPRING,
   NUMERIC_FIELDS, LITERAL_FIELDS,
 } from './enrich.mjs';
-import { validateOverlay } from './lib/overlay.mjs';
+import { validateOverlay, FIELD_TYPES } from './lib/overlay.mjs';
 import { valueAppears } from './lib/verify-source.mjs';
 import { RateLimitedError } from './lib/providers/gateway.mjs';
 
@@ -693,7 +693,7 @@ test('every non-numeric shape of a numeric value is refused', async () => {
   // may crash a run.
   for (const value of ['40', '', 'about 40', null, true, [40], { c: 40 }]) {
     const paths = tmp();
-    const proposer = { complete: async () => ({ claims: { 'access.price': { value } } }) };
+    const proposer = { complete: async () => ({ claims: { 'location.elevation': { value } } }) };
     const verifier = { complete: async () => { throw new Error('the verifier must never be reached'); } };
     await runPlan({
       plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
@@ -727,10 +727,48 @@ test('a string-valued literal field is untouched by the numeric rule', async () 
 });
 
 test('the numeric fields are the literal fields that hold numbers', () => {
-  assert.deepEqual(NUMERIC_FIELDS, ['temperature.celsius', 'access.price', 'location.elevation']);
+  assert.deepEqual(NUMERIC_FIELDS, ['temperature.celsius', 'location.elevation']);
   for (const f of NUMERIC_FIELDS) {
     assert.ok(LITERAL_FIELDS.includes(f), `${f} must also be fetch-checkable`);
   }
+  // Not every literal field is a number. access.price is stated verbatim on a
+  // page and is a string; treating "literal" as "numeric" is what made this
+  // pipeline refuse the prices five human contributors got right.
+  assert.ok(LITERAL_FIELDS.includes('access.price'));
+  assert.ok(!NUMERIC_FIELDS.includes('access.price'));
+});
+
+test('the numeric fields are exactly the number-typed fields overlay.mjs declares', () => {
+  // Derived, not copied. The two lists diverged once because enrich.mjs kept
+  // its own idea of which fields hold numbers.
+  assert.deepEqual(
+    NUMERIC_FIELDS,
+    Object.keys(FIELD_TYPES).filter((f) => FIELD_TYPES[f] === 'number'),
+  );
+});
+
+test('a price string reaches the overlay and validates there', async () => {
+  // The divergence, end to end: a human contributor may write this price and
+  // gate-1 accepts it, so the agent path must accept it too rather than
+  // logging value-not-numeric for a value that is correct.
+  const paths = tmp();
+  const price = 'Adults $42-$60 (peak/off-peak vary)';
+  const proposer = { complete: async () => ({ claims: { 'access.price': { value: price } } }) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'the page lists both prices' }) };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult,
+    fetchImpl: serving(`<html><body>Admission: Adults $42-$60 (peak/off-peak vary).</body></html>`),
+  });
+  const written = JSON.parse(
+    fs.readFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), 'utf8'),
+  );
+  assert.equal(written.claims['access.price'].value, price);
+  assert.deepEqual(refutations(paths.refutationsFile), []);
+  // gate-1 runs this exact function on the file a contributor submits.
+  assert.deepEqual(validateOverlay(written, { knownIds }), []);
 });
 
 test('the proposal schema demands a number for each numeric field', async () => {

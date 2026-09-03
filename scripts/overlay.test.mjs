@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { CLAIMABLE, AGENT_CLAIMABLE, ARRAY_FIELDS, RISK, validateOverlay, loadOverlays } from './lib/overlay.mjs';
+import {
+  CLAIMABLE, AGENT_CLAIMABLE, ARRAY_FIELDS, FIELD_TYPES, RISK, validateOverlay, loadOverlays,
+} from './lib/overlay.mjs';
 
 const ID = 'whs_a1b2c3d4e5f6';
 
@@ -82,6 +84,69 @@ test('validateOverlay rejects an out-of-range or non-numeric temperature', () =>
       validateOverlay({ id: ID, claims: { 'temperature.celsius': claim({ value: bad }) } }).join(),
       /between -5 and 130/,
       `${JSON.stringify(bad)} should be rejected`,
+    );
+  }
+});
+
+test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
+  // Written from the type declarations and the built dataset, not from
+  // memory. `access.price` is `string | null` and holds 878 strings, one of
+  // which is "Free"; the other two are `number | null`. The last time this
+  // mapping was recalled rather than checked, enrich.mjs spent a run refusing
+  // every correct price a proposer returned.
+  assert.deepEqual(FIELD_TYPES, {
+    'temperature.celsius': 'number',
+    'location.elevation': 'number',
+    'access.price': 'string',
+  });
+  for (const field of Object.keys(FIELD_TYPES)) {
+    assert.ok(CLAIMABLE.includes(field), `${field} must be claimable to be type-checked`);
+  }
+});
+
+test('validateOverlay rejects a non-numeric elevation', () => {
+  // The gap this closes: a string elevation validated cleanly, so "3300"
+  // could have been published into a field the UI reads as a number.
+  for (const bad of ['3300', '', null, true, [3300], { m: 3300 }, NaN, Infinity]) {
+    assert.match(
+      validateOverlay({ id: ID, claims: { 'location.elevation': claim({ value: bad }) } }).join(),
+      /location\.elevation: value must be a number/,
+      `${JSON.stringify(bad)} should be rejected as an elevation`,
+    );
+  }
+  assert.deepEqual(
+    validateOverlay({ id: ID, claims: { 'location.elevation': claim({ value: 3300 }) } }),
+    [],
+  );
+});
+
+test('validateOverlay rejects a non-string price', () => {
+  // A number here would render as a bare "19.75" with no currency and no
+  // "Free" -- format.ts prints access.price as text, unmodified.
+  for (const bad of [19.75, 0, null, true, ['$19.75'], { usd: 19.75 }]) {
+    assert.match(
+      validateOverlay({ id: ID, claims: { 'access.price': claim({ value: bad }) } }).join(),
+      /access\.price: value must be a string/,
+      `${JSON.stringify(bad)} should be rejected as a price`,
+    );
+  }
+});
+
+test('the price strings on the five open pull requests validate', () => {
+  // Verbatim from the open contributions. This fix exists to make the agent
+  // path agree with these; breaking them would invert the whole point.
+  for (const price of [
+    'Adult $19.75',
+    'Adults $42-$60 (peak/off-peak vary)',
+    'Daily 13,200 Ft (locker)',
+    'Day spa from €30 (Parco) / €90 (Club)',
+    'Select $43-$75 / Premier (21+) $75-$135',
+    'Free',
+  ]) {
+    assert.deepEqual(
+      validateOverlay({ id: ID, claims: { 'access.price': claim({ value: price }) } }),
+      [],
+      `${price} must validate`,
     );
   }
 });
@@ -331,8 +396,11 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
 });
 
 test('an agent may claim every permitted field', () => {
+  // Each value is shaped by the field's declared type. It used to be 'x' for
+  // everything but temperature, which passed only because nothing checked the
+  // elevation's type.
   const claims = Object.fromEntries(AGENT_CLAIMABLE.map((f) => [f, {
-    value: ARRAY_FIELDS.includes(f) ? [] : (f === 'temperature.celsius' ? 40 : 'x'),
+    value: ARRAY_FIELDS.includes(f) ? [] : (FIELD_TYPES[f] === 'number' ? 40 : 'x'),
     source: 'https://e.org',
     contributor: 'openai:gpt-5',
   }]));

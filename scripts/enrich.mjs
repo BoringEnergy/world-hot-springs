@@ -15,7 +15,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { validateOverlay, AGENT_CLAIMABLE } from './lib/overlay.mjs';
+import { validateOverlay, AGENT_CLAIMABLE, FIELD_TYPES } from './lib/overlay.mjs';
 import { TARGET_PER_COUNTRY } from './lib/flagship.mjs';
 import { fetchSource, valueAppears } from './lib/verify-source.mjs';
 import { appendRefutation } from './lib/refutations.mjs';
@@ -46,15 +46,15 @@ export const LITERAL_FIELDS = [
  * rejects -- so a claim the verifier accepted would have been thrown away at
  * the gate as `overlay-rejected`, a label describing none of what happened.
  *
- * Listed rather than derived from LITERAL_FIELDS by removing the one string:
- * "stated verbatim on a page" and "is a number" are different properties, and
- * the next literal field added should have to say which it is.
+ * Derived from overlay.mjs rather than listed here. This constant used to name
+ * `access.price` as well, which was wrong and diverged from the gate every
+ * human contribution passes: the dataset holds 878 string prices including
+ * "Free", and src/lib/format.ts renders the value as text. Being a literal
+ * field and holding a number are different properties -- access.price is the
+ * former and not the latter -- so LITERAL_FIELDS stays its own list.
  */
-export const NUMERIC_FIELDS = [
-  'temperature.celsius',
-  'access.price',
-  'location.elevation',
-];
+export const NUMERIC_FIELDS = Object.keys(FIELD_TYPES)
+  .filter((field) => FIELD_TYPES[field] === 'number');
 
 function loadJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));

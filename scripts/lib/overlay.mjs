@@ -99,6 +99,36 @@ export const RISK = {
 };
 
 /**
+ * The type a claim's value must have, for the fields where `src/lib/types.ts`
+ * declares one.
+ *
+ * `access.price` is a string, not a number: the type is `string | null`, the
+ * built dataset holds 878 of them including "Free", and `src/lib/format.ts`
+ * renders the value straight into the page as text. A known amount's ISO 4217
+ * code belongs in `access.currency`, and tiers or seasonal variation in
+ * `access.notes` -- so nothing is lost by the price staying prose.
+ *
+ * This map lives here, and enrich.mjs imports it, because validateOverlay is
+ * the one gate both contribution paths pass through. When enrich.mjs kept its
+ * own copy it drifted: it demanded a number for the price and refused claims
+ * that the human path accepts.
+ */
+export const FIELD_TYPES = {
+  'temperature.celsius': 'number',
+  'location.elevation': 'number',
+  'access.price': 'string',
+};
+
+/**
+ * `typeof` is not enough for a number: NaN and Infinity both pass it, and
+ * either one would reach the UI as a rendered "NaN".
+ */
+const HAS_TYPE = {
+  number: (v) => typeof v === 'number' && Number.isFinite(v),
+  string: (v) => typeof v === 'string',
+};
+
+/**
  * Fields that merge rather than replace.
  *
  * Letting a claim shrink `warnings` would let a contributor strip a scalding
@@ -144,11 +174,17 @@ export function validateOverlay(overlay, opts = {}) {
     if (!claim?.source) errors.push(`${field}: source is required on every claim`);
     if (!claim?.contributor) errors.push(`${field}: contributor is required`);
 
+    const expected = FIELD_TYPES[field];
     if (field === 'temperature.celsius') {
+      // Type and range in one message, because a temperature is wrong the same
+      // way whether it arrives as "38" or as 318: it is not a number in the
+      // range a spring can be.
       const v = claim?.value;
-      if (typeof v !== 'number' || Number.isNaN(v) || v < -5 || v > 130) {
+      if (!HAS_TYPE[expected](v) || v < -5 || v > 130) {
         errors.push(`${field}: must be a number between -5 and 130, got ${JSON.stringify(v)}`);
       }
+    } else if (expected && !HAS_TYPE[expected](claim?.value)) {
+      errors.push(`${field}: value must be a ${expected}, got ${JSON.stringify(claim?.value)}`);
     }
     if (ARRAY_FIELDS.includes(field) && !Array.isArray(claim?.value)) {
       errors.push(`${field}: value must be an array`);

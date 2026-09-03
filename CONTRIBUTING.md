@@ -101,6 +101,25 @@ temperature does not freeze the opening hours.
 Every claim needs a `source` a stranger can check. "I was there last week" is
 useful context but cannot be the only citation.
 
+### The three fields whose value has a required type
+
+Everything else is free-form text (or an array, for `tags` and `warnings`), but
+three fields are type-checked and `npm run validate` refuses the wrong shape:
+
+| field | type | example |
+|---|---|---|
+| `temperature.celsius` | number, between -5 and 130 | `38.5` |
+| `location.elevation` | number, metres above sea level | `3300` |
+| `access.price` | **string** | `"Free"`, `"Adult $19.75"` |
+
+The price is a string on purpose: most springs cost nothing, and the atlas
+renders whatever you write, verbatim. So put the headline amount in
+`access.price` as a person would read it, the ISO 4217 code in
+`access.currency` when the price is a known amount in a known currency, and the
+nuance — tiers, peak and off-peak, what a locker or a towel costs extra — in
+`access.notes`. Cramming a range into `access.price` still validates, but the
+notes are where a reader looks for it.
+
 ### Fields you cannot claim, and why
 
 - **`type`** drives a safety warning and the completeness score, so it is
