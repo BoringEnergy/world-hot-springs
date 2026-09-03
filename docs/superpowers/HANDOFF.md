@@ -79,25 +79,33 @@ by up to 300 m, so ordering here is a correctness property, not style.
 | `data/coverage.json` | Where public sources could not be found. Written by a run; does not exist yet. |
 | `data/refutations.jsonl` | Append-only record of every claim that did *not* become a file. Written by a run; does not exist yet. |
 
-## Open defect: selecting a spring crashes the app in a small viewport
+## Fixed: selecting a spring blanked the app in a narrow viewport
 
-Found 2026-09-03 while verifying the safety banner. Search for a spring, click
-the result, and React unmounts the whole tree — `#root` has zero children and
-the page goes blank. The console shows
-`TypeError: Cannot read properties of undefined (reading 'top')` from inside
-`react-dom_client`.
+Found and fixed 2026-09-03 while trying to photograph the safety banner.
+Selecting any search result below 1024px wide unmounted the whole React tree
+and left a white page, with `Cannot read properties of undefined (reading
+'top')` from inside react-dom.
 
-**Not caused by the safety layer.** Reproduced identically on `4ce394c~1` in a
-separate worktree: same click, same viewport, same blank page. It is
-pre-existing and was simply never noticed, because nothing in this repository
-tests the React app — `npm test` only runs `scripts/**/*.test.mjs`.
+The cause was one line in `MapView.tsx`:
 
-Nothing in `src/` reads `.top`, so it is library-internal — most likely a
-MapLibre `flyTo`/popup measurement against a viewport of 317x270. Unconfirmed
-at a normal desktop size. Worth pinning down before the next deploy, and worth
-treating as the argument for the frontend tests the research review asks for:
-a data pipeline with 320 passing tests sits behind a UI where selecting a
-result can blank the screen.
+```js
+padding: window.innerWidth >= 1024 ? { right: 420, ... } : undefined,
+```
+
+**An explicit `undefined` is not the same as an absent key.** MapLibre reads
+`.top` off the value when `padding` is present, so below 1024px every
+selection threw. Fixed by spreading the key in only when it is wanted.
+
+Two things worth keeping from how this was found. It was **pre-existing** --
+reproduced identically on the parent commit in a separate worktree before
+blaming the safety work. And it was only ever noticed because someone tried to
+*look at* the feature they had just shipped: 320 tests passed over a UI where
+clicking a result blanked the screen, because `npm test` runs only
+`scripts/**/*.test.mjs` and nothing exercises React at all.
+
+`scripts/mapview.test.mjs` now guards it, in the source-scan style of
+`build.test.mjs`. That is a tripwire, not a substitute for the frontend tests
+the research review asks for.
 
 ## Things that will bite you
 

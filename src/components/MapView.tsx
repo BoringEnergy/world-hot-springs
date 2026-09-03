@@ -247,12 +247,18 @@ export function MapView() {
     if (!selectedId) return;
     const spring = useStore.getState().springs.find((s) => s.id === selectedId);
     if (!spring) return;
+    // Leave room for the detail card on wide screens. The key is omitted
+    // entirely when there is no room to leave: passing `padding: undefined`
+    // is not the same as passing nothing -- MapLibre reads `.top` off it and
+    // throws, which unmounted the whole React tree and blanked the page on
+    // every narrow-viewport selection.
+    const padding =
+      window.innerWidth >= 1024 ? { right: 420, top: 0, bottom: 0, left: 0 } : null;
     m.easeTo({
       center: [spring.location.lng, spring.location.lat],
       zoom: Math.max(m.getZoom(), 8.5),
       duration: 900,
-      // Leave room for the detail card on wide screens.
-      padding: window.innerWidth >= 1024 ? { right: 420, top: 0, bottom: 0, left: 0 } : undefined,
+      ...(padding ? { padding } : {}),
     });
   }, [selectedId]);
 
