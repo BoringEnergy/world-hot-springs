@@ -14,6 +14,7 @@ import {
 } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { Field } from './Field';
+import { SoakScene } from './SoakScene';
 
 export function DetailPanel() {
   const selectedId = useStore((s) => s.selectedId);
@@ -83,6 +84,13 @@ export function DetailPanel() {
           </p>
         </div>
       )}
+
+      {/*
+        Below the prohibition, never above it. The scene is an invitation to
+        soak; on a feature where entering the water is forbidden, an invitation
+        rendered first is the last thing seen before the warning.
+      */}
+      <SoakScene key={spring.id} spring={spring} units={units} />
 
       {spring.warnings.length > 0 && (
         <div className="mx-5 mt-4 rounded-xl border border-ember/35 bg-ember/10 px-4 py-3">
