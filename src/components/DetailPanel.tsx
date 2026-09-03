@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { bandColor, tempBand } from '../lib/types';
 import {
   formatAccessStatus,
@@ -22,6 +23,14 @@ export function DetailPanel() {
   const units = useStore((s) => s.units);
   const select = useStore((s) => s.select);
   const userLocation = useStore((s) => s.userLocation);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  // Land keyboard and screen-reader users in the card when it opens.
+  // tabindex -1 keeps the title out of the Tab order; outline-none only
+  // hides the programmatic-focus ring, interactive elements keep theirs.
+  useEffect(() => {
+    if (selectedId) headingRef.current?.focus({ preventScroll: true });
+  }, [selectedId]);
 
   if (!selectedId || !spring) return null;
 
@@ -41,7 +50,11 @@ export function DetailPanel() {
           aria-hidden
         />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-lg font-semibold leading-tight text-steam-100">
+          <h2
+            ref={headingRef}
+            tabIndex={-1}
+            className="truncate text-lg font-semibold leading-tight text-steam-100 focus:outline-none"
+          >
             {formatName(spring)}
           </h2>
           <p className="mt-0.5 truncate text-xs text-steam-400">

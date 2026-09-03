@@ -189,8 +189,27 @@ function paint(
 export function SoakScene({ spring, units }: { spring: HotSpring; units: Units }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const [weather, setWeather] = useState<SpringWeather | null>(null);
   const [expanded, setExpanded] = useState(false);
+
+  // Escape backs out one layer at a time: a fullscreen scene collapses
+  // before the card closes. Capture phase pre-empts App's bubble listener,
+  // which would otherwise close the whole card underneath us.
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      setExpanded(false);
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [expanded ]);
+
+  useEffect(() => {
+    if (expanded) toggleRef.current?.focus({ preventScroll: true });
+  }, [expanded ]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -300,6 +319,7 @@ export function SoakScene({ spring, units }: { spring: HotSpring; units: Units }
             {weather !== null && ` · ${weatherLabel(weather.code)}`}
           </span>
           <button
+            ref={toggleRef}
             onClick={() => setExpanded((v) => !v)}
             className="pointer-events-auto rounded-full border border-basalt-700/80 bg-basalt-950/70 p-1.5 text-steam-300 backdrop-blur-sm transition hover:text-steam-100"
             aria-label={expanded ? 'Shrink scene' : 'Expand scene'}
