@@ -7,6 +7,7 @@ import { useStore } from '../store/useStore';
 const SOURCE = 'springs';
 const HEAT_SOURCE = 'springs-heat';
 const SATELLITE = 'satellite';
+const TERRAIN = 'terrain';
 
 /**
  * The basemap ladder: CARTO dark-matter carries the globe and regional views,
@@ -22,6 +23,12 @@ const SAT_ATTRIBUTION = 'Imagery © Esri, Maxar, Earthstar Geographics';
 // data-sat threshold on the vignette below.
 const SAT_FADE_NEAR = 8;
 const SAT_FADE_FAR = 10;
+// Terrain wakes up as satellite arrives: 3D relief only matters once you can
+// see the ground, and keeping it off on the globe view saves DEM tiles.
+const TERRAIN_ZOOM = 8.5;
+const TERRAIN_TILES = [
+  'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+];
 
 /**
  * CARTO's dark basemap is keyless and free, so the atlas has no API-token
@@ -108,6 +115,9 @@ export function MapView() {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const ready = useRef(false);
+  // Generation counter for camera flights: any user-initiated move bumps it,
+  // so a stale chained leg can recognise it lost the race and stand down.
+  const flight = useRef(0);
 
   const visible = useStore((s) => s.visible);
   const selectedId = useStore((s) => s.selectedId);
@@ -209,6 +219,18 @@ export function MapView() {
         tileSize: 256,
         maxzoom: 19,
         attribution: SAT_ATTRIBUTION,
+      });
+
+      // Keyless elevation: Mapzen terrain tiles on AWS Open Data, terrarium
+      // encoding. The source is registered up front; setTerrain switches it
+      // on past TERRAIN_ZOOM (see onZoom) so the globe view pays nothing.
+      m.addSource(TERRAIN, {
+        type: 'raster-dem',
+        tiles: TERRAIN_TILES,
+        encoding: 'terrarium',
+        tileSize: 256,
+        maxzoom: 15,
+        attribution: 'Terrain: Mapzen Terrain Tiles (AWS Open Data)',
       });
 
       // Soft outer glow: reads as heat without drawing a literal steam sprite.
@@ -408,13 +430,29 @@ export function MapView() {
 
       // The vignette deepens once satellite takes over (see index.css), so
       // bright daylight imagery keeps the ember-on-basalt mood at its edges.
+      // Terrain toggles on the same descent: threshold-crossing only, so we
+      // never thrash setTerrain mid-gesture.
+      let terrainOn = false;
       const onZoom = () => {
+        const z = m.getZoom();
         if (container.current) {
-          container.current.dataset.sat = m.getZoom() >= SAT_FADE_NEAR ? 'on' : '';
+          container.current.dataset.sat = z >= SAT_FADE_NEAR ? 'on' : '';
+        }
+        const want = z >= TERRAIN_ZOOM;
+        if (want !== terrainOn) {
+          terrainOn = want;
+          if (want) m.setTerrain({ source: TERRAIN, exaggeration: 1.15 });
+          else m.setTerrain(null);
         }
       };
       m.on('zoom', onZoom);
       onZoom();
+      // A user grabbing the camera wins over any scripted flight in progress.
+      // Programmatic moves carry no originalEvent, so this fires only for the
+      // human — the chained arrival leg checks the counter and stands down.
+      m.on('movestart', (e) => {
+        if (e.originalEvent) flight.current += 1;
+      });
 
       m.on('click', 'springs', (e) => {
         const f = e.features?.[0] as MapGeoJSONFeature | undefined;
@@ -431,6 +469,8 @@ export function MapView() {
         const src = m.getSource(SOURCE) as maplibregl.GeoJSONSource;
         const center = geometry.coordinates as [number, number];
         void src.getClusterExpansionZoom(clusterId).then((zoom) => {
+          // A drill-in is a new intention: cancel any descent in progress.
+          flight.current += 1;
           m.easeTo({ center, zoom, duration: 700 });
         });
       });
@@ -555,14 +595,34 @@ export function MapView() {
     }
   }, [visible]);
 
-  // --- selection ---
+  // --- selection: the descent ---
+  const prevSelected = useRef<string | null>(null);
   useEffect(() => {
     const m = map.current;
-    if (!m || !ready.current) return;
+    if (!m || !ready.current) {
+      prevSelected.current = selectedId;
+      return;
+    }
     m.setFilter('springs-selected', ['==', ['get', 'id'], selectedId ?? '']);
-    if (!selectedId) return;
+    const wasSelected = prevSelected.current;
+    prevSelected.current = selectedId;
+    if (!selectedId) {
+      // Card closed: release the tilt where we stand and drift back one
+      // context level — never yank the user across the planet for closing
+      // a card. No-op on first paint (nothing was selected).
+      if (wasSelected === null) return;
+      const zoom = Math.max(4, m.getZoom() - 2);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        m.jumpTo({ pitch: 0, zoom });
+      } else {
+        flight.current += 1;
+        m.easeTo({ pitch: 0, zoom, duration: 800 });
+      }
+      return;
+    }
     const spring = useStore.getState().springs.find((s) => s.id === selectedId);
     if (!spring) return;
+    const center: [number, number] = [spring.location.lng, spring.location.lat];
     // Leave room for the detail card on wide screens. The key is omitted
     // entirely when there is no room to leave: passing `padding: undefined`
     // is not the same as passing nothing -- MapLibre reads `.top` off it and
@@ -570,11 +630,20 @@ export function MapView() {
     // every narrow-viewport selection.
     const padding =
       window.innerWidth >= 1024 ? { right: 420, top: 0, bottom: 0, left: 0 } : null;
-    m.easeTo({
-      center: [spring.location.lng, spring.location.lat],
-      zoom: Math.max(m.getZoom(), 8.5),
-      duration: 900,
-      ...(padding ? { padding } : {}),
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      m.jumpTo({ center, zoom: 12 });
+      return;
+    }
+    const run = ++flight.current;
+    // Stage 1 — the arc: flyTo curves over the globe and arrives pitched at
+    // 55°, so the last second is a swoop over 3D terrain on satellite.
+    m.flyTo({ center, zoom: 10.5, pitch: 55, duration: 2600, ...(padding ? { padding } : {}) });
+    m.once('moveend', () => {
+      // Lost the race (user grabbed the camera, or a newer selection)? Then
+      // this leg never happened — stand down instead of yanking the view.
+      if (flight.current !== run || useStore.getState().selectedId !== selectedId) return;
+      // Stage 2 — settle top-down onto the water.
+      m.easeTo({ center, zoom: 12.5, pitch: 0, duration: 1400 });
     });
   }, [selectedId]);
 
@@ -585,6 +654,8 @@ export function MapView() {
     const marker = new maplibregl.Marker({ color: '#4bab8f' })
       .setLngLat([userLocation.lng, userLocation.lat])
       .addTo(m);
+    // "Near me" is a new intention like any other: stand down the descent.
+    flight.current += 1;
     m.easeTo({ center: [userLocation.lng, userLocation.lat], zoom: 6, duration: 1200 });
     return () => {
       marker.remove();
