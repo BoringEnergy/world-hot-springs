@@ -101,16 +101,28 @@ temperature does not freeze the opening hours.
 Every claim needs a `source` a stranger can check. "I was there last week" is
 useful context but cannot be the only citation.
 
-### The three fields whose value has a required type
+### The fields whose value has a required shape
 
-Everything else is free-form text (or an array, for `tags` and `warnings`), but
-three fields are type-checked and `npm run validate` refuses the wrong shape:
+Everything else is free-form text, but these are checked and `npm run validate`
+refuses the wrong shape. Two of them take a fixed set of values; anything else
+is rejected, because the site looks the value up to render it and would
+otherwise draw a blank label while still counting the field as known.
 
-| field | type | example |
+| field | required shape | example |
 |---|---|---|
 | `temperature.celsius` | number, between -5 and 130 | `38.5` |
 | `location.elevation` | number, metres above sea level | `3300` |
 | `access.price` | **string** | `"Free"`, `"Adult $19.75"` |
+| `clothing.policy` | one of `optional`, `required`, `textile-only`, `mixed`, `unknown` | `"optional"` |
+| `hours.status` | one of `open`, `seasonal`, `closed`, `unknown` | `"seasonal"` |
+| `tags` | array of strings | `["sulfur", "open-air"]` |
+| `warnings` | array of strings | `["No lifeguard on site."]` |
+
+`tags` and `warnings` merge rather than replace — a claim adds entries and can
+never remove one, which is what stops a contributor stripping a scalding notice
+off a 62°C spring. It also means a wrong entry is permanent, so every element
+has to be a string going in. Put the nuance a fixed value cannot carry in
+`clothing.schedule`, `clothing.notes`, `hours.open`, or `hours.seasonalNotes`.
 
 The price is a string on purpose: most springs cost nothing, and the atlas
 renders whatever you write, verbatim. So put the headline amount in

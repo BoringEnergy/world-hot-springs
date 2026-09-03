@@ -99,8 +99,12 @@ export const RISK = {
 };
 
 /**
- * The type a claim's value must have, for the fields where `src/lib/types.ts`
- * declares one.
+ * The constraint a claim's value must satisfy, for the fields where
+ * `src/lib/types.ts` declares one. A value here is either
+ *
+ *   'number' | 'string'   a scalar type,
+ *   'string[]'            an array whose every element is a string, or
+ *   [...]                 an array literal: the exact permitted values.
  *
  * `access.price` is a string, not a number: the type is `string | null`, the
  * built dataset holds 878 of them including "Free", and `src/lib/format.ts`
@@ -108,15 +112,28 @@ export const RISK = {
  * code belongs in `access.currency`, and tiers or seasonal variation in
  * `access.notes` -- so nothing is lost by the price staying prose.
  *
+ * The two enums are transcribed from `ClothingPolicy` and `HoursStatus`. Both
+ * reach the UI through a lookup keyed on the value (`CLOTHING_LABEL`,
+ * `HOURS_LABEL` in src/lib/format.ts), so an off-enum value renders blank --
+ * while `recomputeCompleteness` below counts it as known and raises the
+ * quality score. Completeness is a measurement, not a target; a value nothing
+ * can render must not be able to move it. `mixed` is currently unused in the
+ * built dataset and is still permitted: the type is the contract.
+ *
  * This map lives here, and enrich.mjs imports it, because validateOverlay is
  * the one gate both contribution paths pass through. When enrich.mjs kept its
  * own copy it drifted: it demanded a number for the price and refused claims
- * that the human path accepts.
+ * that the human path accepts. ARRAY_FIELDS is derived from it below for the
+ * same reason.
  */
 export const FIELD_TYPES = {
   'temperature.celsius': 'number',
   'location.elevation': 'number',
   'access.price': 'string',
+  'clothing.policy': ['optional', 'required', 'textile-only', 'mixed', 'unknown'],
+  'hours.status': ['open', 'seasonal', 'closed', 'unknown'],
+  tags: 'string[]',
+  warnings: 'string[]',
 };
 
 /**
@@ -132,9 +149,11 @@ const HAS_TYPE = {
  * Fields that merge rather than replace.
  *
  * Letting a claim shrink `warnings` would let a contributor strip a scalding
- * notice off a 62°C spring. Removal is a separate human-reviewed operation.
+ * notice off a 62°C spring. Removal is a separate human-reviewed operation --
+ * which is also why every element is checked: merge-only means a wrong one is
+ * permanent, and no later claim can take it back out.
  */
-export const ARRAY_FIELDS = ['tags', 'warnings'];
+export const ARRAY_FIELDS = Object.keys(FIELD_TYPES).filter((f) => FIELD_TYPES[f] === 'string[]');
 
 /** Matches a durable spring id. 12 hex characters; see identity.mjs on why. */
 export const SPRING_ID = /^whs_[0-9a-f]{12}$/;
@@ -183,11 +202,32 @@ export function validateOverlay(overlay, opts = {}) {
       if (!HAS_TYPE[expected](v) || v < -5 || v > 130) {
         errors.push(`${field}: must be a number between -5 and 130, got ${JSON.stringify(v)}`);
       }
+    } else if (Array.isArray(expected)) {
+      // Name the permitted values. Being told "clothes off" is wrong without
+      // being told what is right leaves a contributor guessing at a closed set
+      // they have no other way to see.
+      if (!expected.includes(claim?.value)) {
+        errors.push(
+          `${field}: value must be one of ${expected.join(', ')}, `
+          + `got ${JSON.stringify(claim?.value)}`,
+        );
+      }
+    } else if (expected === 'string[]') {
+      if (!Array.isArray(claim?.value)) {
+        errors.push(`${field}: value must be an array`);
+      } else {
+        // Indexed, not `.find`: a null or undefined element is exactly the
+        // kind a sentinel-returning search would report as "nothing wrong".
+        const bad = claim.value.findIndex((el) => typeof el !== 'string');
+        if (bad !== -1) {
+          errors.push(
+            `${field}: every element must be a string, `
+            + `but [${bad}] is ${JSON.stringify(claim.value[bad]) ?? String(claim.value[bad])}`,
+          );
+        }
+      }
     } else if (expected && !HAS_TYPE[expected](claim?.value)) {
       errors.push(`${field}: value must be a ${expected}, got ${JSON.stringify(claim?.value)}`);
-    }
-    if (ARRAY_FIELDS.includes(field) && !Array.isArray(claim?.value)) {
-      errors.push(`${field}: value must be an array`);
     }
   }
 

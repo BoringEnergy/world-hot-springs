@@ -98,6 +98,10 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     'temperature.celsius': 'number',
     'location.elevation': 'number',
     'access.price': 'string',
+    'clothing.policy': ['optional', 'required', 'textile-only', 'mixed', 'unknown'],
+    'hours.status': ['open', 'seasonal', 'closed', 'unknown'],
+    tags: 'string[]',
+    warnings: 'string[]',
   });
   for (const field of Object.keys(FIELD_TYPES)) {
     assert.ok(CLAIMABLE.includes(field), `${field} must be claimable to be type-checked`);
@@ -162,6 +166,103 @@ test('validateOverlay requires array fields to hold arrays', () => {
     validateOverlay({ id: ID, claims: { tags: claim({ value: 'sulfur' }) } }).join(),
     /must be an array/,
   );
+});
+
+test('validateOverlay rejects a non-string element in tags or warnings', () => {
+  // Both fields are merge-only in applyOverlays, so a wrong element can never
+  // be removed by a later claim. `[42]` and `[{}]` validated cleanly before.
+  for (const field of ['tags', 'warnings']) {
+    for (const bad of [[42], [{}], ['ok', null], [undefined], [['nested']], [true]]) {
+      assert.match(
+        validateOverlay({ id: ID, claims: { [field]: claim({ value: bad }) } }).join(),
+        new RegExp(`${field}: every element must be a string`),
+        `${field} ${JSON.stringify(bad)} should be rejected`,
+      );
+    }
+    for (const good of [[], ['sulfur'], ['a', 'b']]) {
+      assert.deepEqual(
+        validateOverlay({ id: ID, claims: { [field]: claim({ value: good }) } }),
+        [],
+        `${field} ${JSON.stringify(good)} must validate`,
+      );
+    }
+  }
+});
+
+test('the element error names the offending index, not just the field', () => {
+  assert.match(
+    validateOverlay({ id: ID, claims: { warnings: claim({ value: ['fine', 42] }) } }).join(),
+    /warnings: every element must be a string, but \[1\] is 42/,
+  );
+});
+
+test('validateOverlay accepts every ClothingPolicy src/lib/types.ts declares', () => {
+  // `mixed` is declared but unused in the built dataset. It must still pass:
+  // the type is the contract, not the current contents.
+  for (const policy of ['optional', 'required', 'textile-only', 'mixed', 'unknown']) {
+    assert.deepEqual(
+      validateOverlay({ id: ID, claims: { 'clothing.policy': claim({ value: policy }) } }),
+      [],
+      `${policy} must validate`,
+    );
+  }
+});
+
+test('validateOverlay rejects an off-enum clothing policy and lists the permitted values', () => {
+  // CLOTHING_LABEL in src/lib/format.ts is keyed on the value, so anything
+  // off-enum renders blank -- while recomputeCompleteness counts it as known
+  // (policy !== 'unknown') and inflates the quality score.
+  for (const bad of ['clothes off', 'Optional', 'nude', '', null, 42, ['optional'], undefined]) {
+    const errors = validateOverlay({
+      id: ID, claims: { 'clothing.policy': claim({ value: bad }) },
+    }).join('\n');
+    assert.match(
+      errors,
+      /clothing\.policy: value must be one of optional, required, textile-only, mixed, unknown/,
+      `${JSON.stringify(bad)} should be rejected as a clothing policy`,
+    );
+  }
+});
+
+test('validateOverlay accepts every HoursStatus src/lib/types.ts declares', () => {
+  for (const status of ['open', 'seasonal', 'closed', 'unknown']) {
+    assert.deepEqual(
+      validateOverlay({ id: ID, claims: { 'hours.status': claim({ value: status }) } }),
+      [],
+      `${status} must validate`,
+    );
+  }
+});
+
+test('the hours.status claim on the three open pull requests still validates', () => {
+  // Verbatim from the open contributions. A new constraint that rejected these
+  // would break merged-ready work to close a gap none of them had.
+  assert.deepEqual(
+    validateOverlay({ id: ID, claims: { 'hours.status': claim({ value: 'open' }) } }),
+    [],
+  );
+});
+
+test('validateOverlay rejects an off-enum hours status and lists the permitted values', () => {
+  // Same shape of bug: HOURS_LABEL is keyed on the value, and
+  // `status !== 'unknown'` counts toward completeness.
+  for (const bad of ['maybe', 'Open', 'year-round', '', null, 1, ['open'], undefined]) {
+    assert.match(
+      validateOverlay({ id: ID, claims: { 'hours.status': claim({ value: bad }) } }).join('\n'),
+      /hours\.status: value must be one of open, seasonal, closed, unknown/,
+      `${JSON.stringify(bad)} should be rejected as an hours status`,
+    );
+  }
+});
+
+test('ARRAY_FIELDS and FIELD_TYPES cannot disagree about which fields are arrays', () => {
+  // Divergence, not mechanism: a hand-written ARRAY_FIELDS that happens to
+  // match passes this, and should -- what broke enrich.mjs last time was two
+  // copies that had drifted apart, not the existence of two copies.
+  assert.deepEqual(ARRAY_FIELDS, ['tags', 'warnings']);
+  for (const field of ARRAY_FIELDS) {
+    assert.equal(FIELD_TYPES[field], 'string[]', `${field} must declare its element type`);
+  }
 });
 
 function overlayDir(files) {
@@ -396,11 +497,17 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
 });
 
 test('an agent may claim every permitted field', () => {
-  // Each value is shaped by the field's declared type. It used to be 'x' for
-  // everything but temperature, which passed only because nothing checked the
-  // elevation's type.
+  // Each value is shaped by the field's declared constraint. It used to be 'x'
+  // for everything but temperature, which passed only because nothing checked
+  // the elevation's type -- and later, the two enums.
+  const shaped = (f) => {
+    const t = FIELD_TYPES[f];
+    if (Array.isArray(t)) return t[0];
+    if (t === 'string[]') return [];
+    return t === 'number' ? 40 : 'x';
+  };
   const claims = Object.fromEntries(AGENT_CLAIMABLE.map((f) => [f, {
-    value: ARRAY_FIELDS.includes(f) ? [] : (FIELD_TYPES[f] === 'number' ? 40 : 'x'),
+    value: shaped(f),
     source: 'https://e.org',
     contributor: 'openai:gpt-5',
   }]));
