@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { CLAIMABLE, RISK, validateOverlay, loadOverlays } from './lib/overlay.mjs';
+import {
+  CLAIMABLE, AGENT_CLAIMABLE, ARRAY_FIELDS, FIELD_TYPES, RISK, validateOverlay, loadOverlays,
+} from './lib/overlay.mjs';
 
 const ID = 'whs_a1b2c3d4e5f6';
 
@@ -86,6 +88,73 @@ test('validateOverlay rejects an out-of-range or non-numeric temperature', () =>
   }
 });
 
+test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
+  // Written from the type declarations and the built dataset, not from
+  // memory. `access.price` is `string | null` and holds 878 strings, one of
+  // which is "Free"; the other two are `number | null`. The last time this
+  // mapping was recalled rather than checked, enrich.mjs spent a run refusing
+  // every correct price a proposer returned.
+  assert.deepEqual(FIELD_TYPES, {
+    'temperature.celsius': 'number',
+    'location.elevation': 'number',
+    'access.price': 'string',
+    'clothing.policy': ['optional', 'required', 'textile-only', 'mixed', 'unknown'],
+    'hours.status': ['open', 'seasonal', 'closed', 'unknown'],
+    tags: 'string[]',
+    warnings: 'string[]',
+  });
+  for (const field of Object.keys(FIELD_TYPES)) {
+    assert.ok(CLAIMABLE.includes(field), `${field} must be claimable to be type-checked`);
+  }
+});
+
+test('validateOverlay rejects a non-numeric elevation', () => {
+  // The gap this closes: a string elevation validated cleanly, so "3300"
+  // could have been published into a field the UI reads as a number.
+  for (const bad of ['3300', '', null, true, [3300], { m: 3300 }, NaN, Infinity]) {
+    assert.match(
+      validateOverlay({ id: ID, claims: { 'location.elevation': claim({ value: bad }) } }).join(),
+      /location\.elevation: value must be a number/,
+      `${JSON.stringify(bad)} should be rejected as an elevation`,
+    );
+  }
+  assert.deepEqual(
+    validateOverlay({ id: ID, claims: { 'location.elevation': claim({ value: 3300 }) } }),
+    [],
+  );
+});
+
+test('validateOverlay rejects a non-string price', () => {
+  // A number here would render as a bare "19.75" with no currency and no
+  // "Free" -- format.ts prints access.price as text, unmodified.
+  for (const bad of [19.75, 0, null, true, ['$19.75'], { usd: 19.75 }]) {
+    assert.match(
+      validateOverlay({ id: ID, claims: { 'access.price': claim({ value: bad }) } }).join(),
+      /access\.price: value must be a string/,
+      `${JSON.stringify(bad)} should be rejected as a price`,
+    );
+  }
+});
+
+test('the price strings on the five open pull requests validate', () => {
+  // Verbatim from the open contributions. This fix exists to make the agent
+  // path agree with these; breaking them would invert the whole point.
+  for (const price of [
+    'Adult $19.75',
+    'Adults $42-$60 (peak/off-peak vary)',
+    'Daily 13,200 Ft (locker)',
+    'Day spa from €30 (Parco) / €90 (Club)',
+    'Select $43-$75 / Premier (21+) $75-$135',
+    'Free',
+  ]) {
+    assert.deepEqual(
+      validateOverlay({ id: ID, claims: { 'access.price': claim({ value: price }) } }),
+      [],
+      `${price} must validate`,
+    );
+  }
+});
+
 test('validateOverlay rejects a malformed id', () => {
   assert.match(validateOverlay({ id: 'osm-node-1', claims: {} }).join(), /whs_/);
   assert.match(validateOverlay({ id: 'whs_a1b2c3', claims: {} }).join(), /whs_/, '6 hex is not enough');
@@ -97,6 +166,103 @@ test('validateOverlay requires array fields to hold arrays', () => {
     validateOverlay({ id: ID, claims: { tags: claim({ value: 'sulfur' }) } }).join(),
     /must be an array/,
   );
+});
+
+test('validateOverlay rejects a non-string element in tags or warnings', () => {
+  // Both fields are merge-only in applyOverlays, so a wrong element can never
+  // be removed by a later claim. `[42]` and `[{}]` validated cleanly before.
+  for (const field of ['tags', 'warnings']) {
+    for (const bad of [[42], [{}], ['ok', null], [undefined], [['nested']], [true]]) {
+      assert.match(
+        validateOverlay({ id: ID, claims: { [field]: claim({ value: bad }) } }).join(),
+        new RegExp(`${field}: every element must be a string`),
+        `${field} ${JSON.stringify(bad)} should be rejected`,
+      );
+    }
+    for (const good of [[], ['sulfur'], ['a', 'b']]) {
+      assert.deepEqual(
+        validateOverlay({ id: ID, claims: { [field]: claim({ value: good }) } }),
+        [],
+        `${field} ${JSON.stringify(good)} must validate`,
+      );
+    }
+  }
+});
+
+test('the element error names the offending index, not just the field', () => {
+  assert.match(
+    validateOverlay({ id: ID, claims: { warnings: claim({ value: ['fine', 42] }) } }).join(),
+    /warnings: every element must be a string, but \[1\] is 42/,
+  );
+});
+
+test('validateOverlay accepts every ClothingPolicy src/lib/types.ts declares', () => {
+  // `mixed` is declared but unused in the built dataset. It must still pass:
+  // the type is the contract, not the current contents.
+  for (const policy of ['optional', 'required', 'textile-only', 'mixed', 'unknown']) {
+    assert.deepEqual(
+      validateOverlay({ id: ID, claims: { 'clothing.policy': claim({ value: policy }) } }),
+      [],
+      `${policy} must validate`,
+    );
+  }
+});
+
+test('validateOverlay rejects an off-enum clothing policy and lists the permitted values', () => {
+  // CLOTHING_LABEL in src/lib/format.ts is keyed on the value, so anything
+  // off-enum renders blank -- while recomputeCompleteness counts it as known
+  // (policy !== 'unknown') and inflates the quality score.
+  for (const bad of ['clothes off', 'Optional', 'nude', '', null, 42, ['optional'], undefined]) {
+    const errors = validateOverlay({
+      id: ID, claims: { 'clothing.policy': claim({ value: bad }) },
+    }).join('\n');
+    assert.match(
+      errors,
+      /clothing\.policy: value must be one of optional, required, textile-only, mixed, unknown/,
+      `${JSON.stringify(bad)} should be rejected as a clothing policy`,
+    );
+  }
+});
+
+test('validateOverlay accepts every HoursStatus src/lib/types.ts declares', () => {
+  for (const status of ['open', 'seasonal', 'closed', 'unknown']) {
+    assert.deepEqual(
+      validateOverlay({ id: ID, claims: { 'hours.status': claim({ value: status }) } }),
+      [],
+      `${status} must validate`,
+    );
+  }
+});
+
+test('the hours.status claim on the three open pull requests still validates', () => {
+  // Verbatim from the open contributions. A new constraint that rejected these
+  // would break merged-ready work to close a gap none of them had.
+  assert.deepEqual(
+    validateOverlay({ id: ID, claims: { 'hours.status': claim({ value: 'open' }) } }),
+    [],
+  );
+});
+
+test('validateOverlay rejects an off-enum hours status and lists the permitted values', () => {
+  // Same shape of bug: HOURS_LABEL is keyed on the value, and
+  // `status !== 'unknown'` counts toward completeness.
+  for (const bad of ['maybe', 'Open', 'year-round', '', null, 1, ['open'], undefined]) {
+    assert.match(
+      validateOverlay({ id: ID, claims: { 'hours.status': claim({ value: bad }) } }).join('\n'),
+      /hours\.status: value must be one of open, seasonal, closed, unknown/,
+      `${JSON.stringify(bad)} should be rejected as an hours status`,
+    );
+  }
+});
+
+test('ARRAY_FIELDS and FIELD_TYPES cannot disagree about which fields are arrays', () => {
+  // Divergence, not mechanism: a hand-written ARRAY_FIELDS that happens to
+  // match passes this, and should -- what broke enrich.mjs last time was two
+  // copies that had drifted apart, not the existence of two copies.
+  assert.deepEqual(ARRAY_FIELDS, ['tags', 'warnings']);
+  for (const field of ARRAY_FIELDS) {
+    assert.equal(FIELD_TYPES[field], 'string[]', `${field} must declare its element type`);
+  }
 });
 
 function overlayDir(files) {
@@ -169,7 +335,7 @@ function record(over = {}) {
     description: null,
     tags: ['hot-spring', 'open-air'],
     warnings: [],
-    quality: { provenance: 'osm', completeness: 67, known: [], ingestedAt: '2026-08-25' },
+    quality: { provenance: ['osm'], completeness: 67, known: [], ingestedAt: '2026-08-25' },
     ...over,
   };
 }
@@ -298,4 +464,75 @@ test('array fields never contest, because they merge', () => {
     overlay({ tags: { value: ['sulfur'], source: 'https://x.test', contributor: 'github:a', state: 'active' } }),
   );
   assert.equal(events.filter((e) => e.type === 'claim.contested').length, 0);
+});
+
+test('an overlay for a nonexistent spring id is rejected', () => {
+  const known = new Set(['whs_b803e624c229']);
+  const errors = validateOverlay(
+    { id: 'whs_000000000000', claims: {} },
+    { knownIds: known },
+  );
+  assert.ok(
+    errors.some((e) => /not a spring in this dataset/.test(e)),
+    'a well-formed id that matches nothing must be rejected',
+  );
+});
+
+test('a known spring id passes the existence check', () => {
+  const known = new Set(['whs_b803e624c229']);
+  assert.deepEqual(validateOverlay({ id: 'whs_b803e624c229', claims: {} }, { knownIds: known }), []);
+});
+
+test('the existence check is skipped when no id set is supplied', () => {
+  // Back-compat: every existing caller passes one argument.
+  assert.deepEqual(validateOverlay({ id: 'whs_000000000000', claims: {} }), []);
+});
+
+test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
+  assert.deepEqual(
+    CLAIMABLE.filter((f) => !AGENT_CLAIMABLE.includes(f)).sort(),
+    ['location.nearestTown', 'name', 'tags', 'warnings'].sort(),
+  );
+  assert.equal(AGENT_CLAIMABLE.length, 13);
+});
+
+test('an agent may claim every permitted field', () => {
+  // Each value is shaped by the field's declared constraint. It used to be 'x'
+  // for everything but temperature, which passed only because nothing checked
+  // the elevation's type -- and later, the two enums.
+  const shaped = (f) => {
+    const t = FIELD_TYPES[f];
+    if (Array.isArray(t)) return t[0];
+    if (t === 'string[]') return [];
+    return t === 'number' ? 40 : 'x';
+  };
+  const claims = Object.fromEntries(AGENT_CLAIMABLE.map((f) => [f, {
+    value: shaped(f),
+    source: 'https://e.org',
+    contributor: 'openai:gpt-5',
+  }]));
+  assert.deepEqual(validateOverlay({ id: 'whs_b803e624c229', claims }, { agentAuthored: true }), []);
+});
+
+test('an agent claim on a human-only field is rejected', () => {
+  const errors = validateOverlay(
+    {
+      id: 'whs_b803e624c229',
+      claims: {
+        'location.nearestTown': { value: 'Springfield', source: 'https://e.org', contributor: 'openai:gpt-5' },
+      },
+    },
+    { agentAuthored: true },
+  );
+  assert.ok(errors.some((e) => /not claimable by an agent/.test(e)));
+});
+
+test('the same field is accepted from a human author', () => {
+  const errors = validateOverlay({
+    id: 'whs_b803e624c229',
+    claims: {
+      'location.nearestTown': { value: 'Springfield', source: 'https://e.org', contributor: 'github:someone' },
+    },
+  });
+  assert.deepEqual(errors, []);
 });

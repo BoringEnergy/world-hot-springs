@@ -1,6 +1,15 @@
 # Phase 3: Flagship Enrichment — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+>
+> **Git rules for implementers, learned the hard way during Task 3.** Make new
+> commits only. **Never `--amend`, never `git reset`, never rewrite history.**
+> A coordinator may be committing to the same branch while you work: an amend
+> issued after someone else's commit lands rewrites *their* commit, not yours,
+> silently absorbing their files under your message. That happened, and only
+> luck kept it to a lost commit message rather than lost work. If review asks
+> for changes, add a follow-up commit — the history being slightly longer costs
+> nothing, and squashing is the merge's job, not yours.
 
 **Goal:** Produce the atlas's first authored claims — two verified springs per country, across all 129 — and a published map of where public knowledge does not exist.
 
@@ -411,12 +420,25 @@ the whole point of having both. Restore.
 
 - [ ] **Step 8: Commit**
 
+**All four files.** An earlier version of this step staged only the two
+library files, which would have committed the guard while leaving Steps 4 and 5
+— the CLI wiring, the point of the exercise — unstaged. `npm test` would still
+have been green on a tree where the guard CI actually runs was absent. Caught
+during execution; recorded because it is the same defect shape the plan exists
+to prevent.
+
 ```bash
-git add scripts/lib/overlay.mjs scripts/overlay.test.mjs
+git add scripts/lib/overlay.mjs scripts/overlay.test.mjs \
+        scripts/validate-overlay.mjs scripts/validate-overlay.test.mjs
 git commit -m "fix: reject overlays for nonexistent springs; narrow the agent field set
 
-A well-formed id matching no spring validated cleanly and attached to nothing.
+A well-formed id matching no spring passed validation, and gate-1 went green
+while the maintainer's build then failed -- the failure deferred from the
+contributor who could fix it to the maintainer who has to diagnose it.
 Harmless when a person writes one file; not when an agent writes hundreds.
+
+The check is wired into validate-overlay.mjs, not only the library: a guard the
+CLI never passes is a guard that does not exist.
 
 Agents get 13 of the 17 claimable fields. nearestTown is withheld because
 findability is the one thing SPEC.md calls non-negotiable."
@@ -449,7 +471,11 @@ for (const s of springs) (byCountry[s.location.country] ??= []).push(s);
 const countries = Object.keys(byCountry);
 let completenessTop2 = 0, namedFirstTop2 = 0;
 for (const c of countries) {
-  const byComplete = byCountry[c].slice().sort((a,b) => (b.quality.completeness) - (a.quality.completeness));
+  // The id tiebreak is not cosmetic. Without it V8's stable sort falls back to
+  // dataset arrival order, so the baseline measures 'completeness plus however
+  // the file happened to be ordered'. Reversing the input moved it 217 -> 210.
+  const byComplete = byCountry[c].slice().sort((a,b) =>
+    (b.quality.completeness - a.quality.completeness) || (a.id < b.id ? -1 : 1));
   completenessTop2 += byComplete.slice(0,2).filter(s => s.name).length;
   const namedFirst = byCountry[c].slice().sort((a,b) =>
     (Number(Boolean(b.name)) - Number(Boolean(a.name))) || (b.quality.completeness - a.quality.completeness));
@@ -614,7 +640,7 @@ export function selectFlagship(springs) {
 - [ ] **Step 5: Run, confirm pass**
 
 Run: `node --test scripts/flagship.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 8 tests.
 
 - [ ] **Step 6: Generate the committed artifact**
 
@@ -816,7 +842,15 @@ export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 }
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/verify-source.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 26 tests.
+
+> **The double backslash in the decimal pattern is load-bearing.** Inside a
+> template literal, `\.` is stripped to a bare `.` — a regex wildcard — and
+> `42.5` immediately starts matching `42,500` again, which is the exact
+> collision this whole branch exists to prevent. It must be `\\.`. This was
+> lost in transcription once during execution; the near-miss test caught it on
+> the first run, before any mutation check, which is the clearest evidence
+> available that those boundary assertions earn their place.
 
 - [ ] **Step 5: Mutation-check the boundary logic**
 
@@ -839,7 +873,20 @@ truncation lets the page author choose where the evidence stops."
 
 ## Task 4: The refutation log
 
-**Files:** Create `scripts/lib/refutations.mjs`, `scripts/refutations.test.mjs`
+**Files:** Create `scripts/lib/refutations.mjs`, `scripts/refutations.test.mjs`; modify `scripts/lib/verify-source.mjs`, `scripts/verify-source.test.mjs`
+
+**This task also splits `fetchSource`'s failure outcome.** Task 3 shipped it
+returning `source-unreachable` for five distinct failures — bad scheme,
+unparseable URL, HTTP error, network error, and oversize. Review found that
+collapsing them destroys the single most useful signal an enrichment run
+produces: *did the provider invent this URL, or is the page merely unusable?*
+
+The enum below splits them. Update `fetchSource` to return the specific
+outcome at each of its five exit points, and update its tests to assert the
+specific one rather than the generic. The outcome strings are owned here, in
+`refutations.mjs`, so `verify-source.mjs` should import `OUTCOMES` and a test
+should assert every outcome `fetchSource` can return is a member of it — a
+typo'd outcome string is otherwise invisible until it reaches the log.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -854,10 +901,47 @@ import path from 'node:path';
 import { stripNote, OUTCOMES, appendRefutation, MAX_NOTE_CHARS } from './lib/refutations.mjs';
 
 test('the outcome set is closed', () => {
-  assert.deepEqual(
-    [...OUTCOMES].sort(),
-    ['different-subject', 'refuted-by-verifier', 'source-unreachable', 'value-absent-from-source'],
-  );
+  // Enumerated, never counted. A length assertion would pass against any ten
+  // strings, including a typo'd one.
+  assert.deepEqual([...OUTCOMES].sort(), [
+    'different-subject',
+    'field-not-agent-claimable',
+    'no-claim-proposed',
+    'overlay-rejected',
+    'refuted-by-verifier',
+    'source-malformed',
+    'source-not-found',
+    'source-too-large',
+    'source-unreachable',
+    'value-absent-from-source',
+  ]);
+});
+
+test('an html tag is removed whole, not reduced to its letters', () => {
+  // Deleting the tag strip leaves every `doesNotMatch(/<[^>]+>/)` assertion
+  // passing, because the bare-angle strip below it still removes < and >.
+  // What actually breaks is readability: `<b>bold</b>` becomes `bbold/b` and
+  // the note is turned to noise with the suite green. Found by mutation.
+  assert.equal(stripNote('<b>bold</b> text'), 'bold text');
+  assert.equal(stripNote('a <a href="http://evil">click</a> b'), 'a click b');
+});
+
+test('a non-string note becomes empty rather than crashing the run', () => {
+  assert.equal(stripNote(undefined), '');
+  assert.equal(stripNote(42), '');
+});
+
+test('a hostile note is stripped on the way to disk, not only in stripNote', () => {
+  // stripNote being correct is not the property that matters; appendRefutation
+  // actually calling it is. Without this, `note: record.note` ships raw.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ref-'));
+  const file = path.join(dir, 'r.jsonl');
+  appendRefutation(file, {
+    springId: 'whs_00000000000a', field: 'temperature.celsius',
+    outcome: 'refuted-by-verifier', note: 'see ![x](http://evil) @maintainer',
+  }, '2026-08-29T12:00:00.000Z');
+  const rec = JSON.parse(fs.readFileSync(file, 'utf8').trim());
+  assert.doesNotMatch(rec.note, /http|!\[|@/);
 });
 
 test('an outcome outside the enum is refused', () => {
@@ -964,10 +1048,29 @@ import path from 'node:path';
  * entitled to make in a public repository under the project's name.
  */
 export const OUTCOMES = new Set([
-  'source-unreachable',
+  // Why a source failed, split four ways rather than collapsed into one.
+  // "The agent invented a URL" and "the page is 3 MB" are the same outcome to
+  // the run and completely different facts about the provider -- and telling
+  // them apart is most of what makes the cross-provider record worth keeping.
+  // A fabrication rate is computable from the first two; the second two are
+  // properties of the web, not of the model.
+  'source-malformed',   // unparseable, or a scheme we refuse. Not a URL at all.
+  'source-not-found',   // well-formed, HTTP error. Nothing is there.
+  'source-unreachable', // network failure or timeout. May be transient.
+  'source-too-large',   // rejected by the byte cap, never truncated.
+
   'value-absent-from-source',
   'different-subject',
   'refuted-by-verifier',
+
+  // Outcomes of a run rather than of a source. A spring that produced no
+  // overlay file leaves no other trace, so without these three a resumed run
+  // cannot tell "never tried" from "tried and got nothing" -- and re-pays for
+  // the second on every restart, which is exactly what the operator's
+  // stop-start credit model reaches first.
+  'no-claim-proposed',         // the proposer found nothing. Correct, and expected.
+  'overlay-rejected',          // it produced something validateOverlay refused.
+  'field-not-agent-claimable', // it tried a field withheld from agents.
 ]);
 
 export const MAX_NOTE_CHARS = 280;
@@ -1026,7 +1129,7 @@ export function appendRefutation(file, record, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/refutations.test.mjs`
-Expected: PASS, 7 tests.
+Expected: PASS, 11 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -1054,6 +1157,7 @@ Create `scripts/coverage.test.mjs`:
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCoverage, MEASURES } from './lib/coverage.mjs';
+import { TARGET_PER_COUNTRY } from './lib/flagship.mjs';
 
 const results = [
   { country: 'CL', candidates: 5, attempted: 3, verified: 2 },
@@ -1087,8 +1191,38 @@ test('the artifact carries its own framing', () => {
   // A reader who finds this file with no context must not conclude that
   // Bolivia has no hot springs.
   const cov = buildCoverage(results, 'x');
+  // This first line catches a deleted or renamed field, and nothing more: it
+  // compares the output against the same constant the implementation returns,
+  // so rewriting MEASURES to anything at all still passes it. The regex below
+  // is what actually pins the wording -- do not read this as testing it twice.
   assert.equal(cov.measures, MEASURES);
   assert.match(cov.measures, /not the number of hot springs/);
+});
+
+test('the three counts a reader needs travel through unchanged', () => {
+  // Without this, buildCoverage could return a largely hardcoded shape and
+  // still pass: candidates, attempted and verified are the entire evidentiary
+  // substance of the artifact for a stranger, and nothing else asserts them.
+  // A stub omitting all three passed 3 of the plan's original 6 tests.
+  const cov = buildCoverage([{ country: 'CL', candidates: 5, attempted: 3, verified: 2 }], 'x');
+  assert.deepEqual(cov.countries[0], {
+    country: 'CL', candidates: 5, attempted: 3, verified: 2, unmet: 0,
+  });
+});
+
+test('the artifact records when it was generated and what it aimed for', () => {
+  const cov = buildCoverage(results, '2026-08-29T12:00:00.000Z');
+  assert.equal(cov.generatedAt, '2026-08-29T12:00:00.000Z');
+  assert.equal(cov.target, TARGET_PER_COUNTRY);
+});
+
+test('buildCoverage leaves the caller results array untouched', () => {
+  // The .slice() before sorting is otherwise entirely untested, and a sort in
+  // place would reorder the caller's array under it.
+  const input = [{ country: 'CL', candidates: 1, attempted: 1, verified: 1 },
+                 { country: 'BO', candidates: 1, attempted: 1, verified: 0 }];
+  buildCoverage(input, 'x');
+  assert.deepEqual(input.map((r) => r.country), ['CL', 'BO']);
 });
 
 test('countries are sorted so the artifact is diffable', () => {
@@ -1137,12 +1271,24 @@ export function buildCoverage(results, timestamp) {
         candidates: r.candidates,
         attempted: r.attempted,
         verified: r.verified,
+        // Claims that were already on disk when the run started. Kept separate
+        // from `verified` because this file's own `measures` string promises it
+        // reports what *this run* could verify -- folding pre-existing overlays
+        // into that number would let a resumed run read as fresh work.
+        alreadyHad: r.alreadyHad ?? 0,
         // Capped by what the country can actually offer. 21 countries have
         // exactly one spring in the dataset; a perfect run there verifies one
         // of one, and reporting `unmet: 1` forever would make the artifact
         // say the opposite of what happened -- in the one file the spec
         // insists must not mislead a reader.
-        unmet: Math.max(0, Math.min(TARGET_PER_COUNTRY, r.candidates) - r.verified),
+        //
+        // Counted against what the atlas now holds, not what this run added,
+        // or a resumption that legitimately did nothing would report a
+        // shortfall that does not exist.
+        unmet: Math.max(
+          0,
+          Math.min(TARGET_PER_COUNTRY, r.candidates) - (r.verified + (r.alreadyHad ?? 0)),
+        ),
       })),
   };
 }
@@ -1151,7 +1297,7 @@ export function buildCoverage(results, timestamp) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/coverage.test.mjs`
-Expected: PASS, 4 tests.
+Expected: PASS, 11 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -1223,7 +1369,23 @@ test('a missing role fails with an explanation', () => {
 
 test('no provider is privileged by the interface', () => {
   // Any vendor pair is acceptable; the code must hold no opinion about which.
-  assert.doesNotThrow(() => resolveRoles({ proposer: 'google:gemini-3', verifier: 'xai:grok-4' }));
+  //
+  // Asserting the returned value here, and not only in the openai/anthropic
+  // test, is what stops resolveRoles being a constant. With a single happy-path
+  // assertion whose input is exactly its expected output, a hardcoded
+  // `return {proposer: 'openai:gpt-5', verifier: 'anthropic:claude-opus-5'}`
+  // passed all seven tests -- every other test is a throws/doesNotThrow that
+  // never looks at the result.
+  const roles = resolveRoles({ proposer: 'google:gemini-3', verifier: 'xai:grok-4' });
+  assert.equal(roles.proposer, 'google:gemini-3');
+  assert.equal(roles.verifier, 'xai:grok-4');
+});
+
+test('the ids come back as given, only the comparison is lowercased', () => {
+  // loadProviders builds an import path from the returned id, so normalising
+  // it here would silently change which file a capitalised vendor resolves to.
+  const roles = resolveRoles({ proposer: 'Google:Gemini-3', verifier: 'xai:grok-4' });
+  assert.equal(roles.proposer, 'Google:Gemini-3');
 });
 ```
 
@@ -1292,7 +1454,7 @@ export function resolveRoles(config) {
 - [ ] **Step 4: Run, confirm pass**
 
 Run: `node --test scripts/providers.test.mjs`
-Expected: PASS, 5 tests.
+Expected: PASS, 8 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -1366,7 +1528,7 @@ function loadJson(file) {
  * returning nothing, so every exit here that is not a verified claim must
  * produce no file at all.
  */
-export async function attempt(spring, roles, providers, refutationsFile, now) {
+export async function attempt(spring, roles, providers, refutationsFile, now, fetchImpl = fetch) {
   const proposal = await providers.proposer.complete({
     system: `Propose verifiable facts about a hot spring. You may only propose these fields: ${AGENT_CLAIMABLE.join(', ')}. Every field needs a public source URL that states the value. If you cannot find a real source, return an empty claims object. Returning nothing is correct and expected.`,
     user: JSON.stringify({ id: spring.id, name: spring.name, country: spring.location.country }),
@@ -1390,7 +1552,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now) {
   for (const [field, claim] of Object.entries(proposal?.claims ?? {})) {
     if (!AGENT_CLAIMABLE.includes(field)) continue;
 
-    const fetched = await fetchSource(claim.source);
+    const fetched = await fetchSource(claim.source, { fetchImpl });
     if (!fetched.ok) {
       appendRefutation(refutationsFile, {
         springId: spring.id, field, proposed: claim.value, source: claim.source,
@@ -1474,11 +1636,41 @@ function flagValue(args, name) {
  * Run the plan. Every path is a parameter so this is testable without a
  * network, a credential, or the real data directory.
  */
+/**
+ * Spring ids some earlier run already tried and got nothing from.
+ *
+ * Derived from the refutation log rather than kept as separate state: a spring
+ * with a refutation and no overlay file is one that was paid for and yielded
+ * nothing. Reusing the log means there is no second bookkeeping file to get
+ * out of step with reality.
+ */
+export function alreadyAttempted(refutationsFile) {
+  if (!fs.existsSync(refutationsFile)) return new Set();
+  const ids = new Set();
+  for (const line of fs.readFileSync(refutationsFile, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      ids.add(JSON.parse(line).springId);
+    } catch {
+      // A half-written final line is expected here: this file is appended to
+      // by runs that get killed mid-flight. Skip it rather than refusing to
+      // resume -- one lost record must not cost the whole resumption.
+    }
+  }
+  return ids;
+}
+
 export async function runPlan({
   plan, byId, knownIds, providers, roles,
   overlayDir, refutationsFile, coverageFile,
-  writeCoverage = true, now = () => new Date().toISOString(),
+  // Defaults to off: tests call this repeatedly, and the failure mode of the
+  // other default is overwriting a published 129-country artifact. `main`
+  // passes it explicitly for the only run that should write one.
+  writeCoverage = false, retryRefuted = false,
+  fetchImpl = fetch,
+  now = () => new Date().toISOString(),
 }) {
+  const attemptedBefore = retryRefuted ? new Set() : alreadyAttempted(refutationsFile);
   const results = [];
 
   for (const { country, candidates } of plan) {
@@ -1497,6 +1689,21 @@ export async function runPlan({
       // was already met chewed through all five candidates every time.
       if (fs.existsSync(file)) {
         verified++;
+        continue;
+      }
+
+      // A spring that was tried and produced nothing leaves no overlay file,
+      // so without this it is retried -- and paid for -- on every resumed run.
+      // This run is expected to be killed by a credit limit and restarted many
+      // times, which turns "retry the hopeless ones" into the dominant cost:
+      // the springs with no findable sources are exactly the ones every
+      // resumption reaches first and spends on again.
+      //
+      // Skipping is the default, not the only option. Sources appear and a
+      // different provider pair may succeed, so --retry-refuted exists; it
+      // just should not be what an interrupted run does by itself.
+      if (!retryRefuted && attemptedBefore.has(id)) {
+        console.log(`${id}: skipped, already attempted in an earlier run`);
         continue;
       }
 
@@ -1533,10 +1740,14 @@ export async function runPlan({
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const retryRefuted = args.includes('--retry-refuted');
   const onlyCountry = flagValue(args, '--country');
   const limitRaw = flagValue(args, '--limit');
   const limit = limitRaw === null ? Infinity : Number(limitRaw);
-  if (!Number.isFinite(limit) || limit < 1) {
+  // Guarded on limitRaw, not on limit. Infinity is the no-flag default and is
+  // not finite, so validating `limit` unconditionally rejected every ordinary
+  // invocation -- including the full run this tool exists to perform.
+  if (limitRaw !== null && (!Number.isFinite(limit) || limit < 1)) {
     throw new Error(`--limit must be a positive number, got ${JSON.stringify(limitRaw)}`);
   }
 
@@ -1563,7 +1774,7 @@ async function main() {
     plan, byId, knownIds: new Set(byId.keys()),
     providers: await loadProviders(roles), roles,
     overlayDir: OVERLAY_DIR, refutationsFile: REFUTATIONS, coverageFile: COVERAGE,
-    writeCoverage: !filtered,
+    writeCoverage: !filtered, retryRefuted,
   });
 
   const met = results.filter((r) => r.verified >= TARGET_PER_COUNTRY).length;
@@ -1759,6 +1970,12 @@ test('a country reports unmet rather than being skipped silently', async () => {
   const results = await runPlan({
     plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
     providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
+    // Required: writeCoverage defaults to false, so without this the file the
+    // next line reads is never created and the test dies on ENOENT. The
+    // default is deliberately the safe one -- tests call runPlan repeatedly,
+    // and the other default's failure mode is overwriting a published
+    // 129-country artifact.
+    writeCoverage: true,
   });
   const cov = JSON.parse(fs.readFileSync(paths.coverageFile, 'utf8'));
   assert.equal(cov.countries[0].unmet, 2);
@@ -1775,8 +1992,32 @@ test('an existing overlay file is never re-proposed and counts toward the target
     plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
     providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
   });
-  assert.equal(results[0].verified, 1, 'the existing file must count');
+  // Counted as alreadyHad, not verified. The distinction is what stops
+  // coverage.json reporting a country as met by this run when the claims were
+  // already on disk -- under a `measures` string promising it reports what
+  // this run could verify.
+  assert.equal(results[0].alreadyHad, 1, 'the existing file must count toward the target');
+  assert.equal(results[0].verified, 0, 'but not as work this run did');
   assert.equal(calls, 1, 'only the second candidate may be proposed');
+});
+
+test('a spring that yields nothing is not re-proposed on the next run', async () => {
+  // The proposer returning {claims:{}} is the correct and expected outcome, and
+  // it leaves no overlay file. Without a refutation record marking the attempt,
+  // every resumption re-pays for exactly the springs that have no sources --
+  // which are the ones each restart reaches first.
+  const paths = tmp();
+  let calls = 0;
+  const counting = { complete: async () => { calls++; return { claims: {} }; } };
+  const args = {
+    plan, byId, knownIds, roles: { proposer: 'a:1', verifier: 'b:1' },
+    providers: { proposer: counting, verifier: counting }, ...paths, now: NOW,
+  };
+  await runPlan(args);
+  const afterFirst = calls;
+  assert.ok(afterFirst > 0, 'the first run must actually propose');
+  await runPlan(args);
+  assert.equal(calls, afterFirst, 'the second run must propose nothing');
 });
 
 test('a filtered run leaves the coverage map alone', async () => {
@@ -1822,12 +2063,21 @@ The last test passes `fetchImpl`. `runPlan` must accept it and pass it to `attem
 - [ ] **Step 3: Run, confirm pass**
 
 Run: `node --test scripts/enrich.test.mjs`
-Expected: PASS, 5 tests.
+Expected: PASS, 18 tests.
 
 - [ ] **Step 4: Mutation-check the most important one**
 
-In `attempt`, change the final `return` to always return a claim object regardless of verification. Run the tests.
+Mutate the **early return** in `attempt` — the `claims.length === 0` branch that
+fires when the proposer finds nothing — so it invents a claim instead.
 Expected: `a spring with no findable sources produces zero files` FAILS. Restore.
+
+> An earlier version of this step mutated `attempt`'s *final* return instead.
+> That leaves the early return intact, so the proposer-found-nothing path still
+> produces no file and **the test this step names keeps passing** — four other
+> tests fail, which reads like a successful mutation check unless you look at
+> which ones. Verified during execution: 10 pass, 4 fail, and the named test is
+> among the passes. A mutation check that kills the wrong tests is worse than
+> none, because it certifies the assertion you did not actually exercise.
 
 - [ ] **Step 5: Commit**
 
@@ -1956,6 +2206,420 @@ Expected: all tests pass, `merged 1167 duplicate record(s) -> 6471 springs`, cle
 
 ---
 
+## Task 12: Retrieval, and the three defects the first real run exposed
+
+**Rewritten 2026-09-02 after testing TinyFish against Gamla Laugin.** The
+original Task 12 said "attach a gateway search tool." Testing showed a better
+shape and, more usefully, exposed three defects in code that already shipped.
+
+### Why the pipeline produced nothing
+
+Three Icelandic springs attempted, three `no-claim-proposed` — including Gamla
+Laugin, which publishes its temperature on its own site. Probing the exact
+prompt the pipeline sends:
+
+```
+completion_tokens: 1350   of which reasoning_tokens: 1345
+content:           {"claims":{}}
+cost:              $0.008878     (one proposal call)
+```
+
+The proposer is asked to cite a public URL and has no tool to find one, so it
+declines rather than inventing one. That is the model behaving **well** against
+a design that cannot work. A worse model would fabricate a URL and the
+fetch-check would record `source-not-found`; either way, no claims.
+
+**No test could have caught this.** All 242 use stub providers that return
+whatever the test hands them. They verify the plumbing between components and
+say nothing about whether the component at the edge can do its job.
+
+### The retrieval layer: TinyFish, and the flow inverts
+
+Verified against the real service:
+
+```
+tinyfish search query "Gamla Laugin Secret Lagoon Fludir Iceland water temperature"
+  -> 8 results, official site secretlagoon.is ranked first
+fetchSource('https://secretlagoon.is/')
+  -> ok, 8816 chars, contains "stays at 38-40 Celsius all year round"
+  -> valueAppears(38, text) === true
+```
+
+Free at **30 search req/min and 150 fetch url/min**, so retrieval costs nothing
+and only needs throttling.
+
+`search` and `fetch` being separate commands is the property that matters. It
+lets the flow invert:
+
+```
+before:  ask the model to recall a URL   -> it declines, or fabricates
+after:   search -> fetch ourselves -> ask the model to extract from real text
+```
+
+The proposer stops *recalling* a citation and starts *extracting claims from
+text we retrieved*. That removes the hallucinated-citation failure mode at its
+source rather than catching it downstream, and it keeps the deterministic
+fetch-check fully intact — which a gateway-side search tool would have muddied.
+
+**Use TinyFish for search only; keep `fetchSource` for retrieval.** Our fetcher
+owns the byte cap, the scheme guard, the timeout, and the outcome enum. Handing
+that to a third party would move a security boundary out of this repository for
+no gain.
+
+### Defect 1: the sign guard rejects the top of every temperature range
+
+```
+valueAppears(40, "stays at 38-40 Celsius all year")  === false   <-- wrong
+valueAppears(38, "stays at 38-40 Celsius all year")  === true
+valueAppears(40, "stays at 38 to 40 Celsius")        === true
+valueAppears(40, "water is -40 C")                   === false   <-- correct
+```
+
+`-` was added to the numeric lookbehind so a page reading `-40 °C` could not
+certify a claim of `40`. The cost was predicted and accepted at the time —
+*"in `range 40-45 °C`, claiming 45 will now be rejected"* — on the assumption
+that ranges were an edge case.
+
+**They are not.** Hot spring temperatures are published as ranges more often
+than as single values, so half of every published range is currently
+unverifiable. Fix: treat `N-M` as a range and accept either endpoint, while
+still rejecting a sign that has no digit before it. Keep the `-40` case passing;
+it is the reason the guard exists.
+
+### Defect 2: an incidental number passes the fetch-check
+
+```
+valueAppears(39, guidetoiceland_page) === true
+```
+
+39 is not a temperature on that page. It is in a phone number:
+
+```
+...WhatsApp +354 777 39 35 Join Our Team...
+```
+
+A proposer claiming the midpoint `39 °C` would clear the deterministic check
+against a page that never states it. Two consequences:
+
+- **The proposer must claim a value the page states literally** — `38` or `40`,
+  never a computed midpoint. Put it in the system prompt and test it.
+- **This is evidence the verifier is load-bearing.** The fetch-check answers
+  "does this number appear", not "does this page say this about this spring".
+  Dropping the verifier to save money would remove the only layer that catches
+  this. Do not.
+
+### Defect 3: no URL-level fallthrough
+
+TripAdvisor returned `source-not-found`. Four of the eight results were
+aggregators or booking sites — TripAdvisor, Viator, Facebook, Marriott — which
+commonly block crawlers.
+
+The pipeline falls through to the next *spring* when one fails, but takes only
+one URL per spring. It must try the next URL first: a spring is not
+unenrichable because the first result was TripAdvisor. Prefer official domains,
+and consider `--include-domains` to bias the search itself.
+
+### Re-priced, and the conclusion is not the obvious one
+
+Search is free, so only model calls cost. But the proposal call changes shape —
+it now reads a fetched excerpt instead of a spring name — so the estimate must
+be rebuilt, not adjusted. Measured against live gateway pricing, 492
+candidates:
+
+```
+$ 7.26   1.5x over   grok-4.6 (reasoning) + haiku-4.5
+$ 1.96   fits $5     grok-4.1-fast-non-reasoning + haiku-4.5
+$13.87   2.8x over   gpt-5.4 + haiku-4.5
+```
+
+**Reasoning tokens are the entire cost problem** — a 3.7x spread between the
+same vendor's reasoning and non-reasoning models. And the task no longer needs
+reasoning: once retrieval is done, the proposer reads supplied text and extracts
+values from it. Giving the model a search tool makes it need *less* intelligence,
+not more. Default to the non-reasoning model and let `--max-attempts` bound the
+rest.
+
+### Steps
+
+- [ ] **Step 1: `scripts/lib/search.mjs`** — one function wrapping
+      `tinyfish search query --pretty`, returning `[{title, url, snippet}]`.
+      Shell out with `execFile`, never string interpolation: the query contains
+      a spring name from the dataset, which is contributor-influenced text.
+      Throttle to 30/min. Missing CLI or missing auth must produce an
+      actionable error naming `npx @tiny-fish/cli auth login`, not a stack trace.
+
+- [ ] **Step 2: fix `valueAppears` for ranges** (defect 1). Test all four rows
+      above, then mutation-check by removing the range clause and confirming
+      the `38-40` row fails while the `-40` row still passes.
+
+- [ ] **Step 3: URL-level fallthrough in `attempt`** (defect 3). Try search
+      results in order until one fetches; record each failure with its existing
+      outcome. Cap the attempts per spring so a spring cannot consume the run.
+
+- [ ] **Step 4: rewrite the proposer prompt.** It receives fetched text and
+      must extract only values the text states **literally** (defect 2), citing
+      the URL that text came from. Returning nothing stays correct and expected.
+
+- [ ] **Step 5: 429 backoff in `gateway.mjs`.** The first run hit
+      `Free tier requests on this model are rate-limited`. Bounded exponential
+      backoff; exhausted retries end the run rather than writing a refutation —
+      a rate limit is a fact about the account, not the spring, and recording it
+      would poison the resume-skip.
+
+- [ ] **Step 6: default the config to the non-reasoning proposer.**
+
+- [ ] **Step 7: prove it on Gamla Laugin.**
+      `node scripts/enrich.mjs --country IS --limit 1 --max-attempts 2 --retry-refuted`
+      Then **open the cited URL and confirm the page states the value.** Until a
+      human has done that once, nothing here is known to work.
+
+### Tests
+
+Stubs cannot catch what this task fixes, so target the request and the seams:
+
+1. `valueAppears` accepts both endpoints of `38-40` and still rejects `-40`.
+2. A midpoint absent from the page is rejected.
+3. Search results are tried in order; the second is used when the first 404s.
+4. A spring whose every result is unfetchable produces no file and one
+   refutation per attempted URL.
+5. The proposer's prompt carries the fetched text; the verifier still gets no
+   search tool.
+6. A 429 retries and succeeds; exhausted retries end the run and write nothing.
+7. The search wrapper passes the query as an argument, not through a shell.
+
+### The lesson
+
+Eleven tasks, ten defects caught by review and mutation, 242 green tests — and
+the thing that stopped the pipeline working was invisible to all of them until
+one real call cost nine-tenths of a cent. Two of the three defects above were in
+code that had been reviewed, mutation-tested, and shipped; real data found them
+in minutes. **Make the first real call early. It is a test nothing else
+replaces.**
+---
+
+## Task 13: What the first working run found
+
+**Added 2026-09-02.** Task 12 succeeded: the proposer now finds real pages and
+extracts real values. Steps 1–6 are done and committed. **Step 7 remains
+unmet** — no claim has yet survived to become an overlay file — and this task
+is the four reasons why, all found by running it.
+
+### Retrieval works. This is the result Task 12 existed to produce.
+
+```
+springId  whs_c61dcaec4739   (Gamla Laugin)
+field     temperature.celsius   proposed "40"    source https://secretlagoon.is/
+field     access.price          proposed "3300"  source https://secretlagoon.is/
+```
+
+Both values are correct — the Secret Lagoon publishes 38-40 °C and 3300 ISK on
+its own site — and both were extracted from text the pipeline fetched itself,
+not recalled. The search → fetch → extract inversion is proven.
+
+Every claim was then refuted, none reached `data/overlay/`, and the four
+defects below are why.
+
+### Defect 1: proposed values are strings, and would fail validation anyway
+
+The proposer returns `"40"` and `"3300"`. `validateOverlay` requires a number:
+
+```
+validateOverlay(value: "40") -> ['temperature.celsius: must be a number between -5 and 130, got "40"']
+validateOverlay(value: 40)   -> []
+```
+
+So even a claim the verifier accepted would have been discarded as
+`overlay-rejected`. **Do not fix this by coercing in `enrich.mjs`.** A silent
+`Number(value)` would turn `"about 40"` into `40` and `""` into `0`, inventing
+precision the page never stated — the exact failure the literal-value rule
+exists to prevent. Constrain it in the proposal JSON schema, and reject a
+non-numeric value for a numeric field as a refutation with its own outcome.
+
+### Defect 2: the verifier refuses the range endpoint the prompt tells the proposer to claim
+
+```
+proposed 40 from a page reading "stays at 38-40 Celsius all year round"
+verdict  refuted: "indicating that the temperature is not 40 Celsius
+         specifically, but within that range"
+```
+
+The proposer prompt says *"if the page says 38-40 C you may claim 38 or 40"*.
+The verifier prompt says *"default to refuted when uncertain"*. A range endpoint
+is exactly the uncertain case, so the two instructions are in direct conflict
+and the pipeline cannot produce a temperature from a range — which is how hot
+spring temperatures are usually published.
+
+Decide which is right and make both prompts say it. If a range endpoint is a
+claimable fact, the verifier must be told so explicitly. If it is not, the
+proposer must stop claiming one and the atlas accepts that ranges are
+unclaimable until the schema can hold one.
+
+### Defect 3: a refutation whose reason argues the claim is correct
+
+```
+proposed access.price 3300 from https://secretlagoon.is/
+outcome  refuted-by-verifier
+reason   "The source provides information about Gamla Laugin, also known as
+          Secret Lagoon, and its pricing. Therefore, it states this value
+          about this spring."
+```
+
+The reason argues **for** the claim; the verdict refuted it. The model did not
+reliably produce the boolean, and `verdict?.refuted !== false` treats anything
+that is not exactly `false` as a refusal.
+
+That default is correct and must stay — failing closed is right when the
+question is whether to publish. But a malformed verdict is not a refutation,
+and recording it as one writes a false fact into a permanent log and poisons
+the resume-skip. Detect a non-boolean `refuted` and record it under its own
+outcome, so "the verifier refused" and "the verifier did not answer" stop being
+the same line.
+
+### Defect 4: the free tier restricts models, and nothing in the API says which
+
+```
+anthropic/claude-haiku-4.5     403 no_providers_available
+google/gemini-2.5-flash-lite   403 byok_requires_paid_credits
+google/gemini-3-flash          403 byok_requires_paid_credits
+openai/gpt-4.1-nano            allowed
+spacexai/*                     allowed, tightly rate-limited
+```
+
+The `/v1/models` metadata has **no tier or access field** — 364 models are
+listed, and only a real call reveals which of them the account may use. The
+plan's cost table priced `claude-haiku-4.5` as the verifier; the account cannot
+call it at all.
+
+Two consequences. The distinctness rule plus the free tier leaves exactly one
+usable vendor pair, **openai + xai**. And `gpt-4.1-nano` is the weakest model in
+the catalogue being asked to make the judgement the whole design rests on —
+defects 2 and 3 are both plausibly it being too small for the job.
+
+Before building around this, establish empirically which models the account can
+actually call, and record the list. A capability that cannot be discovered from
+the API must be discovered once and written down.
+
+### Also observed
+
+**The rate limit behaved correctly.** Exhausted retries ended the run with a
+message naming it as an account fact, and wrote **no refutations** — verified
+by inspecting the log afterwards. The design decision from Task 12 Step 5 held
+under real conditions.
+
+**The free-tier window is long.** Six retries over five minutes did not clear
+it. Diagnostic probing consumed the quota for the rest of the session, which is
+itself worth knowing: on this tier, debugging and running compete for the same
+budget.
+
+**One spring's first result was `sundlaugar.is/en/hot-springs/`** — a directory
+page listing many springs, from which the proposer correctly extracted nothing.
+The URL-level fallthrough moved on. Working as intended, and a good sign the
+"different subject" instruction is landing.
+
+### Steps
+
+- [ ] **Step 1: constrain the proposal schema to typed values**, and refuse a
+      non-numeric value for a numeric field with its own outcome. No coercion.
+- [ ] **Step 2: resolve the range conflict** between the two prompts, in
+      whichever direction you decide, and test a range page end to end.
+- [ ] **Step 3: separate a malformed verdict from a refusal**, with its own
+      outcome, keeping fail-closed behaviour.
+- [ ] **Step 4: probe and record which models the account can call**, since the
+      API will not say. Re-price against that list rather than the full catalogue.
+- [x] **Step 5: re-run Gamla Laugin.** Done 2026-09-02. Steps 1–3 all worked;
+      no claim reached `data/overlay/`, and the reason is Task 14.
+
+### Step 5 result: the fixes landed, and the verifier is now the whole problem
+
+Steps 1–3 are confirmed in production. Values arrive **typed** — `proposed: 4500`
+and `proposed: 38`, not `"4500"` and `"38"` — so Step 1 is proven. The proposer
+extracted three fields from `secretlagoon.is` where it previously extracted
+none.
+
+Every one was refuted, and the verdicts are not judgements. Verbatim from the
+log, all four from `openai/gpt-4.1-nano`:
+
+```
+access.price 4500  -> refuted
+  "The claim matches this value, so it supports the claim."
+
+access.currency "kr" -> refuted
+  "The source states that the pool stays at 38-40 Celsius all year round..."
+
+temperature.celsius 38 -> refuted
+  "The claim of exactly 38 C as a fixed value is not supported, as the
+   temperature range includes values above and below 38 C."
+
+access.price 4500 -> refuted
+  "...refuting 39 Celsius is correct, but the claim of 38 Celsius is supported by
+```
+
+Four distinct failures in four calls. It refutes while reasoning the claim is
+**supported**. It answers about *temperature* when asked about *currency*. It
+still rejects a range endpoint **after** Step 2 explicitly permitted it. And the
+last reason is truncated mid-sentence.
+
+**Step 2's prompt fix did not fail — the model failed to follow it.** No prompt
+change reaches a model that confuses which field it was asked about.
+
+`gpt-4.1-nano` is the only verifier this account may call, and it is not
+competent to make the judgement the entire design rests on. That is not a
+tuning problem.
+
+---
+
+## Task 14: the free tier cannot run this, and the reason is not cost
+
+**Established 2026-09-02 by running it.** Three separate free-tier limits, in
+increasing order of how fundamental they are:
+
+**Cost is not the problem.** A full 492-candidate run prices at **$1.96**
+against a $5 monthly credit. There is headroom.
+
+**Rate limits are a serious problem.** Each model has its own window. A single
+two-spring run exhausts it, and it did not clear across a nine-minute wait.
+Diagnostic probing and real runs draw on the same quota, so debugging the
+pipeline makes it unrunnable. A 492-candidate run at this throughput is not
+weeks away — it is arithmetically impossible.
+
+**Model access is the fundamental problem.** The free tier admits only
+`openai/*` and `spacexai/*`; `anthropic/*` and `google/*` both 403, and nothing
+in `/v1/models` says so — 364 models are listed with no tier field. With the
+proposer/verifier distinctness rule that leaves exactly one usable pair, and it
+puts the catalogue's smallest model in the verifier seat.
+
+**The recommendation is to buy credits, and it is a small number.** Adding paid
+credits removes the rate limit and unlocks `anthropic/claude-haiku-4.5` as the
+verifier — the model the cost table was built around. The full run then costs
+**$1.96**. Ten dollars covers the run several times over with the rate limit
+gone.
+
+Do not respond by weakening the verifier's role. It is the only layer that
+catches a claim whose number appears on the page for an unrelated reason — the
+`WhatsApp +354 777 39 35` case — and this run is evidence of what a pipeline
+looks like when the verifier cannot do its job. Make it competent rather than
+optional.
+
+- [ ] **Step 1: add paid credits**, and confirm `anthropic/claude-haiku-4.5`
+      answers.
+- [ ] **Step 2: set the verifier to a competent model** in
+      `enrichment.config.example.json` and locally.
+- [ ] **Step 3: re-run Gamla Laugin.** A claim must reach `data/overlay/`.
+- [ ] **Step 4: open the cited URL by hand** and confirm the page states the
+      claimed value. Nothing here is known to work until a human has.
+- [ ] **Step 5: only then, widen** — `--country IS` without `--max-attempts`,
+      then a real batch with `--max-attempts` sized to the budget.
+
+### The lesson, again and more cheaply than last time
+
+Task 12's lesson was *make the first real call early*. This run is the sequel:
+**the first call that succeeds teaches more than the first call that fails.**
+The 403 taught us the tier restricts models. The 429 proved the backoff. And
+the two refutations — a pedantic one and an incoherent one — are worth more
+than any number of stub-provider assertions, because no stub would have
+produced a verdict whose reason contradicts its own boolean.
+---
+
 ## Done when
 
 - `npm test` passes, including all new suites
@@ -1976,6 +2640,12 @@ earlier version of this list stopped at the dry run, which would have let the
 phase be declared complete having produced nothing — while the stated Goal is
 to produce the atlas's first authored claims, and the spec's whole premise is
 that none exist.
+
+**As of 2026-09-02 every bullet passes except the last, and the last is
+blocked by Task 12.** Tasks 0–11 are done; the pipeline runs, spends, records,
+and resumes correctly. It cannot yet produce a claim, because the proposer has
+no retrieval. Writing the bullet this way was worth it: a list that stopped at
+"the tests pass" would be reporting success right now.
 
 ## Not a success metric
 

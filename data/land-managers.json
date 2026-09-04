@@ -1,0 +1,12 @@
+[
+  {
+    "id": "us-nps-yellowstone",
+    "name": "Yellowstone National Park",
+    "manager": "US National Park Service",
+    "bbox": [-111.156, 44.132, -109.816, 45.102],
+    "access": { "status": "view-only", "bathingAllowed": false },
+    "warning": "Entering or soaking in thermal features is prohibited in Yellowstone National Park. The water can be near boiling and has caused fatal injuries. View from boardwalks and marked trails only.",
+    "source": "https://www.nps.gov/yell/planyourvisit/safety.htm",
+    "retrievedAt": "2026-09-03"
+  }
+]

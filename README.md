@@ -8,7 +8,7 @@ survey, forum posts, and OpenStreetMap tags that nobody has ever normalised.
 This repository is an attempt to fix that, in public, with the provenance
 attached.
 
-**6,470 springs across 129 countries** in the current build.
+**6,471 springs across 129 countries** in the current build.
 
 ## What makes this different
 

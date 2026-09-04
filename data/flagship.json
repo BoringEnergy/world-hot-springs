@@ -1,0 +1,1139 @@
+[
+  {
+    "country": "AD",
+    "candidates": [
+      "whs_6165f9bee91b"
+    ]
+  },
+  {
+    "country": "AE",
+    "candidates": [
+      "whs_ae8a7730dd1b"
+    ]
+  },
+  {
+    "country": "AF",
+    "candidates": [
+      "whs_cde071130066",
+      "whs_2d59603a9e15",
+      "whs_4a0af67854c7",
+      "whs_5eafafa5126d",
+      "whs_683c479d4518"
+    ]
+  },
+  {
+    "country": "AL",
+    "candidates": [
+      "whs_786202ee8daa",
+      "whs_9c8c9df114e6",
+      "whs_ae0c9a29893c",
+      "whs_fab0f437bd41",
+      "whs_3bf886bf1c06"
+    ]
+  },
+  {
+    "country": "AM",
+    "candidates": [
+      "whs_0e61bf942473",
+      "whs_245c2508fe26",
+      "whs_5f4d8e27d2c8",
+      "whs_046333e5c991",
+      "whs_60daa5cdce08"
+    ]
+  },
+  {
+    "country": "AO",
+    "candidates": [
+      "whs_43bfccdc7ecd",
+      "whs_054270f15efe",
+      "whs_07b625e67638",
+      "whs_1e062b43dec5",
+      "whs_7730b077c2dd"
+    ]
+  },
+  {
+    "country": "AR",
+    "candidates": [
+      "whs_0f38c6b39d13",
+      "whs_288cb2ed312e",
+      "whs_6871ba98a34f",
+      "whs_93e97e07f44b",
+      "whs_02c06fbefa46"
+    ]
+  },
+  {
+    "country": "AT",
+    "candidates": [
+      "whs_0b255be95b7a",
+      "whs_7ac5ca7efa7a",
+      "whs_9a416154253e",
+      "whs_c3bb4b03a9f4",
+      "whs_cb5848871503"
+    ]
+  },
+  {
+    "country": "AU",
+    "candidates": [
+      "whs_0b129a4fe649",
+      "whs_12f12393e457",
+      "whs_507689c98a0f",
+      "whs_68b620b3e9c7",
+      "whs_a223beb83640"
+    ]
+  },
+  {
+    "country": "AZ",
+    "candidates": [
+      "whs_ce4cd2903e77",
+      "whs_035001d2824c",
+      "whs_09461ee9614b",
+      "whs_243d708128c0",
+      "whs_672443bf9bbe"
+    ]
+  },
+  {
+    "country": "BA",
+    "candidates": [
+      "whs_ae282953bd5d",
+      "whs_e26cdfa86930",
+      "whs_4e3feee6e497",
+      "whs_84b3229fbc02"
+    ]
+  },
+  {
+    "country": "BE",
+    "candidates": [
+      "whs_b2fa0daab4df",
+      "whs_95d670acc99d"
+    ]
+  },
+  {
+    "country": "BG",
+    "candidates": [
+      "whs_46baa1ea7373",
+      "whs_1a166a5b7b15",
+      "whs_44441eabe0ef",
+      "whs_49b1c140d011",
+      "whs_5e4b522a4f1e"
+    ]
+  },
+  {
+    "country": "BJ",
+    "candidates": [
+      "whs_3b8c720ebd83"
+    ]
+  },
+  {
+    "country": "BO",
+    "candidates": [
+      "whs_25a61e0a7edb",
+      "whs_2d8be1b82485",
+      "whs_0b36a6001224",
+      "whs_77d9e0a18205",
+      "whs_78c379cb7cd3"
+    ]
+  },
+  {
+    "country": "BR",
+    "candidates": [
+      "whs_2e84822fe59f",
+      "whs_74d52ace94f5",
+      "whs_9ef7f713f516",
+      "whs_55a11ab9dfb4",
+      "whs_0dae000d3b7c"
+    ]
+  },
+  {
+    "country": "BT",
+    "candidates": [
+      "whs_0738ae49e146",
+      "whs_2596090e461d",
+      "whs_8522be9f8a30",
+      "whs_86882a05bd4e",
+      "whs_8fff22c6f65e"
+    ]
+  },
+  {
+    "country": "BW",
+    "candidates": [
+      "whs_72d45e02a9aa"
+    ]
+  },
+  {
+    "country": "BY",
+    "candidates": [
+      "whs_3e4972051b08",
+      "whs_780918973a11"
+    ]
+  },
+  {
+    "country": "BZ",
+    "candidates": [
+      "whs_d815901d2cfb"
+    ]
+  },
+  {
+    "country": "CA",
+    "candidates": [
+      "whs_3505fa25d63f",
+      "whs_83cade21d267",
+      "whs_10d4a639e2ab",
+      "whs_291efeecb24e",
+      "whs_7d9b6b2a84de"
+    ]
+  },
+  {
+    "country": "CD",
+    "candidates": [
+      "whs_667f693f2707"
+    ]
+  },
+  {
+    "country": "CH",
+    "candidates": [
+      "whs_0ff13ddceca0",
+      "whs_248ad2e204a8",
+      "whs_3e8534a26f44",
+      "whs_55c9ca3746da",
+      "whs_5df1d0dbcfa3"
+    ]
+  },
+  {
+    "country": "CL",
+    "candidates": [
+      "whs_32444eb7c926",
+      "whs_9683f8e05980",
+      "whs_208cd787b432",
+      "whs_2a77fb4ff7fc",
+      "whs_9ce353771924"
+    ]
+  },
+  {
+    "country": "CN",
+    "candidates": [
+      "whs_45cf592d5136",
+      "whs_112da0ad84a2",
+      "whs_2a00f2b5f827",
+      "whs_2eb62fe59e9c",
+      "whs_887281d27a85"
+    ]
+  },
+  {
+    "country": "CO",
+    "candidates": [
+      "whs_253d3a5f4aa4",
+      "whs_3fdceada71d2",
+      "whs_7fe393665b0c",
+      "whs_e18812027b72",
+      "whs_038daddc263e"
+    ]
+  },
+  {
+    "country": "CR",
+    "candidates": [
+      "whs_1a63b849b1b2",
+      "whs_93d5c38e96eb",
+      "whs_080e6522da26",
+      "whs_236ff9363e3b",
+      "whs_5030b8a8c60c"
+    ]
+  },
+  {
+    "country": "CU",
+    "candidates": [
+      "whs_097b54da2d76",
+      "whs_31ec28ce2439",
+      "whs_8e562c70d347",
+      "whs_c1836699a171",
+      "whs_43ceb220b15b"
+    ]
+  },
+  {
+    "country": "CZ",
+    "candidates": [
+      "whs_391ece1d8918",
+      "whs_c561dbee3d9b"
+    ]
+  },
+  {
+    "country": "DE",
+    "candidates": [
+      "whs_42a67d307bba",
+      "whs_9e3d057a514b",
+      "whs_efc2d25aae0b",
+      "whs_016832590c18",
+      "whs_02fa213540db"
+    ]
+  },
+  {
+    "country": "DJ",
+    "candidates": [
+      "whs_027e068bbae2"
+    ]
+  },
+  {
+    "country": "DM",
+    "candidates": [
+      "whs_0977cec86189",
+      "whs_1e07c650d969",
+      "whs_70cd2086195a",
+      "whs_8a890d4b8bbc",
+      "whs_e36e655b3f21"
+    ]
+  },
+  {
+    "country": "DO",
+    "candidates": [
+      "whs_14e99973491c",
+      "whs_2f2de1a02d19",
+      "whs_4fabee5a34e0",
+      "whs_56351fc5592c",
+      "whs_fbfc2950afc6"
+    ]
+  },
+  {
+    "country": "DZ",
+    "candidates": [
+      "whs_f18b7fd8741c",
+      "whs_1bcf5020cebe",
+      "whs_487fc53ff73f",
+      "whs_5a3a927887dc",
+      "whs_6541d1a0e4ad"
+    ]
+  },
+  {
+    "country": "EC",
+    "candidates": [
+      "whs_475621c6035d",
+      "whs_078c7528a2df",
+      "whs_373379a53ee0",
+      "whs_5115bf0c42e3",
+      "whs_512684a588f1"
+    ]
+  },
+  {
+    "country": "EG",
+    "candidates": [
+      "whs_05f6ac9c3a55",
+      "whs_099985297172",
+      "whs_0a85bc7dac7c",
+      "whs_252098e5b5b9",
+      "whs_29093e6306de"
+    ]
+  },
+  {
+    "country": "ES",
+    "candidates": [
+      "whs_2ced2a83efce",
+      "whs_64929be6eab7",
+      "whs_02b2832db792",
+      "whs_2760e1b06520",
+      "whs_3bc374321346"
+    ]
+  },
+  {
+    "country": "ET",
+    "candidates": [
+      "whs_1e9242d92cc6",
+      "whs_4d5f890231c8",
+      "whs_65273e5b55e2",
+      "whs_0d003f0cf58a",
+      "whs_38ccd35ef157"
+    ]
+  },
+  {
+    "country": "FI",
+    "candidates": [
+      "whs_37b80d2945d8"
+    ]
+  },
+  {
+    "country": "FJ",
+    "candidates": [
+      "whs_64d3caa4ed1b"
+    ]
+  },
+  {
+    "country": "FR",
+    "candidates": [
+      "whs_149b521c851a",
+      "whs_202dda3ca500",
+      "whs_473a446d7283",
+      "whs_49a75f328fc5",
+      "whs_545a24fb3c04"
+    ]
+  },
+  {
+    "country": "GB",
+    "candidates": [
+      "whs_87e88813a6a8",
+      "whs_8de6b8413b35",
+      "whs_0724f840735c"
+    ]
+  },
+  {
+    "country": "GE",
+    "candidates": [
+      "whs_1bca1b6cf584",
+      "whs_21fe5394b128",
+      "whs_5b7d08050ffc",
+      "whs_61e3aed24c6e",
+      "whs_b2c631fa0c4d"
+    ]
+  },
+  {
+    "country": "GL",
+    "candidates": [
+      "whs_b52488dac506",
+      "whs_67781acfb808",
+      "whs_6db379adc8ba"
+    ]
+  },
+  {
+    "country": "GN",
+    "candidates": [
+      "whs_5b5a6653426b",
+      "whs_bf672b0e4445",
+      "whs_6b617ad740be"
+    ]
+  },
+  {
+    "country": "GR",
+    "candidates": [
+      "whs_247d667ebb49",
+      "whs_3ffe94030fee",
+      "whs_7e919e09aff2",
+      "whs_4f97aa294799",
+      "whs_7423900d9910"
+    ]
+  },
+  {
+    "country": "GT",
+    "candidates": [
+      "whs_5d3447fd051c",
+      "whs_dcb5879e57e1",
+      "whs_79750d4dce9e"
+    ]
+  },
+  {
+    "country": "HK",
+    "candidates": [
+      "whs_01e0087d078a"
+    ]
+  },
+  {
+    "country": "HN",
+    "candidates": [
+      "whs_8541d09cf0bb",
+      "whs_c6b82f573246",
+      "whs_4b23906ffe67",
+      "whs_dd57e7313332"
+    ]
+  },
+  {
+    "country": "HR",
+    "candidates": [
+      "whs_b46c5d8168b7",
+      "whs_dffeeb00c9c9",
+      "whs_00458bbdd775",
+      "whs_dde351521670",
+      "whs_4e36320b5e37"
+    ]
+  },
+  {
+    "country": "HU",
+    "candidates": [
+      "whs_132ac0a23531",
+      "whs_2534d5cc1434",
+      "whs_350198fa07d9",
+      "whs_3b4caf33278b",
+      "whs_57f5243c746e"
+    ]
+  },
+  {
+    "country": "ID",
+    "candidates": [
+      "whs_0d36a992323e",
+      "whs_6460a5166bd9",
+      "whs_ab8f40b76953",
+      "whs_cce8bf882013",
+      "whs_007e14343241"
+    ]
+  },
+  {
+    "country": "IE",
+    "candidates": [
+      "whs_30666c51ad09"
+    ]
+  },
+  {
+    "country": "IL",
+    "candidates": [
+      "whs_2f82cf55dfae",
+      "whs_3ede9bc0d01b",
+      "whs_489749c41c8e",
+      "whs_15575dfaeb61",
+      "whs_5fe883ebd008"
+    ]
+  },
+  {
+    "country": "IN",
+    "candidates": [
+      "whs_71329ad92e0d",
+      "whs_9b80a2af54a6",
+      "whs_eb6018d000ac",
+      "whs_5d4a3ae7fb5f",
+      "whs_fcd929b45b95"
+    ]
+  },
+  {
+    "country": "IQ",
+    "candidates": [
+      "whs_8013492954b5",
+      "whs_9ffecf7aa0b6",
+      "whs_eb8a795dc99e",
+      "whs_0fe4d41fe306",
+      "whs_2734cd28f217"
+    ]
+  },
+  {
+    "country": "IR",
+    "candidates": [
+      "whs_16da63401303",
+      "whs_290187876cdd",
+      "whs_709718b48a08",
+      "whs_b7d81e032a10",
+      "whs_c666ae8fab2e"
+    ]
+  },
+  {
+    "country": "IS",
+    "candidates": [
+      "whs_0ea024a2462a",
+      "whs_c61dcaec4739",
+      "whs_32f3262e9ff3",
+      "whs_44f570741343",
+      "whs_4c92d770a762"
+    ]
+  },
+  {
+    "country": "IT",
+    "candidates": [
+      "whs_3fe6d7d0a323",
+      "whs_ccdbc1726a84",
+      "whs_2921aeb4d786",
+      "whs_2cfbd4426065",
+      "whs_307fa01d804c"
+    ]
+  },
+  {
+    "country": "JO",
+    "candidates": [
+      "whs_12d639dc0571",
+      "whs_b220296f900b",
+      "whs_b9311e9395c2"
+    ]
+  },
+  {
+    "country": "JP",
+    "candidates": [
+      "whs_00f956779701",
+      "whs_020eef2975c3",
+      "whs_0312fd7a2848",
+      "whs_06fd369905d1",
+      "whs_0c0772f1323b"
+    ]
+  },
+  {
+    "country": "KE",
+    "candidates": [
+      "whs_0df556de0bd3",
+      "whs_1e59ec19f26b",
+      "whs_4003b02ec6e4"
+    ]
+  },
+  {
+    "country": "KG",
+    "candidates": [
+      "whs_2669315e06ac",
+      "whs_668626285d38",
+      "whs_bd6b97217c9e",
+      "whs_10caedc9a580",
+      "whs_23af8b9cd377"
+    ]
+  },
+  {
+    "country": "KH",
+    "candidates": [
+      "whs_1ba2ee1b6a7d",
+      "whs_ed4a680ae982"
+    ]
+  },
+  {
+    "country": "KI",
+    "candidates": [
+      "whs_52406f4033a9",
+      "whs_e8137cd8c9a5",
+      "whs_b0abdd51f546"
+    ]
+  },
+  {
+    "country": "KP",
+    "candidates": [
+      "whs_9ffab7d9cc33",
+      "whs_dc4730c6cd1a"
+    ]
+  },
+  {
+    "country": "KR",
+    "candidates": [
+      "whs_55df10ad0ae0",
+      "whs_df9259180fcf",
+      "whs_169824187943",
+      "whs_44d62e6b0de1",
+      "whs_69268c7b5279"
+    ]
+  },
+  {
+    "country": "KW",
+    "candidates": [
+      "whs_450828aa3e2f",
+      "whs_d3cb1935b293",
+      "whs_cce9a5e56df3"
+    ]
+  },
+  {
+    "country": "KZ",
+    "candidates": [
+      "whs_880d34886796",
+      "whs_bfb74c87f473",
+      "whs_cd0c08137b93",
+      "whs_0f86ffa3a30d",
+      "whs_2584ab16d23e"
+    ]
+  },
+  {
+    "country": "LA",
+    "candidates": [
+      "whs_c1610238ec74",
+      "whs_ee1fa89c4c00",
+      "whs_f06225e2c2f5",
+      "whs_0817bf5b69a8",
+      "whs_09163b64cd54"
+    ]
+  },
+  {
+    "country": "LB",
+    "candidates": [
+      "whs_2b3b0e4b5fc0",
+      "whs_5efa0c24b3ad",
+      "whs_a0eeaa050037",
+      "whs_e16b90f0b84a",
+      "whs_2a3f2d13dd6f"
+    ]
+  },
+  {
+    "country": "LK",
+    "candidates": [
+      "whs_b61e4fc55676"
+    ]
+  },
+  {
+    "country": "LT",
+    "candidates": [
+      "whs_1e530940fef4"
+    ]
+  },
+  {
+    "country": "LU",
+    "candidates": [
+      "whs_634cf0d96a04",
+      "whs_94edeb649201"
+    ]
+  },
+  {
+    "country": "LY",
+    "candidates": [
+      "whs_8dcef4e160d1",
+      "whs_0e8e3023c306"
+    ]
+  },
+  {
+    "country": "MA",
+    "candidates": [
+      "whs_f4ee74de0a74",
+      "whs_015d095e861a",
+      "whs_0190bbf08406",
+      "whs_04735349c5e3",
+      "whs_049a4859bb76"
+    ]
+  },
+  {
+    "country": "MD",
+    "candidates": [
+      "whs_4b03721a1bc0"
+    ]
+  },
+  {
+    "country": "MK",
+    "candidates": [
+      "whs_1088aa711cd8",
+      "whs_38ffaeb8a0e5",
+      "whs_5ae4239ad23b",
+      "whs_1ac09cabff8b",
+      "whs_4b60f29b3ca9"
+    ]
+  },
+  {
+    "country": "MM",
+    "candidates": [
+      "whs_13085a088541",
+      "whs_2699baabc941",
+      "whs_5197bad74bde",
+      "whs_bb2e14b19eb7",
+      "whs_c6d808777b17"
+    ]
+  },
+  {
+    "country": "MN",
+    "candidates": [
+      "whs_b67def484b4b",
+      "whs_2f3938056ce2",
+      "whs_652c756b90b2",
+      "whs_c4aa45227b3f"
+    ]
+  },
+  {
+    "country": "MR",
+    "candidates": [
+      "whs_226a1e8b1bf2",
+      "whs_2c6bb0f14556",
+      "whs_6d7c1cee28c4",
+      "whs_8b44a6370934",
+      "whs_995a67523941"
+    ]
+  },
+  {
+    "country": "MX",
+    "candidates": [
+      "whs_32b972bd5689",
+      "whs_669734228c42",
+      "whs_39bb9ece14d5",
+      "whs_583c6b5d2d18",
+      "whs_cf4e4349e217"
+    ]
+  },
+  {
+    "country": "MY",
+    "candidates": [
+      "whs_f0280dcfbb87",
+      "whs_0205b5d7c767",
+      "whs_3aca445f7ee9",
+      "whs_3d368a419321",
+      "whs_552ecc029b6a"
+    ]
+  },
+  {
+    "country": "MZ",
+    "candidates": [
+      "whs_e6a54027dc25"
+    ]
+  },
+  {
+    "country": "NA",
+    "candidates": [
+      "whs_ce3174f531d2",
+      "whs_ea5ee36392ee"
+    ]
+  },
+  {
+    "country": "NC",
+    "candidates": [
+      "whs_049efbe3d9ac",
+      "whs_9ac66d0bf7b5",
+      "whs_f36dbd9adcfd"
+    ]
+  },
+  {
+    "country": "NL",
+    "candidates": [
+      "whs_4e7fc625eb50",
+      "whs_0962a2309d6c",
+      "whs_d6209fd9957e",
+      "whs_fd47761694f6"
+    ]
+  },
+  {
+    "country": "NP",
+    "candidates": [
+      "whs_7c70de154f4d",
+      "whs_9cbfc28e4606",
+      "whs_34afdf570fe1",
+      "whs_3e29b8e3a604",
+      "whs_54feb6dc41fc"
+    ]
+  },
+  {
+    "country": "NZ",
+    "candidates": [
+      "whs_caafd55edf02",
+      "whs_075344d17e78",
+      "whs_23211b843783",
+      "whs_3574be7297c6",
+      "whs_48546a41c57e"
+    ]
+  },
+  {
+    "country": "OM",
+    "candidates": [
+      "whs_183d13ec8b37",
+      "whs_1c60ec25d7c0",
+      "whs_ebbcf3064498",
+      "whs_1a76bb83c331",
+      "whs_235f4eea910d"
+    ]
+  },
+  {
+    "country": "PA",
+    "candidates": [
+      "whs_7994fef82414",
+      "whs_aac82d59a9e2",
+      "whs_b04c6eb3de46",
+      "whs_ef157d0bf184"
+    ]
+  },
+  {
+    "country": "PE",
+    "candidates": [
+      "whs_3a7674d78804",
+      "whs_85f2983c4a66",
+      "whs_e959306c9748",
+      "whs_0cb89ecf4bd2",
+      "whs_196a14b5cc52"
+    ]
+  },
+  {
+    "country": "PG",
+    "candidates": [
+      "whs_46eb24d5c42e",
+      "whs_e4bf1159b457"
+    ]
+  },
+  {
+    "country": "PH",
+    "candidates": [
+      "whs_374a5426d981",
+      "whs_9e50b9fe393e",
+      "whs_04694b39fa55",
+      "whs_1cbd939b0d8f",
+      "whs_2f18ad75aa66"
+    ]
+  },
+  {
+    "country": "PK",
+    "candidates": [
+      "whs_6ad91c455efc"
+    ]
+  },
+  {
+    "country": "PL",
+    "candidates": [
+      "whs_108e95e3d210",
+      "whs_ad71bc58e80e",
+      "whs_81fce7bd7b89",
+      "whs_01fa4a194376",
+      "whs_7032801c0031"
+    ]
+  },
+  {
+    "country": "PS",
+    "candidates": [
+      "whs_05f38bd3a416",
+      "whs_07a6e46f490b",
+      "whs_0d5653618097",
+      "whs_0feaceeddf97",
+      "whs_169146bd0ec3"
+    ]
+  },
+  {
+    "country": "PT",
+    "candidates": [
+      "whs_1dcfcb3a56d1",
+      "whs_04ac01d02fea",
+      "whs_10fc3468a2ea",
+      "whs_2958010caa28",
+      "whs_2dcdfa41130c"
+    ]
+  },
+  {
+    "country": "PY",
+    "candidates": [
+      "whs_7595f9b8c78a",
+      "whs_90cbcc4925ff"
+    ]
+  },
+  {
+    "country": "RO",
+    "candidates": [
+      "whs_9fa0cedd7379",
+      "whs_3383549e7d98",
+      "whs_4ccd8739dcc7",
+      "whs_7037ae8272de",
+      "whs_708fabafdee3"
+    ]
+  },
+  {
+    "country": "RS",
+    "candidates": [
+      "whs_0b41f55848df",
+      "whs_2a5f17d1c889",
+      "whs_c26ef295444e",
+      "whs_22bb281ff7ed",
+      "whs_3c83ba597cd1"
+    ]
+  },
+  {
+    "country": "RU",
+    "candidates": [
+      "whs_e4687c2c1a58",
+      "whs_28eecb96a96d",
+      "whs_2fd5bfeb23e7",
+      "whs_3ebb3c56a75d",
+      "whs_520352d7fd13"
+    ]
+  },
+  {
+    "country": "SA",
+    "candidates": [
+      "whs_3b0b35d81dab",
+      "whs_1ce809539177",
+      "whs_1de3ff237895",
+      "whs_231002a6eee3",
+      "whs_5a33206c88a7"
+    ]
+  },
+  {
+    "country": "SC",
+    "candidates": [
+      "whs_e9a972f7d84a"
+    ]
+  },
+  {
+    "country": "SD",
+    "candidates": [
+      "whs_30cceae68e27",
+      "whs_4e50f6f22975",
+      "whs_658d860a4c29",
+      "whs_7adf2f1294fd",
+      "whs_8f5dcd27df96"
+    ]
+  },
+  {
+    "country": "SG",
+    "candidates": [
+      "whs_a1469590e528"
+    ]
+  },
+  {
+    "country": "SI",
+    "candidates": [
+      "whs_5a429cf5cfa6",
+      "whs_b81d60a0c092",
+      "whs_4000d11d6862",
+      "whs_5d42d400721d",
+      "whs_7a663bf4f69b"
+    ]
+  },
+  {
+    "country": "SK",
+    "candidates": [
+      "whs_10e8e9e3317a",
+      "whs_4947187a2439",
+      "whs_578602719601",
+      "whs_bcabdaf062a2",
+      "whs_c890e6881972"
+    ]
+  },
+  {
+    "country": "SV",
+    "candidates": [
+      "whs_1cd23ae61100",
+      "whs_4228656de485",
+      "whs_818e1206f6eb",
+      "whs_b618082c61d2",
+      "whs_e67d5c21a616"
+    ]
+  },
+  {
+    "country": "TD",
+    "candidates": [
+      "whs_91d1fde0be1b",
+      "whs_e7d84eb2a72f"
+    ]
+  },
+  {
+    "country": "TF",
+    "candidates": [
+      "whs_7dcf0fb02915"
+    ]
+  },
+  {
+    "country": "TH",
+    "candidates": [
+      "whs_653cefb5ea36",
+      "whs_d5d96bc58020",
+      "whs_dffff05da5ca",
+      "whs_5e1d1633d4b4",
+      "whs_89b9e2a7a864"
+    ]
+  },
+  {
+    "country": "TJ",
+    "candidates": [
+      "whs_e7f4a5c2caaa",
+      "whs_00939bed856d",
+      "whs_14eac2dc2dba",
+      "whs_2394ef93d579",
+      "whs_2c65497b3db9"
+    ]
+  },
+  {
+    "country": "TL",
+    "candidates": [
+      "whs_c5bb874c538f"
+    ]
+  },
+  {
+    "country": "TN",
+    "candidates": [
+      "whs_5c4d7a12d9ad",
+      "whs_7dd5022a5a68",
+      "whs_ad14d473d737",
+      "whs_c82c4837de92",
+      "whs_08c94c106b48"
+    ]
+  },
+  {
+    "country": "TR",
+    "candidates": [
+      "whs_0be135138b01",
+      "whs_1548830c1404",
+      "whs_178c263e96cb",
+      "whs_1f48f075e35e",
+      "whs_2117676144df"
+    ]
+  },
+  {
+    "country": "TW",
+    "candidates": [
+      "whs_475ba75e3f0a",
+      "whs_9beb1f388b6b",
+      "whs_e928c68a830e",
+      "whs_2048be8662ce",
+      "whs_43f31808b033"
+    ]
+  },
+  {
+    "country": "TZ",
+    "candidates": [
+      "whs_acdf20eff6ca",
+      "whs_b887efd8d147",
+      "whs_c6801d5f443c"
+    ]
+  },
+  {
+    "country": "UA",
+    "candidates": [
+      "whs_043be39727b9",
+      "whs_07e6f5863bb5",
+      "whs_10aa3341d7d2",
+      "whs_2ed58f75de75",
+      "whs_5a8172400911"
+    ]
+  },
+  {
+    "country": "UG",
+    "candidates": [
+      "whs_3ffa9ec7244d",
+      "whs_a8029a69bd30"
+    ]
+  },
+  {
+    "country": "US",
+    "candidates": [
+      "whs_5e1f265b1c37",
+      "whs_6c4b7eed5b1a",
+      "whs_064d9c4ff93d",
+      "whs_1acedabedc5c",
+      "whs_2a0a55a39df1"
+    ]
+  },
+  {
+    "country": "UY",
+    "candidates": [
+      "whs_192df1255502",
+      "whs_ff0c4590589b"
+    ]
+  },
+  {
+    "country": "UZ",
+    "candidates": [
+      "whs_18c5afd1515a",
+      "whs_37ec6f7eb284",
+      "whs_3d043b5a2774",
+      "whs_600122593eb7",
+      "whs_6e64ee6a665b"
+    ]
+  },
+  {
+    "country": "VE",
+    "candidates": [
+      "whs_0c3291a5aac1",
+      "whs_8b69ee3da549",
+      "whs_9c369a01d3ac",
+      "whs_d18577e2726c",
+      "whs_dd9a78a0eed9"
+    ]
+  },
+  {
+    "country": "VN",
+    "candidates": [
+      "whs_9995226733eb",
+      "whs_11947c31c7d1",
+      "whs_13e79b5c70b6",
+      "whs_4e58817054ff",
+      "whs_536b65070045"
+    ]
+  },
+  {
+    "country": "XK",
+    "candidates": [
+      "whs_85d93d3f5544"
+    ]
+  },
+  {
+    "country": "YE",
+    "candidates": [
+      "whs_fa1f153c45bf",
+      "whs_27c2e081cba7",
+      "whs_3cb72a12563a",
+      "whs_6eb908da506c",
+      "whs_9626d731715f"
+    ]
+  },
+  {
+    "country": "ZA",
+    "candidates": [
+      "whs_985e5b71af64",
+      "whs_c42aa585bc1d"
+    ]
+  },
+  {
+    "country": "ZM",
+    "candidates": [
+      "whs_3352db081dda",
+      "whs_a807a2818606",
+      "whs_bc13fdd88e48"
+    ]
+  }
+]

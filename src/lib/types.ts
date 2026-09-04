@@ -53,6 +53,22 @@ export interface HotSpring {
     /** ISO 4217 when the price is a known amount in a known currency. */
     currency: string | null;
     notes: string | null;
+    /**
+     * What the agency that manages the land permits. Set by the land-manager
+     * stage of the build from data/land-managers.json, never from OSM tags:
+     * `access=yes` on a Yellowstone geyser means the ground is walkable, not
+     * that the water is.
+     */
+    status: AccessStatus;
+    /**
+     * Whether entering the water is permitted. `false` is a prohibition the
+     * UI must state before anything else; `null` is genuinely unknown and
+     * says nothing either way. Mandatory rather than optional so no call site
+     * can reach it through an optional chain that quietly yields undefined —
+     * `spring.access.bathingAllowed === false` is the only test that matters
+     * and it must not be defeated by a missing field.
+     */
+    bathingAllowed: boolean | null;
   };
   clothing: {
     policy: ClothingPolicy;
@@ -87,13 +103,36 @@ export interface HotSpring {
   quality: DataQuality;
 }
 
+export type AccessStatus = 'public' | 'permit' | 'view-only' | 'closed' | 'unknown';
 export type ClothingPolicy = 'optional' | 'required' | 'textile-only' | 'mixed' | 'unknown';
 export type HoursStatus = 'open' | 'seasonal' | 'closed' | 'unknown';
 export type SpringType = 'natural' | 'developed' | 'resort' | 'wild' | 'unknown';
 
+/**
+ * A data source a record can be built from.
+ *
+ * One member, because there is one normaliser. This is the same vocabulary
+ * `scripts/lib/identity.mjs` established for the registry's `sourceRefs`
+ * (`OSM_PROVIDER`), restated here rather than extended: a second, longer list
+ * of providers nothing produces is exactly the divergence that `access.price`
+ * and the `osmRefs` projection each had to be taught the hard way. A closed
+ * union is also the only thing that will make `tsc` object if a provider is
+ * added on one side of that seam and not the other.
+ */
+export type SourceProvider = 'osm';
+
 export interface DataQuality {
-  /** Machine ingest pipeline that produced the record. */
-  provenance: 'osm';
+  /**
+   * Every machine ingest pipeline that contributed to this record,
+   * deduplicated and in sorted order. Never empty.
+   *
+   * A list rather than one value because a record can be assembled from more
+   * than one source — coordinates from a map, the evidence that the water is
+   * thermal from a government page — and naming only one of those would be
+   * schema-valid and false. Today every record is `['osm']`, which is the
+   * complete and honest answer while OSM is the only source.
+   */
+  provenance: SourceProvider[];
   /**
    * 0-100. Rises with the number of first-class fields (temperature, price,
    * hours, clothing policy) that carry a real value rather than Unknown.

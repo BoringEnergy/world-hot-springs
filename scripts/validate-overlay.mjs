@@ -17,6 +17,31 @@ import { validateOverlay } from './lib/overlay.mjs';
 import { checkPaths, ALLOWED_PREFIX } from './lib/pathguard.mjs';
 
 const OVERLAY_DIR = path.join('data', 'overlay');
+const DATASET = path.join('data', 'hot-springs.json');
+
+/**
+ * Every id in the published dataset, or null when it cannot be read.
+ *
+ * Null disables the existence check rather than failing the whole run: a
+ * contributor's claim should not be blocked because the dataset is unreadable
+ * on their machine, and checking everything except existence beats checking
+ * nothing. But the skip is announced -- a gate that quietly turns itself off
+ * and still prints success is worse than one that fails.
+ */
+function knownSpringIds() {
+  if (!fs.existsSync(DATASET)) {
+    console.warn(`WARNING: ${DATASET} is missing; skipping the spring-existence check.`);
+    return null;
+  }
+  try {
+    return new Set(JSON.parse(fs.readFileSync(DATASET, 'utf8')).map((s) => s.id));
+  } catch (err) {
+    // Broader than a parse failure: an unexpected shape makes .map throw, and
+    // an unreadable or half-written file lands here too.
+    console.warn(`WARNING: ${DATASET} unreadable (${err.message}); skipping the spring-existence check.`);
+    return null;
+  }
+}
 
 const slash = (p) => p.replace(/\\/g, '/');
 
@@ -31,16 +56,37 @@ function changedFiles() {
 function main() {
   const args = process.argv.slice(2);
   let files;
+  // Whether the caller named these files, or we discovered them from the diff.
+  let explicitFiles = false;
 
   if (args.includes('--changed-only')) {
     files = changedFiles();
-    const pathErrors = checkPaths(files);
-    if (pathErrors.length) {
-      console.error('Path guard rejected this changeset:\n');
-      for (const e of pathErrors) console.error(`  ${e}`);
-      process.exit(1);
+    // The path guard constrains strangers, so it applies to fork pull
+    // requests only. Applied to every PR it failed each maintainer change
+    // touching a script or a doc -- a required check the maintainers could
+    // satisfy only by bypassing it, which is worse than no check, because it
+    // teaches everyone to reach for the bypass.
+    //
+    // The job still RUNS on every PR and still validates every overlay file;
+    // only the path restriction is scoped. A required check that gets skipped
+    // stays pending forever and blocks a merge as hard as a failing one.
+    //
+    // Trusting a workflow-supplied flag is safe only because gate-1 was never
+    // a security boundary: on a fork PR the workflow file comes from the PR
+    // head, so a contributor could already rewrite this to report success.
+    // Phase 4's Gate 2 re-runs the path guard from default-branch code.
+    if (process.env.IS_FORK_PR === 'true') {
+      const pathErrors = checkPaths(files);
+      if (pathErrors.length) {
+        console.error('Path guard rejected this changeset:');
+        for (const e of pathErrors) console.error(`  ${e}`);
+        process.exit(1);
+      }
+    } else {
+      console.log('Same-repo change: validating overlay files, path guard not applied.');
     }
   } else if (args.includes('--files')) {
+    explicitFiles = true;
     files = args.slice(args.indexOf('--files') + 1);
   } else {
     files = fs.existsSync(OVERLAY_DIR)
@@ -49,10 +95,17 @@ function main() {
       : [];
   }
 
-  // An explicit --files argument outside the overlay is a mistake worth
-  // saying out loud. Silently dropping it and exiting 0 would tell a
-  // contributor their file passed when it was never looked at.
-  const outside = files.filter((f) => !slash(f).startsWith(ALLOWED_PREFIX));
+  // An explicit --files argument outside the overlay is a mistake worth saying
+  // out loud: silently dropping it and exiting 0 would tell a contributor their
+  // file passed when it was never opened.
+  //
+  // A *changed* file outside the overlay is a different thing entirely. On a
+  // same-repo pull request it is the ordinary case -- a script, a doc, a test --
+  // and it is not this validator's business. Only files the caller named are
+  // held to it; changed files are simply filtered.
+  const outside = explicitFiles
+    ? files.filter((f) => !slash(f).startsWith(ALLOWED_PREFIX))
+    : [];
   const overlayFiles = files.filter((f) => slash(f).startsWith(ALLOWED_PREFIX));
 
   // A deletion is a legitimate submission -- a removal request, or retracting
@@ -67,6 +120,9 @@ function main() {
     console.error(`${f}: not an overlay file; this validator only checks ${ALLOWED_PREFIX}**`);
   }
 
+  // Only when there is something to check against it; the dataset is 5.5 MB.
+  const knownIds = present.length ? knownSpringIds() : null;
+
   for (const file of present) {
     let parsed;
     try {
@@ -76,7 +132,7 @@ function main() {
       failed++;
       continue;
     }
-    const errors = validateOverlay(parsed);
+    const errors = validateOverlay(parsed, { knownIds });
     // The filename must match the id inside, or the file is invisible to
     // anyone grepping the directory for a spring.
     const expected = `${parsed?.id}.json`;

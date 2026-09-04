@@ -90,6 +90,21 @@ test('normalize: every public record is unicorn:false and unverified', () => {
   assert.ok(record.sources.length > 0, 'every record must cite a source');
 });
 
+test('normalize: a record names the provider it came from, as a list', () => {
+  // The normaliser is where provenance enters the dataset, so a regression to
+  // a bare string starts here and is only visible in the published file after
+  // a rebuild. `['osm']` is the whole truth for an OSM element and still has
+  // to be a list: the next source will contribute records assembled from two
+  // providers, and a single value cannot say so.
+  const { record } = normalizeElement(
+    { type: 'node', id: 4, lat: 64, lon: -21, tags: { natural: 'hot_spring', name: 'Test' } },
+    lookup,
+    '2026-08-24',
+  );
+  assert.ok(Array.isArray(record.quality.provenance), 'provenance must be a list');
+  assert.deepEqual(record.quality.provenance, ['osm']);
+});
+
 test('normalize: a scalding spring carries a warning', () => {
   const { record } = normalizeElement(
     { type: 'node', id: 3, lat: 64, lon: -21, tags: { natural: 'hot_spring', temperature: '62' } },

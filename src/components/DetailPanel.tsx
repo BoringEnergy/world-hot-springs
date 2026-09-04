@@ -1,5 +1,6 @@
 import { bandColor, tempBand } from '../lib/types';
 import {
+  formatAccessStatus,
   formatClothing,
   formatCoords,
   formatDistance,
@@ -59,6 +60,29 @@ export function DetailPanel() {
           </svg>
         </button>
       </div>
+
+      {/*
+        A prohibition, not a caution — so it sits above the warnings list and
+        does not look like one of its bullets. This app is built around finding
+        a place to bathe and it offers a directions link on every record; for a
+        feature where entering the water is forbidden, saying so is the first
+        thing on screen or it is nothing. The directions link stays: visiting
+        is legal and normal, implying you may get in is the harm.
+      */}
+      {spring.access.bathingAllowed === false && (
+        <div className="mx-5 mt-4 rounded-xl border-2 border-ember bg-ember/20 px-4 py-3">
+          <h3 className="flex items-center gap-2 text-sm font-bold text-ember-bright">
+            <svg viewBox="0 0 20 20" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M10 2.5 18.5 17.5H1.5z" strokeLinejoin="round" />
+              <path d="M10 8v4M10 15h.01" strokeLinecap="round" />
+            </svg>
+            Do not enter the water
+          </h3>
+          <p className="mt-1.5 text-xs leading-relaxed text-steam-100">
+            Bathing is not permitted here. {formatAccessStatus(spring.access.status)}
+          </p>
+        </div>
+      )}
 
       {spring.warnings.length > 0 && (
         <div className="mx-5 mt-4 rounded-xl border border-ember/35 bg-ember/10 px-4 py-3">

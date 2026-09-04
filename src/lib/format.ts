@@ -1,4 +1,4 @@
-import type { ClothingPolicy, HotSpring, HoursStatus, SpringType } from './types';
+import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, SpringType } from './types';
 
 export type Units = 'c' | 'f';
 
@@ -62,6 +62,23 @@ const TYPE_LABEL: Record<SpringType, string> = {
 
 export function formatType(type: SpringType): string {
   return TYPE_LABEL[type];
+}
+
+/**
+ * Whole sentences, not labels. This text follows "Bathing is not permitted
+ * here." in the prohibition banner, where a bare word like "View-only" would
+ * read as a category rather than a rule.
+ */
+const ACCESS_STATUS_LABEL: Record<AccessStatus, string> = {
+  public: 'Open to the public.',
+  permit: 'A permit is required to visit.',
+  'view-only': 'The site may be viewed but not entered.',
+  closed: 'The site is closed to visitors.',
+  unknown: 'The managing agency restricts it.',
+};
+
+export function formatAccessStatus(status: AccessStatus): string {
+  return ACCESS_STATUS_LABEL[status];
 }
 
 export function formatElevation(m: number | null, units: Units): string {

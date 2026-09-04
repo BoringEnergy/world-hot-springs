@@ -6,6 +6,8 @@
  * unparseable, the field becomes null / "unknown". We never guess.
  */
 
+import { OSM_PROVIDER } from './identity.mjs';
+
 /** Fields that count toward the completeness score, in display priority order. */
 const FIRST_CLASS = ['name', 'temperature', 'price', 'clothing', 'hours', 'type'];
 
@@ -90,7 +92,17 @@ export function parseAccess(tags) {
     price = 'Donation';
   }
 
-  return { price, currency, notes: notes.length ? notes.join('. ') : null };
+  // status/bathingAllowed are owned by the land-manager stage, never by OSM
+  // tags: `access=yes` on a Yellowstone geyser means the ground is walkable,
+  // not that the water is. Defaulted here so every record carries the fields
+  // structurally, per the schema rule that unknown is stored, not omitted.
+  return {
+    price,
+    currency,
+    notes: notes.length ? notes.join('. ') : null,
+    status: 'unknown',
+    bathingAllowed: null,
+  };
 }
 
 /**
@@ -345,7 +357,10 @@ export function normalizeElement(el, lookup, ingestedAt) {
     description: tags.description || tags['description:en'] || null,
     tags: deriveTags(tags, celsius),
     warnings: deriveWarnings(tags, celsius, type),
-    quality: { provenance: 'osm', completeness: 0, known: [], ingestedAt },
+    // This normaliser reads OSM elements and nothing else, so it is the one
+    // provider it can honestly name. The spelling comes from identity.mjs so
+    // that the registry's refs and the record's provenance cannot drift apart.
+    quality: { provenance: [OSM_PROVIDER], completeness: 0, known: [], ingestedAt },
   };
 
   if (tempNote) {

@@ -41,7 +41,7 @@ If the correction is specific to this dataset (a bad parse, a wrong country
 resolution, a duplicate we failed to merge), open an issue or a PR against the
 normaliser with:
 
-- The spring's `id` (e.g. `osm-node-123456789`)
+- The spring's `id` (e.g. `whs_a1b2c3d4e5f6`) from the record
 - What the record says now and what it should say
 - **A public source.** Every record has to be checkable by a stranger. "I was
   there last week" is genuinely useful context, but it cannot be the only
@@ -101,6 +101,37 @@ temperature does not freeze the opening hours.
 Every claim needs a `source` a stranger can check. "I was there last week" is
 useful context but cannot be the only citation.
 
+### The fields whose value has a required shape
+
+Everything else is free-form text, but these are checked and `npm run validate`
+refuses the wrong shape. Two of them take a fixed set of values; anything else
+is rejected, because the site looks the value up to render it and would
+otherwise draw a blank label while still counting the field as known.
+
+| field | required shape | example |
+|---|---|---|
+| `temperature.celsius` | number, between -5 and 130 | `38.5` |
+| `location.elevation` | number, metres above sea level | `3300` |
+| `access.price` | **string** | `"Free"`, `"Adult $19.75"` |
+| `clothing.policy` | one of `optional`, `required`, `textile-only`, `mixed`, `unknown` | `"optional"` |
+| `hours.status` | one of `open`, `seasonal`, `closed`, `unknown` | `"seasonal"` |
+| `tags` | array of strings | `["sulfur", "open-air"]` |
+| `warnings` | array of strings | `["No lifeguard on site."]` |
+
+`tags` and `warnings` merge rather than replace — a claim adds entries and can
+never remove one, which is what stops a contributor stripping a scalding notice
+off a 62°C spring. It also means a wrong entry is permanent, so every element
+has to be a string going in. Put the nuance a fixed value cannot carry in
+`clothing.schedule`, `clothing.notes`, `hours.open`, or `hours.seasonalNotes`.
+
+The price is a string on purpose: most springs cost nothing, and the atlas
+renders whatever you write, verbatim. So put the headline amount in
+`access.price` as a person would read it, the ISO 4217 code in
+`access.currency` when the price is a known amount in a known currency, and the
+nuance — tiers, peak and off-peak, what a locker or a towel costs extra — in
+`access.notes`. Cramming a range into `access.price` still validates, but the
+notes are where a reader looks for it.
+
 ### Fields you cannot claim, and why
 
 - **`type`** drives a safety warning and the completeness score, so it is
@@ -110,6 +141,26 @@ useful context but cannot be the only citation.
   someone overwrite the provenance of a reading they did not submit.
 - **Coordinates** are not claimable at all. Moving a spring is how you would
   defeat the privacy exclusion radius.
+
+### Agents get a narrower set than people
+
+An agent-authored claim may touch 13 of the 17 claimable fields. Four are
+withheld: `location.nearestTown`, `name`, `warnings`, and `tags`.
+
+`nearestTown` is withheld because findability is the one thing this project
+treats as non-negotiable, and a nearest town on a borderline spring is a
+material increase in it. `warnings` and `tags` merge rather than replace, so a
+fabricated entry can never be removed by a later claim. `name` is withheld
+because OpenStreetMap is usually right and a bad rename is hard to recognise
+as wrong later.
+
+This is a first-pass posture. A withheld field can be granted once the
+refutation record shows it is earned; a bad claim is already published.
+
+The allowlist lives in `AGENT_HELD_BACK` in `scripts/lib/overlay.mjs` and the
+enrichment run enforces it: a proposal naming a withheld field is recorded as
+`field-not-agent-claimable` and never becomes an overlay file. No agent claim
+exists in the atlas yet — no provider is wired up.
 
 ### Fields that merge rather than replace
 

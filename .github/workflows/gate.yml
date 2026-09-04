@@ -29,4 +29,7 @@ jobs:
       # shell line. A branch name is attacker-influenced text.
       - env:
           BASE_REF: origin/${{ github.base_ref }}
+          # Scopes the path guard to strangers. Both values reach the script
+          # through the environment, never interpolated into the shell line.
+          IS_FORK_PR: ${{ github.event.pull_request.head.repo.fork }}
         run: node scripts/validate-overlay.mjs --changed-only

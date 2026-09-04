@@ -60,7 +60,7 @@ test('the unicorn invariant is asserted before anything is written', () => {
 });
 
 import { applyOverlays } from './lib/overlay.mjs';
-import { resolveRegistry } from './lib/identity.mjs';
+import { resolveRegistry, OSM_PROVIDER } from './lib/identity.mjs';
 
 test('the build wires identity and overlay between dedupe and the privacy filter', () => {
   const dedupeAt = SOURCE.indexOf('dedupe(records)');
@@ -160,5 +160,138 @@ test('end to end: a claim survives a rebuild and an upstream redraw', () => {
     third.records[0].temperature.celsius,
     38,
     'the claim reattaches to the redrawn spring',
+  );
+});
+
+test('land-manager restrictions run after the overlay and before the privacy filter', () => {
+  // Ordering is the safety property, not a style choice. After the overlay,
+  // no authored claim can weaken an agency prohibition. Before the privacy
+  // filter, because the stage only edits fields on records that already
+  // exist — it never adds, moves or removes one.
+  const overlayAt = SOURCE.indexOf('applyOverlays(');
+  const landAt = SOURCE.indexOf('applyLandManagers(');
+  const privacyAt = SOURCE.indexOf('isExcluded(');
+  assert.ok(landAt > 0, 'the land-manager stage must be wired into the build');
+  assert.ok(landAt > overlayAt, 'an overlay claim must not be able to override a land manager');
+  assert.ok(privacyAt > landAt, 'the privacy filter still runs last');
+});
+
+test('the land-manager stage cannot silently no-op when its list is missing', () => {
+  // loadLandManagers throws rather than returning []. The build has no catch
+  // around it, so a missing or malformed list fails the build instead of
+  // publishing every restricted spring unwarned.
+  assert.match(SOURCE, /loadLandManagers\(\)/);
+  const at = SOURCE.indexOf('loadLandManagers()');
+  const block = SOURCE.slice(at - 400, at + 400);
+  assert.ok(!/try\s*\{/.test(block), 'a swallowed load failure would publish restricted springs');
+});
+
+import { mergeInto } from './build-dataset.mjs';
+
+test('every shipped record names the providers it was built from', () => {
+  const springs = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  assert.ok(springs.length > 6000, `expected the full dataset, got ${springs.length}`);
+  for (const s of springs) {
+    // A record with no provenance has nothing vouching for it, and a bare
+    // string cannot describe a record two providers contributed to. Assert the
+    // value, not merely that the field is populated: "provenance is present"
+    // was true of the single literal this list replaced.
+    assert.ok(Array.isArray(s.quality.provenance), `${s.id} provenance is not an array`);
+    assert.ok(s.quality.provenance.length > 0, `${s.id} claims no provenance at all`);
+    assert.deepEqual(
+      s.quality.provenance,
+      ['osm'],
+      `${s.id} names a provider no normaliser in this build can produce`,
+    );
+  }
+});
+
+/** The fields mergeInto reads or writes, and nothing else. */
+function mergeable(provenance, over = {}) {
+  return {
+    name: null,
+    description: null,
+    sources: [],
+    warnings: [],
+    tags: [],
+    temperature: { celsius: null, fahrenheit: null, source: null, measuredAt: null, qualitative: null },
+    access: { price: null, currency: null, notes: null, status: 'unknown', bathingAllowed: null },
+    clothing: { policy: 'unknown', schedule: null, notes: null },
+    hours: { open: null, seasonalNotes: null, status: 'unknown' },
+    type: 'unknown',
+    location: { lat: 0, lng: 0, elevation: null, region: null, nearestTown: null },
+    quality: { provenance, completeness: 0, known: [], ingestedAt: '2026-01-01' },
+    ...over,
+  };
+}
+
+test('a merge unions provenance rather than keeping only the winner\'s', () => {
+  // The whole point of mergeInto is that the loser's knowledge survives in the
+  // winner. Its provenance is part of that knowledge: a record that kept the
+  // evidence but dropped the provider naming it would be citing a source it no
+  // longer admits to using.
+  const winner = mergeable(['osm']);
+  mergeInto(winner, mergeable(['usgs']));
+  assert.deepEqual(winner.quality.provenance, ['osm', 'usgs']);
+});
+
+test('provenance union is order-independent, so either record may win', () => {
+  // dedupe picks the winner by completeness, which is a property of the data
+  // and not of the providers. The merged record must be the same either way,
+  // or the published provenance would depend on which record happened to be
+  // more complete on the day.
+  const a = mergeable(['usgs']);
+  mergeInto(a, mergeable(['osm']));
+  const b = mergeable(['osm']);
+  mergeInto(b, mergeable(['usgs']));
+  assert.deepEqual(a.quality.provenance, b.quality.provenance);
+  assert.deepEqual(a.quality.provenance, ['osm', 'usgs']);
+});
+
+test('merging two records from one provider does not name it twice', () => {
+  // Every one of today's 1,167 merges is this case. A concatenating union
+  // would publish ["osm","osm"] on all of them and grow by one entry per
+  // merge for any spring mapped three times.
+  const winner = mergeable(['osm']);
+  mergeInto(winner, mergeable(['osm']));
+  assert.deepEqual(winner.quality.provenance, ['osm']);
+});
+
+test('the published schema declares provenance as a list, over one vocabulary', () => {
+  // Two things nothing else can catch. `tsc` is silent on both: no code in
+  // src/ reads quality.provenance, so narrowing the field back to a single
+  // literal typechecks, and the .mjs half of the pipeline is untyped, so a
+  // provider spelled one way in identity.mjs and another in types.ts compiles
+  // cleanly and diverges forever.
+  const types = fs.readFileSync('src/lib/types.ts', 'utf8');
+  assert.match(
+    types,
+    /^\s*provenance: SourceProvider\[\];$/m,
+    'a single value cannot describe a record two providers contributed to',
+  );
+  const decl = /export type SourceProvider = (.+);/.exec(types);
+  assert.ok(decl, 'SourceProvider must be declared, not inlined');
+  const declared = decl[1].split('|').map((v) => v.trim().replace(/^'|'$/g, ''));
+  assert.ok(
+    declared.includes(OSM_PROVIDER),
+    `SourceProvider omits "${OSM_PROVIDER}", the provider identity.mjs mints and stores`,
+  );
+});
+
+test('the build cannot become a silent no-op when imported or on an old runtime', () => {
+  // main() is guarded so that importing this module for mergeInto does not
+  // rebuild the dataset. The guard is the hazard: `undefined` is falsy, so a
+  // runtime without import.meta.main would turn `npm run data:build` into a
+  // command that prints nothing, exits 0, and leaves the previous dataset in
+  // place. The build must fail loudly instead.
+  // Anchored to the start of a line: an unanchored match is satisfied by the
+  // call commented out, which is the mutation this assertion exists to catch.
+  const call = /^if \(import\.meta\.main\) main\(\);$/m;
+  assert.match(SOURCE, call, 'the entry point must still run');
+  const guardAt = SOURCE.indexOf("typeof import.meta.main !== 'boolean'");
+  assert.ok(guardAt > 0, 'the guard must be checked, not assumed');
+  assert.ok(
+    guardAt < call.exec(SOURCE).index,
+    'the capability check has to precede the call it decides',
   );
 });

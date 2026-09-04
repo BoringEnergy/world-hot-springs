@@ -376,6 +376,40 @@ Roughly two model calls per spring — one proposal, one refutation — so about
 There is no shared budget to bound and no ledger to make durable, which is the
 F8 problem deleted rather than solved.
 
+## The credential, and why the run must survive being killed
+
+**Decided 2026-08-29.** The spec's parent document raises F9 — a dedicated
+provider workspace with a hard monthly spend cap. That is not how this will
+run. The operator uses **subscription-based limits**, drives the CLI from a
+Claude Code agent, and expects the run to be **killed by a token limit part-way
+through and resumed when credits allow**, repeatedly, until it finishes.
+
+That is a legitimate answer to F9 — the cap exists, it is just the
+subscription's rather than a workspace's — but it converts an operational
+detail into a correctness requirement:
+
+**The run must be resumable, and resumption must be cheap.** Specifically:
+
+- A spring whose claim already landed is skipped by the presence of its overlay
+  file, before any provider call. Already true.
+- **A spring that was tried and yielded nothing must also be skipped**, or the
+  hopeless ones are re-paid for on every resumption. They are exactly the
+  springs each restart reaches first, so without this they become the dominant
+  cost of a stop-start run. Derived from `data/refutations.jsonl` rather than a
+  second bookkeeping file, since two sources of truth drift.
+  `--retry-refuted` overrides it, because sources do appear and a different
+  provider pair may succeed later.
+- Overlay files and the refutation log are written **incrementally**, so a
+  killed run keeps everything it earned.
+- `data/coverage.json` is written only at the end of a full run. A killed run
+  therefore produces no coverage map, which is correct — a partial map would
+  report countries as unmet that were never reached, and this is the artifact
+  the spec insists must not mislead.
+
+The practical consequence: **progress is measured by files on disk, not by a
+run completing.** Nothing about the design assumes any single invocation
+finishes.
+
 ## The benchmark, which costs nothing
 
 `validateOverlay` already requires a `contributor` field on every claim, and it
