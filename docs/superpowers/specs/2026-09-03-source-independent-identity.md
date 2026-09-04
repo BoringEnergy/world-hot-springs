@@ -272,131 +272,66 @@ Scope discipline, because this change is dangerous enough on its own:
   `ANONYMOUS_METERS`, `EXACT_NAME_METERS` and `MIN_SUBSTRING_NAME_LENGTH` were
   each measured against the real dataset and cost a defect apiece to arrive at.
 
-## Implementation status
+## Implementation status — complete, 2026-09-03
 
-**Both hidden couplings are closed** — `80058dd` and `4d2ec56`, 2026-09-03.
-They were live defects independent of this migration, so they landed first.
+Every part of this spec has landed. Non-OSM sources can now be given durable
+ids safely, which was the whole blocking dependency.
 
-- `osmRefOf` and `osmType` return `null` for anything not matching
-  `/^osm-(node|way|relation)-(\d+)$/`. A non-OSM id contributes no ref, so
-  `'undefined/undefined'` can no longer become a universal merge key.
-- `asComparable` no longer fabricates `node/0`. A refless entry carries
-  `kind: KIND_UNKNOWN`, and the named/unnamed branch refuses when either kind
-  is unknown rather than letting `undefined !== 'node'` decide.
-- A record with no ref is **refused a durable id and stops the build**, rather
-  than minting from its own id. A stopgap mint would produce an id the
-  provider-aware `mintId` later moves, and a moving id orphans every overlay
-  file named for it — the one outcome this design forbids.
+| Piece | Commit |
+|---|---|
+| A non-OSM id contributes no ref; a refless entry has no feature kind | `80058dd` |
+| A record with no ref is refused an id rather than given a temporary one | `4d2ec56` |
+| `sourceRefs` on the registry; `osmRefs` derived from it | `6e90759` |
+| Provider-aware `mintId`, namespaced `byRef`, the mint-ref selection rule | `bd1c6ff` |
+| The unmintable-id invariant, named for what it checks | `5fa1ea1` |
+| `quality.provenance` widened to a list | `fd3e0fb` |
 
-The seam for the rest: `featureKind(record)` is
-`record.kind ?? osmType(record.id) ?? KIND_UNKNOWN`. The branch already speaks
-in kinds, so the work below changes only what feeds it.
+**Every existing id is unchanged.** `mintId({provider:'osm', externalId:'node/1078652088'})`
+is still `whs_8448a909f48b`, and `data/registry.json` came out byte-identical
+through all six changes.
 
-Verified byte-identical across a full rebuild — `hot-springs.json`,
-`hot-springs.geojson`, `summary.json` and `registry.json` all unchanged,
-`merged 1167 duplicate record(s) -> 6471 springs`, no new events. Neither fix
-can reach today's data, because all 6,471 entries hold OSM-shaped refs.
+### What the gate could not see, and what replaced it
 
-**`sourceRefs` has landed** — `6e90759`, migration steps 1-3.
+The migration gate — id set, dedupe count, `missingSince`, events, byte
+identity — has a blind spot that only surfaced when the selection rule was
+written. **A rebuild against the existing registry matches every record by ref
+and never mints.** So the mint path can break while all four hashes stay
+identical.
 
-The registry carries `sourceRefs: [{provider, externalId}]`, and `osmRefs` is
-now a *derived projection* of it rather than a second writable copy — the same
-one-source-of-truth rule that `access.price` had to be taught the hard way. The
-registry deliberately holds only the matching key; the spec's richer
-`SourceRef` with `url`, `license` and `retrievedAt` belongs on the record,
-because the registry's job is identity and provenance metadata belongs with the
-data it describes.
+It nearly did. "Prefer OSM, else lexicographically lowest" says nothing about
+which of *several* OSM refs wins, and sorting them is the obvious reading. Of
+the 738 multi-ref entries, **70 were minted from an OSM ref that is not their
+lexicographically lowest** — `whs_2e84822fe59f` holds
+`['node/12723737139', 'way/303218726']` and was minted from the way, because a
+way record citing a node arrives way-first. Sorting would have renamed all 70
+on the next bootstrap, with the gate green throughout.
 
-The synthesis lives inside `resolveRegistry`, not at the file boundary. There
-turned out to be no loader to teach — `build-dataset.mjs` parses the JSON
-inline, and several tests hand-build registries — so normalising at the
-boundary would have left both of those paths unmigrated.
+So: among OSM refs, the first `refsOf` yields wins — identical to the old
+`refs[0]`. Pinned against that real entry.
 
-All six gates verified independently on a full rebuild: id set identical
-(6,471, same order), `hot-springs.json` / `.geojson` / `summary.json`
-byte-identical, `merged 1167 duplicate record(s) -> 6471 springs`, zero
-`missingSince`, zero events, and stripping `sourceRefs` from the new registry
-deep-equals the committed one entry for entry. `mintId('node/1078652088')` is
-still `whs_8448a909f48b`.
+The first attempt to close the blind spot was itself a test passing for the
+wrong reason. It fed `entry.sourceRefs`, which are stored sorted, where a
+bootstrap feeds `refsOf(record)`, which puts the record's own ref first — the
+exact difference that produces those 70. It stayed green under the sorting
+mutation it existed to catch. It is now named for what it does check: no id may
+become unmintable from its own refs.
 
-**The provider-aware mint has landed** — migration step 4, minus provenance.
+### Three things the spec did not anticipate
 
-`mintId` takes `{provider, externalId}`. An OSM ref is hashed bare, forever;
-every other provider is namespaced `provider:externalId`. `byRef` is keyed on
-`provider:externalId` too, so the Critical-1 class of bug — two providers
-minting different ids and colliding on one index key — cannot recur. `refsOf`
-now yields provider-qualified refs rather than bare strings, so the index key,
-the mint input and the stored ref are one value carrying one provider. The
-collision guard prints `sourceRefs`.
+- **There was no registry loader to teach.** `build-dataset.mjs` parses the
+  JSON inline and several tests hand-build registries, so the synthesis went
+  inside `resolveRegistry`, where every path reaches it.
+- **`suspect.json` and `public/data/hot-springs.geojson` are published record
+  files too.** The provenance gate named only `hot-springs.json`; 1,779
+  quarantined records carry `quality` as well.
+- **`tsc` proves nothing here.** Nothing in `src/` reads `quality.provenance`,
+  so narrowing it back to a literal compiles cleanly, and the `.mjs` side is
+  untyped. A green typecheck is not evidence the seam holds; a source-text test
+  carries that.
 
-`mintRef(refs)` is the selection rule: prefer OSM, otherwise the
-lexicographically lowest `provider:externalId`.
-
-**The spec's rule was underspecified in a way that would have moved 70 ids.**
-It says nothing about *several* OSM refs, and the obvious reading — sort them
-too — is wrong. Measured against the committed registry: of the 738 multi-ref
-entries, **70 were minted from an OSM ref that is not their lexicographically
-lowest** (`whs_2e84822fe59f` holds `['node/12723737139', 'way/303218726']` and
-was minted from the way). So among OSM refs the first one `refsOf` yields wins,
-which is exactly what `refs[0]` did before. That ambiguity predates providers
-and is not this rule's to resolve. Pinned by a test against the real entry.
-
-Two tests were caught passing for the wrong reason, both by mutation:
-
-- The OSM-preference test paired `osm` with `wikidata`. `'osm' < 'wikidata'`,
-  so deleting the preference entirely left it green — the lexicographic
-  fallback picked the OSM ref by coincidence. It now uses a provider that
-  sorts *below* `osm` and asserts that ordering explicitly.
-- The `byRef` test survived mutating either the index seed or the lookup to a
-  bare key, because a half-bare index simply never matches and the record
-  mints anyway. Only mutating *both* — the actual pre-change code —
-  reproduces the merge. A companion test pins that a namespaced index still
-  matches an ordinary OSM record, so an index keyed on something that never
-  matches cannot satisfy the pair.
-
-Gate: `hot-springs.json`, `.geojson`, `summary.json` and `registry.json` all
-md5-identical across a full rebuild, `merged 1167 duplicate record(s) -> 6471
-springs`, zero `missingSince`, `events.jsonl` unchanged, `git status` clean.
-345 tests pass; `tsc -b --force` clean.
-
-**`quality.provenance` has landed** -- the last piece.
-
-`DataQuality.provenance` is `SourceProvider[]`, and `SourceProvider` is a
-closed union holding exactly the vocabulary `identity.mjs` established for
-`sourceRefs`: `'osm'`, and nothing it does not yet mint. A longer list of
-providers nothing produces would be the second copy this design has twice been
-bitten by; the normaliser imports `OSM_PROVIDER` rather than spelling it again.
-
-The list is the point, not the vocabulary. A record whose coordinates come from
-OSM and whose thermal evidence comes from a tourism page is not "OSM
-provenance", and a single value could only ever say one of the two. Today every
-record is `['osm']`, which is complete rather than provisional.
-
-`mergeInto` unions, deduplicates and sorts. Both sides of all 1,167 merges are
-`['osm']` today, so the union is unobservable in the build and is only ever
-checked directly -- which meant exporting `mergeInto` and guarding `main()`
-behind `import.meta.main`. That guard is itself a silent-failure risk (an
-`undefined` guard would make `npm run data:build` a no-op that exits 0), so the
-capability is asserted rather than assumed.
-
-Gate, inverted from the previous three: `registry.json`, `summary.json` and
-`events.jsonl` md5-identical across a full rebuild, `merged 1167 duplicate
-record(s) -> 6471 springs`, no new events. `hot-springs.json` necessarily
-changed; parsed and compared with `quality.provenance` blanked in both, it
-deep-equals the committed file across all 6,471 records, and every one of them
-is exactly `['osm']`. The same held for `hot-springs.geojson` and the 1,779
-quarantined records in `suspect.json`. 347 -> 354 tests; `tsc -b --force` and
-the Vite production build both clean.
-
-One test was caught passing for the wrong reason, by mutation: the guard test
-matched `if (import.meta.main) main();` unanchored, so commenting the entry
-point out left it green -- a build that silently stopped building. Anchored to
-a line start.
-
-`tsc` cannot see any of this: nothing in `src/` reads `quality.provenance`, so
-narrowing it back to one literal typechecks, and the `.mjs` half of the
-pipeline is untyped, so a provider spelled differently on either side of the
-seam compiles cleanly. A source-text test asserts both.
+`SourceProvider` is deliberately a one-member union. A closed union of one is
+what makes `tsc` object when a provider is added on one side of the seam and
+not the other; seeding it with providers nothing mints would remove that.
 
 ## Migration
 
