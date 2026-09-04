@@ -86,11 +86,23 @@ export function DetailPanel() {
       )}
 
       {/*
-        Below the prohibition, never above it. The scene is an invitation to
-        soak; on a feature where entering the water is forbidden, an invitation
-        rendered first is the last thing seen before the warning.
+        Not rendered at all where bathing is prohibited, and below the
+        prohibition everywhere else.
+
+        The scene depicts inviting water, which is an invitation to get in.
+        Where the land-manager layer marks `bathingAllowed: false` the water
+        is prohibited and can be near boiling; those features have killed
+        people. Ordering the scene below the warning was not enough: the
+        illustration is the most eye-catching thing on the card, and an
+        atlas that draws a soak on a pool you must not enter is arguing
+        against its own warning.
+
+        Keyed on the same field the prohibition block reads, so the two can
+        never disagree about which springs those are.
       */}
-      <SoakScene key={spring.id} spring={spring} units={units} />
+      {spring.access.bathingAllowed !== false && (
+        <SoakScene key={spring.id} spring={spring} units={units} />
+      )}
 
       {spring.warnings.length > 0 && (
         <div className="mx-5 mt-4 rounded-xl border border-ember/35 bg-ember/10 px-4 py-3">
