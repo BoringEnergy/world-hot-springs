@@ -791,3 +791,34 @@ test('the collision guard prints sourceRefs, which is the only evidence a non-OS
     },
   );
 });
+
+test('every committed id is still mintable from a ref its entry holds', () => {
+  // Named for what it actually checks. An earlier version of this called
+  // itself a bootstrap test and was not one: it fed `entry.sourceRefs`, which
+  // are stored sorted, whereas a real bootstrap feeds `refsOf(record)`, which
+  // puts the record's own ref first. Those differ for exactly the 70 entries
+  // discussed at `mintRef`, so the test measured a path the build never takes
+  // -- and its own mutation check proved it, staying green when OSM refs were
+  // sorted.
+  //
+  // The invariant below is real and worth pinning: no entry may end up with an
+  // id that none of its refs can produce, which is what would make it
+  // unreachable on a rebuild from scratch. The ordering rule is guarded by the
+  // two tests that follow, which do fail when OSM refs are sorted.
+  const registry = JSON.parse(fs.readFileSync('data/registry.json', 'utf8'));
+  const unmintable = [];
+  for (const [id, entry] of Object.entries(registry)) {
+    const refs = entry.sourceRefs ?? [];
+    if (!refs.length) continue;
+    if (!refs.some((r) => mintId(r) === id)) unmintable.push(id);
+  }
+  assert.deepEqual(unmintable, [], 'an id no held ref can mint is unreachable from scratch');
+});
+
+test('the selection rule does not sort OSM refs', () => {
+  // Pinned against a real entry, because this is the case that would move 70.
+  const way = { provider: 'osm', externalId: 'way/303218726' };
+  const node = { provider: 'osm', externalId: 'node/12723737139' };
+  assert.equal(mintId(way), 'whs_2e84822fe59f', 'the committed id came from the way');
+  assert.deepEqual(mintRef([way, node]), way, 'first OSM ref wins; sorting would rename it');
+});
