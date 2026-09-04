@@ -297,9 +297,31 @@ Verified byte-identical across a full rebuild — `hot-springs.json`,
 `merged 1167 duplicate record(s) -> 6471 springs`, no new events. Neither fix
 can reach today's data, because all 6,471 entries hold OSM-shaped refs.
 
-**Still to do: everything below.** `sourceRefs`, the provider-aware `mintId`,
-the `byRef` namespacing, the mint-ref selection rule, and widening
-`quality.provenance`.
+**`sourceRefs` has landed** — `6e90759`, migration steps 1-3.
+
+The registry carries `sourceRefs: [{provider, externalId}]`, and `osmRefs` is
+now a *derived projection* of it rather than a second writable copy — the same
+one-source-of-truth rule that `access.price` had to be taught the hard way. The
+registry deliberately holds only the matching key; the spec's richer
+`SourceRef` with `url`, `license` and `retrievedAt` belongs on the record,
+because the registry's job is identity and provenance metadata belongs with the
+data it describes.
+
+The synthesis lives inside `resolveRegistry`, not at the file boundary. There
+turned out to be no loader to teach — `build-dataset.mjs` parses the JSON
+inline, and several tests hand-build registries — so normalising at the
+boundary would have left both of those paths unmigrated.
+
+All six gates verified independently on a full rebuild: id set identical
+(6,471, same order), `hot-springs.json` / `.geojson` / `summary.json`
+byte-identical, `merged 1167 duplicate record(s) -> 6471 springs`, zero
+`missingSince`, zero events, and stripping `sourceRefs` from the new registry
+deep-equals the committed one entry for entry. `mintId('node/1078652088')` is
+still `whs_8448a909f48b`.
+
+**Still to do:** the provider-aware `mintId`, the `byRef` namespacing, the
+mint-ref selection rule, and widening `quality.provenance`. Those are the steps
+where an id can move; this one could not, which is why it went first.
 
 ## Migration
 
