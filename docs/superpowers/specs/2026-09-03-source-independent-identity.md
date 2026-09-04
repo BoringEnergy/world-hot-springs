@@ -272,6 +272,35 @@ Scope discipline, because this change is dangerous enough on its own:
   `ANONYMOUS_METERS`, `EXACT_NAME_METERS` and `MIN_SUBSTRING_NAME_LENGTH` were
   each measured against the real dataset and cost a defect apiece to arrive at.
 
+## Implementation status
+
+**Both hidden couplings are closed** — `80058dd` and `4d2ec56`, 2026-09-03.
+They were live defects independent of this migration, so they landed first.
+
+- `osmRefOf` and `osmType` return `null` for anything not matching
+  `/^osm-(node|way|relation)-(\d+)$/`. A non-OSM id contributes no ref, so
+  `'undefined/undefined'` can no longer become a universal merge key.
+- `asComparable` no longer fabricates `node/0`. A refless entry carries
+  `kind: KIND_UNKNOWN`, and the named/unnamed branch refuses when either kind
+  is unknown rather than letting `undefined !== 'node'` decide.
+- A record with no ref is **refused a durable id and stops the build**, rather
+  than minting from its own id. A stopgap mint would produce an id the
+  provider-aware `mintId` later moves, and a moving id orphans every overlay
+  file named for it — the one outcome this design forbids.
+
+The seam for the rest: `featureKind(record)` is
+`record.kind ?? osmType(record.id) ?? KIND_UNKNOWN`. The branch already speaks
+in kinds, so the work below changes only what feeds it.
+
+Verified byte-identical across a full rebuild — `hot-springs.json`,
+`hot-springs.geojson`, `summary.json` and `registry.json` all unchanged,
+`merged 1167 duplicate record(s) -> 6471 springs`, no new events. Neither fix
+can reach today's data, because all 6,471 entries hold OSM-shaped refs.
+
+**Still to do: everything below.** `sourceRefs`, the provider-aware `mintId`,
+the `byRef` namespacing, the mint-ref selection rule, and widening
+`quality.provenance`.
+
 ## Migration
 
 The registry is committed, so this is a data migration as much as a code one.
