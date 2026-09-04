@@ -1,0 +1,35 @@
+{
+  "id": "whs_ce8611720825",
+  "claims": {
+    "temperature.celsius": {
+      "value": 38.5,
+      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.price": {
+      "value": "Adult $19.75",
+      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/tarifs-fees",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.currency": {
+      "value": "CAD",
+      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/tarifs-fees",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "hours.status": {
+      "value": "open",
+      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/heures-hours",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "hours.seasonalNotes": {
+      "value": "Open daily year-round including holidays; hours vary by season (summer daily 8:30am-10pm)",
+      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/heures-hours",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    }
+  }
+}
