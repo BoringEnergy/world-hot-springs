@@ -319,9 +319,48 @@ byte-identical, `merged 1167 duplicate record(s) -> 6471 springs`, zero
 deep-equals the committed one entry for entry. `mintId('node/1078652088')` is
 still `whs_8448a909f48b`.
 
-**Still to do:** the provider-aware `mintId`, the `byRef` namespacing, the
-mint-ref selection rule, and widening `quality.provenance`. Those are the steps
-where an id can move; this one could not, which is why it went first.
+**The provider-aware mint has landed** — migration step 4, minus provenance.
+
+`mintId` takes `{provider, externalId}`. An OSM ref is hashed bare, forever;
+every other provider is namespaced `provider:externalId`. `byRef` is keyed on
+`provider:externalId` too, so the Critical-1 class of bug — two providers
+minting different ids and colliding on one index key — cannot recur. `refsOf`
+now yields provider-qualified refs rather than bare strings, so the index key,
+the mint input and the stored ref are one value carrying one provider. The
+collision guard prints `sourceRefs`.
+
+`mintRef(refs)` is the selection rule: prefer OSM, otherwise the
+lexicographically lowest `provider:externalId`.
+
+**The spec's rule was underspecified in a way that would have moved 70 ids.**
+It says nothing about *several* OSM refs, and the obvious reading — sort them
+too — is wrong. Measured against the committed registry: of the 738 multi-ref
+entries, **70 were minted from an OSM ref that is not their lexicographically
+lowest** (`whs_2e84822fe59f` holds `['node/12723737139', 'way/303218726']` and
+was minted from the way). So among OSM refs the first one `refsOf` yields wins,
+which is exactly what `refs[0]` did before. That ambiguity predates providers
+and is not this rule's to resolve. Pinned by a test against the real entry.
+
+Two tests were caught passing for the wrong reason, both by mutation:
+
+- The OSM-preference test paired `osm` with `wikidata`. `'osm' < 'wikidata'`,
+  so deleting the preference entirely left it green — the lexicographic
+  fallback picked the OSM ref by coincidence. It now uses a provider that
+  sorts *below* `osm` and asserts that ordering explicitly.
+- The `byRef` test survived mutating either the index seed or the lookup to a
+  bare key, because a half-bare index simply never matches and the record
+  mints anyway. Only mutating *both* — the actual pre-change code —
+  reproduces the merge. A companion test pins that a namespaced index still
+  matches an ordinary OSM record, so an index keyed on something that never
+  matches cannot satisfy the pair.
+
+Gate: `hot-springs.json`, `.geojson`, `summary.json` and `registry.json` all
+md5-identical across a full rebuild, `merged 1167 duplicate record(s) -> 6471
+springs`, zero `missingSince`, `events.jsonl` unchanged, `git status` clean.
+345 tests pass; `tsc -b --force` clean.
+
+**Still to do:** widening `quality.provenance`. That changes the shape of every
+published record and is a different class of risk, so it gets its own change.
 
 ## Migration
 

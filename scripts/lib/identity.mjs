@@ -120,23 +120,66 @@ export function isSameSpring(a, b) {
 }
 
 /**
- * Mint a stable id from an OSM reference.
- *
- * Hash-derived rather than sequential so that ids are reproducible: rebuilding
- * from scratch on another machine assigns the same id to the same spring.
- */
-export function mintId(osmRef) {
-  return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 12)}`;
-}
-
-/**
  * The provider every id in the committed registry was minted from.
  *
  * Named rather than inlined because "osm" appears here as a value in the data,
- * not as a fact about this file: the projection below and any future provider
- * check must agree on the same spelling.
+ * not as a fact about this file: the projection below, mintId's compatibility
+ * seam and any future provider check must agree on the same spelling.
  */
 export const OSM_PROVIDER = 'osm';
+
+/** The ordering key. `provider:externalId`, so the OSM subset stays sorted by ref. */
+const sourceRefKey = (ref) => `${ref.provider}:${ref.externalId}`;
+
+/**
+ * Mint a stable id from a source reference.
+ *
+ * Hash-derived rather than sequential so that ids are reproducible: rebuilding
+ * from scratch on another machine assigns the same id to the same spring.
+ *
+ * An OSM ref is hashed BARE -- `node/1078652088`, never `osm:node/1078652088`.
+ * This is a permanent compatibility seam, not a transitional one. All 6,471
+ * committed ids were hashed from a bare `type/id`, so namespacing the input
+ * moves every one of them:
+ *
+ *   mintId({provider: 'osm', externalId: 'node/1078652088'})  -> whs_8448a909f48b
+ *   sha256('osm:node/1078652088')                             -> whs_917056fb7fd7
+ *
+ * Every overlay file is named for a spring id and validated against the
+ * published dataset, so a moving id orphans every authored claim at once --
+ * the only layer here that cannot be rebuilt. Every other provider IS
+ * namespaced, so two inventories that happen to share an externalId stay two
+ * springs.
+ */
+export function mintId({ provider, externalId }) {
+  const input = provider === OSM_PROVIDER ? externalId : sourceRefKey({ provider, externalId });
+  return `whs_${createHash('sha256').update(input).digest('hex').slice(0, 12)}`;
+}
+
+/**
+ * Which of a record's refs the id is minted from.
+ *
+ * Not array order. Once a record can carry several refs -- an OSM node that
+ * also cites Wikidata -- whichever ref lands first would decide the id, and
+ * that would be decided by the order of `record.sources`, which no contract
+ * guarantees.
+ *
+ * Prefer OSM, so every id that exists today keeps the input it was minted
+ * from; otherwise the lexicographically lowest `provider:externalId`.
+ *
+ * Among *several* OSM refs the first one refsOf yields wins, rather than the
+ * lowest. That looks like the weaker rule and is the load-bearing one:
+ * measured against the committed registry, 70 of the 738 multi-ref entries
+ * were minted from an OSM ref that is not their lexicographically lowest
+ * (whs_2e84822fe59f holds ['node/12723737139', 'way/303218726'] and was minted
+ * from the way). Sorting here would move all 70 on the next bootstrap. That
+ * ambiguity predates providers and is not this rule's to resolve.
+ */
+export function mintRef(refs) {
+  const osm = refs.find((r) => r.provider === OSM_PROVIDER);
+  if (osm) return osm;
+  return refs.reduce((lowest, r) => (sourceRefKey(r) < sourceRefKey(lowest) ? r : lowest));
+}
 
 /**
  * A registry source reference is `{provider, externalId}` and deliberately
@@ -152,9 +195,6 @@ export const OSM_PROVIDER = 'osm';
 function toSourceRef({ provider, externalId }) {
   return { provider, externalId };
 }
-
-/** The ordering key. `provider:externalId`, so the OSM subset stays sorted by ref. */
-const sourceRefKey = (ref) => `${ref.provider}:${ref.externalId}`;
 
 /**
  * `osmRefs` is a projection of `sourceRefs`, never a second authored copy.
@@ -208,21 +248,31 @@ export function loadRegistry(raw) {
 }
 
 /**
- * Every OSM reference a record can be traced to, including merged duplicates.
+ * Every source reference a record can be traced to, including merged
+ * duplicates. `{provider, externalId}`, the same shape the registry stores.
+ *
+ * OSM is still the only provider anything produces, but the refs are qualified
+ * here rather than at the point of use so that the index key, the mint input
+ * and the stored ref are one value with one provider on it. Qualifying late is
+ * how `wikidata:Q4115712` and a bare `Q4115712` from another inventory would
+ * mint two ids and still collide on one index key.
  *
  * A record whose id is not OSM-shaped contributes no ref -- never a
  * synthesised one. An id is a merge key here, and a key invented for a record
  * that has none is a key every such record shares.
+ *
+ * Order is meaningful: the record's own ref comes first, and mintRef reads
+ * that order to pick between several OSM refs.
  */
 function refsOf(record) {
-  const refs = new Set();
+  const externalIds = new Set();
   const own = osmRefOf(record.id);
-  if (own) refs.add(own);
+  if (own) externalIds.add(own);
   for (const src of record.sources || []) {
     const m = src.match(/openstreetmap\.org\/(node|way|relation)\/(\d+)/);
-    if (m) refs.add(`${m[1]}/${m[2]}`);
+    if (m) externalIds.add(`${m[1]}/${m[2]}`);
   }
-  return [...refs];
+  return [...externalIds].map((externalId) => ({ provider: OSM_PROVIDER, externalId }));
 }
 
 /**
@@ -307,7 +357,7 @@ function asComparable(whsId, entry) {
  * Assign a durable id to every record and update the registry.
  *
  * Matching order:
- *   1. any OSM ref the record can be traced to
+ *   1. any source ref the record can be traced to
  *   2. isSameSpring against existing entries, which survives a redraw under a
  *      new OSM id
  *   3. mint a new id
@@ -319,9 +369,14 @@ export function resolveRegistry(records, existingRegistry, today) {
   const assignments = new Map();
   const events = [];
 
+  // Keyed on `provider:externalId`, never on the bare externalId. Two
+  // providers that happen to share an externalId mint two different ids; on a
+  // bare key they would collide here instead, and the second record would
+  // resolve onto the first's entry and never reach minting at all -- a merge
+  // that mintId alone can neither cause nor detect.
   const byRef = new Map();
   for (const [whsId, entry] of Object.entries(registry)) {
-    for (const ref of entry.osmRefs) byRef.set(ref, whsId);
+    for (const ref of entry.sourceRefs) byRef.set(sourceRefKey(ref), whsId);
   }
 
   // Spatial index over the registry so the fallback scans neighbours rather
@@ -337,7 +392,7 @@ export function resolveRegistry(records, existingRegistry, today) {
 
   for (const record of records) {
     const refs = refsOf(record);
-    let whsId = refs.map((r) => byRef.get(r)).find(Boolean);
+    let whsId = refs.map((r) => byRef.get(sourceRefKey(r))).find(Boolean);
 
     if (!whsId) {
       let best = null;
@@ -354,30 +409,34 @@ export function resolveRegistry(records, existingRegistry, today) {
 
     if (!whsId) {
       if (!refs.length) {
-        // No ref means no stable mint input. Minting from the record id would
-        // produce an id the provider-aware mintId will later move, and an id
-        // that moves orphans every overlay file named for it -- the one
-        // outcome the identity design forbids. Refuse until mintId
-        // understands providers.
+        // No ref means no mint input. mintId now understands providers, but
+        // it needs one: a record whose id is `usgs:P96Q13U3` declares no
+        // sourceRefs, and refsOf will not invent a provider for it -- a
+        // guessed provider is a guessed id, and an id that later moves
+        // orphans every overlay file named for it. Records carry their own
+        // sourceRefs before a non-OSM source can be ingested.
         throw new Error(
           `${record.id} yields no source ref, so it cannot be given a durable id. ` +
             'Non-OSM sources need the provider-aware mintId; see ' +
             'docs/superpowers/specs/2026-09-03-source-independent-identity.md',
         );
       }
-      // An OSM ref is the mint input, forever: every id in the committed
-      // registry was hashed from a bare `type/id`, and renaming one orphans
-      // every claim filed against it.
-      whsId = mintId(refs[0]);
+      // Which ref, by rule rather than by array order -- see mintRef.
+      const ref = mintRef(refs);
+      whsId = mintId(ref);
       // Guards against a hash collision, not any expected condition: two
-      // different OSM refs minting the same id would silently conflate two
+      // different source refs minting the same id would silently conflate two
       // distinct springs under one durable id. That is worse than a crash.
       if (registry[whsId]) {
         const existing = registry[whsId];
         throw new Error(
           `mintId collision on ${whsId}: ` +
-            `existing ref(s) ${existing.osmRefs.join(', ')} at centroid ${JSON.stringify(existing.centroid)} ` +
-            `vs new ref ${refs[0]} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
+            // sourceRefs, not osmRefs: for an entry with no OSM ref the
+            // projection is empty, and the loudest error in the system would
+            // print nothing precisely when the input space is widest.
+            `existing ref(s) ${existing.sourceRefs.map(sourceRefKey).join(', ')} ` +
+            `at centroid ${JSON.stringify(existing.centroid)} ` +
+            `vs new ref ${sourceRefKey(ref)} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
         );
       }
       registry[whsId] = {
@@ -393,20 +452,14 @@ export function resolveRegistry(records, existingRegistry, today) {
     }
 
     const entry = registry[whsId];
-    // refsOf still yields bare OSM refs, so every ref a record contributes
-    // today is an OSM one. Widening that is the provider-aware mintId's job,
-    // not this step's.
-    entry.sourceRefs = mergeSourceRefs(
-      entry.sourceRefs,
-      refs.map((externalId) => ({ provider: OSM_PROVIDER, externalId })),
-    );
+    entry.sourceRefs = mergeSourceRefs(entry.sourceRefs, refs);
     entry.osmRefs = osmRefsOf(entry.sourceRefs);
     entry.centroid = [record.location.lng, record.location.lat];
     entry.name = record.name ?? entry.name;
     entry.lastSeen = today;
     entry.missingSince = null;
 
-    for (const ref of entry.osmRefs) byRef.set(ref, whsId);
+    for (const ref of entry.sourceRefs) byRef.set(sourceRefKey(ref), whsId);
     seen.add(whsId);
     assignments.set(record.id, whsId);
   }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { osmType, osmRefOf, isSameSpring, mintId, resolveRegistry } from './lib/identity.mjs';
+import { osmType, osmRefOf, isSameSpring, mintId, mintRef, resolveRegistry } from './lib/identity.mjs';
 
 const at = (lat, lng, name = null, id = 'osm-node-1') => ({ id, name, location: { lat, lng } });
 
@@ -118,11 +118,13 @@ const rec = (id, lat, lng, name, sources = []) => ({
   sources: sources.length ? sources : [`https://www.openstreetmap.org/${osmRefOf(id)}`],
 });
 
+const osmRef = (externalId) => ({ provider: 'osm', externalId });
+
 test('mintId is deterministic and prefixed', () => {
-  const a = mintId('node/4702109263');
+  const a = mintId(osmRef('node/4702109263'));
   assert.match(a, /^whs_[0-9a-f]{12}$/);
-  assert.equal(a, mintId('node/4702109263'), 'same ref must always mint the same id');
-  assert.notEqual(a, mintId('node/4702109264'));
+  assert.equal(a, mintId(osmRef('node/4702109263')), 'same ref must always mint the same id');
+  assert.notEqual(a, mintId(osmRef('node/4702109264')));
 });
 
 test('resolveRegistry mints ids for a first run', () => {
@@ -196,7 +198,7 @@ test('resolveRegistry throws on a mintId hash collision instead of silently conf
   // the exact id mintId('node/1') would produce, attached to an unrelated
   // ref and centroid. A collision must be loud, never silent -- silently
   // reusing the id would conflate two distinct springs permanently.
-  const collidingId = mintId('node/1');
+  const collidingId = mintId(osmRef('node/1'));
   const registry = {
     [collidingId]: {
       osmRefs: ['node/999999'],
@@ -597,7 +599,7 @@ test('a real id from the committed registry still mints from a bare OSM ref', ()
   // The permanent compatibility seam. Every whs_ id on disk was hashed from a
   // bare `type/id`; namespacing the input to `osm:node/1078652088` would move
   // all 6,471 of them and orphan every claim filed against them.
-  assert.equal(mintId('node/1078652088'), 'whs_8448a909f48b');
+  assert.equal(mintId({ provider: 'osm', externalId: 'node/1078652088' }), 'whs_8448a909f48b');
 
   const committed = JSON.parse(fs.readFileSync('data/registry.json', 'utf8'));
   assert.ok(committed.whs_8448a909f48b, 'the pinned id must still be in the registry');
@@ -606,5 +608,186 @@ test('a real id from the committed registry still mints from a bare OSM ref', ()
       (r) => r.provider === 'osm' && r.externalId === 'node/1078652088',
     ),
     'and the ref it was minted from must survive the load',
+  );
+});
+
+// --- source-independent identity: the provider-aware mint ---
+// Migration step 4. This is the step where an id can move, and a moved id
+// orphans every overlay file named for it.
+
+import { createHash } from 'node:crypto';
+
+const sha12 = (input) => `whs_${createHash('sha256').update(input).digest('hex').slice(0, 12)}`;
+
+test('an OSM ref is minted bare and a non-OSM ref is namespaced', () => {
+  // Asserting against an independently computed digest, not against mintId
+  // itself: `mintId(a) !== mintId(b)` would pass for an implementation that
+  // namespaced BOTH sides, which is the failure that moves all 6,471 ids.
+  assert.equal(mintId({ provider: 'osm', externalId: 'node/1078652088' }), sha12('node/1078652088'));
+  assert.notEqual(mintId({ provider: 'osm', externalId: 'node/1078652088' }), sha12('osm:node/1078652088'));
+
+  assert.equal(mintId({ provider: 'usgs', externalId: 'P96Q13U3' }), sha12('usgs:P96Q13U3'));
+  assert.notEqual(mintId({ provider: 'usgs', externalId: 'P96Q13U3' }), sha12('P96Q13U3'));
+  assert.equal(mintId({ provider: 'wikidata', externalId: 'Q4115712' }), sha12('wikidata:Q4115712'));
+});
+
+test('two providers sharing an externalId mint two different ids', () => {
+  const a = mintId({ provider: 'wikidata', externalId: 'Q4115712' });
+  const b = mintId({ provider: 'geonames', externalId: 'Q4115712' });
+  assert.notEqual(a, b, 'the same string from two inventories is two springs');
+  // And neither of them is the bare hash, which is reserved for OSM forever.
+  assert.notEqual(a, sha12('Q4115712'));
+  assert.notEqual(b, sha12('Q4115712'));
+});
+
+test('the byRef index is namespaced, so a shared externalId does not merge two springs', () => {
+  // The Critical-1 class of bug, one layer up from mintId. `byRef` used to key
+  // on the bare externalId. A registry entry that cites `node/1` from some
+  // other inventory and an OSM record whose ref is `node/1` mint DIFFERENT
+  // ids -- but on a bare key they collide in the index, so the record resolves
+  // onto the existing entry and never reaches minting at all. A test that only
+  // exercises mintId passes while that merge happens, so this one goes through
+  // resolveRegistry.
+  //
+  // The two are put 3,000km apart with different names so the positional
+  // fallback cannot be what separates them: only the index key can.
+  const registry = {
+    whs_other: {
+      sourceRefs: [{ provider: 'wikidata', externalId: 'node/1' }],
+      centroid: [20.0, 10.0],
+      name: 'Omega',
+      firstSeen: '2026-01-01',
+      lastSeen: '2026-01-01',
+      missingSince: null,
+    },
+  };
+  const { registry: after, assignments } = resolveRegistry(
+    [rec('osm-node-1', 44.6, -110.5, 'Alpha')],
+    registry,
+    '2026-09-03',
+  );
+
+  const minted = assignments.get('osm-node-1');
+  assert.notEqual(minted, 'whs_other', 'a wikidata externalId must not capture an OSM ref');
+  assert.equal(minted, mintId({ provider: 'osm', externalId: 'node/1' }), 'it must reach minting');
+  assert.equal(Object.keys(after).length, 2, 'two providers sharing an externalId are two entries');
+  assert.deepEqual(
+    after.whs_other.sourceRefs,
+    [{ provider: 'wikidata', externalId: 'node/1' }],
+    'and the untouched entry must not adopt the OSM ref',
+  );
+  assert.deepEqual(after[minted].sourceRefs, [{ provider: 'osm', externalId: 'node/1' }]);
+});
+
+test('a namespaced index still matches an OSM record onto its own entry', () => {
+  // The other half of the test above: namespacing must not stop the ordinary
+  // match. Without this, an index keyed on something that never matches would
+  // satisfy the assertions above while breaking all 6,471 entries.
+  const registry = {
+    whs_a: {
+      osmRefs: ['node/1'],
+      centroid: [20.0, 10.0],
+      name: 'Omega',
+      firstSeen: '2026-01-01',
+      lastSeen: '2026-01-01',
+      missingSince: null,
+    },
+  };
+  const { assignments, events } = resolveRegistry([rec('osm-node-1', 44.6, -110.5, 'Alpha')], registry, '2026-09-03');
+  assert.equal(assignments.get('osm-node-1'), 'whs_a', 'matched by ref alone, 3,000km from the centroid');
+  assert.deepEqual(events, []);
+});
+
+test('mintRef prefers the OSM ref, whatever order the refs arrive in', () => {
+  // The Jamaica-seed shape: an OSM node that also cites another inventory.
+  // Which ref lands at index 0 would otherwise be decided by the order of
+  // `record.sources`, which no contract guarantees -- and it decides the id.
+  //
+  // The companion provider must sort BELOW 'osm', or the lexicographic
+  // fallback picks the OSM ref by coincidence and this test passes with the
+  // preference deleted. Measured: with 'wikidata' here, removing the
+  // preference entirely left this test green.
+  const osm = { provider: 'osm', externalId: 'node/1078652088' };
+  const gn = { provider: 'geonames', externalId: 'Q4115712' };
+  assert.ok(`${gn.provider}:` < `${osm.provider}:`, 'the fallback must not be able to pick OSM on its own');
+  assert.deepEqual(mintRef([osm, gn]), osm);
+  assert.deepEqual(mintRef([gn, osm]), osm, 'order must not decide the id');
+  assert.equal(mintId(mintRef([gn, osm])), 'whs_8448a909f48b', 'and the OSM id it already has is kept');
+
+  // Several non-OSM refs around it, still on both sides of 'osm'.
+  const wd = { provider: 'wikidata', externalId: 'Q1' };
+  assert.deepEqual(mintRef([wd, gn, osm]), osm);
+});
+
+test('with no OSM ref, mintRef takes the lexicographically lowest provider:externalId', () => {
+  const usgs = { provider: 'usgs', externalId: 'P96Q13U3' };
+  const wd = { provider: 'wikidata', externalId: 'Q4115712' };
+  const gn = { provider: 'geonames', externalId: 'ZZZ' };
+  // geonames:ZZZ < usgs:P96Q13U3 < wikidata:Q4115712 -- provider first, so the
+  // lowest is NOT the one with the lowest externalId. A rule that compared
+  // externalIds would pick usgs here.
+  for (const order of [
+    [usgs, wd, gn],
+    [gn, usgs, wd],
+    [wd, gn, usgs],
+  ]) {
+    assert.deepEqual(mintRef(order), gn, 'the key is provider:externalId, and order must not matter');
+  }
+  assert.deepEqual(mintRef([wd, usgs]), usgs);
+  assert.deepEqual(mintRef([usgs, wd]), usgs);
+  assert.deepEqual(mintRef([wd]), wd, 'a single ref is its own lowest');
+});
+
+test('among several OSM refs, mintRef keeps the ref the id was actually minted from', () => {
+  // Measured against the committed registry: 70 of the 738 multi-ref entries
+  // were minted from an OSM ref that is not their lexicographically lowest --
+  // whs_2e84822fe59f holds ['node/12723737139', 'way/303218726'] and was
+  // minted from the WAY. Sorting the OSM refs here would move all 70 on the
+  // next bootstrap, so the record's own ref -- first out of refsOf -- wins.
+  const wayCitingNode = {
+    id: 'osm-way-303218726',
+    name: 'Reykjadalur',
+    location: { lat: 64.048, lng: -21.2222 },
+    sources: ['https://www.openstreetmap.org/node/12723737139'],
+  };
+  const { assignments, registry } = resolveRegistry([wayCitingNode], {}, '2026-09-03');
+  const id = assignments.get('osm-way-303218726');
+  assert.equal(id, 'whs_2e84822fe59f', 'the id this pair actually has in the committed registry');
+  assert.notEqual(id, mintId({ provider: 'osm', externalId: 'node/12723737139' }), 'not the lower ref');
+  // The stored refs are still sorted -- only the mint input reads refsOf order.
+  assert.deepEqual(registry[id].osmRefs, ['node/12723737139', 'way/303218726']);
+
+  const committed = JSON.parse(fs.readFileSync('data/registry.json', 'utf8'));
+  assert.deepEqual(
+    committed.whs_2e84822fe59f.osmRefs,
+    ['node/12723737139', 'way/303218726'],
+    'the pinned pair must still be on disk in this shape',
+  );
+});
+
+test('the collision guard prints sourceRefs, which is the only evidence a non-OSM entry has', () => {
+  // For an entry with no OSM ref the old message's `existing.osmRefs` is an
+  // empty string, so the loudest error in the system loses its evidence
+  // exactly when the input space is widest. Asserting the message, not just
+  // that it throws: the unfixed code throws here too.
+  const collidingId = mintId({ provider: 'osm', externalId: 'node/1' });
+  const registry = {
+    [collidingId]: {
+      sourceRefs: [{ provider: 'usgs', externalId: 'P96Q13U3' }],
+      centroid: [10, 20],
+      name: 'Some Other Spring',
+      firstSeen: '2026-01-01',
+      lastSeen: '2026-01-01',
+      missingSince: null,
+    },
+  };
+  assert.throws(
+    () => resolveRegistry([rec('osm-node-1', 64.048, -21.2222, 'Totally Unrelated Spring')], registry, '2026-08-25'),
+    (err) => {
+      assert.match(err.message, /collision/i);
+      assert.match(err.message, /usgs:P96Q13U3/, 'the existing entry must name its provider and id');
+      assert.match(err.message, /osm:node\/1/, 'and so must the incoming ref');
+      return true;
+    },
   );
 });
