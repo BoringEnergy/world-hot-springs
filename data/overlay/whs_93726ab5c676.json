@@ -1,0 +1,17 @@
+{
+  "id": "whs_93726ab5c676",
+  "claims": {
+    "access.price": {
+      "value": "Select $43-$75 / Premier (21+) $75-$135",
+      "source": "https://www.ironmountainhotsprings.com/pricing",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.currency": {
+      "value": "USD",
+      "source": "https://www.ironmountainhotsprings.com/pricing",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    }
+  }
+}
