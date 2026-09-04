@@ -280,3 +280,138 @@ test('the fallback does not match beyond the search radius', () => {
   );
   assert.notEqual(far.assignments.get('osm-way-79'), id, '5.8km apart is a different spring');
 });
+
+// --- source-independent identity: the two defensive fixes ---
+// Both defects are silent and permanent. One turns every non-OSM record into
+// the same merge key; the other lets a refless registry entry pose as a node.
+
+import { SAME_FEATURE_METERS } from './lib/identity.mjs';
+import { distanceMeters } from './lib/geo.mjs';
+import { normalizeElement } from './lib/normalize.mjs';
+
+test('osmRefOf and osmType refuse an id that is not OSM-shaped', () => {
+  // The synthesised ref is the defect. `'usgs:P96Q13U3'.split('-')` yields no
+  // type and no number, and the old code interpolated both anyway, producing
+  // the string 'undefined/undefined'.
+  for (const id of ['usgs:P96Q13U3', 'usgs-sample-9', 'whs_abc123', 'osm-node-', 'osm-node-12a', 'osm-node-1-2', '']) {
+    assert.equal(osmRefOf(id), null, `${id} is not OSM-shaped`);
+    assert.equal(osmType(id), null, `${id} is not OSM-shaped`);
+  }
+  assert.equal(osmRefOf('osm-node-123'), 'node/123');
+  assert.equal(osmRefOf('osm-way-456'), 'way/456');
+  assert.equal(osmRefOf('osm-relation-789'), 'relation/789');
+  assert.equal(osmType('osm-node-123'), 'node');
+  assert.equal(osmType('osm-way-456'), 'way');
+  assert.equal(osmType('osm-relation-789'), 'relation');
+});
+
+test('two non-OSM records 3,000km apart resolve to two entries, contributing no refs', () => {
+  // Measured against the unfixed code: ONE entry, whs_2098f7a355ba, osmRefs
+  // ['undefined/undefined'], named "Omega" at Omega's centroid -- Alpha's name
+  // and position overwritten, and both records stamped with the same id.
+  const alpha = { id: 'usgs:P96Q13U3', name: 'Alpha', location: { lat: 44.6, lng: -110.5 }, sources: [] };
+  const omega = { id: 'usgs:ZZZ999', name: 'Omega', location: { lat: 10.0, lng: 20.0 }, sources: [] };
+  const { registry, assignments } = resolveRegistry([alpha, omega], {}, '2026-09-03');
+
+  const alphaId = assignments.get('usgs:P96Q13U3');
+  const omegaId = assignments.get('usgs:ZZZ999');
+  assert.notEqual(alphaId, omegaId, 'two springs 3,000km apart are not one spring');
+  assert.equal(Object.keys(registry).length, 2);
+
+  // Assert the refs, not merely the count: a count alone would pass against
+  // any other bug that happened to split them.
+  for (const [id, entry] of Object.entries(registry)) {
+    assert.deepEqual(entry.osmRefs, [], `${id} must contribute no OSM ref at all`);
+  }
+  assert.equal(registry[alphaId].name, 'Alpha');
+  assert.equal(registry[omegaId].name, 'Omega');
+  assert.deepEqual(registry[alphaId].centroid, [-110.5, 44.6], "Alpha's centroid must not be overwritten");
+});
+
+test('a refless registry entry does not merge with a named OSM way 44m away', () => {
+  // This has to run through resolveRegistry. The defect lives in
+  // asComparable, which rendered a refless entry as 'osm-node-0', so a test
+  // that hands isSameSpring two hand-built objects passes while the bug is
+  // fully live.
+  const reflessRegistry = () => ({
+    whs_refless: {
+      osmRefs: [],
+      centroid: [-21.2222, 64.048],
+      name: null,
+      firstSeen: '2026-01-01',
+      lastSeen: '2026-01-01',
+      missingSince: null,
+    },
+  });
+  // 0.0004 degrees of latitude is ~44m: past ANONYMOUS_METERS, inside
+  // SAME_FEATURE_METERS -- the radius where the named/unnamed branch decides.
+  const at44m = (id) => ({
+    id,
+    name: 'Emerald Pool',
+    location: { lat: 64.0484, lng: -21.2222 },
+    sources: [`https://www.openstreetmap.org/${osmRefOf(id)}`],
+  });
+
+  // Measured against the unfixed code: the way MERGED (a fabricated 'node'
+  // beside a 'way' looks exactly like source-and-pool) while the node stayed
+  // separate. Both must now stay separate, because the entry's feature kind
+  // is unknown, and unknown is not evidence.
+  const way = resolveRegistry([at44m('osm-way-2')], reflessRegistry(), '2026-09-03');
+  assert.notEqual(way.assignments.get('osm-way-2'), 'whs_refless', 'unknown kind must not merge as source-and-pool');
+  assert.deepEqual(way.registry.whs_refless.osmRefs, [], 'the refless entry must not adopt the way');
+  assert.equal(way.registry.whs_refless.name, null, "and must not take the way's name");
+
+  const node = resolveRegistry([at44m('osm-node-3')], reflessRegistry(), '2026-09-03');
+  assert.notEqual(node.assignments.get('osm-node-3'), 'whs_refless', 'unchanged: this never merged');
+
+  // The branch really is reached at this distance: give the same entry a real
+  // OSM node ref and the source-and-pool merge still happens. Without this,
+  // the two assertions above would also pass if the fallback never ran.
+  const withRef = { whs_refless: { ...reflessRegistry().whs_refless, osmRefs: ['node/7'] } };
+  const merged = resolveRegistry([at44m('osm-way-2')], withRef, '2026-09-03');
+  assert.equal(
+    merged.assignments.get('osm-way-2'),
+    'whs_refless',
+    'a known node and a named way 44m apart still merge -- the fix must not touch entries that have a kind',
+  );
+});
+
+test('for OSM-shaped ids the named/unnamed branch is bit-identical to the element-type test it replaced', () => {
+  // dedupe() in build-dataset.mjs is the matcher's second caller and merges
+  // 1,167 records per build. Every record it sees carries normalizeElement's
+  // `osm-<type>-<id>`, so pinning equivalence across that whole input space
+  // is what proves the published build cannot move.
+  const legacy = (a, b) =>
+    distanceMeters(a.location, b.location) <= SAME_FEATURE_METERS && a.id.split('-')[1] !== b.id.split('-')[1];
+
+  let compared = 0;
+  let merges = 0;
+  for (const ta of ['node', 'way', 'relation']) {
+    for (const tb of ['node', 'way', 'relation']) {
+      for (const dLat of [0, 0.0004, 0.0006]) {
+        for (const [na, nb] of [['Reykjadalur', null], [null, 'Reykjadalur']]) {
+          const a = { id: `osm-${ta}-1`, name: na, location: { lat: 64.048, lng: -21.2222 } };
+          const b = { id: `osm-${tb}-2`, name: nb, location: { lat: 64.048 + dLat, lng: -21.2222 } };
+          const got = isSameSpring(a, b);
+          assert.equal(got, legacy(a, b), `${ta}/${tb} at ${dLat} deg`);
+          compared++;
+          if (got) merges++;
+        }
+      }
+    }
+  }
+  assert.equal(compared, 54, 'every element-type pair, at three distances, in both name orders');
+  assert.ok(merges > 0, 'a set of cases that never merges would make the equivalence vacuous');
+});
+
+test('every id the build feeds the matcher is OSM-shaped, so that equivalence covers it', () => {
+  // The equivalence only proves the build is unchanged if nothing reaching
+  // dedupe has an unknown kind. normalizeElement is the sole producer of the
+  // ids dedupe sees.
+  for (const type of ['node', 'way', 'relation']) {
+    const el = { type, id: 123, lat: 64.048, lon: -21.2222, tags: { natural: 'hot_spring', name: 'X' } };
+    const lookup = () => ({ iso: 'IS', name: 'Iceland', exact: true });
+    const { record } = normalizeElement(el, lookup, '2026-09-03');
+    assert.equal(osmType(record.id), type, 'a record with an unknown kind would change what dedupe merges');
+  }
+});

@@ -38,15 +38,40 @@ export const EXACT_NAME_METERS = 300;
  */
 export const MIN_SUBSTRING_NAME_LENGTH = 4;
 
-/** 'osm-node-123' -> 'node' */
+/**
+ * The only id shape an OSM reference can be read out of.
+ *
+ * Deliberately strict. A loose split was how `osmRefOf('usgs:P96Q13U3')` came
+ * to return the string 'undefined/undefined' -- a single merge key shared by
+ * every record that is not from OSM, and `resolveRegistry` matches on refs
+ * before it looks at position or name. Anything this pattern does not match
+ * has no OSM identity, and saying so is the whole point.
+ */
+const OSM_ID = /^osm-(node|way|relation)-(\d+)$/;
+
+/** 'osm-node-123' -> 'node'; null for an id that is not OSM-shaped. */
 export function osmType(id) {
-  return id.split('-')[1];
+  return OSM_ID.exec(id)?.[1] ?? null;
 }
 
-/** 'osm-node-123' -> 'node/123' */
+/** 'osm-node-123' -> 'node/123'; null for an id that is not OSM-shaped. */
 export function osmRefOf(id) {
-  const [, type, num] = id.split('-');
-  return `${type}/${num}`;
+  const m = OSM_ID.exec(id);
+  return m ? `${m[1]}/${m[2]}` : null;
+}
+
+/** No answer at all -- not a kind that merely differs from the others. */
+export const KIND_UNKNOWN = 'unknown';
+
+/**
+ * Point or area? -- the question the named/unnamed branch is really asking.
+ *
+ * Today an OSM element type is the only thing that answers it, so the answer
+ * is derived from the id. `kind` is the seam a non-OSM source will fill in
+ * directly, once records carry one; until then nothing sets it.
+ */
+function featureKind(record) {
+  return record.kind ?? osmType(record.id) ?? KIND_UNKNOWN;
 }
 
 /**
@@ -79,7 +104,16 @@ export function isSameSpring(a, b) {
   // different element types. Same type means two features somebody mapped
   // individually, so leave them alone.
   if (an || bn) {
-    return d <= SAME_FEATURE_METERS && osmType(a.id) !== osmType(b.id);
+    if (d > SAME_FEATURE_METERS) return false;
+    const ka = featureKind(a);
+    const kb = featureKind(b);
+    // Two unknowns are not "different kinds", and an unknown next to a node is
+    // not evidence of a pool around it. Left to `undefined !== 'node'` the
+    // absence of an answer would read as the strongest possible one, and this
+    // branch merges -- which deletes one of the two springs. Refuse, and let a
+    // human resolve the duplicate that survives.
+    if (ka === KIND_UNKNOWN || kb === KIND_UNKNOWN) return false;
+    return ka !== kb;
   }
 
   return d <= ANONYMOUS_METERS;
@@ -95,9 +129,17 @@ export function mintId(osmRef) {
   return `whs_${createHash('sha256').update(osmRef).digest('hex').slice(0, 12)}`;
 }
 
-/** Every OSM reference a record can be traced to, including merged duplicates. */
+/**
+ * Every OSM reference a record can be traced to, including merged duplicates.
+ *
+ * A record whose id is not OSM-shaped contributes no ref -- never a
+ * synthesised one. An id is a merge key here, and a key invented for a record
+ * that has none is a key every such record shares.
+ */
 function refsOf(record) {
-  const refs = new Set([osmRefOf(record.id)]);
+  const refs = new Set();
+  const own = osmRefOf(record.id);
+  if (own) refs.add(own);
   for (const src of record.sources || []) {
     const m = src.match(/openstreetmap\.org\/(node|way|relation)\/(\d+)/);
     if (m) refs.add(`${m[1]}/${m[2]}`);
@@ -162,12 +204,25 @@ function nearbyIds(grid, { lat, lng }) {
   return ids;
 }
 
-/** A registry entry rendered as something isSameSpring can compare. */
+/**
+ * A registry entry rendered as something isSameSpring can compare.
+ *
+ * An entry with no OSM ref used to be handed over as 'node/0', so the matcher
+ * saw a confident `point` where there was no answer at all -- and an unnamed
+ * entry would then merge with any named way within SAME_FEATURE_METERS. Say
+ * unknown instead, and let isSameSpring refuse.
+ */
 function asComparable(whsId, entry) {
   const [lng, lat] = entry.centroid;
-  const ref = entry.osmRefs[0] || 'node/0';
-  const [type, num] = ref.split('/');
-  return { id: `osm-${type}-${num}`, name: entry.name, location: { lat, lng }, whsId };
+  const ref = entry.osmRefs[0];
+  const [type, num] = ref ? ref.split('/') : [];
+  return {
+    id: ref ? `osm-${type}-${num}` : whsId,
+    kind: ref ? type : KIND_UNKNOWN,
+    name: entry.name,
+    location: { lat, lng },
+    whsId,
+  };
 }
 
 /**
@@ -220,7 +275,12 @@ export function resolveRegistry(records, existingRegistry, today) {
     }
 
     if (!whsId) {
-      whsId = mintId(refs[0]);
+      // An OSM ref is the mint input wherever one exists, forever: every id in
+      // the committed registry was hashed from a bare `type/id` and renaming
+      // one orphans every claim filed against it. A record with no OSM ref has
+      // only its own id to be minted from, which holds until mintId learns
+      // about providers.
+      whsId = mintId(refs[0] ?? record.id);
       // Guards against a hash collision, not any expected condition: two
       // different OSM refs minting the same id would silently conflate two
       // distinct springs under one durable id. That is worse than a crash.
@@ -229,7 +289,7 @@ export function resolveRegistry(records, existingRegistry, today) {
         throw new Error(
           `mintId collision on ${whsId}: ` +
             `existing ref(s) ${existing.osmRefs.join(', ')} at centroid ${JSON.stringify(existing.centroid)} ` +
-            `vs new ref ${refs[0]} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
+            `vs new ref ${refs[0] ?? record.id} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
         );
       }
       registry[whsId] = {
