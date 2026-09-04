@@ -1,0 +1,35 @@
+{
+  "id": "whs_4cecbe800a0a",
+  "claims": {
+    "temperature.celsius": {
+      "value": 37.5,
+      "source": "https://saturniadayspa.com/acqua-termale/",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.price": {
+      "value": "Day spa from €30 (Parco) / €90 (Club)",
+      "source": "https://saturniadayspa.com/",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.currency": {
+      "value": "EUR",
+      "source": "https://saturniadayspa.com/",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "hours.status": {
+      "value": "open",
+      "source": "https://saturniadayspa.com/",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "hours.seasonalNotes": {
+      "value": "Open all year; Parco Termale 9:30-19:00 Apr-Oct, 9:30-17:00 Nov-Mar",
+      "source": "https://saturniadayspa.com/",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    }
+  }
+}
