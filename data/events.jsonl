@@ -6469,3 +6469,12 @@
 {"ts":"2026-08-25T03:58:16.000Z","type":"spring.appeared","springId":"whs_cc1edd798aaa","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"spring.appeared","springId":"whs_bfed741749d1","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"spring.appeared","springId":"whs_15a2e8551043","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_3b4caf33278b","claimPath":"access.price","from":"Paid (amount unknown)","to":"Daily 13,200 Ft (locker)","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_4cecbe800a0a","claimPath":"hours.status","from":"unknown","to":"open","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_93726ab5c676","claimPath":"access.price","from":"Paid (amount unknown)","to":"Select $43-$75 / Premier (21+) $75-$135","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_ce8611720825","claimPath":"access.price","from":"Paid (amount unknown)","to":"Adult $19.75","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_ce8611720825","claimPath":"hours.status","from":"unknown","to":"open","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_f9eacbbc41b0","claimPath":"hours.status","from":"unknown","to":"open","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_f9eacbbc41b0","claimPath":"clothing.policy","from":"unknown","to":"textile-only","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_fc6d30c5283e","claimPath":"access.price","from":"Paid (amount unknown)","to":"Adults $42-$60 (peak/off-peak vary)","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_fc6d30c5283e","claimPath":"hours.status","from":"unknown","to":"open","actor":"build"}

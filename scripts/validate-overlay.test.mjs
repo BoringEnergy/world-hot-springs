@@ -107,19 +107,54 @@ test('a dataset of an unexpected shape skips the check rather than crashing', ()
   }
 });
 
+/**
+ * A throwaway git repo whose HEAD touches one non-overlay file.
+ *
+ * The first version of these tests used `BASE_REF: HEAD~1` against this
+ * repository, so whether the guard fired depended on what the previous commit
+ * happened to touch. It passed on a branch whose last commit was a doc and
+ * failed on main whose last commit was an overlay -- a test that reports on
+ * repository history rather than on the behaviour it names.
+ */
+function repoTouching(file) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'whs-guard-'));
+  const git = (...args) => spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+  git('init', '-q');
+  git('config', 'user.email', 't@example.invalid');
+  git('config', 'user.name', 'T');
+  fs.writeFileSync(path.join(root, 'seed.txt'), 'seed');
+  git('add', '-A');
+  git('commit', '-qm', 'seed');
+  fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+  fs.writeFileSync(path.join(root, file), '{}');
+  git('add', '-A');
+  git('commit', '-qm', 'change');
+  return root;
+}
+
+function guardRun(root, env) {
+  const r = spawnSync('node', [CLI, '--changed-only'], {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, IS_FORK_PR: '', BASE_REF: 'HEAD~1', ...env },
+  });
+  return { code: r.status, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
+}
+
 test('the path guard applies to a fork pull request', () => {
   // The guard exists to constrain strangers, and for a stranger it must bite.
-  const { code, out } = runChangedOnly({ IS_FORK_PR: 'true', BASE_REF: 'HEAD~1' });
-  assert.equal(code, 1);
+  const root = repoTouching('scripts/evil.mjs');
+  const { code, out } = guardRun(root, { IS_FORK_PR: 'true' });
+  assert.equal(code, 1, out);
   assert.match(out, /may only modify/);
 });
 
 test('a same-repo pull request is not held to the path guard', () => {
   // Applied to every PR it failed each maintainer change touching a script or
-  // a doc, making a required check that only a bypass could satisfy. The job
-  // still runs and still validates overlay files; only the path restriction
-  // is scoped.
-  const { code, out } = runChangedOnly({ BASE_REF: 'HEAD~1' });
+  // a doc, making a required check only a bypass could satisfy. The job still
+  // runs and still validates overlay files; only the path rule is scoped.
+  const root = repoTouching('scripts/evil.mjs');
+  const { code, out } = guardRun(root, {});
   assert.equal(code, 0, out);
   assert.match(out, /path guard not applied/);
   assert.doesNotMatch(out, /may only modify/);
@@ -128,7 +163,8 @@ test('a same-repo pull request is not held to the path guard', () => {
 test('a changed file outside the overlay is ignored, but a named one is refused', () => {
   // Different questions. "This diff touches a script" is ordinary on a
   // same-repo PR; "validate this script for me" is a mistake worth naming.
-  assert.equal(runChangedOnly({ BASE_REF: 'HEAD~1' }).code, 0);
+  const root = repoTouching('scripts/evil.mjs');
+  assert.equal(guardRun(root, {}).code, 0);
   const named = runCli(process.cwd(), 'package.json');
   assert.equal(named.code, 1);
   assert.match(named.out, /not an overlay file/);
