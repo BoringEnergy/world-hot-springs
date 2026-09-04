@@ -1,0 +1,41 @@
+{
+  "id": "whs_f9eacbbc41b0",
+  "claims": {
+    "temperature.celsius": {
+      "value": 38.5,
+      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.price": {
+      "value": "Adult $19.75",
+      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs/tarifs-fees",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "access.currency": {
+      "value": "CAD",
+      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs/tarifs-fees",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "hours.open": {
+      "value": "Mo-Su 10:00-22:00",
+      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs/heures-hours",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "hours.status": {
+      "value": "open",
+      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs/heures-hours",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    },
+    "clothing.policy": {
+      "value": "textile-only",
+      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs/securite-safety",
+      "contributor": "HudsonR&D Meta 9.2.26",
+      "state": "active"
+    }
+  }
+}
