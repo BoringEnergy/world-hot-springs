@@ -335,7 +335,7 @@ function record(over = {}) {
     description: null,
     tags: ['hot-spring', 'open-air'],
     warnings: [],
-    quality: { provenance: 'osm', completeness: 67, known: [], ingestedAt: '2026-08-25' },
+    quality: { provenance: ['osm'], completeness: 67, known: [], ingestedAt: '2026-08-25' },
     ...over,
   };
 }

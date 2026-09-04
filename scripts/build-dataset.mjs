@@ -35,8 +35,12 @@ const EVENTS = path.join('data', 'events.jsonl');
  * the loser's. Two mappings of one spring usually know different things, and
  * discarding the loser wholesale throws away the half of the record that the
  * winner was missing.
+ *
+ * Exported for the tests. The provenance union is the one part of this that
+ * today's data cannot exercise — both sides of all 1,167 merges are `['osm']`
+ * — so it is only ever checked directly.
  */
-function mergeInto(winner, loser) {
+export function mergeInto(winner, loser) {
   winner.sources = [...new Set([...winner.sources, ...loser.sources])];
   winner.warnings = [...new Set([...winner.warnings, ...loser.warnings])];
   winner.tags = [...new Set([...winner.tags, ...loser.tags])].sort();
@@ -61,6 +65,15 @@ function mergeInto(winner, loser) {
   winner.location.elevation ??= loser.location.elevation;
   winner.location.region ??= loser.location.region;
   winner.location.nearestTown ??= loser.location.nearestTown;
+
+  // Every provider that contributed to either record, named by the survivor.
+  // The loser's knowledge lives on in the winner, so dropping the provider
+  // that supplied it would leave the record citing evidence it no longer
+  // admits to having used. Sorted and deduplicated so the merged record does
+  // not depend on which of the two happened to be the more complete one.
+  winner.quality.provenance = [
+    ...new Set([...winner.quality.provenance, ...loser.quality.provenance]),
+  ].sort();
 
   const c = recomputeCompleteness(winner);
   winner.quality.completeness = c.score;
@@ -391,4 +404,15 @@ async function main() {
   console.log(`\nwrote ${OUT_JSON}, ${OUT_GEOJSON}, ${OUT_SUMMARY} (+ copies in public/data/)`);
 }
 
-main();
+// Guarded so a test can import mergeInto without rebuilding the whole dataset
+// as a side effect. `npm run data:build` runs this file directly, where
+// import.meta.main is true.
+//
+// Checked rather than assumed: on a runtime without import.meta.main the guard
+// is `undefined`, and the build would print nothing, exit 0, and leave
+// yesterday's dataset in place looking like a success. A missing feature has
+// to be an error, not a silent no-op.
+if (typeof import.meta.main !== 'boolean') {
+  throw new Error('node >=24.2 required: import.meta.main decides whether this file builds or is only imported');
+}
+if (import.meta.main) main();

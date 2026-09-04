@@ -108,9 +108,31 @@ export type ClothingPolicy = 'optional' | 'required' | 'textile-only' | 'mixed' 
 export type HoursStatus = 'open' | 'seasonal' | 'closed' | 'unknown';
 export type SpringType = 'natural' | 'developed' | 'resort' | 'wild' | 'unknown';
 
+/**
+ * A data source a record can be built from.
+ *
+ * One member, because there is one normaliser. This is the same vocabulary
+ * `scripts/lib/identity.mjs` established for the registry's `sourceRefs`
+ * (`OSM_PROVIDER`), restated here rather than extended: a second, longer list
+ * of providers nothing produces is exactly the divergence that `access.price`
+ * and the `osmRefs` projection each had to be taught the hard way. A closed
+ * union is also the only thing that will make `tsc` object if a provider is
+ * added on one side of that seam and not the other.
+ */
+export type SourceProvider = 'osm';
+
 export interface DataQuality {
-  /** Machine ingest pipeline that produced the record. */
-  provenance: 'osm';
+  /**
+   * Every machine ingest pipeline that contributed to this record,
+   * deduplicated and in sorted order. Never empty.
+   *
+   * A list rather than one value because a record can be assembled from more
+   * than one source — coordinates from a map, the evidence that the water is
+   * thermal from a government page — and naming only one of those would be
+   * schema-valid and false. Today every record is `['osm']`, which is the
+   * complete and honest answer while OSM is the only source.
+   */
+  provenance: SourceProvider[];
   /**
    * 0-100. Rises with the number of first-class fields (temperature, price,
    * hours, clothing policy) that carry a real value rather than Unknown.

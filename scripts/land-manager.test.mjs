@@ -44,7 +44,7 @@ function inside(over = {}) {
     clothing: { policy: 'unknown', schedule: null, notes: null },
     hours: { open: null, seasonalNotes: null, status: 'unknown' },
     sources: ['https://www.openstreetmap.org/node/1'],
-    quality: { provenance: 'osm', completeness: 0, known: [], ingestedAt: '2026-01-01' },
+    quality: { provenance: ['osm'], completeness: 0, known: [], ingestedAt: '2026-01-01' },
     ...over,
   };
 }
@@ -63,7 +63,7 @@ function outside(over = {}) {
     clothing: { policy: 'unknown', schedule: null, notes: null },
     hours: { open: null, seasonalNotes: null, status: 'unknown' },
     sources: ['https://www.openstreetmap.org/node/1'],
-    quality: { provenance: 'osm', completeness: 0, known: [], ingestedAt: '2026-01-01' },
+    quality: { provenance: ['osm'], completeness: 0, known: [], ingestedAt: '2026-01-01' },
     ...over,
   };
 }

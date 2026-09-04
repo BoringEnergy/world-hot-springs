@@ -359,8 +359,44 @@ md5-identical across a full rebuild, `merged 1167 duplicate record(s) -> 6471
 springs`, zero `missingSince`, `events.jsonl` unchanged, `git status` clean.
 345 tests pass; `tsc -b --force` clean.
 
-**Still to do:** widening `quality.provenance`. That changes the shape of every
-published record and is a different class of risk, so it gets its own change.
+**`quality.provenance` has landed** -- the last piece.
+
+`DataQuality.provenance` is `SourceProvider[]`, and `SourceProvider` is a
+closed union holding exactly the vocabulary `identity.mjs` established for
+`sourceRefs`: `'osm'`, and nothing it does not yet mint. A longer list of
+providers nothing produces would be the second copy this design has twice been
+bitten by; the normaliser imports `OSM_PROVIDER` rather than spelling it again.
+
+The list is the point, not the vocabulary. A record whose coordinates come from
+OSM and whose thermal evidence comes from a tourism page is not "OSM
+provenance", and a single value could only ever say one of the two. Today every
+record is `['osm']`, which is complete rather than provisional.
+
+`mergeInto` unions, deduplicates and sorts. Both sides of all 1,167 merges are
+`['osm']` today, so the union is unobservable in the build and is only ever
+checked directly -- which meant exporting `mergeInto` and guarding `main()`
+behind `import.meta.main`. That guard is itself a silent-failure risk (an
+`undefined` guard would make `npm run data:build` a no-op that exits 0), so the
+capability is asserted rather than assumed.
+
+Gate, inverted from the previous three: `registry.json`, `summary.json` and
+`events.jsonl` md5-identical across a full rebuild, `merged 1167 duplicate
+record(s) -> 6471 springs`, no new events. `hot-springs.json` necessarily
+changed; parsed and compared with `quality.provenance` blanked in both, it
+deep-equals the committed file across all 6,471 records, and every one of them
+is exactly `['osm']`. The same held for `hot-springs.geojson` and the 1,779
+quarantined records in `suspect.json`. 347 -> 354 tests; `tsc -b --force` and
+the Vite production build both clean.
+
+One test was caught passing for the wrong reason, by mutation: the guard test
+matched `if (import.meta.main) main();` unanchored, so commenting the entry
+point out left it green -- a build that silently stopped building. Anchored to
+a line start.
+
+`tsc` cannot see any of this: nothing in `src/` reads `quality.provenance`, so
+narrowing it back to one literal typechecks, and the `.mjs` half of the
+pipeline is untyped, so a provider spelled differently on either side of the
+seam compiles cleanly. A source-text test asserts both.
 
 ## Migration
 
