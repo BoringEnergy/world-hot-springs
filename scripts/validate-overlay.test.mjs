@@ -34,6 +34,14 @@ function writeOverlay(root, overlay) {
 
 /** spawnSync, not execFileSync: the latter hands back stderr only on failure,
  *  and the skip warning this asserts on is printed by a run that succeeds. */
+function runChangedOnly(env) {
+  const r = spawnSync('node', ['scripts/validate-overlay.mjs', '--changed-only'], {
+    encoding: 'utf8',
+    env: { ...process.env, IS_FORK_PR: '', ...env },
+  });
+  return { code: r.status, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
+}
+
 function runCli(root, file) {
   const r = spawnSync('node', [CLI, '--files', file], { cwd: root, encoding: 'utf8' });
   if (r.error) throw r.error;
@@ -97,4 +105,31 @@ test('a dataset of an unexpected shape skips the check rather than crashing', ()
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('the path guard applies to a fork pull request', () => {
+  // The guard exists to constrain strangers, and for a stranger it must bite.
+  const { code, out } = runChangedOnly({ IS_FORK_PR: 'true', BASE_REF: 'HEAD~1' });
+  assert.equal(code, 1);
+  assert.match(out, /may only modify/);
+});
+
+test('a same-repo pull request is not held to the path guard', () => {
+  // Applied to every PR it failed each maintainer change touching a script or
+  // a doc, making a required check that only a bypass could satisfy. The job
+  // still runs and still validates overlay files; only the path restriction
+  // is scoped.
+  const { code, out } = runChangedOnly({ BASE_REF: 'HEAD~1' });
+  assert.equal(code, 0, out);
+  assert.match(out, /path guard not applied/);
+  assert.doesNotMatch(out, /may only modify/);
+});
+
+test('a changed file outside the overlay is ignored, but a named one is refused', () => {
+  // Different questions. "This diff touches a script" is ordinary on a
+  // same-repo PR; "validate this script for me" is a mistake worth naming.
+  assert.equal(runChangedOnly({ BASE_REF: 'HEAD~1' }).code, 0);
+  const named = runCli(process.cwd(), 'package.json');
+  assert.equal(named.code, 1);
+  assert.match(named.out, /not an overlay file/);
 });
