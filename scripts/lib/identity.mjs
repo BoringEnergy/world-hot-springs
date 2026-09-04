@@ -130,6 +130,84 @@ export function mintId(osmRef) {
 }
 
 /**
+ * The provider every id in the committed registry was minted from.
+ *
+ * Named rather than inlined because "osm" appears here as a value in the data,
+ * not as a fact about this file: the projection below and any future provider
+ * check must agree on the same spelling.
+ */
+export const OSM_PROVIDER = 'osm';
+
+/**
+ * A registry source reference is `{provider, externalId}` and deliberately
+ * nothing else.
+ *
+ * The design note's SourceRef is richer -- it also carries `url`, `license`
+ * and `retrievedAt` -- and the next reader will expect that shape here. It
+ * does not belong here. Those three describe where a *fact* came from and
+ * belong on the record beside the fact they justify; the registry's only job
+ * is deciding which spring a record is, and a licence string cannot help with
+ * that. Copied in, they would be a second place for provenance to drift from.
+ */
+function toSourceRef({ provider, externalId }) {
+  return { provider, externalId };
+}
+
+/** The ordering key. `provider:externalId`, so the OSM subset stays sorted by ref. */
+const sourceRefKey = (ref) => `${ref.provider}:${ref.externalId}`;
+
+/**
+ * `osmRefs` is a projection of `sourceRefs`, never a second authored copy.
+ *
+ * Two writable copies of one fact is the divergence that already bit
+ * `access.price` in this repository. Everything downstream -- the published
+ * records, the events log, the existing tests -- still reads `osmRefs`, so it
+ * stays; it is just derived now.
+ */
+function osmRefsOf(sourceRefs) {
+  return sourceRefs.filter((r) => r.provider === OSM_PROVIDER).map((r) => r.externalId);
+}
+
+/**
+ * Merge refs into an entry's, deduplicated by `provider:externalId` and sorted.
+ *
+ * Default string order, not localeCompare: collation treats punctuation
+ * loosely, and the OSM projection of this list is written to disk and compared
+ * byte for byte against what the pre-sourceRefs code produced with a bare
+ * `.sort()`.
+ */
+function mergeSourceRefs(existing, incoming) {
+  const byKey = new Map();
+  for (const ref of [...existing, ...incoming]) byKey.set(sourceRefKey(ref), toSourceRef(ref));
+  return [...byKey.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([, ref]) => ref);
+}
+
+/**
+ * Read a registry, from disk or from a caller's own object, into the shape the
+ * resolver works in.
+ *
+ * All 6,471 committed entries predate `sourceRefs` and hold only `osmRefs`, so
+ * the refs are synthesised back out of the projection: every one of them is an
+ * OSM ref, because `osmRefs` could never have held anything else. Order is
+ * preserved rather than sorted -- an entry read and written unchanged must come
+ * back byte-identical, and sorting here would silently rewrite any entry whose
+ * refs were not already in order.
+ *
+ * `resolveRegistry` applies this to whatever it is handed, so a caller that
+ * parses `registry.json` itself still gets the synthesis. One reader, one path.
+ */
+export function loadRegistry(raw) {
+  const registry = {};
+  for (const [whsId, entry] of Object.entries(raw)) {
+    const sourceRefs = (
+      entry.sourceRefs ?? (entry.osmRefs ?? []).map((externalId) => ({ provider: OSM_PROVIDER, externalId }))
+    ).map(toSourceRef);
+    registry[whsId] = { ...structuredClone(entry), osmRefs: osmRefsOf(sourceRefs), sourceRefs };
+  }
+  return registry;
+}
+
+/**
  * Every OSM reference a record can be traced to, including merged duplicates.
  *
  * A record whose id is not OSM-shaped contributes no ref -- never a
@@ -237,7 +315,7 @@ function asComparable(whsId, entry) {
  * @returns {{registry: object, assignments: Map<string,string>, events: object[]}}
  */
 export function resolveRegistry(records, existingRegistry, today) {
-  const registry = structuredClone(existingRegistry);
+  const registry = loadRegistry(existingRegistry);
   const assignments = new Map();
   const events = [];
 
@@ -304,6 +382,7 @@ export function resolveRegistry(records, existingRegistry, today) {
       }
       registry[whsId] = {
         osmRefs: [],
+        sourceRefs: [],
         centroid: [record.location.lng, record.location.lat],
         name: record.name,
         firstSeen: today,
@@ -314,7 +393,14 @@ export function resolveRegistry(records, existingRegistry, today) {
     }
 
     const entry = registry[whsId];
-    entry.osmRefs = [...new Set([...entry.osmRefs, ...refs])].sort();
+    // refsOf still yields bare OSM refs, so every ref a record contributes
+    // today is an OSM one. Widening that is the provider-aware mintId's job,
+    // not this step's.
+    entry.sourceRefs = mergeSourceRefs(
+      entry.sourceRefs,
+      refs.map((externalId) => ({ provider: OSM_PROVIDER, externalId })),
+    );
+    entry.osmRefs = osmRefsOf(entry.sourceRefs);
     entry.centroid = [record.location.lng, record.location.lat];
     entry.name = record.name ?? entry.name;
     entry.lastSeen = today;

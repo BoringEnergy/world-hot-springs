@@ -446,3 +446,165 @@ test('every id the build feeds the matcher is OSM-shaped, so that equivalence co
     assert.equal(osmType(record.id), type, 'a record with an unknown kind would change what dedupe merges');
   }
 });
+
+// --- source-independent identity: sourceRefs on the registry ---
+// Migration steps 1 and 2 of the design note. The registry gains sourceRefs as
+// the thing it matches on; osmRefs stays, derived. Minting is untouched.
+
+import fs from 'node:fs';
+import { loadRegistry, OSM_PROVIDER } from './lib/identity.mjs';
+
+const legacyEntry = (osmRefs) => ({
+  osmRefs,
+  centroid: [-21.2222, 64.048],
+  name: 'Reykjadalur',
+  firstSeen: '2026-01-01',
+  lastSeen: '2026-01-01',
+  missingSince: null,
+});
+
+test('an entry holding only osmRefs -- the shape all 6,471 committed entries have -- gains synthesised sourceRefs', () => {
+  // Asserting the value, not merely that it loaded: an implementation that
+  // synthesised nothing, or synthesised the wrong provider, would still let
+  // every existing entry through the resolver.
+  const loaded = loadRegistry({ whs_a: legacyEntry(['node/1', 'way/55']) });
+  assert.deepEqual(loaded.whs_a.sourceRefs, [
+    { provider: 'osm', externalId: 'node/1' },
+    { provider: 'osm', externalId: 'way/55' },
+  ]);
+  assert.deepEqual(loaded.whs_a.osmRefs, ['node/1', 'way/55'], 'the projection is unchanged by loading');
+
+  // ...and it still resolves: the record matches by ref, mints nothing, and
+  // lands on the same entry.
+  const { assignments, registry, events } = resolveRegistry(
+    [rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')],
+    { whs_a: legacyEntry(['node/1', 'way/55']) },
+    '2026-09-03',
+  );
+  assert.equal(assignments.get('osm-node-1'), 'whs_a');
+  assert.deepEqual(events, [], 'a legacy entry that matches is neither new nor gone');
+  assert.deepEqual(registry.whs_a.sourceRefs, [
+    { provider: 'osm', externalId: 'node/1' },
+    { provider: 'osm', externalId: 'way/55' },
+  ]);
+});
+
+test('osmRefs on a loaded entry is the OSM subset of sourceRefs, and only that', () => {
+  // The authored-sourceRefs shape the next build writes, with a non-OSM ref
+  // in it. osmRefs must drop the USGS ref and keep the others in order.
+  const loaded = loadRegistry({
+    whs_a: {
+      ...legacyEntry(['this value is overwritten by the projection']),
+      sourceRefs: [
+        { provider: 'usgs', externalId: 'P96Q13U3' },
+        { provider: OSM_PROVIDER, externalId: 'node/1' },
+        { provider: OSM_PROVIDER, externalId: 'way/55' },
+      ],
+    },
+  });
+  assert.deepEqual(loaded.whs_a.osmRefs, ['node/1', 'way/55']);
+  assert.deepEqual(
+    loaded.whs_a.osmRefs,
+    loaded.whs_a.sourceRefs.filter((r) => r.provider === 'osm').map((r) => r.externalId),
+    'osmRefs is derived, never authored',
+  );
+});
+
+test('a registry sourceRef carries provider and externalId and nothing else', () => {
+  // Provenance metadata -- url, license, retrievedAt -- belongs on the record
+  // beside the fact it justifies. A copy here would be a second place for it
+  // to drift.
+  const loaded = loadRegistry({
+    whs_a: {
+      ...legacyEntry([]),
+      sourceRefs: [
+        {
+          provider: OSM_PROVIDER,
+          externalId: 'node/1',
+          url: 'https://www.openstreetmap.org/node/1',
+          license: 'ODbL-1.0',
+          retrievedAt: '2026-09-03',
+        },
+      ],
+    },
+  });
+  assert.deepEqual(Object.keys(loaded.whs_a.sourceRefs[0]).sort(), ['externalId', 'provider']);
+});
+
+test('the build writes sourceRefs, and osmRefs stays its projection through a merge', () => {
+  // Step 2: a fresh mint, then a second build that adds a ref. Both paths
+  // must leave the two in agreement -- the merge path is the one that used to
+  // write osmRefs directly.
+  const first = resolveRegistry([rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')], {}, '2026-08-25');
+  const id = first.assignments.get('osm-node-1');
+  assert.deepEqual(first.registry[id].sourceRefs, [{ provider: 'osm', externalId: 'node/1' }]);
+  assert.deepEqual(first.registry[id].osmRefs, ['node/1']);
+
+  const redrawn = {
+    id: 'osm-way-99',
+    name: 'Reykjadalur',
+    location: { lat: 64.048, lng: -21.2222 },
+    sources: ['https://www.openstreetmap.org/node/1'],
+  };
+  const second = resolveRegistry([redrawn], first.registry, '2026-09-01');
+  assert.equal(second.assignments.get('osm-way-99'), id);
+  assert.deepEqual(second.registry[id].sourceRefs, [
+    { provider: 'osm', externalId: 'node/1' },
+    { provider: 'osm', externalId: 'way/99' },
+  ]);
+  assert.deepEqual(
+    second.registry[id].osmRefs,
+    second.registry[id].sourceRefs.map((r) => r.externalId),
+    'the merge path derives osmRefs too',
+  );
+
+  // Sorted, not insertion-ordered. refsOf yields the record's own ref first,
+  // so a way that cites a node arrives way-first; the pre-sourceRefs code
+  // sorted, and registry.json on disk is sorted because of it.
+  const wayFirst = resolveRegistry(
+    [
+      {
+        id: 'osm-way-99',
+        name: 'Reykjadalur',
+        location: { lat: 64.048, lng: -21.2222 },
+        sources: ['https://www.openstreetmap.org/node/1'],
+      },
+    ],
+    {},
+    '2026-09-03',
+  );
+  const fresh = wayFirst.registry[wayFirst.assignments.get('osm-way-99')];
+  assert.deepEqual(fresh.osmRefs, ['node/1', 'way/99']);
+  assert.deepEqual(fresh.sourceRefs, [
+    { provider: 'osm', externalId: 'node/1' },
+    { provider: 'osm', externalId: 'way/99' },
+  ]);
+});
+
+test('a registry entry round-trips through disk unchanged', () => {
+  // Load, write, load again. If the reader and the writer disagree about the
+  // shape, the second load moves refs -- and a moving ref is a moving id.
+  const once = loadRegistry({ whs_a: legacyEntry(['node/1', 'way/55']) });
+  const twice = loadRegistry(JSON.parse(JSON.stringify(once)));
+  assert.deepEqual(twice, once);
+
+  const resolved = resolveRegistry([rec('osm-node-1', 64.048, -21.2222, 'Reykjadalur')], once, '2026-09-03');
+  const reloaded = loadRegistry(JSON.parse(JSON.stringify(resolved.registry)));
+  assert.deepEqual(reloaded, resolved.registry, 'what resolveRegistry writes is what loadRegistry reads back');
+});
+
+test('a real id from the committed registry still mints from a bare OSM ref', () => {
+  // The permanent compatibility seam. Every whs_ id on disk was hashed from a
+  // bare `type/id`; namespacing the input to `osm:node/1078652088` would move
+  // all 6,471 of them and orphan every claim filed against them.
+  assert.equal(mintId('node/1078652088'), 'whs_8448a909f48b');
+
+  const committed = JSON.parse(fs.readFileSync('data/registry.json', 'utf8'));
+  assert.ok(committed.whs_8448a909f48b, 'the pinned id must still be in the registry');
+  assert.ok(
+    loadRegistry(committed).whs_8448a909f48b.sourceRefs.some(
+      (r) => r.provider === 'osm' && r.externalId === 'node/1078652088',
+    ),
+    'and the ref it was minted from must survive the load',
+  );
+});
