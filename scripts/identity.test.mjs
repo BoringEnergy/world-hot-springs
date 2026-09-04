@@ -305,27 +305,58 @@ test('osmRefOf and osmType refuse an id that is not OSM-shaped', () => {
   assert.equal(osmType('osm-relation-789'), 'relation');
 });
 
-test('two non-OSM records 3,000km apart resolve to two entries, contributing no refs', () => {
-  // Measured against the unfixed code: ONE entry, whs_2098f7a355ba, osmRefs
-  // ['undefined/undefined'], named "Omega" at Omega's centroid -- Alpha's name
-  // and position overwritten, and both records stamped with the same id.
+test('a non-OSM record is refused a durable id rather than given a temporary one', () => {
+  // Measured against the unfixed code, these two -- 3,000km apart -- became
+  // ONE entry, whs_2098f7a355ba, osmRefs ['undefined/undefined'], named
+  // "Omega" at Omega's centroid: Alpha's name and position overwritten, and
+  // both records stamped with the same durable id.
+  //
+  // With refsOf fixed there is no mint input left, and inventing one would
+  // mint an id the provider-aware mintId is going to move. An id that moves
+  // orphans every overlay file named for it, so the build stops instead.
   const alpha = { id: 'usgs:P96Q13U3', name: 'Alpha', location: { lat: 44.6, lng: -110.5 }, sources: [] };
   const omega = { id: 'usgs:ZZZ999', name: 'Omega', location: { lat: 10.0, lng: 20.0 }, sources: [] };
-  const { registry, assignments } = resolveRegistry([alpha, omega], {}, '2026-09-03');
 
-  const alphaId = assignments.get('usgs:P96Q13U3');
-  const omegaId = assignments.get('usgs:ZZZ999');
-  assert.notEqual(alphaId, omegaId, 'two springs 3,000km apart are not one spring');
-  assert.equal(Object.keys(registry).length, 2);
-
-  // Assert the refs, not merely the count: a count alone would pass against
-  // any other bug that happened to split them.
-  for (const [id, entry] of Object.entries(registry)) {
-    assert.deepEqual(entry.osmRefs, [], `${id} must contribute no OSM ref at all`);
+  for (const record of [alpha, omega]) {
+    assert.throws(
+      () => resolveRegistry([record], {}, '2026-09-03'),
+      (err) => {
+        assert.match(err.message, /no source ref/);
+        // Naming the record is the difference between a fixable build failure
+        // and a hunt through 14k records.
+        assert.match(err.message, new RegExp(record.id.replace(':', '\\:')));
+        return true;
+      },
+      `${record.id} must be refused by name`,
+    );
   }
-  assert.equal(registry[alphaId].name, 'Alpha');
-  assert.equal(registry[omegaId].name, 'Omega');
-  assert.deepEqual(registry[alphaId].centroid, [-110.5, 44.6], "Alpha's centroid must not be overwritten");
+
+  // And the pair together, which is the shape the defect was measured in:
+  // it must fail rather than quietly resolve both onto one entry.
+  assert.throws(() => resolveRegistry([alpha, omega], {}, '2026-09-03'), /no source ref/);
+});
+
+test('a non-OSM record contributes no ref to an entry it does match', () => {
+  // The Critical-1 fix on its own, observed where minting is not in the way:
+  // the record resolves by position and name, so it gets an id -- and the
+  // entry must come out holding exactly the refs it started with. Against the
+  // unfixed code the entry also adopts 'undefined/undefined', which is the
+  // key every other non-OSM record would then resolve onto.
+  const registry = {
+    whs_known: {
+      osmRefs: ['node/7'],
+      centroid: [-110.5, 44.6],
+      name: 'Alpha',
+      firstSeen: '2026-01-01',
+      lastSeen: '2026-01-01',
+      missingSince: null,
+    },
+  };
+  const usgs = { id: 'usgs:P96Q13U3', name: 'Alpha', location: { lat: 44.6, lng: -110.5 }, sources: [] };
+  const { registry: after, assignments } = resolveRegistry([usgs], registry, '2026-09-03');
+
+  assert.equal(assignments.get('usgs:P96Q13U3'), 'whs_known', 'an identical name at the same point is the same spring');
+  assert.deepEqual(after.whs_known.osmRefs, ['node/7'], 'a non-OSM id must contribute no ref, synthesised or otherwise');
 });
 
 test('a refless registry entry does not merge with a named OSM way 44m away', () => {

@@ -275,12 +275,22 @@ export function resolveRegistry(records, existingRegistry, today) {
     }
 
     if (!whsId) {
-      // An OSM ref is the mint input wherever one exists, forever: every id in
-      // the committed registry was hashed from a bare `type/id` and renaming
-      // one orphans every claim filed against it. A record with no OSM ref has
-      // only its own id to be minted from, which holds until mintId learns
-      // about providers.
-      whsId = mintId(refs[0] ?? record.id);
+      if (!refs.length) {
+        // No ref means no stable mint input. Minting from the record id would
+        // produce an id the provider-aware mintId will later move, and an id
+        // that moves orphans every overlay file named for it -- the one
+        // outcome the identity design forbids. Refuse until mintId
+        // understands providers.
+        throw new Error(
+          `${record.id} yields no source ref, so it cannot be given a durable id. ` +
+            'Non-OSM sources need the provider-aware mintId; see ' +
+            'docs/superpowers/specs/2026-09-03-source-independent-identity.md',
+        );
+      }
+      // An OSM ref is the mint input, forever: every id in the committed
+      // registry was hashed from a bare `type/id`, and renaming one orphans
+      // every claim filed against it.
+      whsId = mintId(refs[0]);
       // Guards against a hash collision, not any expected condition: two
       // different OSM refs minting the same id would silently conflate two
       // distinct springs under one durable id. That is worse than a crash.
@@ -289,7 +299,7 @@ export function resolveRegistry(records, existingRegistry, today) {
         throw new Error(
           `mintId collision on ${whsId}: ` +
             `existing ref(s) ${existing.osmRefs.join(', ')} at centroid ${JSON.stringify(existing.centroid)} ` +
-            `vs new ref ${refs[0] ?? record.id} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
+            `vs new ref ${refs[0]} at centroid ${JSON.stringify([record.location.lng, record.location.lat])}`,
         );
       }
       registry[whsId] = {
