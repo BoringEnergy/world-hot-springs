@@ -2,33 +2,9 @@
   "id": "whs_fc6d30c5283e",
   "claims": {
     "temperature.celsius": {
-      "value": 32,
-      "source": "https://hotspringspool.com/hot_springs/pools/grand-pool/",
-      "contributor": "HudsonR&D Meta 9.2.26",
-      "state": "active"
-    },
-    "access.price": {
-      "value": "Adults $42-$60 (peak/off-peak vary)",
-      "source": "https://hotspringspool.com/",
-      "contributor": "HudsonR&D Meta 9.2.26",
-      "state": "active"
-    },
-    "access.currency": {
-      "value": "USD",
-      "source": "https://hotspringspool.com/",
-      "contributor": "HudsonR&D Meta 9.2.26",
-      "state": "active"
-    },
-    "hours.status": {
-      "value": "open",
-      "source": "https://hotspringspool.com/home-page/hours-of-operation/",
-      "contributor": "HudsonR&D Meta 9.2.26",
-      "state": "active"
-    },
-    "hours.seasonalNotes": {
-      "value": "Pools daily 8:00am-10:00pm in summer season; check schedule for seasonal changes and maintenance closures",
-      "source": "https://hotspringspool.com/home-page/hours-of-operation/",
-      "contributor": "HudsonR&D Meta 9.2.26",
+      "value": 71,
+      "source": "https://www.glenwoodhotsprings.com/hot-springs-pool/",
+      "contributor": "fork-path-test",
       "state": "active"
     }
   }
