@@ -1,0 +1,17 @@
+{
+  "id": "whs_3fc5c7f9d741",
+  "claims": {
+    "temperature.celsius": {
+      "value": 42,
+      "source": "https://en.wikipedia.org/wiki/Deep_Creek_Hot_Springs",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://en.wikipedia.org/wiki/Deep_Creek_Hot_Springs",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
