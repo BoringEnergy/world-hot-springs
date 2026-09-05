@@ -132,7 +132,9 @@ test('counts are reported per verdict', () => {
     { verdict: VERDICT.REFUTED }, { verdict: VERDICT.NEEDS_REVIEW },
     { verdict: VERDICT.UNREACHABLE },
   ]);
-  assert.deepEqual(counts, { refuted: 1, unreachable: 1, needsReview: 1, modelCleared: 0, verified: 2 });
+  assert.deepEqual(counts, {
+    refuted: 1, disputed: 0, unreachable: 1, needsReview: 1, modelCleared: 0, verified: 2,
+  });
 });
 
 test('a source pointing at the metadata endpoint is refuted, not fetched', async () => {
@@ -186,7 +188,12 @@ test('a cleared claim is never upgraded to verified', async () => {
   assert.notEqual(out[0].verdict, VERDICT.VERIFIED);
 });
 
-test('a reader refuting a claim rejects the submission', async () => {
+test('a reader disputing a claim routes to a person, never auto-rejects', async () => {
+  // The symmetric cap. The layer was already unable to approve past
+  // MODEL_CLEARED because the page is contributor-chosen; this is the other
+  // half. A model reading prose has already been wrong about a true claim
+  // here -- Banff's clothing.policy -- so its disagreement stops a claim and
+  // fetches a human rather than deciding.
   const out = await verifyClaims(
     { claims: { 'hours.status': claim('open') } },
     {
@@ -195,9 +202,38 @@ test('a reader refuting a claim rejects the submission', async () => {
       provider: reader({ refuted: true, reason: 'the page says closed for the season' }),
     },
   );
-  assert.equal(out[0].verdict, VERDICT.REFUTED);
-  assert.match(out[0].detail, /refuted-by-verifier/);
-  assert.equal(summarise(out).code, 1);
+  assert.equal(out[0].verdict, VERDICT.DISPUTED);
+  assert.notEqual(out[0].verdict, VERDICT.REFUTED, 'a model opinion is not a refutation');
+  assert.match(out[0].detail, /disputed-by-reader/);
+  assert.equal(summarise(out).code, 3, 'its own code: retrying will not help');
+});
+
+test('a dispute and a refutation are different signals', () => {
+  // Collapsing them would put a model's opinion behind the gate's authority.
+  assert.notEqual(
+    summarise([{ verdict: VERDICT.DISPUTED }]).code,
+    summarise([{ verdict: VERDICT.REFUTED }]).code,
+  );
+  assert.notEqual(
+    summarise([{ verdict: VERDICT.DISPUTED }]).code,
+    summarise([{ verdict: VERDICT.UNREACHABLE }]).code,
+  );
+});
+
+test('a literal refutation still outranks a dispute', () => {
+  // A claim contradicted by its own page is wrong whatever a reader thinks
+  // of some other field.
+  assert.equal(
+    summarise([{ verdict: VERDICT.DISPUTED }, { verdict: VERDICT.REFUTED }]).code, 1,
+  );
+});
+
+test('a dispute outranks unreachability', () => {
+  // Retrying resolves one and not the other, so the code that says "retry"
+  // must not mask the one that says "a person has to look".
+  assert.equal(
+    summarise([{ verdict: VERDICT.UNREACHABLE }, { verdict: VERDICT.DISPUTED }]).code, 3,
+  );
 });
 
 test('a malformed verdict is undecided, never a refutation or a pass', async () => {

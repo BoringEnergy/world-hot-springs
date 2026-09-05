@@ -183,11 +183,18 @@ async function main() {
     console.log(`gate-2: ${r.verdict.toUpperCase()} ${r.name} ${r.field}${r.detail ? ` (${r.detail})` : ''}`);
   }
   console.log(
-    `gate-2: ${counts.verified} verified, ${counts.refuted} refuted, ` +
+    `gate-2: ${counts.verified} verified, ${counts.modelCleared} read, ` +
+      `${counts.refuted} refuted, ${counts.disputed} disputed, ` +
       `${counts.unreachable} unreachable, ${counts.needsReview} need a reader.`,
   );
   if (code === 1) console.error('gate-2: REFUSED -- a claim is contradicted by its own source.');
   if (code === 2) console.error('gate-2: UNDECIDED -- a source could not be read. Safe to re-run.');
+  // Deliberately not "REFUSED". A reader disagreeing is not the gate deciding
+  // the claim is wrong, and wording it as a refusal would put the model's
+  // opinion behind the gate's authority.
+  if (code === 3) {
+    console.error('gate-2: NEEDS A PERSON -- a reader disputes a claim. Re-running will not help.');
+  }
   return code;
 }
 

@@ -23,9 +23,12 @@
  *   0  nothing was contradicted
  *   1  at least one claim is contradicted by its own source -- reject
  *   2  at least one source could not be read -- undecided, safe to retry
+ *   3  a reader disputes a claim -- a person has to decide
  *
- * 1 and 2 are distinct so that a workflow cannot retry a refutation into a
- * pass. Rerunning a flaky host is correct; rerunning a wrong number is not.
+ * All distinct, so no workflow can retry a verdict into a pass and "this is
+ * wrong" is never the same signal as "someone should look". Rerunning a flaky
+ * host is correct; rerunning a wrong number is not; rerunning a disagreement
+ * about prose just asks the same model the same question.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -94,15 +97,30 @@ async function main() {
     const mark =
       r.verdict === VERDICT.VERIFIED ? 'ok  '
       : r.verdict === VERDICT.MODEL_CLEARED ? 'read'
+      : r.verdict === VERDICT.DISPUTED ? 'LOOK'
       : r.verdict === VERDICT.REFUTED ? 'FAIL'
       : r.verdict === VERDICT.UNREACHABLE ? '??  '
       : '--  ';
     console.log(`${mark} ${r.id} ${r.field}${r.detail ? `  (${r.detail})` : ''}`);
   }
   console.log(
-    `\n${counts.verified} verified, ${counts.refuted} refuted, ` +
+    `\n${counts.verified} verified, ${counts.modelCleared} read by a model, ` +
+      `${counts.refuted} refuted, ${counts.disputed} disputed, ` +
       `${counts.unreachable} unreachable, ${counts.needsReview} need a reader.`,
   );
+  if (counts.disputed > 0) {
+    console.log(
+      'Fields marked LOOK were disputed by the reader, not rejected. A model ' +
+        'reading prose has been wrong about a true claim here, so a person decides.',
+    );
+  }
+  if (counts.modelCleared > 0) {
+    console.log(
+      'Fields marked `read` were not refuted. That is weaker than `ok`: the page ' +
+        'was chosen by the contributor, so a model clearing it is not the same as ' +
+        'a number found in it.',
+    );
+  }
   if (counts.needsReview > 0) {
     console.log(
       'Fields marked -- are not values that appear verbatim in a source ' +
