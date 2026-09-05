@@ -8,13 +8,29 @@
 # name is deliberately not spelled here -- a test asserts the literal string
 # appears nowhere under .github/, comments included.)
 #
-# NO SECRETS, deliberately. The spec's full design ends in a model call
-# holding an API key; that step is not built. Its absence is what makes the
-# rest safe -- the fetches this job makes go to URLs a stranger chose, and the
-# residual DNS-rebinding gap in source-url.mjs is only dangerous next to a
-# credential. Do not add a secret here without first building the pieces the
-# spec names: assert-checkout-pristine, the content-hash fetch into
-# $RUNNER_TEMP, and the eligibility and budget checks.
+# NO SECRETS, still. The three prerequisites this file used to name are now
+# built and running: the checkout is proven pristine before anything
+# privileged, contributor files are fetched by content hash into a temp
+# directory and byte-capped, and eligibility/idempotency/budget are
+# implemented in scripts/ci/lib/eligibility.mjs.
+#
+# Two things must be true before a key is added here, and neither is code:
+#
+#   A durable ledger must be configured. checkEligibility() refuses to
+#   authorise spending without one, so wiring a key without naming a store
+#   fails closed rather than quietly spending. The Actions cache does NOT
+#   qualify: it is branch-scoped and evicts after 7 idle days, so idling the
+#   repository would reset the budget -- a spend attack by itself (F8).
+#
+#   A hard spend cap must exist on the provider side (F9). Every control here
+#   is on the GitHub side of the boundary; the cap is the one that converts
+#   "the owner's card is drained" into "the reviewer stops and the owner gets
+#   an email". The security spec calls its absence the most instructive miss
+#   in its own review.
+#
+# Also worth doing before the key: set fork-PR approval to "all external
+# contributors" (F10), so no fork PR starts gate-1 -- and therefore no
+# workflow_run, and no spend -- without a maintainer click.
 #
 # Two filters that look like controls and are not, stated so nobody adds them
 # thinking they help: `branches:` filters the TRIGGERING run's branch, which on
@@ -76,4 +92,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: node scripts/ci/gate-2.mjs

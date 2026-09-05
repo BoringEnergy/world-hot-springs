@@ -33,6 +33,7 @@
  *
  * Exit codes: 0 accept, 1 reject, 2 undecided (a source could not be read).
  */
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -40,6 +41,8 @@ import { resolvePr, checkFileListUsable } from './lib/resolve-pr.mjs';
 import { checkPaths } from '../lib/pathguard.mjs';
 import { validateOverlay } from '../lib/overlay.mjs';
 import { verifyClaims, summarise, VERDICT } from '../lib/verify-claims.mjs';
+import { assertPristine } from './lib/pristine.mjs';
+import { fetchContributorFiles } from './lib/fetch-contrib.mjs';
 
 const API = 'https://api.github.com';
 
@@ -203,18 +206,20 @@ async function main() {
     return { code: 0, title: 'No claims to verify', summary: 'This pull request changes no overlay claims.' };
   }
 
-  // Rule 3: contributor content goes to a temp directory named by us, never
-  // to a path the contributor chose, and never inside this checkout.
+  // Rule 3: contributor content goes to a directory this process created
+  // under the runner's temp space, named by CONTENT HASH, never by anything
+  // the contributor supplied, and never inside this checkout. Byte-capped,
+  // rejecting rather than truncating.
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'gate2-'));
+  const fetched = await fetchContributorFiles(overlayFiles, { dir: scratch });
+  if (!fetched.ok) return refuse(fetched.reason);
+
   const parsed = [];
-  for (const f of overlayFiles) {
-    const raw = await (await fetch(f.raw_url)).text();
-    // Named by index, not by f.filename: the name is attacker-supplied text.
-    fs.writeFileSync(path.join(scratch, `${parsed.length}.json`), raw);
+  for (const f of fetched.files) {
     try {
-      parsed.push({ name: f.filename, overlay: JSON.parse(raw) });
+      parsed.push({ name: f.label, overlay: JSON.parse(f.text) });
     } catch (err) {
-      return refuse(`${f.filename} is not valid JSON: ${err.message}`);
+      return refuse(`${f.label} is not valid JSON: ${err.message}`);
     }
   }
 
@@ -226,6 +231,20 @@ async function main() {
     }
   }
   if (shapeErrors.length) return refuse(`validation:\n  ${shapeErrors.join('\n  ')}`);
+
+  // Last line of defence before anything privileged runs: prove nothing above
+  // wrote into this checkout. Finding F1 was contributor files landing on
+  // trusted script paths, and the fetch above is what stops that -- this is
+  // what proves it did not happen.
+  //
+  // Runs even though no key exists yet. A check that is only added alongside
+  // the key is a check nobody has ever seen pass.
+  const pristine = assertPristine({
+    git: (args) => execFileSync('git', args, { encoding: 'utf8' }),
+    expectedRef: `origin/${process.env.DEFAULT_BRANCH || 'main'}`,
+  });
+  if (!pristine.ok) return refuse(`checkout is not pristine: ${pristine.reason}`);
+  console.log('gate-2: checkout verified pristine.');
 
   // The new check: is the claim true according to the page it cites?
   const results = [];
