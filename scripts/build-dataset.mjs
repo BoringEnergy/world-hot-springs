@@ -331,7 +331,7 @@ async function main() {
     // Attribution travels with the data, not just the README.
     metadata: {
       name: "World Hot Springs — public hot spring atlas",
-      generated: generatedAt,
+      sourceDate: generatedAt,
       count: records.length,
       license: 'ODbL 1.0 (derived from OpenStreetMap)',
       attribution: '© OpenStreetMap contributors',
@@ -363,7 +363,18 @@ async function main() {
   }
 
   const summary = {
-    generated: generatedAt,
+    // The OSM snapshot this dataset was derived from -- NOT when the build
+    // ran. buildTimestamp() takes the newest raw-tile mtime (or
+    // SOURCE_DATE_EPOCH) precisely so a rebuild that changes nothing produces
+    // no diff. The two dates diverge the moment you rebuild without
+    // refetching, which is the normal case: curated claims land far more
+    // often than OSM is refreshed.
+    //
+    // Named `generated` until it had drifted ten days from the build that
+    // wrote it, while the About panel rendered it as "Dataset built <date>".
+    // Both the field and the copy were asserting something untrue about data
+    // whose whole premise is not doing that.
+    sourceDate: generatedAt,
     total: records.length,
     countries: Object.keys(byCountry).length,
     coverage: {
