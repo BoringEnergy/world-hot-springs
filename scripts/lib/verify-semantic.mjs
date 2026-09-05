@@ -64,6 +64,11 @@ export const ENUM_MEANINGS = {
     mixed: 'varies by time, area or session',
     unknown: 'not established',
   },
+  'temperature.kind': {
+    source: 'the temperature of the water where it emerges from the ground',
+    bathing: 'the temperature of the water people actually bathe in, after any heating, cooling or mixing',
+    unknown: 'the source does not say which',
+  },
   'hours.status': {
     open: 'currently operating',
     seasonal: 'operates only in some months',

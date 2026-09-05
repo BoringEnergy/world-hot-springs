@@ -96,6 +96,9 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
   // every correct price a proposer returned.
   assert.deepEqual(FIELD_TYPES, {
     'temperature.celsius': 'number',
+    // Which water the number describes. A developed spa publishes both a
+    // source and a bathing figure and they are different facts.
+    'temperature.kind': ['source', 'bathing', 'unknown'],
     'location.elevation': 'number',
     'access.price': 'string',
     'clothing.policy': ['optional', 'required', 'textile-only', 'mixed', 'unknown'],
@@ -516,7 +519,7 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
   // chemistry is claimable by an agent because every numeric part of it is
   // literally checkable against the cited analysis, which is a stronger
   // guarantee than any field on the original list except temperature.
-  assert.equal(AGENT_CLAIMABLE.length, 26);
+  assert.equal(AGENT_CLAIMABLE.length, 27);
 });
 
 test('an agent may claim every permitted field', () => {
