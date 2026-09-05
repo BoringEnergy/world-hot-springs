@@ -74,11 +74,18 @@ export async function resolvePr({ headSha, headRepo, listPulls }) {
 export const API_FILE_PAGE_CAP = 3000;
 export const MAX_PR_FILES = 50;
 
-export function checkFileListUsable(files) {
+export function checkFileListUsable(files, { enforceCountLimit = true } = {}) {
+  // Always checked, for everyone. This asks whether the list can be seen in
+  // full -- a question about the response, not about who sent it. A truncated
+  // list would silently narrow every check built on it.
   if (files.length >= API_FILE_PAGE_CAP) {
     return { ok: false, reason: `changed-file list is at the API cap (${API_FILE_PAGE_CAP}); it cannot be seen in full` };
   }
-  if (files.length > MAX_PR_FILES) {
+  // The 50-file limit is a statement about contributions, not pull requests
+  // in general: a data-correction atlas has no legitimate 50-file submission
+  // from a stranger, but a maintainer refactor exceeds it easily. Defaults to
+  // enforced, so a caller that forgets to think about it gets the strict one.
+  if (enforceCountLimit && files.length > MAX_PR_FILES) {
     return { ok: false, reason: `${files.length} files changed, limit is ${MAX_PR_FILES}` };
   }
   return { ok: true };

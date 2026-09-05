@@ -97,3 +97,27 @@ test('a changeset at exactly the limit is accepted', () => {
   const exact = Array.from({ length: MAX_PR_FILES }, (_, i) => `data/overlay/f${i}.json`);
   assert.deepEqual(checkFileListUsable(exact), { ok: true });
 });
+
+test('the file-count limit is a rule about contributions, not about maintainers', () => {
+  // Gate 2's first live run refused a maintainer pull request, because the
+  // path guard and this cap were applied to everyone. Both exist to stop a
+  // stranger editing the pipeline that reviews them; neither describes an
+  // ordinary change to src/.
+  const many = Array.from({ length: MAX_PR_FILES + 1 }, (_, i) => `src/f${i}.ts`);
+  assert.equal(checkFileListUsable(many, { enforceCountLimit: false }).ok, true);
+  assert.equal(checkFileListUsable(many, { enforceCountLimit: true }).ok, false);
+});
+
+test('the API cap is enforced regardless of who sent the pull request', () => {
+  // Not part of that scoping: it asks whether the list can be seen in full,
+  // which is a fact about the response. A truncated list silently narrows
+  // every check built on it, maintainer or not.
+  const atCap = Array.from({ length: API_FILE_PAGE_CAP }, (_, i) => `f${i}.json`);
+  assert.equal(checkFileListUsable(atCap, { enforceCountLimit: false }).ok, false);
+});
+
+test('the strict limit is the default when a caller says nothing', () => {
+  // A caller that forgets to think about it must get the safe behaviour.
+  const many = Array.from({ length: MAX_PR_FILES + 1 }, (_, i) => `data/overlay/f${i}.json`);
+  assert.equal(checkFileListUsable(many).ok, false);
+});

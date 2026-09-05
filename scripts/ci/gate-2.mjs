@@ -88,14 +88,33 @@ async function main() {
   );
   const names = filesRaw.map((f) => f.filename);
 
-  const usable = checkFileListUsable(names);
+  // A pull request from this repository came from someone who already has
+  // write access. The path guard exists to stop a STRANGER editing the
+  // pipeline that reviews them; applied to a maintainer it refuses every
+  // ordinary change to src/ or scripts/ -- which is exactly what it did on
+  // this gate's first live run, against the pull request adding minerals.
+  //
+  // Determined from the head repository, not a label or the author's name: a
+  // fork's full_name cannot be spoofed by the contributor, and it is the same
+  // fact GitHub uses to decide whether to expose secrets.
+  const isFork = headRepo !== repo;
+  console.log(`gate-2: head repo ${headRepo} (${isFork ? 'fork' : 'same repo'})`);
+
+  // The API cap check is not part of that scoping: it asks whether the list
+  // can be seen in full, which is a question about the response rather than
+  // about who sent it.
+  const usable = checkFileListUsable(names, { enforceCountLimit: isFork });
   if (!usable.ok) return refuse(usable.reason);
 
-  // Rule 4: guard the paths BEFORE fetching a single byte of contributor
-  // content. In the first draft this ran after the fetch, and that ordering
-  // was the hole.
-  const pathErrors = checkPaths(names);
-  if (pathErrors.length) return refuse(`path guard:\n  ${pathErrors.join('\n  ')}`);
+  if (isFork) {
+    // Rule 4: guard the paths BEFORE fetching a byte of contributor content.
+    // In the spec's first draft this ran after the fetch, and that ordering
+    // was the hole.
+    const pathErrors = checkPaths(names);
+    if (pathErrors.length) return refuse(`path guard:\n  ${pathErrors.join('\n  ')}`);
+  } else {
+    console.log('gate-2: same-repo change, path guard not applied. Claims are still verified.');
+  }
 
   const overlayFiles = filesRaw.filter(
     (f) => f.filename.startsWith('data/overlay/') && f.status !== 'removed',
