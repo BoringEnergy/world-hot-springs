@@ -100,7 +100,8 @@ test('no unreviewed script reaches the overlay directory', () => {
     'scripts/lib/pathguard.mjs',   // names the directory as an allowed PR prefix
     'scripts/validate-overlay.mjs',// read-only validation
     'scripts/verify-claims.mjs',   // read-only: reads overlays, fetches their sources, writes nothing
-    'scripts/ci/gate-2.mjs'        // read-only: fetches PR overlays to a temp dir, never into the checkout
+    'scripts/ci/gate-2.mjs',       // read-only: fetches PR overlays to a temp dir, never into the checkout
+    'scripts/ci/lib/fetch-contrib.mjs' // writes ONLY to a caller-supplied temp dir, names by content hash
   ];
 
   const found = [];
