@@ -1,0 +1,11 @@
+{
+  "id": "whs_e7f4a5c2caaa",
+  "claims": {
+    "temperature.celsius": {
+      "value": 75,
+      "source": "https://en.wikipedia.org/wiki/Gharm-Chashma",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

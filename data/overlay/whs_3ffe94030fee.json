@@ -1,0 +1,11 @@
+{
+  "id": "whs_3ffe94030fee",
+  "claims": {
+    "temperature.celsius": {
+      "value": 34,
+      "source": "https://en.wikipedia.org/wiki/Kaiafas",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

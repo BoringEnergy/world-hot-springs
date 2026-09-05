@@ -1,0 +1,11 @@
+{
+  "id": "whs_208cd787b432",
+  "claims": {
+    "temperature.celsius": {
+      "value": 45,
+      "source": "https://es.wikipedia.org/wiki/Termas_Geom%C3%A9tricas",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

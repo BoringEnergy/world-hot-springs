@@ -1,0 +1,11 @@
+{
+  "id": "whs_8de6b8413b35",
+  "claims": {
+    "temperature.celsius": {
+      "value": 27,
+      "source": "https://en.wikipedia.org/wiki/Buxton_Baths",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
