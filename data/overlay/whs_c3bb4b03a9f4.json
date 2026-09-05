@@ -1,0 +1,17 @@
+{
+  "id": "whs_c3bb4b03a9f4",
+  "claims": {
+    "temperature.celsius": {
+      "value": 110,
+      "source": "https://de.wikipedia.org/wiki/Rogner_Bad_Blumau",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Rogner_Bad_Blumau",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
