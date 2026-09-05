@@ -1,0 +1,17 @@
+{
+  "id": "whs_9b244ce95c6e",
+  "claims": {
+    "temperature.celsius": {
+      "value": 47,
+      "source": "https://de.wikipedia.org/wiki/Carolus_Thermen",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Carolus_Thermen",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

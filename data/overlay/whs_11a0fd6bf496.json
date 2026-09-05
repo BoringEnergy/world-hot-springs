@@ -1,0 +1,17 @@
+{
+  "id": "whs_11a0fd6bf496",
+  "claims": {
+    "temperature.celsius": {
+      "value": 57.2,
+      "source": "https://de.wikipedia.org/wiki/Emser_Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Emser_Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

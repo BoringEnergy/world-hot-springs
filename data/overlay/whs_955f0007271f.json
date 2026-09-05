@@ -1,0 +1,17 @@
+{
+  "id": "whs_955f0007271f",
+  "claims": {
+    "temperature.celsius": {
+      "value": 38,
+      "source": "https://de.wikipedia.org/wiki/KissSalis_Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://de.wikipedia.org/wiki/KissSalis_Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
