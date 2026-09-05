@@ -1,0 +1,17 @@
+{
+  "id": "whs_097ad13078d3",
+  "claims": {
+    "temperature.celsius": {
+      "value": 95,
+      "source": "https://de.wikipedia.org/wiki/Octopus_Spring",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Octopus_Spring",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

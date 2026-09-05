@@ -1,0 +1,17 @@
+{
+  "id": "whs_597e79c95468",
+  "claims": {
+    "temperature.celsius": {
+      "value": 67,
+      "source": "https://en.wikipedia.org/wiki/Wilbur_Hot_Springs",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://en.wikipedia.org/wiki/Wilbur_Hot_Springs",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

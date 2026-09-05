@@ -1,0 +1,17 @@
+{
+  "id": "whs_ef414ce749a4",
+  "claims": {
+    "temperature.celsius": {
+      "value": 94,
+      "source": "https://en.wikipedia.org/wiki/Ojo_Caliente_Spring",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://en.wikipedia.org/wiki/Ojo_Caliente_Spring",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
