@@ -98,7 +98,8 @@ test('no unreviewed script reaches the overlay directory', () => {
     'scripts/build-dataset.mjs',   // reads overlays via loadOverlays
     'scripts/enrich.mjs',          // the only writer, guarded above
     'scripts/lib/pathguard.mjs',   // names the directory as an allowed PR prefix
-    'scripts/validate-overlay.mjs' // read-only validation
+    'scripts/validate-overlay.mjs',// read-only validation
+    'scripts/verify-claims.mjs'    // read-only: reads overlays, fetches their sources, writes nothing
   ];
 
   const found = [];
