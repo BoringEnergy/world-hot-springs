@@ -82,11 +82,31 @@ function jsonResponse(body, status = 200) {
   });
 }
 
-test('a missing OIDC token explains how to get one, rather than asking for an API key', () => {
+test('either gateway credential authenticates, and the key wins', () => {
+  // Both go in the same Bearer header. The API key is preferred because it
+  // does not expire: a 12-hour OIDC token dying mid-run turns every call into
+  // a 401, which this codebase reports as verifier-unavailable rather than as
+  // refutations -- nothing false is published, but a long run ends for a
+  // reason unrelated to the data. That happened while testing the model
+  // layer, which is why the order is this way round.
+  assert.equal(gatewayToken({ AI_GATEWAY_API_KEY: 'k' }), 'k');
+  assert.equal(gatewayToken({ VERCEL_OIDC_TOKEN: 'o' }), 'o');
+  assert.equal(gatewayToken({ AI_GATEWAY_API_KEY: 'k', VERCEL_OIDC_TOKEN: 'o' }), 'k');
+});
+
+test('a missing credential explains both ways to supply one', () => {
   assert.throws(() => gatewayToken({}), (err) => {
     assert.equal(err.message, OIDC_HELP);
-    assert.match(err.message, /OIDC/);
-    assert.doesNotMatch(err.message, /API_KEY/);
+    // Names both, so someone holding either credential is not told to go and
+    // get the other one.
+    assert.match(err.message, /AI_GATEWAY_API_KEY/);
+    assert.match(err.message, /VERCEL_OIDC_TOKEN/);
+    assert.match(err.message, /env\.local/);
+    // The old assertion here was `doesNotMatch(/API_KEY/)`, from when the
+    // design was OIDC-only and the help text existed to stop people hunting
+    // for a provider key. Supporting the gateway's own API key makes that
+    // assertion wrong rather than merely stale, so it is removed rather than
+    // relaxed. Per-vendor keys are still forbidden, by the two tests above.
     return true;
   });
 });
@@ -226,12 +246,33 @@ test('each vendor sends the gateway model id for its lab', async () => {
   }
 });
 
-test('vendor modules do not read provider API keys', () => {
+test('no module reads a per-vendor API key', () => {
+  // The rule is one credential path. A vendor module reaching for
+  // OPENAI_API_KEY would route around the gateway, and the whole
+  // vendor-agnostic design with it.
   const dir = path.join('scripts', 'lib', 'providers');
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.mjs'));
-  const banned = /OPENAI_API_KEY|ANTHROPIC_API_KEY|GOOGLE_API_KEY|GEMINI_API_KEY|XAI_API_KEY|AI_GATEWAY_API_KEY/;
+  const perVendor = /OPENAI_API_KEY|ANTHROPIC_API_KEY|GOOGLE_API_KEY|GEMINI_API_KEY|XAI_API_KEY/;
   for (const f of files) {
     const src = fs.readFileSync(path.join(dir, f), 'utf8');
-    assert.ok(!banned.test(src), `${f} mentions a provider API key`);
+    assert.ok(!perVendor.test(src), `${f} mentions a per-vendor API key`);
+  }
+});
+
+test('only gateway.mjs may name the gateway credential', () => {
+  // AI_GATEWAY_API_KEY was originally banned alongside the per-vendor keys,
+  // when the design was OIDC-only. It is not a provider key: it authenticates
+  // the same gateway the OIDC token does, in the same Bearer header, and
+  // supporting it keeps exactly one credential path rather than adding one.
+  //
+  // The rule it was really protecting -- vendor modules must not authenticate
+  // for themselves -- is preserved by scoping it to the one file that owns
+  // the gateway. A vendor module naming it would be routing around
+  // completeViaGateway, which is the thing worth forbidding.
+  const dir = path.join('scripts', 'lib', 'providers');
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.mjs'))) {
+    const src = fs.readFileSync(path.join(dir, f), 'utf8');
+    if (f === 'gateway.mjs') continue;
+    assert.ok(!/AI_GATEWAY_API_KEY/.test(src), `${f} must not read the gateway credential itself`);
   }
 });

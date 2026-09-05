@@ -10,12 +10,20 @@ import fs from 'node:fs';
 const GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 
 export const OIDC_HELP =
-  'enrichment authenticates with a short-lived Vercel OIDC token, not provider API keys.\n' +
-  'From this repo:\n' +
-  '  npx vercel login\n' +
-  '  npx vercel link\n' +
-  '  npx vercel env pull .env.local\n' +
-  'Enable AI Gateway for the linked project. Tokens last about 12 hours; re-run env pull when they expire.';
+  'no AI Gateway credential found. Either works, set in .env.local (gitignored):\n' +
+  '\n' +
+  '  AI_GATEWAY_API_KEY=...   Long-lived. Create one in the Vercel dashboard\n' +
+  '                           under AI Gateway > API keys. Preferred: it does\n' +
+  '                           not expire partway through a run.\n' +
+  '\n' +
+  '  VERCEL_OIDC_TOKEN=...    Short-lived, about 12 hours. From this repo:\n' +
+  '                             npx vercel login\n' +
+  '                             npx vercel link\n' +
+  '                             npx vercel env pull .env.local\n' +
+  '                           Re-pull when it expires. The better choice in CI,\n' +
+  '                           where a short-lived credential is the point.\n' +
+  '\n' +
+  'Enable AI Gateway for the linked project either way.';
 
 /**
  * Bounded backoff for a rate-limited account.
@@ -66,8 +74,22 @@ export function loadLocalEnv() {
   }
 }
 
+/**
+ * The gateway takes either credential in the same Bearer header.
+ *
+ * The API key is preferred because it does not expire. The OIDC token lasts
+ * about twelve hours, and the failure it produces is bad: a run that has been
+ * going for a while starts returning 401 on every call, which this codebase
+ * correctly reports as `verifier-unavailable` rather than as refutations --
+ * so nothing false is published, but a long run dies partway for a reason
+ * that has nothing to do with the data. That happened while testing the model
+ * layer, which is why the order here is what it is.
+ *
+ * OIDC remains supported and is the better choice in CI, where a short-lived
+ * credential is the point.
+ */
 export function gatewayToken(env = process.env) {
-  const token = env.VERCEL_OIDC_TOKEN;
+  const token = env.AI_GATEWAY_API_KEY || env.VERCEL_OIDC_TOKEN;
   if (!token) throw new Error(OIDC_HELP);
   return token;
 }
