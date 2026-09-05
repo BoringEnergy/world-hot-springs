@@ -555,22 +555,28 @@ extract with one regex:
 r.text.match(/泉温（\s*摂氏\s*）\s*([^宿湧p液テ]{1,40})/)
 ```
 
-Japan is ~950 springs, 15% of the atlas. 66 of them cite a `ja.wikipedia`
-article and had no temperature; the first 48 were checked and 28 carried the
-field. Eighteen articles remain unchecked.
+Japan is ~950 springs, 15% of the atlas. 66 of them cited a `ja.wikipedia`
+article and had no temperature. **All 66 are now checked: 38 carried the
+field, 28 did not.** That is a 58% yield with no searching and no judgement
+call per spring -- read one field, take it.
 
 The handoff's ASCII-only warning about `valueAppears` did NOT bite: these
 articles write half-width digits, and every one of the twenty verified on the
 first pass. The warning still stands for pages using full-width or CJK
 numerals — it simply is not what Wikipedia does.
 
-Twenty of the twenty-eight went into the batches below. **These eight are
-already researched, verified by eye against the infobox, and unclaimed** —
-write them first next session, then check the remaining eighteen articles:
+Twenty-eight of the thirty-eight are claimed in the batches below. **These
+ten are already extracted and unclaimed** — write them first, they need no
+further research:
 
-  小渋温泉 13.9   あわくら温泉 26 (21～26度)   川上温泉 30.9
-  斐乃上温泉 26   濃溝温泉 千寿の湯 15.5      白壁の湯 14.5
-  竹山高原温泉 26.1   花咲の湯 29.2
+  道後温泉本館 51 (42-51)   雌阿寒温泉 80 (50-80)   谷地頭温泉 65.1
+  高天原温泉 51.1           阿曽原温泉 47.3         桑畑温泉 35.4
+  豊富温泉 34.2             豊島園 庭の湯 33.8      黒川温泉 29.1
+  鹿塩温泉 14
+
+The ja.wikipedia seam ends there. To go further into Japan the next step is
+a source other than the `sources[]` already on the record -- 950 springs, and
+only 66 ever carried a Wikipedia link.
 
 ### Two traps this pass hit
 
