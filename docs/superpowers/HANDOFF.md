@@ -1,18 +1,82 @@
 # Handoff — start here
 
-Last updated 2026-09-03.
+Last updated 2026-09-05.
 
 Read this first in a new session. It is the shortest path to being useful.
+
+## Read this before touching anything
+
+Three rules the hard way. Each cost a real defect.
+
+**1. Every schema addition is TWO pull requests.** Gate 2 validates a pull
+request's claims against the DEFAULT BRANCH's schema, so a PR cannot widen
+`CLAIMABLE` and use the widening in one step -- otherwise a hostile PR would
+add `id` to the list and claim it. Land the field first, then the claims.
+This has bitten twice (minerals, `temperature.kind`) and the second time it
+blocked a merge, because `gate-2 claims` is now a required check.
+
+**2. Never compute a claimed value. When a source publishes a range, take the
+UPPER bound.** Two temperature claims were retracted for being midpoints that
+appeared on no page. Upper because the error is asymmetric: understating
+tells someone a 75C spring is comfortable.
+
+**3. Research with the project's own fetcher, not your own.** Use
+`scripts/lib/verify-source.mjs`. Anything found with a different tool may not
+be findable by the gate, and the claim will be refuted after you commit it.
+Twice a hand-written grep pointed at the wrong occurrence -- a navigation link
+and a distance in kilometres -- and both times the conclusion was wrong.
 
 ## What this is
 
 An open atlas of the world's public hot springs. **6,471 springs across 129
 countries**, derived from OpenStreetMap and published as a static site.
 
-Repo: `https://github.com/BoringEnergy/world-hot-springs` (**public**).
-Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` and nothing
-else. **The site is deployed on Vercel** (19 deployments as of 2026-09-03),
-which is why a data defect is a live defect, not a hypothetical one.
+Repo: `https://github.com/BoringEnergy/world-hot-springs` (**public** --
+deliberately; a fork exists at HudsonR-D/world-hot-springs and going private
+would split it off still public, plus private repos draw from a 2,000
+min/month Actions pool while public is unlimited).
+
+**Live at https://whs.boring.energy.** A data defect is a live defect.
+
+Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` (advisory)
+and `gate-2` (the one that counts).
+
+## Current state, 2026-09-05
+
+**464 tests. `main` is green and everything below is merged.**
+
+The validator is the project's centre of gravity now. A hostile agent cannot
+land a fabricated NUMBER -- temperature, elevation, pH, any concentration --
+because `gate-2` re-fetches the cited page from code the contributor cannot
+edit and checks the value literally appears. Proven on a real fork PR.
+
+- **Gate 2 is live and REQUIRED.** Branch protection requires
+  `validate` + `gate-2 claims`. Gate 2 posts its own check run against the
+  PR head via the Checks API -- a `workflow_run` workflow's own check attaches
+  to main's SHA, so without that it could never be a required context.
+- **No secrets anywhere.** The model layer exists and runs on demand locally
+  (`--verifier vendor:model`), not in CI. All three key prerequisites are
+  built and running: `assert-checkout-pristine`, content-hash fetch into a
+  temp dir, and eligibility/idempotency/budget.
+- **Adding a key needs two non-code things**: a durable ledger (branch
+  `gate-2-ledger`, file `ledger.json`, App token scoped to just that) and a
+  hard provider-side spend cap. `checkEligibility()` refuses to authorise
+  spending without a ledger, so a key added now fails closed.
+- **Budget is counted in CLAIMS, not reviews** -- one PR can carry 650
+  claims. Caps: 100/day total, 30/day per author, 25 per review, sized for
+  $9/month.
+
+## Verdicts, and what they mean
+
+  verified        a regex found the number in the page. Trustworthy.
+  model-cleared   a reader did not refute it. WEAKER -- the page is
+                  contributor-chosen, so injection cannot get past this.
+  disputed        a reader disagrees. Routes to a human; never auto-rejects,
+                  because the model has been wrong about a true claim twice.
+  refuted         contradicted by its own source. Blocks.
+  unreachable     could not be read. Blocks (an attacker can take their own
+                  source offline), but retried 3x first.
+  needs a reader  our enums and prose. 22 of 29 claims. NOT verified.
 
 ## Current state
 
@@ -453,3 +517,46 @@ The fix is to enforce the path guard only on fork PRs while still running the
 job on every PR. It must keep running: a required check that gets *skipped*
 sits pending forever and blocks the merge just as hard as a failing one.
 
+
+---
+
+## Next up, 2026-09-05: seeding
+
+The apparatus is done. What remains is filling the atlas, and it is
+repetitive rather than architectural.
+
+**Coverage: temperature 95 of 6,471 (1%).** That 1% is the whole point the
+project makes about the state of public hot-spring data, so moving it is the
+work.
+
+### The loop that works
+
+1. `data/flagship.json` holds ranked candidates per country. Records already
+   carry official websites and Wikipedia URLs in `sources[]` -- no searching
+   needed for most.
+2. Fetch those with `scripts/lib/verify-source.mjs` and look for figures.
+   A scratch helper doing this is worth rebuilding; do NOT grep by hand.
+3. Write the overlay file, `node scripts/validate-overlay.mjs`, then
+   `node scripts/verify-claims.mjs --files <path>` BEFORE committing.
+4. Rebuild, run the suite, open a PR. Gate 2 re-verifies from trusted code.
+
+**Yield is about 50%.** Of 11 springs researched, 5 published a findable
+figure. Expect to discard half, and prefer discarding to reaching for a
+weaker source.
+
+### Known-unclaimable, checked and rejected
+
+Friedrichsbad, Therme Wien, Craters of the Moon, Termas do Geres, Anna Furdo
+publish no temperature this verifier can find. Do not re-research them
+without a new source.
+
+### Open ideas, none blocking
+
+- `location.accuracyMeters`, per-source licences, `facilities[]`, photo
+  rendering -- from the deep-research review, still unbuilt.
+- Frontend tests. There is no React harness; UI invariants are pinned by
+  source-scan guards in `scripts/*.test.mjs`, which is a real gap.
+- `enforce_admins: false` means the maintainer can bypass every gate with
+  `--admin`. Right for a solo project, worth knowing.
+- The 22 prose claims that "need a reader" stay unverified until the model
+  layer runs in CI, which needs the ledger and cap above.
