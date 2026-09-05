@@ -525,9 +525,9 @@ sits pending forever and blocks the merge just as hard as a failing one.
 The apparatus is done. What remains is filling the atlas, and it is
 repetitive rather than architectural.
 
-**Coverage: temperature 95 of 6,471 (1%).** That 1% is the whole point the
-project makes about the state of public hot-spring data, so moving it is the
-work.
+**Coverage: temperature 133 of 6,471 (2%)**, up from 95 on 2026-09-05.
+That number is the whole point the project makes about the state of public
+hot-spring data, so moving it is the work.
 
 ### The loop that works
 
@@ -540,15 +540,90 @@ work.
    `node scripts/verify-claims.mjs --files <path>` BEFORE committing.
 4. Rebuild, run the suite, open a PR. Gate 2 re-verifies from trusted code.
 
-**Yield is about 50%.** Of 11 springs researched, 5 published a findable
-figure. Expect to discard half, and prefer discarding to reaching for a
-weaker source.
+**Yield is about 50% on Western sources, near 70% on Japanese ones.** Of 11
+springs researched in the first pass, 5 published a findable figure; of 48
+Japanese articles checked, 28 carried one. Expect to discard, and prefer discarding to reaching
+for a weaker source.
+
+### Japanese Wikipedia is the largest single unlock
+
+`ja.wikipedia.org` onsen articles carry a standard infobox field,
+`泉温（摂氏）`, holding the SOURCE temperature. It is uniform enough to
+extract with one regex:
+
+```js
+r.text.match(/泉温（\s*摂氏\s*）\s*([^宿湧p液テ]{1,40})/)
+```
+
+Japan is ~950 springs, 15% of the atlas. 66 of them cite a `ja.wikipedia`
+article and had no temperature; the first 48 were checked and 28 carried the
+field. Eighteen articles remain unchecked.
+
+The handoff's ASCII-only warning about `valueAppears` did NOT bite: these
+articles write half-width digits, and every one of the twenty verified on the
+first pass. The warning still stands for pages using full-width or CJK
+numerals — it simply is not what Wikipedia does.
+
+Twenty of the twenty-eight went into the batches below. **These eight are
+already researched, verified by eye against the infobox, and unclaimed** —
+write them first next session, then check the remaining eighteen articles:
+
+  小渋温泉 13.9   あわくら温泉 26 (21～26度)   川上温泉 30.9
+  斐乃上温泉 26   濃溝温泉 千寿の湯 15.5      白壁の湯 14.5
+  竹山高原温泉 26.1   花咲の湯 29.2
+
+### Two traps this pass hit
+
+**Run `data:build` BEFORE `npm test`, not after.** `scripts/docs.test.mjs`
+asserts the README coverage table against `data/summary.json`. Testing first
+reads the pre-build summary and passes over a README that the batch has just
+made wrong. The first batch of this pass shipped a stale `1%` that way and
+needed a follow-up commit.
+
+**Batches conflict with each other through the derived files.** Every batch
+rewrites `data/hot-springs.json`, `.geojson` and `summary.json`, so two
+branches cut from the same `main` cannot both merge cleanly. Either land each
+batch before starting the next, or stack the branches — which is what
+2026-09-05 did, PRs #37 -> #38 -> #39 -> #40, each based on the one before.
 
 ### Known-unclaimable, checked and rejected
 
 Friedrichsbad, Therme Wien, Craters of the Moon, Termas do Geres, Anna Furdo
 publish no temperature this verifier can find. Do not re-research them
 without a new source.
+
+Added 2026-09-05, no figure on the cited page: Zelena zaba, Klevevz, Le
+Caldane, Poca da Dona Beija, Ecotermales, Thermae Bath Spa, Fortyseven
+Baden, Claudius Therme, Silvretta Therme, Balneario de Aguas de Lindoia,
+Therma Gera, Heisse Brunnen Ennetbaden, Felsentherme Bad Gastein, Terme
+Borrini, Terme dell'Osa, Complesso termale di Agnano, Thermes de
+Pre-Saint-Didier, Laugaras Lagoon, Banos Termales Maya, Manupirua Springs,
+El Safareig.
+
+Rejected for a stated reason, which is different — a figure exists but is
+not claimable:
+
+  Aqua Dome            the page contradicts itself: 68C from the 1997 bore,
+                       then 40C "aus einer Tiefe von 1.865 Metern" into the
+                       pools. Same depth, two numbers.
+  Hagymatikum          41C is the 1956 well, under "A furdo hoskora", with
+                       no stated link to today's supply
+  Skolska cesma        "17°-19 °C". The dash before 19 has a non-digit
+                       before it, so valueAppears reads it as a SIGN and the
+                       upper bound cannot verify. The lower bound is not
+                       ours to take. This is the one range shape the
+                       upper-bound convention cannot rescue.
+  Eurotherme Bad
+  Schallerbach         34C is one hotel wellness pool, not the baths
+  Kristalltherme
+  Altenau              36C is a 12% brine tub, not the thermal water
+  Termas da
+  Chavasqueira         43-63C describes Ourense's free pools broadly
+  Terme della
+  Ficoncella           "circa 60 gradi in uscita e 40 nelle vasche" -- circa
+                       governs both, and the record has no name
+  Szarvasi gyogyfurdo  http-only; the fetcher returns source-malformed, and
+                       it is worth checking whether an https host exists
 
 ### Open ideas, none blocking
 
