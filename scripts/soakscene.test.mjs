@@ -68,9 +68,13 @@ test('the retry timer is cleared before it is reassigned', () => {
   const idx = MAPVIEW.indexOf('prev.selectedId !== null && s.selectedId === null');
   assert.ok(idx > 0, 'the deselect branch should still exist');
   const branch = MAPVIEW.slice(idx, idx + 400);
-  assert.ok(
-    branch.indexOf('window.clearTimeout(retryTimer)') <
-      branch.indexOf('retryTimer = window.setTimeout'),
-    'clear the pending timer before assigning a new one',
-  );
+  const clearAt = branch.indexOf('window.clearTimeout(retryTimer)');
+  const setAt = branch.indexOf('retryTimer = window.setTimeout');
+  // Assert presence before ordering. Comparing the indices alone passes when
+  // the clear is deleted outright -- indexOf returns -1, and -1 is less than
+  // any real index. That is the exact regression this test exists to catch,
+  // and the first draft of it was green with the clear removed.
+  assert.notEqual(clearAt, -1, 'the deselect branch must clear the pending timer');
+  assert.notEqual(setAt, -1, 'the deselect branch should still arm a retry');
+  assert.ok(clearAt < setAt, 'clear the pending timer before assigning a new one');
 });
