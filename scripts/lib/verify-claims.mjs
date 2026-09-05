@@ -57,6 +57,23 @@ export const VERDICT = {
    * should read this".
    */
   MODEL_CLEARED: 'model-cleared',
+  /**
+   * A reader thinks this claim is wrong. A person decides.
+   *
+   * Not REFUTED, and the difference is the whole point. A literal refutation
+   * is a fact: the number is in the page or it is not, and no judgement is
+   * involved. A semantic refutation is an opinion formed by a model reading
+   * prose, and it has already been wrong about a true claim here -- Banff's
+   * `clothing.policy: textile-only`, refuted first because the reader was
+   * shown the wrong 6,000 characters, and again on a reading of "top is not
+   * mandatory" that our own vocabulary contradicts.
+   *
+   * The layer was already capped so it can never approve past MODEL_CLEARED,
+   * because the page is contributor-chosen. This is the symmetric cap: it can
+   * never reject outright either. What it can do is stop a claim and make a
+   * person look, which is the honest description of what it knows.
+   */
+  DISPUTED: 'disputed-by-reader',
   VERIFIED: 'verified',
 };
 
@@ -136,8 +153,9 @@ export async function verifyClaims(
           field, verdict: VERDICT.UNREACHABLE, detail: 'verifier-verdict-malformed',
         });
       } else if (verdict.refuted) {
+        // Routed to a person, never auto-rejected. See VERDICT.DISPUTED.
         results.push({
-          field, verdict: VERDICT.REFUTED, detail: `refuted-by-verifier: ${verdict.reason}`,
+          field, verdict: VERDICT.DISPUTED, detail: `disputed-by-reader: ${verdict.reason}`,
         });
       } else {
         results.push({ field, verdict: VERDICT.MODEL_CLEARED, detail: verdict.reason });
@@ -165,17 +183,33 @@ export async function verifyClaims(
  * submission is wrong, and a second claim's flaky host does not soften that.
  */
 export function summarise(results) {
-  const counts = { refuted: 0, unreachable: 0, needsReview: 0, modelCleared: 0, verified: 0 };
+  const counts = {
+    refuted: 0, disputed: 0, unreachable: 0, needsReview: 0, modelCleared: 0, verified: 0,
+  };
   for (const r of results) {
     if (r.verdict === VERDICT.REFUTED) counts.refuted++;
+    else if (r.verdict === VERDICT.DISPUTED) counts.disputed++;
     else if (r.verdict === VERDICT.UNREACHABLE) counts.unreachable++;
     else if (r.verdict === VERDICT.NEEDS_REVIEW) counts.needsReview++;
     else if (r.verdict === VERDICT.MODEL_CLEARED) counts.modelCleared++;
     else counts.verified++;
   }
-  // 1 = reject, this is wrong. 2 = undecided, safe to retry. 0 = nothing
-  // contradicted. Distinct codes so a workflow cannot retry a refutation into
-  // a pass by running it again.
-  const code = counts.refuted > 0 ? 1 : counts.unreachable > 0 ? 2 : 0;
+  // 0 = nothing contradicted.
+  // 1 = contradicted by its own source. Deterministic; retrying cannot change it.
+  // 2 = a source could not be read. Retrying may.
+  // 3 = a reader disputes it. Retrying will not help and neither will waiting;
+  //     a person has to decide.
+  //
+  // Distinct codes so no workflow can retry a verdict into a pass, and so
+  // "this is wrong" and "someone should look" are never the same signal.
+  //
+  // Refutation outranks a dispute: a claim contradicted by its own page is
+  // wrong whatever a reader thinks of a different field. A dispute outranks
+  // unreachability, because retrying resolves one and not the other.
+  const code =
+    counts.refuted > 0 ? 1
+    : counts.disputed > 0 ? 3
+    : counts.unreachable > 0 ? 2
+    : 0;
   return { counts, code };
 }
