@@ -29,8 +29,18 @@ on:
 
 # contents: read only. No pull-requests: write, no issues: write -- this tier
 # posts nothing, so it needs no writing permission at all.
+# checks: write is what lets this post its verdict against the pull request's
+# head commit. A workflow_run workflow's own check attaches to the DEFAULT
+# BRANCH, so without this the gate can never be a required context: branch
+# protection would wait forever for a check that never lands on the PR. A real
+# pull request's checks listed only Vercel and gate-1, which is how this was
+# found.
+#
+# Still no secrets, and still no pull-requests: write. This posts a verdict; it
+# does not comment, label, approve, or merge.
 permissions:
   contents: read
+  checks: write
 
 concurrency:
   group: gate-2-${{ github.event.workflow_run.head_sha }}

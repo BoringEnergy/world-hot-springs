@@ -80,10 +80,66 @@ async function listOpenPulls(repo, token, max = 20) {
   throw new Error(`more than ${max * 100} open pull requests; refusing to resolve`);
 }
 
-/** Refuse and say why. Never a silent pass. */
+/**
+ * Report the verdict as a check run on the PULL REQUEST's head commit.
+ *
+ * Without this gate-2 is unenforceable. A workflow_run workflow executes in
+ * the base repository against the default branch, so its own check attaches
+ * to main's SHA -- a real pull request's checks listed only Vercel and
+ * gate-1, and naming gate-2 a required context would have blocked every pull
+ * request forever waiting for a check that never arrives on the head commit.
+ *
+ * So the verdict is posted explicitly, against headSha, under a stable name.
+ * That name is what branch protection can require.
+ *
+ * Conclusions are chosen so branch protection reads them correctly:
+ *
+ *   success          nothing contradicted
+ *   failure          contradicted by its own source, or a source could not
+ *                    be read (see below -- unreachable is not benign)
+ *   action_required  a reader disputes it; a person must decide
+ *
+ * `neutral` is deliberately unused. It passes branch protection, so anything
+ * mapped to it is a verdict that does not actually gate.
+ */
+async function reportCheck({ repo, token, headSha, name, conclusion, title, summary }) {
+  const res = await fetch(`${API}/repos/${repo}/check-runs`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${token}`,
+      accept: 'application/vnd.github+json',
+      'x-github-api-version': '2022-11-28',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      name,
+      head_sha: headSha,
+      status: 'completed',
+      conclusion,
+      // GitHub truncates at 65535; a refutation list is never near that, but
+      // a runaway reason string should not fail the whole report.
+      output: { title, summary: summary.slice(0, 60_000) },
+    }),
+  });
+  if (!res.ok) {
+    // Loud. A gate whose verdict silently fails to post is a gate that
+    // reports success by absence once it is a required check.
+    throw new Error(`could not post check run: HTTP ${res.status} ${await res.text()}`);
+  }
+}
+
+/** The check name branch protection requires. Changing it breaks protection. */
+export const CHECK_NAME = 'gate-2 claims';
+
+/**
+ * Refuse and say why. Never a silent pass.
+ *
+ * Returns the reason as well as the code so the check run can carry it. A
+ * red tick with no explanation is a gate a maintainer learns to click past.
+ */
 function refuse(reason) {
   console.error(`gate-2: REFUSED -- ${reason}`);
-  return 1;
+  return { code: 1, title: 'Refused', summary: reason };
 }
 
 async function main() {
@@ -144,7 +200,7 @@ async function main() {
   );
   if (overlayFiles.length === 0) {
     console.log('gate-2: no overlay claims in this pull request. Nothing to verify.');
-    return 0;
+    return { code: 0, title: 'No claims to verify', summary: 'This pull request changes no overlay claims.' };
   }
 
   // Rule 3: contributor content goes to a temp directory named by us, never
@@ -195,14 +251,66 @@ async function main() {
   if (code === 3) {
     console.error('gate-2: NEEDS A PERSON -- a reader disputes a claim. Re-running will not help.');
   }
-  return code;
+
+  const lines = results
+    .filter((r) => r.verdict !== VERDICT.VERIFIED)
+    .map((r) => `- **${r.verdict}** \`${r.field}\` in \`${r.name}\`${r.detail ? ` — ${r.detail}` : ''}`);
+  const summary = [
+    `${counts.verified} verified, ${counts.modelCleared} read by a model, ` +
+      `${counts.refuted} refuted, ${counts.disputed} disputed, ` +
+      `${counts.unreachable} unreachable, ${counts.needsReview} need a reader.`,
+    ...(lines.length ? ['', ...lines] : []),
+  ].join('\n');
+
+  const title =
+    code === 0 ? 'Claims check out'
+    : code === 1 ? 'A claim is contradicted by its own source'
+    : code === 2 ? 'A source could not be read'
+    : 'A reader disputes a claim';
+
+  return { code, title, summary };
 }
 
+/**
+ * Decide, then report, then exit.
+ *
+ * Every path posts a check run, including the thrown one. Once this is a
+ * required context, a run that exits without reporting leaves the pull
+ * request waiting forever -- which is safe, but indistinguishable from a
+ * broken workflow. Saying "failed closed" out loud is better than silence.
+ */
 main().then(
-  (code) => process.exit(code),
-  (err) => {
+  async (outcome) => {
+    await report(outcome);
+    process.exit(outcome.code);
+  },
+  async (err) => {
     // An exception in a privileged workflow must not read as a pass.
     console.error(`gate-2: FAILED CLOSED -- ${err.message}`);
+    await report({ code: 1, title: 'Gate failed closed', summary: String(err.message) });
     process.exit(1);
   },
 );
+
+async function report({ code, title, summary }) {
+  try {
+    await reportCheck({
+      repo: process.env.GITHUB_REPOSITORY,
+      token: process.env.GH_TOKEN,
+      headSha: process.env.HEAD_SHA,
+      name: CHECK_NAME,
+      // action_required for a dispute: it blocks, and the word says what is
+      // needed. failure would read as "the claim is wrong", which is exactly
+      // the conflation this gate avoids.
+      conclusion: code === 0 ? 'success' : code === 3 ? 'action_required' : 'failure',
+      title,
+      summary,
+    });
+    console.log(`gate-2: posted "${CHECK_NAME}" as ${code === 0 ? 'success' : code === 3 ? 'action_required' : 'failure'}`);
+  } catch (err) {
+    console.error(`gate-2: could not post the check run -- ${err.message}`);
+    // Do not swallow: exiting non-zero keeps the workflow itself red, so a
+    // reporting failure is visible even though the check never appeared.
+    process.exitCode = 1;
+  }
+}
