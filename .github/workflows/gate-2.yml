@@ -1,0 +1,69 @@
+# Gate 2 -- the check that counts.
+#
+# Gate 1 runs from the pull request's own copy of gate.yml, so on a fork a
+# contributor can rewrite it to report success on anything. This workflow's
+# definition always comes from the default branch, which is the property the
+# banned _target variant of the pull_request event cannot provide: the
+# reviewing code cannot be edited by the thing being reviewed. (That variant's
+# name is deliberately not spelled here -- a test asserts the literal string
+# appears nowhere under .github/, comments included.)
+#
+# NO SECRETS, deliberately. The spec's full design ends in a model call
+# holding an API key; that step is not built. Its absence is what makes the
+# rest safe -- the fetches this job makes go to URLs a stranger chose, and the
+# residual DNS-rebinding gap in source-url.mjs is only dangerous next to a
+# credential. Do not add a secret here without first building the pieces the
+# spec names: assert-checkout-pristine, the content-hash fetch into
+# $RUNNER_TEMP, and the eligibility and budget checks.
+#
+# Two filters that look like controls and are not, stated so nobody adds them
+# thinking they help: `branches:` filters the TRIGGERING run's branch, which on
+# a fork is an attacker-chosen name; and `workflows:` matches by workflow NAME,
+# which a contributor can attach to a different file.
+name: gate-2
+
+on:
+  workflow_run:
+    workflows: [gate-1]
+    types: [completed]
+
+# contents: read only. No pull-requests: write, no issues: write -- this tier
+# posts nothing, so it needs no writing permission at all.
+permissions:
+  contents: read
+
+concurrency:
+  group: gate-2-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Only pull requests, and only when the untrusted gate itself completed.
+    # Gate 1's *conclusion* is not trusted as a verdict; it is used only to
+    # avoid spending a runner on a run that never produced a diff.
+    if: github.event.workflow_run.event == 'pull_request'
+    steps:
+      # The default branch. Never the pull request head.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+
+      # No `npm ci`. The validator must never need the pull request's
+      # dependency tree, because installing it would execute its scripts.
+      #
+      # Every value reaches the script through the environment and is never
+      # interpolated into a shell line: a head repository name is
+      # attacker-influenced text, and `${{ }}` in a run body is substituted
+      # before the shell sees it.
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        run: node scripts/ci/gate-2.mjs
