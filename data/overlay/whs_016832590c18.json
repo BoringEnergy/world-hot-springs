@@ -1,0 +1,17 @@
+{
+  "id": "whs_016832590c18",
+  "claims": {
+    "temperature.celsius": {
+      "value": 33,
+      "source": "https://de.wikipedia.org/wiki/Therme_Euskirchen",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://de.wikipedia.org/wiki/Therme_Euskirchen",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

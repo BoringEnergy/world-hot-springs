@@ -1,0 +1,17 @@
+{
+  "id": "whs_5a429cf5cfa6",
+  "claims": {
+    "temperature.celsius": {
+      "value": 80,
+      "source": "https://de.wikipedia.org/wiki/Parktherme_Bad_Radkersburg",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Parktherme_Bad_Radkersburg",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
