@@ -81,6 +81,41 @@ export const VERDICT = {
 const TRANSIENT = new Set(['source-unreachable', 'source-too-large']);
 
 /**
+ * Only one of those is worth retrying.
+ *
+ * A 3 MB page is 3 MB again a second later. A connection reset may not be.
+ */
+const RETRYABLE = new Set(['source-unreachable']);
+
+/** Attempts, and the backoff between them. */
+export const FETCH_ATTEMPTS = 3;
+export const FETCH_BACKOFF_MS = 1_500;
+
+/**
+ * Retry a source that could not be reached.
+ *
+ * Once this gate is a required check, `unreachable` blocks a merge -- which
+ * is the right call, because an attacker who can take their own cited source
+ * offline could otherwise dodge verification entirely by doing so. But it
+ * makes a third party's bad afternoon into a blocked contribution, so the
+ * honest mitigation is to make the outcome rare rather than to make it
+ * harmless.
+ *
+ * Only genuine unreachability is retried. A 404 is a fact about the claim and
+ * is not attempted twice.
+ */
+export async function fetchWithRetry(url, { fetchImpl, lookup, timeoutMs, sleep } = {}) {
+  const wait = sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
+  let last;
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    last = await fetchSource(url, { fetchImpl, lookup, timeoutMs });
+    if (last.ok || !RETRYABLE.has(last.outcome)) return last;
+    if (attempt < FETCH_ATTEMPTS) await wait(FETCH_BACKOFF_MS * attempt);
+  }
+  return last;
+}
+
+/**
  * Is this field's value expected to appear verbatim in the source text?
  *
  * Driven off FIELD_TYPES rather than a second hand-kept list, so a new
@@ -99,7 +134,7 @@ export function isLiterallyVerifiable(field) {
  */
 export async function verifyClaims(
   overlay,
-  { fetchImpl, lookup, timeoutMs, provider = null, springName = null } = {},
+  { fetchImpl, lookup, timeoutMs, provider = null, springName = null, sleep } = {},
 ) {
   const results = [];
   for (const [field, claim] of Object.entries(overlay?.claims ?? {})) {
@@ -121,7 +156,7 @@ export async function verifyClaims(
       continue;
     }
 
-    const fetched = await fetchSource(claim.source, { fetchImpl, lookup, timeoutMs });
+    const fetched = await fetchWithRetry(claim.source, { fetchImpl, lookup, timeoutMs, sleep });
     if (!fetched.ok) {
       results.push({
         field,

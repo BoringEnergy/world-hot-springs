@@ -3,7 +3,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { verifyClaims, summarise, isLiterallyVerifiable, VERDICT } from './lib/verify-claims.mjs';
+import { verifyClaims, summarise, isLiterallyVerifiable, VERDICT, FETCH_ATTEMPTS } from './lib/verify-claims.mjs';
 
 const publicLookup = async () => [{ address: '93.184.216.34', family: 4 }];
 const page = (html) => async () => ({
@@ -329,4 +329,49 @@ test('the reader is told what our enum tokens mean', async () => {
   );
   assert.match(payload.valueMeans, /swimwear is required/i);
   assert.match(payload.valueMeans, /nude/i);
+});
+
+test('an unreachable source is retried before it blocks anything', async () => {
+  // Once gate-2 is a required check, `unreachable` blocks a merge. That is
+  // the right call -- an attacker who can take their own cited source offline
+  // would otherwise dodge verification by doing exactly that -- but it turns
+  // a third party's bad afternoon into a blocked contribution. So the outcome
+  // is made rare rather than made harmless.
+  let calls = 0;
+  const flaky = async () => {
+    calls++;
+    if (calls < 3) throw new Error('ECONNRESET');
+    return { ok: true, status: 200, headers: { get: () => null }, text: async () => '<p>38.5C</p>' };
+  };
+  const out = await verifyClaims(
+    { claims: { 'temperature.celsius': claim(38.5) } },
+    { fetchImpl: flaky, lookup: publicLookup, sleep: async () => {} },
+  );
+  assert.equal(out[0].verdict, VERDICT.VERIFIED, 'a source that comes back must verify');
+  assert.equal(calls, 3);
+});
+
+test('a 404 is not retried, because it is a fact about the claim', async () => {
+  let calls = 0;
+  const gone = async () => {
+    calls++;
+    return { ok: false, status: 404, headers: { get: () => null }, text: async () => '' };
+  };
+  const out = await verifyClaims(
+    { claims: { 'temperature.celsius': claim(38.5) } },
+    { fetchImpl: gone, lookup: publicLookup, sleep: async () => {} },
+  );
+  assert.equal(out[0].verdict, VERDICT.REFUTED);
+  assert.equal(calls, 1, 'a missing page is missing again a second later');
+});
+
+test('retries are bounded', async () => {
+  let calls = 0;
+  const dead = async () => { calls++; throw new Error('ECONNRESET'); };
+  const out = await verifyClaims(
+    { claims: { 'temperature.celsius': claim(38.5) } },
+    { fetchImpl: dead, lookup: publicLookup, sleep: async () => {} },
+  );
+  assert.equal(out[0].verdict, VERDICT.UNREACHABLE);
+  assert.equal(calls, FETCH_ATTEMPTS, 'a permanently dead host must not retry forever');
 });
