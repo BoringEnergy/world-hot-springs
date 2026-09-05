@@ -38,12 +38,25 @@
  */
 import { fetchSource, valueAppears } from './verify-source.mjs';
 import { FIELD_TYPES } from './overlay.mjs';
+import { semanticVerdict } from './verify-semantic.mjs';
 
 /** Verdicts. Ordered by how the caller must treat them, worst first. */
 export const VERDICT = {
   REFUTED: 'refuted',
   UNREACHABLE: 'unreachable',
   NEEDS_REVIEW: 'needs-semantic-review',
+  /**
+   * A reader looked and did not refute it.
+   *
+   * Deliberately distinct from VERIFIED and deliberately weaker. VERIFIED
+   * means a regex found the number in the page, which no prose can argue
+   * with. This means a model read contributor-chosen text and was not
+   * convinced otherwise -- and that text can contain instructions addressed
+   * to the model. Capping it here is what makes a successful prompt
+   * injection worthless: the best it can do is return the claim to "a human
+   * should read this".
+   */
+  MODEL_CLEARED: 'model-cleared',
   VERIFIED: 'verified',
 };
 
@@ -67,7 +80,10 @@ export function isLiterallyVerifiable(field) {
  *
  * @returns {Promise<Array<{field: string, verdict: string, detail?: string}>>}
  */
-export async function verifyClaims(overlay, { fetchImpl, lookup, timeoutMs } = {}) {
+export async function verifyClaims(
+  overlay,
+  { fetchImpl, lookup, timeoutMs, provider = null, springName = null } = {},
+) {
   const results = [];
   for (const [field, claim] of Object.entries(overlay?.claims ?? {})) {
     // A retracted claim is not applied to the dataset, so verifying it would
@@ -75,7 +91,11 @@ export async function verifyClaims(overlay, { fetchImpl, lookup, timeoutMs } = {
     // withdrawn.
     if (claim?.state && claim.state !== 'active') continue;
 
-    if (!isLiterallyVerifiable(field)) {
+    const literal = isLiterallyVerifiable(field);
+
+    // No reader configured and nothing literal to check: say so and stop,
+    // rather than spending a fetch that decides nothing.
+    if (!literal && !provider) {
       results.push({
         field,
         verdict: VERDICT.NEEDS_REVIEW,
@@ -91,6 +111,37 @@ export async function verifyClaims(overlay, { fetchImpl, lookup, timeoutMs } = {
         verdict: TRANSIENT.has(fetched.outcome) ? VERDICT.UNREACHABLE : VERDICT.REFUTED,
         detail: fetched.outcome,
       });
+      continue;
+    }
+
+    if (!literal) {
+      let verdict;
+      try {
+        verdict = await semanticVerdict({
+          provider, springName, field, value: claim.value, sourceText: fetched.text,
+        });
+      } catch (err) {
+        // A provider outage is not evidence about the claim, any more than a
+        // dead source is. Undecided and retryable, never a refutation.
+        results.push({
+          field, verdict: VERDICT.UNREACHABLE, detail: `verifier-unavailable: ${err.message}`,
+        });
+        continue;
+      }
+      if (verdict.malformed) {
+        // Not an answer. Recording it as a refusal would put a false fact in
+        // a permanent log; recording it as cleared would publish on a
+        // non-answer. It is its own undecided outcome.
+        results.push({
+          field, verdict: VERDICT.UNREACHABLE, detail: 'verifier-verdict-malformed',
+        });
+      } else if (verdict.refuted) {
+        results.push({
+          field, verdict: VERDICT.REFUTED, detail: `refuted-by-verifier: ${verdict.reason}`,
+        });
+      } else {
+        results.push({ field, verdict: VERDICT.MODEL_CLEARED, detail: verdict.reason });
+      }
       continue;
     }
 
@@ -114,11 +165,12 @@ export async function verifyClaims(overlay, { fetchImpl, lookup, timeoutMs } = {
  * submission is wrong, and a second claim's flaky host does not soften that.
  */
 export function summarise(results) {
-  const counts = { refuted: 0, unreachable: 0, needsReview: 0, verified: 0 };
+  const counts = { refuted: 0, unreachable: 0, needsReview: 0, modelCleared: 0, verified: 0 };
   for (const r of results) {
     if (r.verdict === VERDICT.REFUTED) counts.refuted++;
     else if (r.verdict === VERDICT.UNREACHABLE) counts.unreachable++;
     else if (r.verdict === VERDICT.NEEDS_REVIEW) counts.needsReview++;
+    else if (r.verdict === VERDICT.MODEL_CLEARED) counts.modelCleared++;
     else counts.verified++;
   }
   // 1 = reject, this is wrong. 2 = undecided, safe to retry. 0 = nothing

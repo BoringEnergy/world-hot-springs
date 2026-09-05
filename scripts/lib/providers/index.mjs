@@ -64,3 +64,25 @@ export async function loadProviders(roles) {
   };
   return { proposer: await load(roles.proposer), verifier: await load(roles.verifier) };
 }
+
+/**
+ * Load a single provider by id, for callers that have only one role.
+ *
+ * Gate-side claim verification needs a verifier and no proposer: the claim
+ * was written by the contributor, so the different-vendor rule is satisfied
+ * by construction -- there is no second model to correlate with.
+ *
+ * The vendor is path-guarded before it reaches a dynamic import, the same as
+ * in resolveRoles. A config string becomes a filesystem lookup here.
+ */
+export async function loadProvider(id) {
+  const vendor = vendorOf(id);
+  if (!VENDOR.test(vendor)) {
+    throw new Error(`vendor must match ${VENDOR}, got ${JSON.stringify(id)}`);
+  }
+  const model = String(id).split(':').slice(1).join(':');
+  if (!model) throw new Error(`provider must be vendor:model, got ${JSON.stringify(id)}`);
+  const mod = await import(`./${vendor}.mjs`);
+  return mod.default(model);
+}
+
