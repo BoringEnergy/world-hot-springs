@@ -1,0 +1,17 @@
+{
+  "id": "whs_55c9ca3746da",
+  "claims": {
+    "temperature.celsius": {
+      "value": 65,
+      "source": "https://www.bains-lavey.ch/les-bains/",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.bains-lavey.ch/les-bains/",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

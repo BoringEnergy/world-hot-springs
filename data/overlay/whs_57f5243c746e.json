@@ -1,0 +1,17 @@
+{
+  "id": "whs_57f5243c746e",
+  "claims": {
+    "temperature.celsius": {
+      "value": 36,
+      "source": "https://hu.wikipedia.org/wiki/Dand%C3%A1r_utcai_gy%C3%B3gyf%C3%BCrd%C5%91",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://hu.wikipedia.org/wiki/Dand%C3%A1r_utcai_gy%C3%B3gyf%C3%BCrd%C5%91",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
