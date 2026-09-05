@@ -31,42 +31,6 @@
       "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/heures-hours",
       "contributor": "HudsonR&D Meta 9.2.26",
       "state": "active"
-    },
-    "minerals.sulfate": {
-      "value": 302,
-      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
-      "contributor": "HudsonR&D Meta 9.5.26",
-      "state": "active"
-    },
-    "minerals.calcium": {
-      "value": 135,
-      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
-      "contributor": "HudsonR&D Meta 9.5.26",
-      "state": "active"
-    },
-    "minerals.bicarbonate": {
-      "value": 100.8,
-      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
-      "contributor": "HudsonR&D Meta 9.5.26",
-      "state": "active"
-    },
-    "minerals.silica": {
-      "value": 31.8,
-      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
-      "contributor": "HudsonR&D Meta 9.5.26",
-      "state": "active"
-    },
-    "minerals.magnesium": {
-      "value": 31.6,
-      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
-      "contributor": "HudsonR&D Meta 9.5.26",
-      "state": "active"
-    },
-    "minerals.notes": {
-      "value": "Parks Canada publishes the top five minerals only; the full analysis is not given.",
-      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
-      "contributor": "HudsonR&D Meta 9.5.26",
-      "state": "active"
     }
   }
 }
