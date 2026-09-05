@@ -37,6 +37,7 @@ export const FIELD_KEYWORDS = {
   'clothing.policy': ['swimwear', 'swimsuit', 'bathing suit', 'attire', 'dress code', 'clothing', 'nude', 'topless'],
   'clothing.schedule': ['swimwear', 'swimsuit', 'clothing-optional', 'dress code', 'schedule'],
   'clothing.notes': ['swimwear', 'swimsuit', 'attire', 'dress code', 'clothing'],
+  'temperature.kind': ['emerges', 'source', 'spring water', 'heated', 'pool temperature', 'kept at', 'degrees'],
   'access.price': ['price', 'fee', 'admission', 'rate', 'ticket', 'cost', 'adult', 'child'],
   'access.currency': ['price', 'fee', 'admission', 'rate', 'ticket', 'cost'],
   'access.notes': ['access', 'entry', 'admission', 'parking', 'reservation'],

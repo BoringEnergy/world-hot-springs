@@ -143,3 +143,38 @@ test('the schema is in place before any claim uses it', () => {
     assert.ok(CLAIMABLE.includes(field), `${field} is claimed but not claimable`);
   }
 });
+
+test('temperature.kind distinguishes source water from bathing water', () => {
+  // A developed spa publishes both and they are not the same fact. Thermae
+  // 2000's spring rises at 24.6C and the pools are heated from it; rendering
+  // that bare reads as "the baths are tepid" -- true and misleading, which is
+  // the pair this project likes least. Garm-Chashma runs the other way: 75C
+  // at source is a burn, not a bath.
+  assert.deepEqual(FIELD_TYPES['temperature.kind'], ['source', 'bathing', 'unknown']);
+  assert.ok(CLAIMABLE.includes('temperature.kind'));
+  assert.ok(
+    RISK.high.includes('temperature.kind'),
+    'mislabelling a 75C source as bathing invites someone into water that burns',
+  );
+});
+
+test('every record carries a temperature kind, defaulting to unknown', () => {
+  // OSM's `temperature` tag does not say which it means, so guessing per
+  // spring would stamp a fabricated distinction onto every record with a
+  // number. Unknown is the honest default and the majority.
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const missing = all.filter((r) => !r.temperature.kind);
+  assert.equal(missing.length, 0, `${missing.length} records lack temperature.kind`);
+  const osmDerived = all.filter((r) => r.temperature.celsius !== null && r.quality.provenance.length === 1);
+  assert.ok(osmDerived.every((r) => r.temperature.kind === 'unknown' || r.quality.curated),
+    'an OSM temperature must not claim to know which water it measured');
+});
+
+test('the card labels which water a temperature describes', () => {
+  const panel = fs.readFileSync('src/components/DetailPanel.tsx', 'utf8');
+  assert.ok(panel.includes("'at source'"), 'a source reading must say so');
+  assert.ok(panel.includes("'bathing water'"), 'a bathing reading must say so');
+  // Not rendered for unknown: it is the majority case, and a label on every
+  // record would be noise rather than information.
+  assert.ok(panel.includes("temperature.kind !== 'unknown'"));
+});

@@ -36,6 +36,10 @@ import { parseSourceUrl } from './source-url.mjs';
 export const CLAIMABLE = [
   'name',
   'temperature.celsius',
+  // Which water the figure describes. Claimable because a page usually says
+  // plainly ("emerges at", "the pools are kept at"), and because without it
+  // a source reading and a bathing reading render identically.
+  'temperature.kind',
   'access.price',
   'access.currency',
   'access.notes',
@@ -119,6 +123,10 @@ export const RISK = {
   ],
   high: [
     'temperature.celsius',
+    // High with the number it qualifies. Labelling a 75 C source as bathing
+    // is an invitation to get into water that will burn -- the mistake is
+    // worse than the number being absent.
+    'temperature.kind',
     'clothing.policy',
     'clothing.schedule',
     'clothing.notes',
@@ -163,6 +171,7 @@ export const RISK = {
  */
 export const FIELD_TYPES = {
   'temperature.celsius': 'number',
+  'temperature.kind': ['source', 'bathing', 'unknown'],
   'location.elevation': 'number',
   'access.price': 'string',
   'clothing.policy': ['optional', 'required', 'textile-only', 'mixed', 'unknown'],

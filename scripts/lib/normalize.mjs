@@ -344,6 +344,12 @@ export function normalizeElement(el, lookup, ingestedAt) {
       source: celsius === null ? null : 'OpenStreetMap `temperature` tag',
       measuredAt: null,
       qualitative,
+      // Unknown for everything from OSM. The `temperature` tag does not say
+      // whether it means the water at source or the water in the pool, and
+      // guessing per spring would stamp a fabricated distinction onto every
+      // record that has a number. Curated claims fill it in where a page
+      // actually says.
+      kind: 'unknown',
     },
     access,
     clothing,

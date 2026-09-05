@@ -66,6 +66,20 @@ export interface HotSpring {
      * somebody having looked without a thermometer.
      */
     qualitative: string | null;
+    /**
+     * Which water this figure describes.
+     *
+     * A developed spa publishes both and they are not the same fact.
+     * Thermae 2000's source rises at 24.6 °C and the pools are heated from
+     * it; rendering that bare reads as "the baths are tepid", which is true
+     * and misleading — the pair this project likes least. Garm-Chashma runs
+     * the other way: 75 °C at source is a burn, not a bath.
+     *
+     * `unknown` is the honest default and the majority. OpenStreetMap's
+     * `temperature` tag does not say which it means, and guessing per
+     * spring would put a fabricated distinction on 94 records.
+     */
+    kind: TemperatureKind;
   };
   access: {
     /** Free-form and human-facing: "Free", "$15 USD", "Donation", null. */
@@ -158,6 +172,12 @@ export interface HotSpring {
 }
 
 export type AccessStatus = 'public' | 'permit' | 'view-only' | 'closed' | 'unknown';
+/**
+ * `source` is the water as it emerges from the ground. `bathing` is what a
+ * person actually gets into, after any heating, cooling or mixing.
+ */
+export type TemperatureKind = 'source' | 'bathing' | 'unknown';
+
 export type ClothingPolicy = 'optional' | 'required' | 'textile-only' | 'mixed' | 'unknown';
 export type HoursStatus = 'open' | 'seasonal' | 'closed' | 'unknown';
 export type SpringType = 'natural' | 'developed' | 'resort' | 'wild' | 'unknown';

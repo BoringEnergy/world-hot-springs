@@ -227,6 +227,18 @@ export function DetailPanel() {
                 described as {spring.temperature.qualitative}
               </span>
             )}
+            {/*
+              Which water this number describes, when a source said so. A spa
+              whose spring rises at 24.6°C and heats its pools reads as a
+              tepid bath without this; a 75°C source reads as a bath you could
+              get into. `unknown` shows nothing rather than "unknown" -- it is
+              the majority case and a label on every record would be noise.
+            */}
+            {spring.temperature.celsius !== null && spring.temperature.kind !== 'unknown' && (
+              <span className="rounded-full border border-basalt-700 bg-basalt-850 px-2 py-0.5 text-[11px] text-steam-300">
+                {spring.temperature.kind === 'source' ? 'at source' : 'bathing water'}
+              </span>
+            )}
           </div>
           {spring.temperature.source && (
             <p className="mt-1 text-xs text-steam-400">{spring.temperature.source}</p>

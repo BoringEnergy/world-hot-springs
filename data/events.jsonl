@@ -6478,3 +6478,9 @@
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_f9eacbbc41b0","claimPath":"clothing.policy","from":"unknown","to":"textile-only","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_fc6d30c5283e","claimPath":"access.price","from":"Paid (amount unknown)","to":"Adults $42-$60 (peak/off-peak vary)","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_fc6d30c5283e","claimPath":"hours.status","from":"unknown","to":"open","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_208cd787b432","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_3ffe94030fee","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_44f570741343","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_4e7fc625eb50","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_8de6b8413b35","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_e7f4a5c2caaa","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}

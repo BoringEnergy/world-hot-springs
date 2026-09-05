@@ -1,15 +1,15 @@
 {
-  "id": "whs_3ffe94030fee",
+  "id": "whs_4e7fc625eb50",
   "claims": {
     "temperature.celsius": {
-      "value": 34,
-      "source": "https://en.wikipedia.org/wiki/Kaiafas",
+      "value": 24.6,
+      "source": "https://nl.wikipedia.org/wiki/Thermae_2000",
       "contributor": "HudsonR&D Meta 9.5.26",
       "state": "active"
     },
     "temperature.kind": {
       "value": "source",
-      "source": "https://en.wikipedia.org/wiki/Kaiafas",
+      "source": "https://nl.wikipedia.org/wiki/Thermae_2000",
       "contributor": "HudsonR&D Meta 9.5.26",
       "state": "active"
     }
