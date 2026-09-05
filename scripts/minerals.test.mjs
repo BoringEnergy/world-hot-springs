@@ -129,21 +129,17 @@ test('every record carries a minerals block, present and empty', () => {
   assert.equal(missing.length, 0, `${missing.length} records lack a minerals block`);
 });
 
-test('the published Radium analysis survives the round trip', () => {
-  // End to end against a real source: Parks Canada publishes "Sulphate (302
-  // mg/l), Calcium (135 mg/l), Bicarbonate (100.8 mg/l), Silica (31.8 mg/l),
-  // and Magnesium (31.6 mg/l)", and all five verify literally against that
-  // page. This asserts the numbers reached the built dataset.
-  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
-  const radium = all.find((r) => r.id === 'whs_ce8611720825');
-  assert.ok(radium, 'Radium Hot Springs should be in the dataset');
-  assert.equal(radium.minerals.sulfate, 302);
-  assert.equal(radium.minerals.calcium, 135);
-  assert.equal(radium.minerals.bicarbonate, 100.8);
-  assert.equal(radium.minerals.silica, 31.8);
-  assert.equal(radium.minerals.magnesium, 31.6);
-  // Not claimed, and therefore still null -- the panel is partial and the
-  // record says so instead of filling gaps.
-  assert.equal(radium.minerals.ph, null);
-  assert.equal(radium.minerals.sodium, null);
+test('the schema is in place before any claim uses it', () => {
+  // Gate 2 validates a pull request's claims against the DEFAULT BRANCH's
+  // schema, so a PR cannot widen CLAIMABLE and use the widening in the same
+  // breath -- otherwise a hostile PR could add `id` to the list and claim it.
+  // It refused this PR for exactly that reason when the Radium mineral claims
+  // travelled with the schema, which is the gate being right. The claims land
+  // in a follow-up, and this asserts the ordering the gate requires.
+  const overlays = fs.readdirSync('data/overlay').filter((f) => f.endsWith('.json'));
+  const claimed = overlays.flatMap((f) =>
+    Object.keys(JSON.parse(fs.readFileSync(`data/overlay/${f}`, 'utf8')).claims ?? {}));
+  for (const field of claimed) {
+    assert.ok(CLAIMABLE.includes(field), `${field} is claimed but not claimable`);
+  }
 });
