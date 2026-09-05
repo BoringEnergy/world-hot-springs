@@ -9,8 +9,19 @@
  *   it works against same-repo branches and silently fails for exactly the
  *   population this gate exists to police.
  *
- *   Resolving by SHA instead returns an ARRAY, and for a commit off the
- *   default branch it includes merged and open PRs both.
+ *   The spec's own remedy -- GET /repos/{base}/commits/{sha}/pulls -- has the
+ *   SAME failure, which we only found by opening a real fork PR. That
+ *   endpoint returns [] for a fork's head commit, because the commit is not
+ *   in the base repository's ref namespace. Gate 2 refused PR #23 with "no
+ *   open pull request has this head commit" while that PR was open in front
+ *   of us. Fail-closed, so safe; also useless, since it could never approve
+ *   a real contribution.
+ *
+ *   Listing our OWN open pull requests and matching is what works. It is also
+ *   the safer shape: the query names only this repository, so no
+ *   attacker-controlled repository name ever enters the URL. Querying the
+ *   fork's copy of the endpoint would work too, and would mean fetching a
+ *   name the contributor chose.
  *
  *   Fork networks share an object store. An attacker can point their branch
  *   at a commit that also heads someone else's open PR. Taking [0] attaches a
@@ -35,7 +46,8 @@ export const REFUSAL = {
  * @param {object} args
  * @param {string} args.headSha        workflow_run.head_sha
  * @param {string} args.headRepo       workflow_run.head_repository.full_name
- * @param {() => Promise<Array>} args.listPulls  GET /commits/{sha}/pulls
+ * @param {() => Promise<Array>} args.listPulls  every OPEN pull request on
+ *        this repository (paginated by the caller), not a per-commit lookup
  * @returns {Promise<{ok: true, number: number, headSha: string} | {ok: false, reason: string}>}
  */
 export async function resolvePr({ headSha, headRepo, listPulls }) {
