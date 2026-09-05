@@ -2,8 +2,8 @@
   "id": "whs_fc6d30c5283e",
   "claims": {
     "temperature.celsius": {
-      "value": 71,
-      "source": "https://www.glenwoodhotsprings.com/hot-springs-pool/",
+      "value": 93.7,
+      "source": "https://en.wikipedia.org/wiki/Glenwood_Hot_Springs",
       "contributor": "fork-path-test",
       "state": "active"
     }
