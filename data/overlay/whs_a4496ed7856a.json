@@ -1,0 +1,17 @@
+{
+  "id": "whs_a4496ed7856a",
+  "claims": {
+    "temperature.celsius": {
+      "value": 21.3,
+      "source": "https://de.wikipedia.org/wiki/Saarland-Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Saarland-Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "whs_92b9ef121185",
+  "claims": {
+    "temperature.celsius": {
+      "value": 48.3,
+      "source": "https://de.wikipedia.org/wiki/Panorama_Therme_Beuren",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Panorama_Therme_Beuren",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

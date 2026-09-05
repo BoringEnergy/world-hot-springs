@@ -1,0 +1,17 @@
+{
+  "id": "whs_938dcc60d7ab",
+  "claims": {
+    "temperature.celsius": {
+      "value": 20.5,
+      "source": "https://de.wikipedia.org/wiki/Mineralbad_Leuze",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Mineralbad_Leuze",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
