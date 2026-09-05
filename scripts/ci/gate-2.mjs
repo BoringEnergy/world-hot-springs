@@ -61,6 +61,25 @@ async function api(url, token) {
   return res.json();
 }
 
+/**
+ * Every open pull request, following pagination.
+ *
+ * Paginated rather than capped: stopping at the first page would silently
+ * stop resolving PRs once the repository had more than a page of them open,
+ * and the symptom would be a refusal that reads like an attack.
+ */
+async function listOpenPulls(repo, token, max = 20) {
+  const all = [];
+  for (let page = 1; page <= max; page++) {
+    const batch = await api(`${API}/repos/${repo}/pulls?state=open&per_page=100&page=${page}`, token);
+    all.push(...batch);
+    if (batch.length < 100) return all;
+  }
+  // Refusing to guess beyond the bound, rather than returning a partial list
+  // that could resolve to the wrong pull request.
+  throw new Error(`more than ${max * 100} open pull requests; refusing to resolve`);
+}
+
 /** Refuse and say why. Never a silent pass. */
 function refuse(reason) {
   console.error(`gate-2: REFUSED -- ${reason}`);
@@ -77,7 +96,11 @@ async function main() {
   const resolved = await resolvePr({
     headSha,
     headRepo,
-    listPulls: () => api(`${API}/repos/${repo}/commits/${headSha}/pulls`, token),
+    // Every open pull request on THIS repository, not a per-commit lookup.
+    // The per-commit endpoint returns [] for a fork's head commit, so the
+    // spec's version of this refused every fork PR -- the population the
+    // gate exists for. Found by opening one.
+    listPulls: () => listOpenPulls(repo, token),
   });
   if (!resolved.ok) return refuse(resolved.reason);
   console.log(`gate-2: reviewing PR #${resolved.number} at ${headSha}`);

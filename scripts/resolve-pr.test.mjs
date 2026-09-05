@@ -121,3 +121,51 @@ test('the strict limit is the default when a caller says nothing', () => {
   const many = Array.from({ length: MAX_PR_FILES + 1 }, (_, i) => `data/overlay/f${i}.json`);
   assert.equal(checkFileListUsable(many).ok, false);
 });
+
+test('a fork pull request resolves from the open-PR list', () => {
+  // The regression that only a real fork PR exposed. The spec prescribed
+  // GET /repos/{base}/commits/{sha}/pulls, which returns [] for a fork's head
+  // commit because that commit is not in the base repository's ref namespace.
+  // Gate 2 refused a live fork PR with "no open pull request has this head
+  // commit" while the PR was open. Fail-closed, so safe; also useless.
+  const forkPull = {
+    number: 23,
+    state: 'open',
+    head: { sha: SHA, repo: { full_name: 'contributor/world-hot-springs' } },
+  };
+  return resolvePr({
+    headSha: SHA,
+    headRepo: 'contributor/world-hot-springs',
+    listPulls: async () => [forkPull],
+  }).then((out) => {
+    assert.deepEqual(out, { ok: true, number: 23, headSha: SHA });
+  });
+});
+
+test('a fork PR is not confused with a same-repo PR on the same commit', () => {
+  // Both are open, both have this head SHA. Only the head repository tells
+  // them apart, and picking wrong attaches the verdict to the wrong PR.
+  const pulls = [
+    { number: 23, state: 'open', head: { sha: SHA, repo: { full_name: 'contributor/world-hot-springs' } } },
+    { number: 24, state: 'open', head: { sha: SHA, repo: { full_name: 'BoringEnergy/world-hot-springs' } } },
+  ];
+  return resolvePr({
+    headSha: SHA, headRepo: 'contributor/world-hot-springs', listPulls: async () => pulls,
+  }).then((out) => {
+    assert.deepEqual(out, { ok: true, number: 23, headSha: SHA });
+  });
+});
+
+test('unrelated open pull requests are ignored, not counted as ambiguity', () => {
+  // The open-PR list contains every live PR, so most entries are noise. If
+  // they were treated as candidates the gate would refuse as AMBIGUOUS
+  // whenever two PRs happened to be open at once.
+  const pulls = [
+    { number: 1, state: 'open', head: { sha: 'c'.repeat(40), repo: { full_name: 'x/y' } } },
+    { number: 2, state: 'open', head: { sha: 'd'.repeat(40), repo: { full_name: 'z/w' } } },
+    { number: 23, state: 'open', head: { sha: SHA, repo: { full_name: 'contributor/world-hot-springs' } } },
+  ];
+  return resolvePr({
+    headSha: SHA, headRepo: 'contributor/world-hot-springs', listPulls: async () => pulls,
+  }).then((out) => assert.equal(out.number, 23));
+});
