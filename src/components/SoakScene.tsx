@@ -205,11 +205,11 @@ export function SoakScene({ spring, units }: { spring: HotSpring; units: Units }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [expanded ]);
+  }, [expanded]);
 
   useEffect(() => {
     if (expanded) toggleRef.current?.focus({ preventScroll: true });
-  }, [expanded ]);
+  }, [expanded]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -230,9 +230,15 @@ export function SoakScene({ spring, units }: { spring: HotSpring; units: Units }
     const render = (t: number) => {
       const rect = wrap.getBoundingClientRect();
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      if (canvas.width !== Math.round(rect.width * dpr)) {
-        canvas.width = Math.round(rect.width * dpr);
-        canvas.height = Math.round(rect.height * dpr);
+      // Both dimensions, not just width: a container that changes height at
+      // constant width -- expanding the card, a rotated phone landing on the
+      // same width -- left the backing store at the old height and painted a
+      // vertically stretched scene until the next width change.
+      const cw = Math.round(rect.width * dpr);
+      const ch = Math.round(rect.height * dpr);
+      if (canvas.width !== cw || canvas.height !== ch) {
+        canvas.width = cw;
+        canvas.height = ch;
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       paint(ctx, rect.width, rect.height, spring, new Date(), t);
