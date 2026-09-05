@@ -1,7 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { textOf, valueAppears, fetchSource, MAX_SOURCE_BYTES } from './lib/verify-source.mjs';
+import { textOf, valueAppears, fetchSource, MAX_SOURCE_BYTES , MAX_REDIRECTS } from './lib/verify-source.mjs';
 import { OUTCOMES } from './lib/refutations.mjs';
+
+/**
+ * A resolver that answers "public" for every host.
+ *
+ * fetchSource() now resolves each hop and refuses private answers, which
+ * would otherwise make this suite depend on live DNS -- and on `.example`
+ * domains that are reserved never to resolve at all. Stubbing it keeps these
+ * tests about fetch behaviour, which is what they are for. The guard itself
+ * is exercised directly in source-url.test.mjs and by the SSRF tests below.
+ */
+const publicLookup = async () => [{ address: '93.184.216.34', family: 4 }];
 
 test('html is reduced to searchable text', () => {
   const html = '<html><head><style>.a{color:red}</style></head><body><p>The spring is 42.5&nbsp;&deg;C</p><script>var x=1</script></body></html>';
@@ -185,12 +196,12 @@ function okResponse(body, headers = {}) {
  * and if one is renamed the membership assert does.
  */
 const FAILURE_EXITS = {
-  'unparseable url': () => fetchSource('not a url', { fetchImpl: stubFetch(okResponse('anything')).impl }),
-  'refused scheme': () => fetchSource('file:///etc/passwd', { fetchImpl: stubFetch(okResponse('anything')).impl }),
+  'unparseable url': () => fetchSource('not a url', { lookup: publicLookup, fetchImpl: stubFetch(okResponse('anything')).impl }),
+  'refused scheme': () => fetchSource('file:///etc/passwd', { lookup: publicLookup, fetchImpl: stubFetch(okResponse('anything')).impl }),
   'http error status': () => fetchSource('https://example.com/a', {
     fetchImpl: stubFetch({ ok: false, status: 404, headers: { get: () => null }, text: async () => 'x' }).impl,
   }),
-  'network error': () => fetchSource('https://example.com/a', { fetchImpl: stubFetch(new Error('ECONNRESET')).impl }),
+  'network error': () => fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: stubFetch(new Error('ECONNRESET')).impl }),
   'abort during body read': () => fetchSource('https://example.com/a', {
     fetchImpl: stubFetch({
       ok: true,
@@ -233,7 +244,7 @@ test('a non-http scheme never reaches the fetch, and is malformed not unreachabl
   // fact about the provider, not about the network.
   for (const url of ['file:///etc/passwd', 'data:text/html,<p>42.5 °C</p>']) {
     const { impl, calls } = stubFetch(okResponse('<p>42.5 °C</p>'));
-    const res = await fetchSource(url, { fetchImpl: impl });
+    const res = await fetchSource(url, { lookup: publicLookup, fetchImpl: impl });
     assert.deepEqual(res, { ok: false, outcome: 'source-malformed' }, url);
     assert.equal(calls.length, 0, url + ' must not be fetched');
   }
@@ -241,7 +252,7 @@ test('a non-http scheme never reaches the fetch, and is malformed not unreachabl
 
 test('an unparseable url is malformed', async () => {
   const { impl, calls } = stubFetch(okResponse('anything'));
-  const res = await fetchSource('not a url', { fetchImpl: impl });
+  const res = await fetchSource('not a url', { lookup: publicLookup, fetchImpl: impl });
   assert.deepEqual(res, { ok: false, outcome: 'source-malformed' });
   assert.equal(calls.length, 0);
 });
@@ -251,7 +262,7 @@ test('a non-ok response is not-found, not unreachable', async () => {
   // "the network is down" are different facts about the provider.
   const { impl } = stubFetch({ ok: false, status: 404, headers: { get: () => null }, text: async () => '42.5 °C' });
   assert.deepEqual(
-    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl }),
     { ok: false, outcome: 'source-not-found' },
   );
 });
@@ -259,17 +270,18 @@ test('a non-ok response is not-found, not unreachable', async () => {
 test('a throwing fetch is unreachable, not an exception', async () => {
   const { impl } = stubFetch(new Error('ECONNRESET'));
   assert.deepEqual(
-    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl }),
     { ok: false, outcome: 'source-unreachable' },
   );
 });
 
 test('the timeout is wired to a signal the fetch receives', async () => {
   const { impl, calls } = stubFetch(okResponse('<p>ok</p>'));
-  await fetchSource('https://example.com/a', { fetchImpl: impl, timeoutMs: 1 });
+  await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl, timeoutMs: 1 });
   const { options } = calls[0];
   assert.ok(options?.signal instanceof AbortSignal, 'a signal must be forwarded');
-  assert.equal(options.redirect, 'follow');
+  // Manual, so every redirect hop can be re-checked against the SSRF guard.
+  assert.equal(options.redirect, 'manual');
   // And it must be the caller's timeout, not an unwired one.
   await new Promise((resolve) => setTimeout(resolve, 25));
   assert.equal(options.signal.aborted, true, 'the signal must carry timeoutMs');
@@ -289,7 +301,7 @@ test('an abort during the body read is an outcome, not an exception', async () =
   };
   const { impl } = stubFetch(failing);
   assert.deepEqual(
-    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl }),
     { ok: false, outcome: 'source-unreachable' },
   );
 });
@@ -298,7 +310,7 @@ test('a declared content-length over the cap is rejected before the body is read
   const res = okResponse('<p>small</p>', { 'content-length': MAX_SOURCE_BYTES + 1 });
   const { impl } = stubFetch(res);
   assert.deepEqual(
-    await fetchSource('https://example.com/a', { fetchImpl: impl }),
+    await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl }),
     { ok: false, outcome: 'source-too-large' },
   );
   assert.equal(res.read.count, 0, 'the body must never be buffered');
@@ -311,7 +323,7 @@ test('an oversized body is rejected whole, not truncated', async () => {
   assert.equal(MAX_SOURCE_BYTES, 2_000_000);
   const body = '<p>42.5 °C</p>' + 'x'.repeat(MAX_SOURCE_BYTES);
   const { impl } = stubFetch(okResponse(body));
-  const out = await fetchSource('https://example.com/a', { fetchImpl: impl });
+  const out = await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl });
   assert.equal(out.ok, false);
   assert.equal(out.outcome, 'source-too-large');
   assert.equal(out.text, undefined, 'no partial evidence may escape');
@@ -319,13 +331,70 @@ test('an oversized body is rejected whole, not truncated', async () => {
 
 test('a body of exactly the cap is accepted', async () => {
   const { impl } = stubFetch(okResponse('x'.repeat(MAX_SOURCE_BYTES)));
-  const out = await fetchSource('https://example.com/a', { fetchImpl: impl });
+  const out = await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl });
   assert.equal(out.ok, true, 'the cap is a maximum, not an exclusive bound');
 });
 
 test('a body within the cap comes back as stripped text', async () => {
   const { impl } = stubFetch(okResponse('<html><body><p>The spring is 42.5&nbsp;&deg;C</p><script>var x=1</script></body></html>'));
-  const out = await fetchSource('https://example.com/a', { fetchImpl: impl });
+  const out = await fetchSource('https://example.com/a', { lookup: publicLookup, fetchImpl: impl });
   assert.equal(out.ok, true);
   assert.equal(out.text, 'The spring is 42.5 °C');
+});
+
+test('a redirect to the metadata endpoint is refused, not followed', async () => {
+  // The reason redirects are followed by hand. With `redirect: 'follow'` the
+  // hop happens inside fetch, where there is no seam to re-check: a public
+  // host answers 302 to http://169.254.169.254/ and the guard never sees it.
+  // This is the whole SSRF attack against a verifier that runs in CI.
+  const seen = [];
+  const impl = async (url) => {
+    seen.push(url);
+    if (seen.length === 1) {
+      return {
+        ok: false,
+        status: 302,
+        headers: { get: (h) => (h.toLowerCase() === 'location' ? 'http://169.254.169.254/latest/meta-data/' : null) },
+        text: async () => '',
+      };
+    }
+    throw new Error('the guard let the redirect through');
+  };
+  const out = await fetchSource('https://public.example/a', { lookup: publicLookup, fetchImpl: impl });
+  assert.deepEqual(out, { ok: false, outcome: 'source-malformed' });
+  assert.equal(seen.length, 1, 'the second hop must never be requested');
+});
+
+test('a redirect to a public https URL is followed', async () => {
+  // The rejection test above passes if redirects are simply broken.
+  const impl = async (url) => {
+    if (url === 'https://public.example/a') {
+      return {
+        ok: false,
+        status: 301,
+        headers: { get: (h) => (h.toLowerCase() === 'location' ? 'https://elsewhere.example/b' : null) },
+        text: async () => '',
+      };
+    }
+    return okResponse('<p>38.5 degrees</p>');
+  };
+  const out = await fetchSource('https://public.example/a', { lookup: publicLookup, fetchImpl: impl });
+  assert.equal(out.ok, true, 'a legitimate redirect must still resolve');
+  assert.match(out.text, /38\.5/);
+});
+
+test('an endless redirect chain is an outcome, not a hang', async () => {
+  let hops = 0;
+  const impl = async () => {
+    hops++;
+    return {
+      ok: false,
+      status: 302,
+      headers: { get: (h) => (h.toLowerCase() === 'location' ? 'https://loop.example/next' : null) },
+      text: async () => '',
+    };
+  };
+  const out = await fetchSource('https://loop.example/a', { lookup: publicLookup, fetchImpl: impl });
+  assert.deepEqual(out, { ok: false, outcome: 'source-unreachable' });
+  assert.ok(hops <= MAX_REDIRECTS + 1, `bounded, got ${hops} hops`);
 });
