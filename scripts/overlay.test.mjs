@@ -102,6 +102,25 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     'hours.status': ['open', 'seasonal', 'closed', 'unknown'],
     tags: 'string[]',
     warnings: 'string[]',
+    // Water chemistry, mg/L except ph. Numbers on purpose: a number is the
+    // one claim shape verify-claims.mjs can check literally against the page
+    // that states it, and published analyses give figures, not prose.
+    'minerals.ph': 'number',
+    'minerals.tds': 'number',
+    'minerals.sulfate': 'number',
+    'minerals.bicarbonate': 'number',
+    'minerals.chloride': 'number',
+    'minerals.calcium': 'number',
+    'minerals.magnesium': 'number',
+    'minerals.sodium': 'number',
+    'minerals.silica': 'number',
+    'minerals.iron': 'number',
+    'minerals.types': [
+      'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
+      'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
+    ],
+    'minerals.notes': 'string',
+    'minerals.measuredAt': 'string',
   });
   for (const field of Object.keys(FIELD_TYPES)) {
     assert.ok(CLAIMABLE.includes(field), `${field} must be claimable to be type-checked`);
@@ -493,7 +512,11 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
     CLAIMABLE.filter((f) => !AGENT_CLAIMABLE.includes(f)).sort(),
     ['location.nearestTown', 'name', 'tags', 'warnings'].sort(),
   );
-  assert.equal(AGENT_CLAIMABLE.length, 13);
+  // 13 original + 13 mineral fields. The withheld four are unchanged: water
+  // chemistry is claimable by an agent because every numeric part of it is
+  // literally checkable against the cited analysis, which is a stronger
+  // guarantee than any field on the original list except temperature.
+  assert.equal(AGENT_CLAIMABLE.length, 26);
 });
 
 test('an agent may claim every permitted field', () => {

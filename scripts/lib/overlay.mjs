@@ -51,6 +51,25 @@ export const CLAIMABLE = [
   'location.elevation',
   'location.region',
   'location.nearestTown',
+
+  // Water chemistry. Numeric on purpose: a number is the one kind of claim
+  // verify-claims.mjs can check literally against the page that states it,
+  // and published analyses give figures ("Sulphate (302 mg/l)"), not prose.
+  // The eight constituents are the standard panel that appears in nearly
+  // every spa and geological-survey analysis; anything rarer goes in notes.
+  'minerals.ph',
+  'minerals.tds',
+  'minerals.sulfate',
+  'minerals.bicarbonate',
+  'minerals.chloride',
+  'minerals.calcium',
+  'minerals.magnesium',
+  'minerals.sodium',
+  'minerals.silica',
+  'minerals.iron',
+  'minerals.types',
+  'minerals.notes',
+  'minerals.measuredAt',
 ];
 
 /**
@@ -89,13 +108,28 @@ export const RISK = {
     'location.nearestTown',
     'location.elevation',
   ],
-  elevated: ['name', 'access.notes', 'hours.seasonalNotes', 'hours.status'],
+  elevated: [
+    'name', 'access.notes', 'hours.seasonalNotes', 'hours.status',
+    // Health-relevant but not acutely dangerous to be wrong about: a
+    // mis-stated sulfate figure misinforms, it does not burn.
+    'minerals.tds', 'minerals.sulfate', 'minerals.bicarbonate',
+    'minerals.chloride', 'minerals.calcium', 'minerals.magnesium',
+    'minerals.sodium', 'minerals.silica', 'minerals.iron',
+    'minerals.notes', 'minerals.measuredAt',
+  ],
   high: [
     'temperature.celsius',
     'clothing.policy',
     'clothing.schedule',
     'clothing.notes',
     'warnings',
+    // Japan has onsen down to pH 1.5. A wrong pH sends someone with the
+    // wrong skin, or the wrong eyes, into acid -- the same class of harm as
+    // a wrong temperature, which is the criterion this tier uses.
+    'minerals.ph',
+    // "acidic" and "radioactive" are members of this vocabulary, and both
+    // carry real contraindications.
+    'minerals.types',
   ],
 };
 
@@ -135,6 +169,34 @@ export const FIELD_TYPES = {
   'hours.status': ['open', 'seasonal', 'closed', 'unknown'],
   tags: 'string[]',
   warnings: 'string[]',
+
+  // Concentrations in mg/L, the unit every published analysis uses. Declared
+  // as numbers so verify-claims.mjs checks each one literally against the
+  // cited page -- "302" either appears in the analysis or the claim is wrong.
+  'minerals.ph': 'number',
+  'minerals.tds': 'number',
+  'minerals.sulfate': 'number',
+  'minerals.bicarbonate': 'number',
+  'minerals.chloride': 'number',
+  'minerals.calcium': 'number',
+  'minerals.magnesium': 'number',
+  'minerals.sodium': 'number',
+  'minerals.silica': 'number',
+  'minerals.iron': 'number',
+
+  // Japan's Hot Spring Law classification. Adopted rather than invented: it
+  // is the only widely published standard, composition is legally required to
+  // be posted under it, and 778 springs here are already tagged onsen. An
+  // invented vocabulary would have no sources behind it.
+  'minerals.types': [
+    'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
+    'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
+  ],
+  'minerals.notes': 'string',
+  // ISO date the source states the water was analysed. Absent means the
+  // source published a composition without saying when it was measured, and
+  // the UI says exactly that rather than implying freshness.
+  'minerals.measuredAt': 'string',
 };
 
 /**

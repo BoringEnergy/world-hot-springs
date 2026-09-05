@@ -348,6 +348,21 @@ export function normalizeElement(el, lookup, ingestedAt) {
     access,
     clothing,
     hours: parseHours(tags),
+    // Present and empty on every record, never absent. A field that only
+    // exists once something claims it would make `spring.minerals.ph` throw
+    // on the 6,400 springs nobody has analysed, and would let applyClaim
+    // build a half-shaped object one key at a time.
+    //
+    // OSM has no chemistry tags worth reading -- the closest is a name
+    // containing "sulphur", which deriveTags already turns into a tag and
+    // which is not a measurement. So this starts empty for everyone and
+    // fills only from curated claims against published analyses.
+    minerals: {
+      ph: null, tds: null,
+      sulfate: null, bicarbonate: null, chloride: null, calcium: null,
+      magnesium: null, sodium: null, silica: null, iron: null,
+      types: [], notes: null, measuredAt: null,
+    },
     type,
     unicorn: false,
     // Nothing arriving from a bulk ingest is verified. A human has to look.

@@ -1,4 +1,4 @@
-import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, SpringType } from './types';
+import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, MineralType, SpringType } from './types';
 
 export type Units = 'c' | 'f';
 
@@ -109,4 +109,49 @@ export function formatDistance(km: number, units: Units): string {
     return mi < 10 ? `${mi.toFixed(1)} mi` : `${Math.round(mi)} mi`;
   }
   return km < 10 ? `${km.toFixed(1)} km` : `${Math.round(km)} km`;
+}
+
+/**
+ * Named constituents in the order a published analysis usually lists them:
+ * anions, then cations, then silica and iron. Not alphabetical — a reader
+ * comparing two springs wants the same rows in the same places.
+ */
+export const MINERAL_CONSTITUENTS = [
+  ['sulfate', 'Sulfate'],
+  ['bicarbonate', 'Bicarbonate'],
+  ['chloride', 'Chloride'],
+  ['calcium', 'Calcium'],
+  ['magnesium', 'Magnesium'],
+  ['sodium', 'Sodium'],
+  ['silica', 'Silica'],
+  ['iron', 'Iron'],
+] as const;
+
+/** Human label for a Hot Spring Law classification. */
+export function formatMineralType(t: MineralType): string {
+  const labels: Record<MineralType, string> = {
+    simple: 'Simple',
+    chloride: 'Chloride',
+    bicarbonate: 'Bicarbonate',
+    sulfate: 'Sulfate',
+    'carbon-dioxide': 'Carbon dioxide',
+    iron: 'Iron',
+    acidic: 'Acidic',
+    iodine: 'Iodine',
+    sulfur: 'Sulfur',
+    radioactive: 'Radioactive',
+    aluminium: 'Aluminium',
+  };
+  return labels[t] ?? t;
+}
+
+/** Does this spring have any published chemistry at all? */
+export function hasMinerals(m: HotSpring['minerals']): boolean {
+  return (
+    m.ph !== null ||
+    m.tds !== null ||
+    m.types.length > 0 ||
+    m.notes !== null ||
+    MINERAL_CONSTITUENTS.some(([k]) => m[k] !== null)
+  );
 }
