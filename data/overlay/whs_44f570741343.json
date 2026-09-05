@@ -1,0 +1,11 @@
+{
+  "id": "whs_44f570741343",
+  "claims": {
+    "temperature.celsius": {
+      "value": 40,
+      "source": "https://en.wikipedia.org/wiki/Sky_Lagoon",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
