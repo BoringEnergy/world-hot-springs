@@ -80,3 +80,4 @@ export function checkPaths(files) {
   }
   return errors;
 }
+// path-guard probe
