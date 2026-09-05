@@ -1,0 +1,17 @@
+{
+  "id": "whs_b73180a96452",
+  "claims": {
+    "temperature.celsius": {
+      "value": 32,
+      "source": "https://de.wikipedia.org/wiki/Eurotherme_Bad_Hall",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://de.wikipedia.org/wiki/Eurotherme_Bad_Hall",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
