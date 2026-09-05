@@ -1,7 +1,10 @@
 import { useRef, useEffect } from 'react';
 import { bandColor, tempBand } from '../lib/types';
 import {
+  MINERAL_CONSTITUENTS,
   formatAccessStatus,
+  formatMineralType,
+  hasMinerals,
   formatClothing,
   formatCoords,
   formatDistance,
@@ -115,6 +118,73 @@ export function DetailPanel() {
       */}
       {spring.access.bathingAllowed !== false && (
         <SoakScene key={spring.id} spring={spring} units={units} />
+      )}
+
+      {/*
+        Water chemistry, and the standing disclaimer that goes with it.
+
+        This atlas does not test water. Every figure here is transcribed from
+        a source that published it, and the card says so unconditionally --
+        not as a legal hedge but because a mineral panel rendered bare reads
+        as a measurement somebody took for you. `measuredAt` separates "the
+        source states it was analysed on this date" from "the source
+        published figures without saying when", which are different things to
+        act on: chemistry drifts, and an undated analysis may be decades old.
+      */}
+      {hasMinerals(spring.minerals) && (
+        <section className="mx-5 mt-4 rounded-xl border border-basalt-800 bg-basalt-900/60 px-4 py-3">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-steam-400">
+            Water composition
+          </h3>
+
+          {spring.minerals.types.length > 0 && (
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {spring.minerals.types.map((t) => (
+                <li
+                  key={t}
+                  className="rounded-full border border-basalt-700 bg-basalt-800 px-2 py-0.5 text-[11px] text-steam-200"
+                >
+                  {formatMineralType(t)}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <dl className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+            {spring.minerals.ph !== null && (
+              <div className="col-span-2 flex justify-between border-b border-basalt-800 pb-1">
+                <dt className="text-steam-400">pH</dt>
+                <dd className="tabular-nums text-steam-100">{spring.minerals.ph}</dd>
+              </div>
+            )}
+            {spring.minerals.tds !== null && (
+              <div className="col-span-2 flex justify-between border-b border-basalt-800 pb-1">
+                <dt className="text-steam-400">Dissolved solids</dt>
+                <dd className="tabular-nums text-steam-100">{spring.minerals.tds} mg/L</dd>
+              </div>
+            )}
+            {MINERAL_CONSTITUENTS.map(([key, label]) =>
+              spring.minerals[key] === null ? null : (
+                <div key={key} className="flex justify-between">
+                  <dt className="text-steam-400">{label}</dt>
+                  <dd className="tabular-nums text-steam-100">{spring.minerals[key]} mg/L</dd>
+                </div>
+              ),
+            )}
+          </dl>
+
+          {spring.minerals.notes && (
+            <p className="mt-2 text-xs leading-relaxed text-steam-200">{spring.minerals.notes}</p>
+          )}
+
+          <p className="mt-2.5 border-t border-basalt-800 pt-2 text-[11px] leading-relaxed text-steam-400">
+            {spring.minerals.measuredAt
+              ? `Analysed ${spring.minerals.measuredAt} according to the source below.`
+              : 'The source publishes these figures without stating when the water was analysed.'}{' '}
+            Reported from public sources. This atlas does not test water and has
+            not verified these figures on site.
+          </p>
+        </section>
       )}
 
       {spring.warnings.length > 0 && (

@@ -37,6 +37,20 @@ export const LITERAL_FIELDS = [
   'access.price',
   'access.currency',
   'location.elevation',
+  // Published analyses state concentrations as figures -- "Sulphate (302
+  // mg/l)" -- so every one of these appears verbatim on the page that
+  // supports it. That is what makes water chemistry deterministically
+  // checkable rather than a thing only a model can judge.
+  'minerals.ph',
+  'minerals.tds',
+  'minerals.sulfate',
+  'minerals.bicarbonate',
+  'minerals.chloride',
+  'minerals.calcium',
+  'minerals.magnesium',
+  'minerals.sodium',
+  'minerals.silica',
+  'minerals.iron',
 ];
 
 /**

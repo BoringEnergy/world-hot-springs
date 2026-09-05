@@ -10,6 +10,26 @@
  * source. Synthesising one ("Hot spring near Reykjadalur") would be inventing
  * data, which the rule above forbids. The UI renders null as "Unnamed spring".
  */
+/**
+ * Japan's Hot Spring Law (温泉法) classifies springs by 泉質 into these
+ * categories. Adopted rather than invented: it is the only widely published
+ * standard, Japanese operators are legally required to post their
+ * classification under it, and 778 springs in this dataset are already tagged
+ * onsen. A vocabulary of our own would have had no sources behind it.
+ */
+export type MineralType =
+  | 'simple'
+  | 'chloride'
+  | 'bicarbonate'
+  | 'sulfate'
+  | 'carbon-dioxide'
+  | 'iron'
+  | 'acidic'
+  | 'iodine'
+  | 'sulfur'
+  | 'radioactive'
+  | 'aluminium';
+
 export interface HotSpring {
   /**
    * Durable id, stable across rebuilds and across OpenStreetMap redrawing the
@@ -81,6 +101,40 @@ export interface HotSpring {
     open: string | null;
     seasonalNotes: string | null;
     status: HoursStatus;
+  };
+  /**
+   * Water chemistry, as published by a source. Never measured by this atlas.
+   *
+   * Concentrations are mg/L, the unit every published analysis uses. Every
+   * field is independently nullable because sources publish wildly different
+   * subsets: a Japanese onsen must post its 泉質 classification by law, a
+   * Parks Canada page lists its top five constituents, and most springs
+   * publish nothing at all.
+   *
+   * `measuredAt` is what keeps the display honest. Present means the source
+   * states when the water was analysed; absent means it published a
+   * composition without saying when, and the UI says that rather than
+   * implying the figures are current. Water chemistry drifts.
+   */
+  minerals: {
+    /** 0-14. Onsen exist at pH 1.5; this is a safety figure, not trivia. */
+    ph: number | null;
+    /** Total dissolved solids, mg/L. The best single summary of strength. */
+    tds: number | null;
+    sulfate: number | null;
+    bicarbonate: number | null;
+    chloride: number | null;
+    calcium: number | null;
+    magnesium: number | null;
+    sodium: number | null;
+    silica: number | null;
+    iron: number | null;
+    /** Japan's Hot Spring Law classification. Adopted, not invented. */
+    types: MineralType[];
+    /** Constituents outside the standard panel, verbatim from the source. */
+    notes: string | null;
+    /** ISO date the source states the water was analysed. */
+    measuredAt: string | null;
   };
   type: SpringType;
   /**
