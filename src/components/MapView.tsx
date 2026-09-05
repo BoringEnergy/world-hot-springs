@@ -563,6 +563,9 @@ export function MapView() {
     const unsub = useStore.subscribe((s, prev) => {
       if (prev.selectedId !== null && s.selectedId === null) {
         lastInteract = Date.now();
+        // Clear first: assigning over a pending timer leaks it, and the
+        // orphan still fires a kick later.
+        window.clearTimeout(retryTimer);
         retryTimer = window.setTimeout(kick, 10_500);
       }
       if (s.selectedId !== null) stopSpin();
@@ -570,6 +573,13 @@ export function MapView() {
     m.on('mousedown', noteInteract);
     m.on('touchstart', noteInteract);
     m.on('wheel', noteInteract);
+    // Keyboard panning fires none of the three above, so a keyboard user
+    // below zoom 4 had the globe start drifting under them ten seconds in.
+    // Bound to the container rather than a map move event on purpose: the
+    // drift moves the camera itself, so a move-based listener would read its
+    // own frames as interaction and stop the spin immediately.
+    const container = m.getContainer();
+    container.addEventListener('keydown', noteInteract);
     m.on('idle', kick);
     kick();
     return () => {
@@ -579,6 +589,7 @@ export function MapView() {
       m.off('mousedown', noteInteract);
       m.off('touchstart', noteInteract);
       m.off('wheel', noteInteract);
+      container.removeEventListener('keydown', noteInteract);
       m.off('idle', kick);
     };
   }, []);

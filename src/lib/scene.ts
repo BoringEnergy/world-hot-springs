@@ -54,11 +54,23 @@ export function dayProgress(lng: number, date: Date): number {
   return (((utcHours + lng / 15) % 24) + 24) % 24 / 24;
 }
 
+/**
+ * Bands named for what the sky actually looks like at that solar elevation.
+ *
+ * The thresholds were previously shifted one band low: golden hour sat at
+ * -6..0, which is civil twilight with the sun already down, and the real
+ * golden hour (roughly -4..+6) was reported as "low sun". The scene is
+ * painted from the elevation directly, so this only ever affected the
+ * caption and the screen-reader summary -- but a caption that says golden
+ * hour when the sun has set is the atlas asserting something it cannot
+ * support, which is the one thing this project does not do.
+ */
 export function daylightWord(elevation: number): string {
   if (elevation > 25) return 'high sun';
-  if (elevation > 0) return 'low sun';
-  if (elevation > -6) return 'golden hour';
-  if (elevation > -12) return 'blue hour';
+  if (elevation > 6) return 'low sun';
+  if (elevation > -4) return 'golden hour';
+  if (elevation > -6) return 'blue hour';
+  if (elevation > -12) return 'dusk';
   return 'night';
 }
 
