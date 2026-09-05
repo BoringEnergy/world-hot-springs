@@ -40,12 +40,31 @@ export const INELIGIBLE = {
   NO_LEDGER: 'no durable ledger configured; refusing to authorise spending',
   ALREADY_REVIEWED: 'this commit has already been reviewed',
   OVER_BUDGET: 'the review budget for this period is exhausted',
-  AUTHOR_CAP: 'this author has reached the daily review cap',
+  AUTHOR_CAP: 'this author has reached the daily claim cap',
+  TOO_MANY_CLAIMS: 'this pull request asks for more claims than one review may spend',
 };
 
-/** Defaults. Deliberately small: the cost of being wrong is a drained card. */
-export const DEFAULT_DAILY_AUTHOR_CAP = 10;
-export const DEFAULT_DAILY_TOTAL_CAP = 50;
+/**
+ * Budget is counted in CLAIMS, not reviews, because claims are what cost
+ * money. Capping reviews was the first attempt and it was wrong by two
+ * orders of magnitude: one pull request may carry 50 overlay files of 13
+ * claimable fields, so a single "review" is up to 650 model calls. Fifty
+ * reviews a day was a worst case of 32,500 calls -- somewhere between $488
+ * and $1,950 a month against a $9 budget.
+ *
+ * Sized for a $9/month cap with margin. At a conservative $0.002 per claim
+ * (excerpt in, one short verdict out), $9/month is about $0.30/day, or 150
+ * claims. 100 leaves room for the estimate being wrong in the expensive
+ * direction, which it has been before.
+ *
+ * MAX_CLAIMS_PER_REVIEW matters independently of the daily figure: without
+ * it, one pull request exhausts a whole day in a single run, which is a
+ * denial of service against every other contributor rather than a spend
+ * attack against the owner.
+ */
+export const DEFAULT_DAILY_CLAIM_CAP = 100;
+export const DEFAULT_DAILY_AUTHOR_CLAIM_CAP = 30;
+export const MAX_CLAIMS_PER_REVIEW = 25;
 
 /**
  * @param {object} args
@@ -53,8 +72,10 @@ export const DEFAULT_DAILY_TOTAL_CAP = 50;
  * @param {string} args.headSha
  * @param {string} args.author
  * @param {object|null} args.ledger      { get(key), put(key, value), countSince(prefix, since) }
- * @param {number} [args.authorCap]
- * @param {number} [args.totalCap]
+ * @param {number} args.claims          how many model calls this run would make
+ * @param {number} [args.authorCap]     daily claims for this author
+ * @param {number} [args.totalCap]      daily claims across everyone
+ * @param {number} [args.perReviewCap]
  * @param {() => Date} [args.now]
  * @returns {Promise<{ok: true} | {ok: false, reason: string, cached?: unknown}>}
  */
@@ -63,8 +84,10 @@ export async function checkEligibility({
   headSha,
   author,
   ledger,
-  authorCap = DEFAULT_DAILY_AUTHOR_CAP,
-  totalCap = DEFAULT_DAILY_TOTAL_CAP,
+  claims = 0,
+  authorCap = DEFAULT_DAILY_AUTHOR_CLAIM_CAP,
+  totalCap = DEFAULT_DAILY_CLAIM_CAP,
+  perReviewCap = MAX_CLAIMS_PER_REVIEW,
   now = () => new Date(),
 }) {
   // No backend, no spending. See F8 above: this is the fail-closed default,
@@ -77,12 +100,20 @@ export async function checkEligibility({
   const seen = await ledger.get(key);
   if (seen) return { ok: false, reason: INELIGIBLE.ALREADY_REVIEWED, cached: seen };
 
+  // Checked before the daily figures: a single oversized run must be refused
+  // outright rather than allowed to drain the day.
+  if (claims > perReviewCap) {
+    return { ok: false, reason: `${INELIGIBLE.TOO_MANY_CLAIMS} (${claims} > ${perReviewCap})` };
+  }
+
+  // Sums claims, not entries. Counting rows would be counting reviews again,
+  // which is the mistake this whole section exists to correct.
   const since = startOfDay(now());
   const byAuthor = await ledger.countSince(`author/${author}/`, since);
-  if (byAuthor >= authorCap) return { ok: false, reason: INELIGIBLE.AUTHOR_CAP };
+  if (byAuthor + claims > authorCap) return { ok: false, reason: INELIGIBLE.AUTHOR_CAP };
 
   const total = await ledger.countSince('review/', since);
-  if (total >= totalCap) return { ok: false, reason: INELIGIBLE.OVER_BUDGET };
+  if (total + claims > totalCap) return { ok: false, reason: INELIGIBLE.OVER_BUDGET };
 
   return { ok: true };
 }
@@ -95,11 +126,14 @@ export async function checkEligibility({
  * re-post, and the contributor could never get an answer. The cost of the
  * other order is that a crash between call and write allows one repeat.
  */
-export async function recordReview({ pr, headSha, author, verdict, ledger, now = () => new Date() }) {
+export async function recordReview({
+  pr, headSha, author, verdict, claims = 0, ledger, now = () => new Date(),
+}) {
   if (!ledger) return;
   const at = now().toISOString();
-  await ledger.put(`review/${pr}/${headSha}`, { at, author, verdict });
-  await ledger.put(`author/${author}/${pr}/${headSha}`, { at });
+  // `claims` is the billable unit and is what countSince sums.
+  await ledger.put(`review/${pr}/${headSha}`, { at, author, verdict, claims });
+  await ledger.put(`author/${author}/${pr}/${headSha}`, { at, claims });
 }
 
 function startOfDay(date) {
