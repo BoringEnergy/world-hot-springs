@@ -525,10 +525,32 @@ sits pending forever and blocks the merge just as hard as a failing one.
 The apparatus is done. What remains is filling the atlas, and it is
 repetitive rather than architectural.
 
-**Coverage: temperature 151 of 6,471 (2%)**, up from 95 on 2026-09-05.
+**Coverage: temperature 168 of 6,471 (3%)**, up from 95 on 2026-09-05.
 That number is the whole point the project makes about the state of public
-hot-spring data, so moving it is the work. 56 claims landed in one pass, in
-six batches; the rate limit was research, never the apparatus.
+hot-spring data, so moving it is the work. 73 claims landed in one pass, in
+eight batches; the rate limit was research, never the apparatus.
+
+### The United States is blocked on a schema field
+
+2,025 springs, 15 with a temperature after this pass. It is the largest gap
+in the atlas and the cheapest to close -- **except that American sources
+publish Fahrenheit.**
+
+Colorado was surveyed end to end: 40 springs, 2 with a temperature, 10 with
+an operator website. Not one publishes Celsius. Iron Mountain Hot Springs
+states `89°-108°F` for its pools, which is a good, specific, verifiable
+figure -- and unclaimable, because `temperature.celsius` is the only
+claimable temperature field and converting 108F to 42C is computing a
+claimed value, which rule 2 forbids.
+
+Where American springs DID yield was English Wikipedia, which prints both:
+`Temperature 94 °C (201 °F)`. That is 7 claims from 11 articles. It does not
+scale -- only 11 of 2,025 US springs cite Wikipedia at all.
+
+**The fix is `temperature.fahrenheit` in CLAIMABLE, and it is two pull
+requests** (see rule 1). It would open the operator-website seam for the
+whole country. Not done here because no batch was blocked in a way that
+justified deciding it alone; raise it before the next US pass.
 
 ### The loop that works
 

@@ -1,0 +1,17 @@
+{
+  "id": "whs_b4ecf77af669",
+  "claims": {
+    "temperature.celsius": {
+      "value": 59,
+      "source": "https://en.wikipedia.org/wiki/Olympic_Hot_Springs",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://en.wikipedia.org/wiki/Olympic_Hot_Springs",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
