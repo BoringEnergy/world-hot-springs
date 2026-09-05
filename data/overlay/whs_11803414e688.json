@@ -1,0 +1,17 @@
+{
+  "id": "whs_11803414e688",
+  "claims": {
+    "temperature.celsius": {
+      "value": 41,
+      "source": "https://de.wikipedia.org/wiki/Palais_Thermal",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Palais_Thermal",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
