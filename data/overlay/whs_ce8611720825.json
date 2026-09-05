@@ -5,7 +5,8 @@
       "value": 38.5,
       "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
       "contributor": "HudsonR&D Meta 9.2.26",
-      "state": "active"
+      "state": "retracted",
+      "retractedReason": "The cited Parks Canada page states the hot pool is \"between 37°C and 40°C\". 38.5 is a midpoint computed from that range, not a figure the source publishes. Caught by scripts/verify-claims.mjs on its first live run."
     },
     "access.price": {
       "value": "Adult $19.75",

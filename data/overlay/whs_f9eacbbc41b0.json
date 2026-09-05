@@ -5,7 +5,8 @@
       "value": 38.5,
       "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs",
       "contributor": "HudsonR&D Meta 9.2.26",
-      "state": "active"
+      "state": "retracted",
+      "retractedReason": "The cited Parks Canada page carries no temperature at all. This value appears to have been copied from the Radium Hot Springs claim, which cites a different page. Caught by scripts/verify-claims.mjs on its first live run."
     },
     "access.price": {
       "value": "Adult $19.75",
