@@ -452,3 +452,4 @@ so no spend occurs. It is a maintainer-workflow defect, not a security one.
 The fix is to enforce the path guard only on fork PRs while still running the
 job on every PR. It must keep running: a required check that gets *skipped*
 sits pending forever and blocks the merge just as hard as a failing one.
+
