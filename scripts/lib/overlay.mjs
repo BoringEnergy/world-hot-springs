@@ -7,6 +7,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { parseSourceUrl } from './source-url.mjs';
 
 /**
  * Fields a contributor may assert.
@@ -190,7 +191,17 @@ export function validateOverlay(overlay, opts = {}) {
       continue;
     }
     if (claim?.value === undefined) errors.push(`${field}: value is required`);
-    if (!claim?.source) errors.push(`${field}: source is required on every claim`);
+    if (!claim?.source) {
+      errors.push(`${field}: source is required on every claim`);
+    } else {
+      // Structure, not just presence. "source is required" was satisfied by
+      // any truthy string -- "yes" passed -- so the promise that every claim
+      // carries a checkable citation was weaker than it read. This is the
+      // same function the verifier uses before it fetches, so the gate cannot
+      // accept a URL the verifier will then refuse to check.
+      const parsed = parseSourceUrl(claim.source);
+      if (!parsed.ok) errors.push(`${field}: ${parsed.reason}`);
+    }
     if (!claim?.contributor) errors.push(`${field}: contributor is required`);
 
     const expected = FIELD_TYPES[field];

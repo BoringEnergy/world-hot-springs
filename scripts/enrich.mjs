@@ -174,6 +174,7 @@ export function searchQuery(spring) {
  */
 export async function attempt(spring, roles, providers, refutationsFile, now, {
   fetchImpl = fetch,
+  lookupImpl = undefined,
   searchImpl = search,
   maxUrls = MAX_URLS_PER_SPRING,
 } = {}) {
@@ -198,7 +199,7 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
   // of junk cannot consume the run.
   let page = null;
   for (const result of results.slice(0, maxUrls)) {
-    const fetched = await fetchSource(result.url, { fetchImpl });
+    const fetched = await fetchSource(result.url, { fetchImpl, lookup: lookupImpl });
     if (fetched.ok) {
       page = { url: result.url, text: fetched.text };
       break;
@@ -427,6 +428,7 @@ export async function runPlan({
   writeCoverage = false, retryRefuted = false,
   now = () => new Date().toISOString(),
   fetchImpl = fetch,
+  lookupImpl = undefined,
   searchImpl = search,
   // A hard ceiling on springs attempted, so a bug in the fallthrough or the
   // resume-skip cannot spend an unbounded amount. The budget lives here rather
@@ -487,7 +489,7 @@ export async function runPlan({
       spent++;
 
       attempted++;
-      const overlay = await attempt(spring, roles, providers, refutationsFile, now, { fetchImpl, searchImpl });
+      const overlay = await attempt(spring, roles, providers, refutationsFile, now, { fetchImpl, searchImpl, lookupImpl });
       if (!overlay) continue;
 
       const errors = validateOverlay(overlay, { knownIds, agentAuthored: true });

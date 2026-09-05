@@ -8,6 +8,7 @@
  */
 
 import { OUTCOMES } from './refutations.mjs';
+import { parseSourceUrl, hostnameOf, assertPublicAddress } from './source-url.mjs';
 
 /**
  * Hard cap on fetched content. Rejected, never truncated -- truncation lets
@@ -106,9 +107,17 @@ export function valueAppears(value, text) {
 /**
  * Fetch a URL and return its text, or a reason it could not be used.
  *
- * The scheme check is the only network guard: host-level SSRF is NOT covered.
- * http://localhost:6379/ and http://169.254.169.254/ pass, and redirect
- * following lets a public host send us to either.
+ * SSRF is guarded, because this runs in CI against URLs a stranger wrote.
+ * Every hop -- the original URL and each redirect target -- goes through the
+ * same parseSourceUrl() the gate used, and then has its host resolved and
+ * checked for private answers. Redirects are followed by hand for exactly
+ * that reason: `redirect: 'follow'` performs the hop inside fetch, where
+ * there is no seam to re-check, so a public host could bounce us to
+ * http://169.254.169.254/ and the guard would never see it.
+ *
+ * What remains: DNS rebinding between the resolve and the connect. See
+ * source-url.mjs -- the mitigation is that Gate 2 runs this with no secrets
+ * in scope, not that the check is airtight.
  *
  * Each failure returns its own outcome rather than one collapsed
  * "unreachable". "The provider invented this URL" and "the page is 3 MB" are
@@ -118,25 +127,48 @@ export function valueAppears(value, text) {
  *
  * @returns {Promise<{ok: true, text: string} | {ok: false, outcome: string}>}
  */
-export async function fetchSource(url, { fetchImpl = fetch, timeoutMs = 15_000 } = {}) {
-  let parsed;
-  try {
-    parsed = new URL(url);
-  } catch {
-    return failure('source-malformed');
-  }
-  // A refused scheme is malformed, not unreachable: nothing was ever tried.
-  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-    return failure('source-malformed');
+export const MAX_REDIRECTS = 5;
+
+export async function fetchSource(
+  url,
+  { fetchImpl = fetch, timeoutMs = 15_000, lookup = undefined } = {},
+) {
+  const signal = AbortSignal.timeout(timeoutMs);
+  let target = url;
+  let res;
+
+  for (let hop = 0; ; hop++) {
+    // Structural check on every hop, not just the first. A redirect target is
+    // as attacker-chosen as the original citation.
+    const parsed = parseSourceUrl(target);
+    // A refused scheme or host is malformed, not unreachable: nothing was
+    // ever tried, and the distinction is what makes the refutation log a
+    // usable record of how a provider fails.
+    if (!parsed.ok) return failure('source-malformed');
+
+    const publicHost = await assertPublicAddress(
+      hostnameOf(parsed.url),
+      lookup ? { lookup } : {},
+    );
+    if (!publicHost.ok) return failure('source-malformed');
+
+    try {
+      res = await fetchImpl(parsed.url.href, { signal, redirect: 'manual' });
+    } catch {
+      return failure('source-unreachable');
+    }
+
+    const location = res.status >= 300 && res.status < 400 && res.headers?.get('location');
+    if (!location) break;
+    // A redirect chain that never lands is a denial of service, not a source.
+    if (hop >= MAX_REDIRECTS) return failure('source-unreachable');
+    try {
+      target = new URL(location, parsed.url).href;
+    } catch {
+      return failure('source-malformed');
+    }
   }
 
-  const signal = AbortSignal.timeout(timeoutMs);
-  let res;
-  try {
-    res = await fetchImpl(url, { signal, redirect: 'follow' });
-  } catch {
-    return failure('source-unreachable');
-  }
   // The host answered and said no. That is a fact about the page, not the net.
   if (!res.ok) return failure('source-not-found');
 

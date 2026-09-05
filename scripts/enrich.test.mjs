@@ -12,6 +12,9 @@ import { validateOverlay, FIELD_TYPES } from './lib/overlay.mjs';
 import { valueAppears } from './lib/verify-source.mjs';
 import { RateLimitedError } from './lib/providers/gateway.mjs';
 
+/** See verify-source.test.mjs: keeps these tests off live DNS. */
+const publicLookup = async () => [{ address: '93.184.216.34', family: 4 }];
+
 const NOW = () => '2026-08-29T12:00:00.000Z';
 
 /**
@@ -51,7 +54,7 @@ const plan = [{ country: 'CL', candidates: ['whs_00000000000a', 'whs_00000000000
 const roles = { proposer: 'a:1', verifier: 'b:1' };
 
 /** The stubs every test shares unless it is specifically about one of them. */
-const wired = { searchImpl: oneResult, fetchImpl: serving() };
+const wired = { searchImpl: oneResult, lookupImpl: publicLookup, fetchImpl: serving() };
 
 /** Lines of the refutation log, parsed. */
 function refutations(file) {
@@ -217,7 +220,7 @@ test('a value the source does not state is refuted, and writes no file', async (
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
     providers: { proposer, verifier }, ...paths, now: NOW,
-    searchImpl: oneResult, fetchImpl: serving('<html><body>The water at A is pleasant.</body></html>'),
+    searchImpl: oneResult, lookupImpl: publicLookup, fetchImpl: serving('<html><body>The water at A is pleasant.</body></html>'),
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false, 'no overlay directory should be created');
@@ -278,7 +281,7 @@ test('a search result that is not a fetchable URL is recorded with the reason', 
     byId, knownIds, roles,
     providers: { proposer, verifier }, ...paths, now: NOW,
     searchImpl: found('ftp://example.org/a'),
-    fetchImpl: async () => { throw new Error('a refused scheme must never be fetched'); },
+    lookupImpl: publicLookup, fetchImpl: async () => { throw new Error('a refused scheme must never be fetched'); },
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false);
@@ -304,7 +307,7 @@ test('an overlay the validator refuses is discarded and recorded', async () => {
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
     providers: { proposer, verifier }, ...paths, now: NOW,
-    searchImpl: oneResult, fetchImpl: serving('<html><body>The water at A is 900 degrees.</body></html>'),
+    searchImpl: oneResult, lookupImpl: publicLookup, fetchImpl: serving('<html><body>The water at A is 900 degrees.</body></html>'),
   });
 
   assert.equal(fs.existsSync(paths.overlayDir), false, 'an invalid overlay must not be written');
@@ -502,7 +505,7 @@ test('a spring whose every result is unfetchable writes no file and logs each UR
     byId, knownIds, roles,
     providers: { proposer, verifier: silent }, ...paths, now: NOW,
     searchImpl: found('https://a.example/1', 'https://b.example/2'),
-    fetchImpl: async () => ({ ok: false, status: 403, text: async () => '' }),
+    lookupImpl: publicLookup, fetchImpl: async () => ({ ok: false, status: 403, text: async () => '' }),
   });
   assert.equal(fs.existsSync(paths.overlayDir), false);
   assert.equal(results[0].verified, 0);
@@ -523,7 +526,7 @@ test('the per-spring URL cap bounds how much one spring can cost', async () => {
     springs[0], roles, { proposer: silent, verifier: silent }, paths.refutationsFile, NOW,
     {
       searchImpl: found(...urls),
-      fetchImpl: async () => { fetches++; return { ok: false, status: 404, text: async () => '' }; },
+      lookupImpl: publicLookup, fetchImpl: async () => { fetches++; return { ok: false, status: 404, text: async () => '' }; },
     },
   );
   assert.equal(out, null);
@@ -539,7 +542,7 @@ test('a search with no results is recorded, and never reaches the proposer', asy
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
     providers: { proposer, verifier: silent }, ...paths, now: NOW,
-    searchImpl: async () => [], fetchImpl: async () => { throw new Error('nothing to fetch'); },
+    searchImpl: async () => [], lookupImpl: publicLookup, fetchImpl: async () => { throw new Error('nothing to fetch'); },
   });
   // Distinct from no-claim-proposed: retrieval finding nothing and a page
   // stating nothing are different facts, and only one of them is the model's.
@@ -559,7 +562,7 @@ test('a broken search ends the run instead of marking springs hopeless', async (
       plan, byId, knownIds, roles,
       providers: { proposer: silent, verifier: silent }, ...paths, now: NOW,
       searchImpl: async () => { throw new Error('TinyFish search could not run (ENOENT)'); },
-      fetchImpl: serving(),
+      lookupImpl: publicLookup, fetchImpl: serving(),
     }),
     /TinyFish search could not run/,
   );
@@ -601,7 +604,7 @@ test('the proposer is given the retrieved text and the URL it came from', async 
     byId, knownIds, roles,
     providers: { proposer, verifier: silent }, ...paths, now: NOW,
     searchImpl: oneResult,
-    fetchImpl: serving('<html><body>Njarsvik pool stays at 38-40 Celsius all year.</body></html>'),
+    lookupImpl: publicLookup, fetchImpl: serving('<html><body>Njarsvik pool stays at 38-40 Celsius all year.</body></html>'),
   });
   const payload = JSON.parse(seen.user);
   assert.equal(payload.url, 'https://example.org/a');
@@ -719,7 +722,7 @@ test('a string-valued literal field is untouched by the numeric rule', async () 
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
     providers: { proposer, verifier }, ...paths, now: NOW,
-    searchImpl: oneResult, fetchImpl: serving('<html><body>Entry to A costs 3300 ISK.</body></html>'),
+    searchImpl: oneResult, lookupImpl: publicLookup, fetchImpl: serving('<html><body>Entry to A costs 3300 ISK.</body></html>'),
   });
   const written = JSON.parse(fs.readFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), 'utf8'));
   assert.equal(written.claims['access.currency'].value, 'ISK');
@@ -760,7 +763,7 @@ test('a price string reaches the overlay and validates there', async () => {
     byId, knownIds, roles,
     providers: { proposer, verifier }, ...paths, now: NOW,
     searchImpl: oneResult,
-    fetchImpl: serving(`<html><body>Admission: Adults $42-$60 (peak/off-peak vary).</body></html>`),
+    lookupImpl: publicLookup, fetchImpl: serving(`<html><body>Admission: Adults $42-$60 (peak/off-peak vary).</body></html>`),
   });
   const written = JSON.parse(
     fs.readFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), 'utf8'),
@@ -809,7 +812,7 @@ test('a temperature published as a range reaches the overlay through its endpoin
     plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
     byId, knownIds, roles,
     providers: { proposer, verifier }, ...paths, now: NOW,
-    searchImpl: oneResult, fetchImpl: serving(page),
+    searchImpl: oneResult, lookupImpl: publicLookup, fetchImpl: serving(page),
   });
   const file = path.join(paths.overlayDir, 'whs_00000000000a.json');
   assert.ok(fs.existsSync(file), 'a range endpoint must be publishable');
