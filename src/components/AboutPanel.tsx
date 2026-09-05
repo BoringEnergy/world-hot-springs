@@ -5,7 +5,7 @@ interface Summary {
   total: number;
   countries: number;
   coverage: { temperature: number; price: number; hours: number; clothing: number };
-  generated: string;
+  sourceDate: string;
 }
 
 function Stat({ label, value, of }: { label: string; value: number; of?: number }) {
@@ -139,7 +139,8 @@ export function AboutPanel() {
           satellite imagery © Esri, Maxar, Earthstar Geographics, terrain
           Mapzen Terrain Tiles (AWS Open Data). Live air temperature from
           Open-Meteo, CC BY 4.0. Dataset
-          {summary ? ` built ${summary.generated.slice(0, 10)}` : ''}. Code MIT.
+          {summary ? ` from OpenStreetMap as of ${summary.sourceDate.slice(0, 10)}` : ''}.
+          Code MIT.
         </footer>
       </div>
     </div>
