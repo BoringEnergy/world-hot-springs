@@ -525,9 +525,10 @@ sits pending forever and blocks the merge just as hard as a failing one.
 The apparatus is done. What remains is filling the atlas, and it is
 repetitive rather than architectural.
 
-**Coverage: temperature 133 of 6,471 (2%)**, up from 95 on 2026-09-05.
+**Coverage: temperature 151 of 6,471 (2%)**, up from 95 on 2026-09-05.
 That number is the whole point the project makes about the state of public
-hot-spring data, so moving it is the work.
+hot-spring data, so moving it is the work. 56 claims landed in one pass, in
+six batches; the rate limit was research, never the apparatus.
 
 ### The loop that works
 
@@ -565,18 +566,14 @@ articles write half-width digits, and every one of the twenty verified on the
 first pass. The warning still stands for pages using full-width or CJK
 numerals — it simply is not what Wikipedia does.
 
-Twenty-eight of the thirty-eight are claimed in the batches below. **These
-ten are already extracted and unclaimed** — write them first, they need no
-further research:
+**All thirty-eight are claimed. This seam is exhausted** -- do not re-run it
+hoping for more. Going further into Japan needs a source other than the
+`sources[]` already on the record: only 66 of ~950 Japanese springs ever
+carried a Wikipedia link, and every one has now been read.
 
-  道後温泉本館 51 (42-51)   雌阿寒温泉 80 (50-80)   谷地頭温泉 65.1
-  高天原温泉 51.1           阿曽原温泉 47.3         桑畑温泉 35.4
-  豊富温泉 34.2             豊島園 庭の湯 33.8      黒川温泉 29.1
-  鹿塩温泉 14
-
-The ja.wikipedia seam ends there. To go further into Japan the next step is
-a source other than the `sources[]` already on the record -- 950 springs, and
-only 66 ever carried a Wikipedia link.
+The 28 that carried no `泉温` field are mostly bath-house articles rather
+than spring articles (金の湯, 銀の湯, 竹瓦温泉, 片倉館) -- the building has
+an article, the water does not. A different source type, not a second pass.
 
 ### Two traps this pass hit
 
