@@ -38,7 +38,50 @@
  *
  * Injection buys an attacker nothing they did not already have.
  */
-import { VERIFIER_SYSTEM, sourceExcerpt } from '../enrich.mjs';
+import { VERIFIER_SYSTEM, SOURCE_EXCERPT_CHARS } from '../enrich.mjs';
+import { fieldExcerpt } from './excerpt.mjs';
+import { FIELD_TYPES } from './overlay.mjs';
+
+/**
+ * What our enum tokens mean, in words.
+ *
+ * Without this the verifier is asked whether a page supports
+ * `clothing.policy: "textile-only"` and has to guess what that phrase means.
+ * It guessed wrong on a true claim: Banff requires a swimwear bottom and
+ * makes the top optional, the model read "top is not mandatory" as
+ * contradicting a blanket requirement, and refuted. In our vocabulary
+ * `textile-only` renders as "Swimwear required" -- the opposite pole from
+ * clothing-optional, not a statement about how much swimwear.
+ *
+ * `required` is the one that most needs saying out loud: it means nudity is
+ * required, which no model will infer from the word.
+ */
+export const ENUM_MEANINGS = {
+  'clothing.policy': {
+    optional: 'clothing optional; bathing nude is permitted',
+    required: 'nudity is required',
+    'textile-only': 'swimwear is required; nude bathing is not permitted',
+    mixed: 'varies by time, area or session',
+    unknown: 'not established',
+  },
+  'hours.status': {
+    open: 'currently operating',
+    seasonal: 'operates only in some months',
+    closed: 'not operating',
+    unknown: 'not established',
+  },
+};
+
+/** A one-line gloss for the value under test, when the field is an enum. */
+export function meaningOf(field, value) {
+  const byField = ENUM_MEANINGS[field];
+  if (byField && typeof value === 'string' && byField[value]) return byField[value];
+  // An enum with no gloss should still say it is a closed vocabulary, so the
+  // verifier does not treat an unfamiliar token as free text.
+  const type = FIELD_TYPES[field];
+  if (Array.isArray(type)) return `one of: ${type.join(', ')}`;
+  return null;
+}
 
 /** Shape the model must answer in. Anything else is not an answer. */
 export const VERDICT_SCHEMA = {
@@ -53,6 +96,7 @@ export const VERDICT_SCHEMA = {
  * @returns {Promise<{refuted: boolean, reason: string} | {malformed: true, raw: unknown}>}
  */
 export async function semanticVerdict({ provider, springName, field, value, sourceText }) {
+  const excerpt = fieldExcerpt(sourceText, field, SOURCE_EXCERPT_CHARS);
   const verdict = await provider.complete({
     system: VERIFIER_SYSTEM,
     // The page goes in the user message as a JSON string field, never
@@ -62,7 +106,17 @@ export async function semanticVerdict({ provider, springName, field, value, sour
       spring: springName ?? null,
       field,
       value,
-      source: sourceExcerpt(sourceText, value),
+      // What the token means in this dataset. Omitted for free-text fields,
+      // where the value speaks for itself.
+      valueMeans: meaningOf(field, value) ?? undefined,
+      // Chosen by what the FIELD is about, not by looking for the value.
+      // The value is never on the page for the fields that reach this layer
+      // -- that is why they are here -- so a value-centred search always
+      // missed and returned the first 6,000 characters. That produced a
+      // false refutation of a true claim whose evidence sat at character
+      // 8,148, and the bias is one-directional: the prompt defaults to
+      // refuted, so being shown the wrong part of a page reads as absence.
+      source: excerpt.text,
     }),
     schema: VERDICT_SCHEMA,
   });
@@ -72,5 +126,14 @@ export async function semanticVerdict({ provider, springName, field, value, sour
   // logged `refuted-by-verifier` under a reason arguing the claim was
   // correct. Malformed is its own outcome and never a verdict.
   if (typeof verdict?.refuted !== 'boolean') return { malformed: true, raw: verdict };
-  return { refuted: verdict.refuted, reason: String(verdict.reason ?? '') };
+  return {
+    refuted: verdict.refuted,
+    reason: String(verdict.reason ?? ''),
+    // Which window the verdict was formed on. A refutation reached from the
+    // head of a long page because no keyword matched is much weaker evidence
+    // than one reached from the paragraph that discusses the field, and a
+    // reviewer cannot tell the difference without this.
+    excerptAt: excerpt.at,
+    excerptMatched: excerpt.matched,
+  };
 }

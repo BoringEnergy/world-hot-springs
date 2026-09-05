@@ -248,3 +248,49 @@ test('without a reader, prose claims cost no fetch at all', async () => {
   assert.equal(out[0].verdict, VERDICT.NEEDS_REVIEW);
   assert.equal(fetched, 0, 'a fetch that decides nothing should not be spent');
 });
+
+test('the reader is shown the part of the page the field is about', async () => {
+  // The bug that produced a false refutation of a true claim. The value never
+  // appears on the page for these fields -- that is why they reach this layer
+  // -- so a value-centred excerpt always missed and returned the head. Banff's
+  // swimwear rule sits at character 8,148 of a 13,000-character page; the
+  // reader saw the first 6,000 and correctly reported that what it was shown
+  // did not mention a clothing policy.
+  //
+  // One-directional, which is what makes it serious: the prompt defaults to
+  // refuted, so being shown the wrong part of a page reads as absence.
+  const filler = 'navigation link. '.repeat(500);
+  const policy = 'All visitors must wear swimwear. Nude bathing is not permitted.';
+  let seen = '';
+  const provider = {
+    complete: async ({ user }) => {
+      seen = JSON.parse(user).source;
+      return { refuted: false, reason: 'stated' };
+    },
+  };
+  await verifyClaims(
+    { claims: { 'clothing.policy': claim('textile-only') } },
+    { fetchImpl: page(`<p>Swimwear</p>${filler}<p>${policy}</p>`), lookup: publicLookup, provider },
+  );
+  assert.ok(seen.includes('Nude bathing is not permitted'), 'the rule must be inside the window');
+});
+
+test('the reader is told what our enum tokens mean', async () => {
+  // Without this the verifier is asked whether a page supports
+  // `clothing.policy: "textile-only"` and has to guess what that means. It
+  // guessed wrong on a true claim. `required` is the one that most needs
+  // saying: in this vocabulary it means nudity is required.
+  let payload = null;
+  const provider = {
+    complete: async ({ user }) => {
+      payload = JSON.parse(user);
+      return { refuted: false, reason: 'ok' };
+    },
+  };
+  await verifyClaims(
+    { claims: { 'clothing.policy': claim('textile-only') } },
+    { fetchImpl: page('<p>Swimwear required.</p>'), lookup: publicLookup, provider },
+  );
+  assert.match(payload.valueMeans, /swimwear is required/i);
+  assert.match(payload.valueMeans, /nude/i);
+});

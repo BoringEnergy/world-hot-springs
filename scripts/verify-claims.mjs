@@ -59,7 +59,9 @@ async function main() {
   const at = argv.indexOf('--verifier');
   const verifierId = at !== -1 ? argv[at + 1] : null;
   const provider = verifierId ? await loadProvider(verifierId) : null;
-  if (provider) console.log(`Reading prose fields with ${verifierId}.`);
+  // stderr, not stdout: with --json the stream must be parseable, and a
+  // friendly notice on stdout made it not be.
+  if (provider) console.error(`Reading prose fields with ${verifierId}.`);
 
   if (files.length === 0) {
     console.log('No overlay files to verify.');
