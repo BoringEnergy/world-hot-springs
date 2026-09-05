@@ -13,7 +13,8 @@ import path from 'node:path';
 import { assertPristine } from './ci/lib/pristine.mjs';
 import { fetchContributorFiles, MAX_CONTRIB_BYTES } from './ci/lib/fetch-contrib.mjs';
 import {
-  checkEligibility, recordReview, INELIGIBLE, DEFAULT_DAILY_AUTHOR_CAP,
+  checkEligibility, recordReview, INELIGIBLE,
+  DEFAULT_DAILY_CLAIM_CAP, DEFAULT_DAILY_AUTHOR_CLAIM_CAP, MAX_CLAIMS_PER_REVIEW,
 } from './ci/lib/eligibility.mjs';
 
 // --- 1. assert-checkout-pristine (F1) --------------------------------------
@@ -159,10 +160,13 @@ function memoryLedger() {
     store,
     async get(k) { return store.get(k) ?? null; },
     async put(k, v) { store.set(k, v); },
+    // Sums claims, matching the real ledger. Counting rows here would let
+    // the tests pass against a ledger that budgets in the wrong unit, which
+    // is the defect this whole section exists to correct.
     async countSince(prefix, since) {
       let n = 0;
       for (const [k, v] of store) {
-        if (k.startsWith(prefix) && new Date(v.at) >= since) n++;
+        if (k.startsWith(prefix) && new Date(v.at) >= since) n += v.claims ?? 0;
       }
       return n;
     },
@@ -204,45 +208,68 @@ test('a new commit on the same pull request is a new question', async () => {
   assert.equal(pushed.ok, true);
 });
 
-test('one author cycling pull requests hits a daily cap', async () => {
-  // The same attack spread across many PRs rather than one reopened twice.
+test('the budget is counted in claims, not reviews', () => {
+  // The mistake this replaced. One pull request may carry 50 overlay files of
+  // 13 claimable fields, so one "review" is up to 650 model calls. Capping
+  // reviews at 50/day was a worst case of 32,500 calls -- between $488 and
+  // $1,950 a month against a $9 budget.
+  assert.ok(MAX_CLAIMS_PER_REVIEW < 50 * 13, 'one review must not be able to spend a whole day');
+  assert.ok(DEFAULT_DAILY_CLAIM_CAP <= 150, 'sized for $9/month at $0.002 a claim');
+});
+
+test('one oversized pull request is refused before the daily figures', async () => {
+  // Without this, a single PR drains the day in one run -- a denial of
+  // service against every other contributor, not only a spend attack.
   const ledger = memoryLedger();
-  for (let i = 0; i < DEFAULT_DAILY_AUTHOR_CAP; i++) {
-    await recordReview({ pr: i, headSha: String(i).repeat(40), author: 'stranger', verdict: {}, ledger });
-  }
-  const out = await checkEligibility({ pr: 99, headSha: 'c'.repeat(40), author: 'stranger', ledger });
+  const out = await checkEligibility({ ...base, ledger, claims: MAX_CLAIMS_PER_REVIEW + 1 });
+  assert.equal(out.ok, false);
+  assert.match(out.reason, /more claims than one review may spend/);
+});
+
+test('an author daily claims accumulate across pull requests', async () => {
+  const ledger = memoryLedger();
+  await recordReview({
+    pr: 1, headSha: 'a'.repeat(40), author: 'stranger', verdict: {},
+    claims: DEFAULT_DAILY_AUTHOR_CLAIM_CAP, ledger,
+  });
+  const out = await checkEligibility({
+    pr: 99, headSha: 'c'.repeat(40), author: 'stranger', ledger, claims: 1,
+  });
   assert.equal(out.ok, false);
   assert.equal(out.reason, INELIGIBLE.AUTHOR_CAP);
 });
 
-test('a different author is not blocked by someone else\'s cap', async () => {
+test('a run that would cross the cap is refused, not truncated', async () => {
+  // `total + claims > cap` rather than `total >= cap`: a run is authorised
+  // for what it will actually spend, so it cannot start under and finish over.
   const ledger = memoryLedger();
-  for (let i = 0; i < DEFAULT_DAILY_AUTHOR_CAP; i++) {
-    await recordReview({ pr: i, headSha: String(i).repeat(40), author: 'noisy', verdict: {}, ledger });
-  }
-  const out = await checkEligibility({ pr: 99, headSha: 'c'.repeat(40), author: 'quiet', ledger });
-  assert.equal(out.ok, true);
-});
-
-test('a total daily cap bounds every author together', async () => {
-  const ledger = memoryLedger();
-  for (let i = 0; i < 12; i++) {
-    await recordReview({ pr: i, headSha: String(i).repeat(40), author: `a${i}`, verdict: {}, ledger });
-  }
+  await recordReview({ pr: 1, headSha: 'a'.repeat(40), author: 'x', verdict: {}, claims: 95, ledger });
   const out = await checkEligibility({
-    pr: 99, headSha: 'c'.repeat(40), author: 'new', ledger, totalCap: 12,
+    pr: 8, headSha: 'e'.repeat(40), author: 'other', ledger, claims: 10, totalCap: 100,
   });
   assert.equal(out.ok, false);
   assert.equal(out.reason, INELIGIBLE.OVER_BUDGET);
 });
 
+test('one author does not exhaust another', async () => {
+  const ledger = memoryLedger();
+  await recordReview({
+    pr: 1, headSha: 'f'.repeat(40), author: 'noisy', verdict: {},
+    claims: DEFAULT_DAILY_AUTHOR_CLAIM_CAP, ledger,
+  });
+  const out = await checkEligibility({
+    pr: 99, headSha: 'c'.repeat(40), author: 'quiet', ledger, claims: 5,
+  });
+  assert.equal(out.ok, true);
+});
+
 test('yesterday\'s reviews do not count against today', async () => {
   const ledger = memoryLedger();
   const yesterday = new Date('2026-09-04T12:00:00Z');
-  await recordReview({ ...base, verdict: {}, ledger, now: () => yesterday });
+  await recordReview({ ...base, verdict: {}, claims: 30, ledger, now: () => yesterday });
   const out = await checkEligibility({
     pr: 8, headSha: 'd'.repeat(40), author: 'stranger', ledger,
-    authorCap: 1, now: () => new Date('2026-09-05T12:00:00Z'),
+    claims: 5, authorCap: 10, now: () => new Date('2026-09-05T12:00:00Z'),
   });
   assert.equal(out.ok, true);
 });
