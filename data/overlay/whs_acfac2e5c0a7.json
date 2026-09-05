@@ -1,0 +1,17 @@
+{
+  "id": "whs_acfac2e5c0a7",
+  "claims": {
+    "temperature.celsius": {
+      "value": 65,
+      "source": "https://de.wikipedia.org/wiki/Therme_Erding",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Therme_Erding",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

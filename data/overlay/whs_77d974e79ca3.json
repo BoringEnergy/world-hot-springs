@@ -1,0 +1,17 @@
+{
+  "id": "whs_77d974e79ca3",
+  "claims": {
+    "temperature.celsius": {
+      "value": 30,
+      "source": "https://es.wikipedia.org/wiki/Sol_de_Ma%C3%B1ana",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://es.wikipedia.org/wiki/Sol_de_Ma%C3%B1ana",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

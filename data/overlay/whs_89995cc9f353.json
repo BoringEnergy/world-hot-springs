@@ -1,0 +1,17 @@
+{
+  "id": "whs_89995cc9f353",
+  "claims": {
+    "temperature.celsius": {
+      "value": 60,
+      "source": "https://fr.wikipedia.org/wiki/%C3%89tablissement_thermal_de_Luxeuil-les-Bains",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://fr.wikipedia.org/wiki/%C3%89tablissement_thermal_de_Luxeuil-les-Bains",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

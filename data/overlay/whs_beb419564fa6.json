@@ -1,0 +1,17 @@
+{
+  "id": "whs_beb419564fa6",
+  "claims": {
+    "temperature.celsius": {
+      "value": 39,
+      "source": "https://fr.wikipedia.org/wiki/Thermes_de_Saint-Gervais-les-Bains",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://fr.wikipedia.org/wiki/Thermes_de_Saint-Gervais-les-Bains",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
