@@ -6540,3 +6540,13 @@
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_cf0a2404802a","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_d0f007ebe288","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_f431de4ad6b6","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_1b77cf4761fe","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_2fdc78f719d3","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_77d974e79ca3","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_89995cc9f353","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_928066761886","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_93e97e07f44b","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_a9f2f9e25950","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_acfac2e5c0a7","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_beb419564fa6","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_cb47143c86c5","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
