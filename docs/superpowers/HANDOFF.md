@@ -176,6 +176,32 @@ the research review asks for.
 
 ## Things that will bite you
 
+- **A bounding box is not a shape, and three countries cross the
+  antimeridian.** Fixed 2026-09-05. `countries.mjs` fell back to the nearest
+  country by distance to its BBOX, and the United States' box runs lng -178.2
+  to 179.8 (the Aleutians) by lat 19.0 to 71.4. That box is zero distance from
+  every northern coastal point on Earth, so 195 springs in Iceland, Italy,
+  Greece, Algeria, China and the Canaries were published as American; New
+  Zealand and Kiribati did the same to a further 7. Russia and Fiji have the
+  same global box and were only saved by feature order. 207 records corrected.
+  The index is now per-polygon, so each carries a tight box, and the fallback
+  ranks by true point-to-boundary distance. **The general lesson: any
+  prefilter that is also used as a ranking is a bug waiting for a shape that
+  does not fit its box.**
+- **Country attribution feeds the quarantine, so a country bug is a data
+  bug.** `data/known-bad-imports.json` keys its rules by country, so the four
+  Libyan coastal records above escaped `ly-kufra-wells` for as long as they
+  were labelled US -- among them a radiology clinic and a road, tagged
+  `natural=hot_spring`. Fixing the country dropped them into
+  `data/suspect.json`, which is why the published count fell 6,471 -> 6,467.
+  A change to `countries.mjs` is never only cosmetic; diff the record set.
+- **Natural Earth 50m omits small islands.** Ten springs in the Tokara and
+  Izu chains are more than the 0.5 degree (~55 km) tolerance from any
+  digitised coastline, so they resolve to `XX` / Unknown. They are really in
+  Japan. Unknown is honest and better than the wrong country they had before,
+  but do not read a `XX` as "not a real place". Raising the tolerance to
+  reach them would start attributing genuinely offshore points to whatever
+  land is vaguely nearby; the real fix is a 10m boundary set.
 - **Mocked providers cannot tell you the pipeline works.** 242 tests passed
   against stub providers while the proposer was architecturally unable to
   produce a claim. Stubs verify the plumbing between components; they say

@@ -6557,3 +6557,7 @@
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_b4ecf77af669","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_ef414ce749a4","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_fe363ef75279","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"spring.disappeared","springId":"whs_5d20041592ca","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"spring.disappeared","springId":"whs_79953dda98e3","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"spring.disappeared","springId":"whs_911bbe6d0249","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"spring.disappeared","springId":"whs_3cb0650a3f65","actor":"build"}
