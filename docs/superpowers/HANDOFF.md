@@ -527,21 +527,27 @@ Already satisfied from the spec's configuration section: **F10** (fork PR
 approval for all external contributors) and the Actions-review-approval
 toggle. Both verified above.
 
-## Known defect: `gate-1` fails every maintainer pull request
+## ~~Known defect: `gate-1` fails every maintainer pull request~~ — FIXED
 
-`validate-overlay.mjs --changed-only` applies `checkPaths` to *every* pull
-request, but the path guard exists to constrain strangers. Any maintainer PR
-touching `scripts/`, `src/`, `docs/`, or `package.json` therefore fails a
-**required** check. Demonstrated on PR #2 above; the only reason work still
-lands is `enforce_admins: false` letting an admin bypass.
+**This section was stale and cost a wrong prediction on 2026-09-05**, when a
+maintainer PR touching `scripts/lib/` was announced as certain to fail
+`validate` and then passed. Verify a "known defect" against a live run before
+repeating it; a defect list is a claim about the present, not a diary.
 
-This does not weaken the Gate 2 design — an overlay-only contribution passes
-gate-1 normally, and a failed gate-1 simply means `workflow_run` never fires,
-so no spend occurs. It is a maintainer-workflow defect, not a security one.
+The described fix is already implemented. `gate.yml` passes
+`IS_FORK_PR: ${{ github.event.pull_request.head.repo.fork }}`, and
+`validate-overlay.mjs:78` applies `checkPaths` only when that is `"true"`. A
+same-repo PR logs *"Same-repo change: validating overlay files, path guard
+not applied"* and passes. The job still runs on every PR, which is what
+matters: a required check that gets *skipped* sits pending forever and blocks
+a merge just as hard as a failing one.
 
-The fix is to enforce the path guard only on fork PRs while still running the
-job on every PR. It must keep running: a required check that gets *skipped*
-sits pending forever and blocks the merge just as hard as a failing one.
+For the record, the original defect: the path guard exists to constrain
+strangers, but it was applied to every pull request, so any maintainer PR
+touching `scripts/`, `src/`, `docs/`, or `package.json` failed a **required**
+check. It was never a security weakness — an overlay-only contribution passed
+normally, and a failed gate-1 means `workflow_run` never fires, so no spend
+occurs.
 
 
 ---
