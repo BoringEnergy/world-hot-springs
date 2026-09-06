@@ -28680,6 +28680,83 @@
     }
   },
   {
+    "id": "osm-node-9953707017",
+    "name": "جزيره",
+    "location": {
+      "lat": 32.443805,
+      "lng": 15.117961,
+      "elevation": null,
+      "country": "LY",
+      "countryName": "Libya",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": null,
+      "fahrenheit": null,
+      "source": null,
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "unknown"
+    },
+    "access": {
+      "price": null,
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/9953707017"
+    ],
+    "description": null,
+    "tags": [],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 33,
+      "known": [
+        "name",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "countryInferred": true,
+      "attributeFree": true,
+      "suspect": "matched reviewed bad import \"ly-kufra-wells\": attribute-free"
+    }
+  },
+  {
     "id": "osm-node-10016826617",
     "name": "المنزل",
     "location": {
@@ -29514,6 +29591,237 @@
         "type"
       ],
       "ingestedAt": "2026-08-25",
+      "attributeFree": true,
+      "suspect": "matched reviewed bad import \"ly-kufra-wells\": attribute-free"
+    }
+  },
+  {
+    "id": "osm-node-11332851371",
+    "name": "حوش عصام حي الاندلس",
+    "location": {
+      "lat": 32.097788,
+      "lng": 23.945842,
+      "elevation": null,
+      "country": "LY",
+      "countryName": "Libya",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": null,
+      "fahrenheit": null,
+      "source": null,
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "unknown"
+    },
+    "access": {
+      "price": null,
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/11332851371"
+    ],
+    "description": null,
+    "tags": [],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 33,
+      "known": [
+        "name",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "countryInferred": true,
+      "attributeFree": true,
+      "suspect": "matched reviewed bad import \"ly-kufra-wells\": attribute-free"
+    }
+  },
+  {
+    "id": "osm-node-11332862669",
+    "name": "مصحة عافيه للتصوير",
+    "location": {
+      "lat": 32.088132,
+      "lng": 23.977478,
+      "elevation": null,
+      "country": "LY",
+      "countryName": "Libya",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": null,
+      "fahrenheit": null,
+      "source": null,
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "unknown"
+    },
+    "access": {
+      "price": null,
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/11332862669"
+    ],
+    "description": null,
+    "tags": [],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 33,
+      "known": [
+        "name",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "countryInferred": true,
+      "attributeFree": true,
+      "suspect": "matched reviewed bad import \"ly-kufra-wells\": attribute-free"
+    }
+  },
+  {
+    "id": "osm-node-11332862769",
+    "name": "طريق البحر",
+    "location": {
+      "lat": 32.102929,
+      "lng": 23.937522,
+      "elevation": null,
+      "country": "LY",
+      "countryName": "Libya",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": null,
+      "fahrenheit": null,
+      "source": null,
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "unknown"
+    },
+    "access": {
+      "price": null,
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/11332862769"
+    ],
+    "description": null,
+    "tags": [],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 33,
+      "known": [
+        "name",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "countryInferred": true,
       "attributeFree": true,
       "suspect": "matched reviewed bad import \"ly-kufra-wells\": attribute-free"
     }
