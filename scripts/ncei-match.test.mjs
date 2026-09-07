@@ -88,6 +88,47 @@ test('two NCEI rows contending for one spring are BOTH rejected, never guessed',
   }
 });
 
+test('"hot" inside one name and not the other is not a disagreement', () => {
+  // WILBUR SPRINGS / Wilbur Hot Springs is one place. Plain containment fails
+  // only because "hot" is interpolated into the middle of the other name.
+  const { matched } = matchNcei(
+    [{ state: 'CA', lat: 39.039, lng: -122.421, name: 'WILBUR SPRINGS', celsius: 67, qualitative: null }],
+    [atlas('whs_a', northOf(39.039, 27), -122.421, 'Wilbur Hot Springs')],
+  );
+  assert.equal(matched.length, 1);
+});
+
+test('the same holds for "warm"', () => {
+  const { matched } = matchNcei(
+    [{ state: 'OR', lat: 44, lng: -121, name: 'NIMROD SPRINGS', celsius: 30, qualitative: null }],
+    [atlas('whs_a', northOf(44, 40), -121, 'Nimrod Warm Springs')],
+  );
+  assert.equal(matched.length, 1);
+});
+
+test('a generic name never becomes a wildcard', () => {
+  // "SPRING (HOT)" reduces to "spring" once the qualifier is dropped, and
+  // "spring" is a substring of nearly every spring name on earth. Allowing it
+  // to match would silently attach NOAA's reading to whatever happens to be
+  // nearest -- here, a spring 59 m away with an entirely different name.
+  const { matched, rejected } = matchNcei(
+    [{ state: 'NM', lat: 33.2, lng: -108.2, name: 'SPRING (HOT)', celsius: 50, qualitative: null }],
+    [atlas('whs_a', northOf(33.2, 59), -108.2, 'Gila / Lightfeather Hot Springs')],
+  );
+  assert.equal(matched.length, 0);
+  assert.equal(rejected[0].reason, 'name disagreement');
+});
+
+test('two generic names still match, because that is the unnamed case', () => {
+  // Neither name carries information, so the match rests on proximity alone --
+  // which is exactly how two unnamed springs are already treated.
+  const { matched } = matchNcei(
+    [{ state: 'NV', lat: 40, lng: -117, name: 'HOT SPRING', celsius: 50, qualitative: null }],
+    [atlas('whs_a', northOf(40, 77), -117, 'Hot Spring')],
+  );
+  assert.equal(matched.length, 1);
+});
+
 test('a qualitative row matches and carries its word, not a number', () => {
   const { matched } = matchNcei(
     [
