@@ -19,6 +19,8 @@ import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
 import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
+import { parseNcei } from './lib/ncei.mjs';
+import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
@@ -257,9 +259,118 @@ async function main() {
   if (appeared) console.log(`  ${appeared} new since the last build`);
   if (vanished) console.log(`  ${vanished} no longer present upstream (flagged, not deleted)`);
 
+  // --- NCEI, a second upstream ---
+  // Peer to OSM, not a curated claim: this never passes through gate 2, so what
+  // stands in for verification is a pinned hash and a report a human reads.
+  // Placed here deliberately -- above the privacy filter because proximity
+  // matching binds records, and before the overlay so an authored claim wins.
+  // Loaded here rather than at the overlay stage below, because NCEI has to
+  // ask whether an author has already claimed a temperature. "The atlas has no
+  // temperature yet" is not the same question -- the overlay has not run.
+  const overlays = loadOverlays(OVERLAY_DIR);
+
+  const NCEI_TSV = path.join('data', 'reference', 'ncei-thermal-springs.tsv');
+  if (fs.existsSync(NCEI_TSV)) {
+    console.log('Merging NCEI thermal springs ...');
+    const { springs: nceiRows, rejected: parseRejects } = parseNcei(
+      fs.readFileSync(NCEI_TSV, 'utf8'),
+    );
+    const byId = new Map(records.map((r) => [r.id, r]));
+    const { matched, unmatched, rejected } = matchNcei(nceiRows, records);
+
+    const SOURCE_NOTE =
+      'NOAA NCEI, Thermal Springs List for the United States (1981), doi:10.25921/c8p0-zs06';
+    let filled = 0;
+    let describedOnly = 0;
+    const conflicts = [];
+
+    let deferredToAuthor = 0;
+    for (const m of matched) {
+      const rec = byId.get(m.id);
+      if (!rec) continue;
+      // An authored claim wins, so do not write a value it is about to
+      // replace. Skipping keeps `ncei` out of the provenance of a record where
+      // nothing from NCEI survived.
+      if (hasAuthoredTemperature(overlays.get(m.id))) {
+        deferredToAuthor++;
+        continue;
+      }
+      let touched = false;
+
+      if (m.celsius !== null) {
+        if (rec.temperature.celsius !== null) {
+          // Never overwrite. Two upstreams disagreeing is a fact for the
+          // report, not something to resolve by whichever ran last.
+          if (rec.temperature.celsius !== m.celsius) {
+            conflicts.push({
+              id: m.id,
+              name: rec.name,
+              atlas: rec.temperature.celsius,
+              ncei: m.celsius,
+              meters: m.meters,
+            });
+          }
+        } else {
+          rec.temperature.celsius = m.celsius;
+          rec.temperature.fahrenheit = Math.round(((m.celsius * 9) / 5 + 32) * 10) / 10;
+          rec.temperature.measuredAt = '1981';
+          rec.temperature.source = SOURCE_NOTE;
+          filled++;
+          touched = true;
+        }
+      } else if (m.qualitative && !rec.temperature.qualitative) {
+        rec.temperature.qualitative = m.qualitative;
+        rec.temperature.measuredAt = '1981';
+        rec.temperature.source = SOURCE_NOTE;
+        describedOnly++;
+        touched = true;
+      }
+
+      if (!touched) continue;
+      rec.quality.provenance = [...new Set([...rec.quality.provenance, 'ncei'])];
+      if (rec.temperature.celsius !== null && !rec.quality.known.includes('temperature')) {
+        rec.quality.known = [...rec.quality.known, 'temperature'];
+      }
+    }
+
+    fs.writeFileSync(
+      path.join('data', 'ncei-match-report.json'),
+      `${JSON.stringify(
+        {
+          generatedAt: buildDate,
+          counts: {
+            rows: nceiRows.length,
+            matched: matched.length,
+            filled,
+            describedOnly,
+            deferredToAuthor,
+            unmatched: unmatched.length,
+            rejected: rejected.length,
+            parseRejects: parseRejects.length,
+            conflicts: conflicts.length,
+          },
+          conflicts,
+          rejected,
+          parseRejects,
+          unmatched,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    console.log(
+      `  ${matched.length} matched, ${filled} temperature(s) filled, ` +
+        `${describedOnly} described, ${deferredToAuthor} left to an author, ` +
+        `${unmatched.length} unmatched, ` +
+        `${rejected.length} rejected -> data/ncei-match-report.json`,
+    );
+    if (conflicts.length) {
+      console.log(`  ${conflicts.length} conflict(s) with an existing temperature, left alone`);
+    }
+  }
+
   // --- Curated overlay ---
   console.log('Applying curated claims ...');
-  const overlays = loadOverlays(OVERLAY_DIR);
   const { applied, orphaned, events: overlayEvents } = applyOverlays(records, overlays);
   console.log(`  ${applied} claim(s) applied from ${overlays.size} overlay file(s)`);
   const contested = overlayEvents.filter((e) => e.type === 'claim.contested').length;

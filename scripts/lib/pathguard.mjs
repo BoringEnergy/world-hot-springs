@@ -14,7 +14,11 @@ export const ALLOWED_PREFIX = 'data/overlay/';
  * built dataset and the registry, and a contribution has no business in
  * either.
  */
-export const ALLOWED_FILES = ['data/coverage.json', 'data/refutations.jsonl'];
+export const ALLOWED_FILES = [
+  'data/coverage.json',
+  'data/refutations.jsonl',
+  'data/ncei-match-report.json',
+];
 
 /**
  * One enrichment run writes up to 258 overlay files -- TARGET_PER_COUNTRY (2)

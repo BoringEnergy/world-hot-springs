@@ -69,6 +69,20 @@ function namesAgree(a, b) {
   return contains(sx, sy);
 }
 
+/**
+ * Has an author already claimed this spring's temperature?
+ *
+ * The NCEI stage runs before the overlay, so "the atlas has no temperature yet"
+ * is not the same question as "nobody has claimed one". Without this, NOAA
+ * fills a value the overlay is about to overwrite -- harmless in the output,
+ * but it leaves `ncei` in the record's provenance when nothing from NCEI
+ * survived, which is a claim about where the data came from that is not true.
+ */
+export function hasAuthoredTemperature(overlay) {
+  const claim = overlay?.claims?.['temperature.celsius'];
+  return Boolean(claim) && claim.state !== 'retracted';
+}
+
 export function matchNcei(nceiRows, atlasRecords) {
   const candidates = [];
   const rejected = [];
