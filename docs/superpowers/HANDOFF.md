@@ -198,23 +198,26 @@ Yellowstone, where NOAA lists named groups and OSM lists individual vents; and
 how records that exist in no other source earn a place. `data/ncei-match-report.json`
 is written by every build and is the input to all three.
 
-## Known inconsistency: the claim path forbids midpoints, the OSM path computes them
+## ~~Known inconsistency: the claim path forbids midpoints~~ — SETTLED
 
-Found 2026-09-07 by the one conflict NCEI surfaced. An unnamed Oregon spring
-(`whs_85e35ed20aaa`) publishes 78C in the atlas, which is the MIDPOINT of an
-OSM `temperature` tag reading `64-92`. NOAA says 71.
+Settled 2026-09-07: **an OSM range now takes its upper bound**, the same
+convention rule 2 imposes on an authored claim. `parseTemperature()` used to
+store the midpoint, so the atlas published computed temperatures that no source
+states, reached by a route contributors are forbidden. Found because it was the
+only conflict NCEI surfaced.
 
-Rule 2 above forbids exactly this of a claim -- two temperature claims were
-retracted for being midpoints that appeared on no page -- but
-`parseTemperature()` in `normalize.mjs` does it for every OSM range and records
-the original in the source string. So the atlas holds computed temperatures
-that no source states, arrived at by a route the contribution rules prohibit.
+12 records moved, every one upward, median +1.5C. The largest is the spring
+that exposed it: an unnamed Oregon spring tagged `64-92` published 78C and now
+publishes 92C. Others: Einireykir 90 -> 100 (`80-100`), Hveravellir 40 -> 50
+(`30-50`), Sundlaug Suoureyrar 38 -> 41 (`35-41`).
 
-Not fixed here: it is the OSM normaliser, it would move many records, and the
-right answer is a decision rather than a patch. The options are to take the
-upper bound as claims do, to keep the midpoint and say so in the UI, or to
-store the range. Worth settling before the next temperature push, because it
-is the same question the upper-bound convention already answered once.
+Upper because the error is asymmetric, which is the whole argument: understating
+tells someone a 92C spring is a comfortable 78C. Coverage is unchanged -- these
+records always had a temperature, it was the wrong one.
+
+`Math.max`, not `vals[1]`: nothing obliges a source to write the low end first,
+and a test pins it. The separator canonicaliser still distinguishes a range from
+a negative reading, so `-40` remains rejected rather than becoming +40.
 
 ## Things that will bite you
 
