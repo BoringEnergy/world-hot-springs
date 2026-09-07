@@ -174,6 +174,48 @@ clicking a result blanked the screen, because `npm test` runs only
 `build.test.mjs`. That is a tripwire, not a substitute for the frontend tests
 the research review asks for.
 
+## NCEI is a second upstream, and stage two is the interesting half
+
+Landed 2026-09-07. `data/reference/ncei-thermal-springs.tsv` is a committed
+mirror of NOAA's Thermal Springs List (1981, CC0, doi:10.25921/c8p0-zs06),
+pinned by sha256 and rebuilt with `npm run data:ncei` -- maintainer-run, never
+part of `data:build`, because the source was decommissioned in May 2025 and a
+frozen dataset must not be a live dependency. Design and plan are in
+`specs/2026-09-06-ncei-upstream-design.md` and
+`plans/2026-09-07-ncei-upstream-stage-one.md`.
+
+It fills temperatures on springs the atlas ALREADY HAS: 119 of them, coverage
+168 -> 287. The stage sits above the privacy filter and before the overlay,
+and both placements are asserted by tests rather than assumed.
+
+**The unmatched rows are the real prize, and they are genuinely missing.**
+1,506 of 1,659 rows match nothing, at a median of 43 km from the nearest atlas
+record; only 109 are within 1 km. That is not coordinate drift between two
+gazetteers, it is 1,500 American springs the atlas does not contain. Adding
+them is stage two and needs three decisions first: whether a fumarole, steam
+vent or mud pot belongs in an atlas of PUBLIC hot springs; what to do about
+Yellowstone, where NOAA lists named groups and OSM lists individual vents; and
+how records that exist in no other source earn a place. `data/ncei-match-report.json`
+is written by every build and is the input to all three.
+
+## Known inconsistency: the claim path forbids midpoints, the OSM path computes them
+
+Found 2026-09-07 by the one conflict NCEI surfaced. An unnamed Oregon spring
+(`whs_85e35ed20aaa`) publishes 78C in the atlas, which is the MIDPOINT of an
+OSM `temperature` tag reading `64-92`. NOAA says 71.
+
+Rule 2 above forbids exactly this of a claim -- two temperature claims were
+retracted for being midpoints that appeared on no page -- but
+`parseTemperature()` in `normalize.mjs` does it for every OSM range and records
+the original in the source string. So the atlas holds computed temperatures
+that no source states, arrived at by a route the contribution rules prohibit.
+
+Not fixed here: it is the OSM normaliser, it would move many records, and the
+right answer is a decision rather than a patch. The options are to take the
+upper bound as claims do, to keep the midpoint and say so in the UI, or to
+store the range. Worth settling before the next temperature push, because it
+is the same question the upper-bound convention already answered once.
+
 ## Things that will bite you
 
 - **A bounding box is not a shape, and three countries cross the
