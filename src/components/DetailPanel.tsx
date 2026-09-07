@@ -204,7 +204,12 @@ export function DetailPanel() {
 
       <dl className="px-5 pb-2 pt-2">
         <Field label="Temperature">
-          <div className="flex items-baseline gap-2">
+          {/*
+            flex-wrap so a full-width child can take its own line. Without it,
+            `w-full` on a flex child is merely a squeeze, and the measurement
+            date renders as though it qualified the Fahrenheit value beside it.
+          */}
+          <div className="flex flex-wrap items-baseline gap-2">
             <span
               className={
                 spring.temperature.celsius === null
@@ -225,6 +230,20 @@ export function DetailPanel() {
             {spring.temperature.celsius === null && spring.temperature.qualitative && (
               <span className="rounded-full border border-basalt-700 bg-basalt-850 px-2 py-0.5 text-[11px] text-steam-300">
                 described as {spring.temperature.qualitative}
+              </span>
+            )}
+            {/*
+              When the reading was taken, when the source said so. Same sentence
+              shape as the minerals card, for the same reason: a figure rendered
+              bare reads as a measurement somebody took for you, and the NOAA
+              rows are from 1981. A 45-year-old reading shown identically to one
+              verified against an operator's page yesterday would be exactly
+              that. w-full, not block -- the siblings are a flex row, so a plain
+              block would still share the line.
+            */}
+            {spring.temperature.measuredAt && (
+              <span className="w-full text-xs text-steam-400">
+                Measured {spring.temperature.measuredAt} according to the source below.
               </span>
             )}
             {/*
