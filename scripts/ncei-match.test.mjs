@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { matchNcei, MATCH_RADIUS_M } from './lib/ncei-match.mjs';
+import { matchNcei, MATCH_RADIUS_M, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 
 /** A minimal atlas record: only the fields the matcher reads. */
 const atlas = (id, lat, lng, name) => ({ id, name, location: { lat, lng } });
@@ -145,4 +145,31 @@ test('a qualitative row matches and carries its word, not a number', () => {
   );
   assert.equal(matched[0].celsius, null);
   assert.equal(matched[0].qualitative, 'hot');
+});
+
+test('NOAA does not fill a temperature an author has already claimed', () => {
+  // The NCEI stage runs before the overlay, so "no temperature yet" is not the
+  // same question as "nobody has claimed one". Filling anyway is invisible in
+  // the output -- the overlay overwrites it -- but it leaves `ncei` in the
+  // record's provenance when nothing from NCEI survived.
+  assert.equal(
+    hasAuthoredTemperature({ claims: { 'temperature.celsius': { value: 67, state: 'active' } } }),
+    true,
+  );
+});
+
+test('a retracted claim is not an authored temperature', () => {
+  assert.equal(
+    hasAuthoredTemperature({ claims: { 'temperature.celsius': { value: 38.5, state: 'retracted' } } }),
+    false,
+  );
+});
+
+test('a spring with no overlay, or an overlay claiming something else, is fillable', () => {
+  assert.equal(hasAuthoredTemperature(undefined), false);
+  assert.equal(hasAuthoredTemperature({ claims: {} }), false);
+  assert.equal(
+    hasAuthoredTemperature({ claims: { 'access.price': { value: 'x', state: 'active' } } }),
+    false,
+  );
 });

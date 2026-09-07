@@ -6,6 +6,14 @@ import { distanceMeters } from './lib/geo.mjs';
 
 const SOURCE = fs.readFileSync('scripts/build-dataset.mjs', 'utf8');
 
+/**
+ * Every upstream a stage in this build can name. The list was a single literal
+ * `['osm']` until NCEI became a second upstream; it is a SET rather than a
+ * longer literal so that adding a third does not weaken the check, which
+ * exists to catch an invented or misspelled provider.
+ */
+const PROVIDERS = new Set(['osm', 'ncei']);
+
 test('the privacy filter is the last stage that can remove or move a record', () => {
   const privacyAt = SOURCE.indexOf('isExcluded(');
   const dedupeAt = SOURCE.indexOf('dedupe(records)');
@@ -198,10 +206,20 @@ test('every shipped record names the providers it was built from', () => {
     // was true of the single literal this list replaced.
     assert.ok(Array.isArray(s.quality.provenance), `${s.id} provenance is not an array`);
     assert.ok(s.quality.provenance.length > 0, `${s.id} claims no provenance at all`);
-    assert.deepEqual(
-      s.quality.provenance,
-      ['osm'],
-      `${s.id} names a provider no normaliser in this build can produce`,
+    for (const p of s.quality.provenance) {
+      assert.ok(
+        PROVIDERS.has(p),
+        `${s.id} names "${p}", a provider no stage in this build can produce`,
+      );
+    }
+    assert.equal(
+      new Set(s.quality.provenance).size,
+      s.quality.provenance.length,
+      `${s.id} names the same provider twice`,
+    );
+    assert.ok(
+      s.quality.provenance.includes('osm'),
+      `${s.id} is not derived from OSM, but every record's identity is`,
     );
   }
 });
@@ -293,5 +311,77 @@ test('the build cannot become a silent no-op when imported or on an old runtime'
   assert.ok(
     guardAt < call.exec(SOURCE).index,
     'the capability check has to precede the call it decides',
+  );
+});
+
+test('the NCEI merge runs above the privacy filter and before the overlay', () => {
+  const nceiAt = SOURCE.indexOf('matchNcei(');
+  const overlayAt = SOURCE.indexOf('applyOverlays(');
+  const privacyAt = SOURCE.indexOf('isExcluded(');
+  assert.ok(nceiAt > 0, 'the NCEI stage must exist');
+  assert.ok(
+    nceiAt < privacyAt,
+    'NCEI must run BEFORE the privacy filter: it binds records by proximity, ' +
+      'and nothing that can move a record may run below the exclusion check.',
+  );
+  assert.ok(
+    nceiAt < overlayAt,
+    'NCEI must run BEFORE the curated overlay so an authored claim overwrites ' +
+      'NOAA rather than racing it.',
+  );
+});
+
+test('an overlay claim overwrites an NCEI temperature, and clears its date', async () => {
+  const { applyOverlays } = await import('./lib/overlay.mjs');
+  // A record as the NCEI stage leaves it: filled, dated 1981, provenance noted.
+  const record = {
+    id: 'whs_000000000001',
+    name: 'Test Spring',
+    location: {
+      lat: 0, lng: 0, elevation: null, country: 'US',
+      countryName: 'United States of America', region: null, nearestTown: null,
+    },
+    temperature: {
+      celsius: 60, fahrenheit: 140,
+      source: 'NOAA NCEI, Thermal Springs List for the United States (1981), doi:10.25921/c8p0-zs06',
+      measuredAt: '1981', qualitative: null, kind: 'unknown',
+    },
+    access: { price: null, currency: null, notes: null, status: 'unknown', bathingAllowed: null },
+    clothing: { policy: 'unknown', schedule: null, notes: null },
+    hours: { open: null, seasonalNotes: null, status: 'unknown' },
+    minerals: {
+      ph: null, tds: null, sulfate: null, bicarbonate: null, chloride: null,
+      calcium: null, magnesium: null, sodium: null, silica: null, iron: null,
+      types: [], notes: null, measuredAt: null,
+    },
+    type: 'natural', unicorn: false, verified: false, lastVerified: '2026-01-01',
+    sources: [], description: null, tags: [], warnings: [],
+    quality: {
+      provenance: ['osm', 'ncei'], completeness: 0, known: ['temperature'],
+      ingestedAt: '2026-01-01', attributeFree: false,
+    },
+    osmRefs: [],
+  };
+  const overlays = new Map([
+    ['whs_000000000001', {
+      id: 'whs_000000000001',
+      claims: {
+        'temperature.celsius': {
+          value: 71, source: 'https://example.invalid/page',
+          contributor: 'test', state: 'active',
+        },
+      },
+    }],
+  ]);
+
+  applyOverlays([record], overlays);
+
+  assert.equal(record.temperature.celsius, 71, 'the authored claim must win');
+  assert.match(record.temperature.source, /Curated claim/);
+  assert.equal(
+    record.temperature.measuredAt, null,
+    'the 1981 date belonged to the NOAA reading and must not survive onto a ' +
+      'claim that did not state one -- stale provenance on a fresh value is ' +
+      'worse than no provenance.',
   );
 });
