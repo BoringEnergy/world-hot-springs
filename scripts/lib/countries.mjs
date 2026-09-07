@@ -9,6 +9,16 @@
  * resolution. Rather than dropping them to "Unknown", we fall back to the
  * nearest polygon within a tolerance — a spring 400m off the digitised
  * coastline of Iceland is in Iceland, and saying so is not inventing data.
+ *
+ * That fallback must measure distance to the POLYGON, never to the country's
+ * bounding box. A country whose territory crosses the antimeridian has a bbox
+ * spanning the globe: the United States runs lng -178.2 to 179.8 and lat 19.0
+ * to 71.4 because of the Aleutians, and Russia and Fiji are the same. Ranking
+ * by bbox made the US zero distance from every northern coastal point on
+ * Earth, and it published 195 springs — in Iceland, Italy, Algeria, China and
+ * the Canaries — as American. Polygons are indexed individually below so each
+ * carries a tight bbox of its own, which is both the correctness fix and
+ * faster than scanning a whole country's geometry.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -33,33 +43,40 @@ async function load() {
   }
   const geo = JSON.parse(fs.readFileSync(CACHE, 'utf8'));
 
-  index = geo.features.map((f) => {
+  // One entry per POLYGON, not per country. Alaska's Aleutian islands then get
+  // their own tight boxes instead of stretching the American one across the
+  // antimeridian and over every other country in the northern hemisphere.
+  index = geo.features.flatMap((f) => {
     const p = f.properties;
     // Natural Earth's casing has changed across releases; accept either.
     const iso =
       p.ISO_A2_EH || p.ISO_A2 || p.iso_a2_eh || p.iso_a2 || p.WB_A2 || p.wb_a2 || 'XX';
     const name = p.NAME_EN || p.NAME || p.name_en || p.name || 'Unknown';
-    const rings = [];
     const geom = f.geometry;
-    if (!geom) return null;
-    if (geom.type === 'Polygon') rings.push(geom.coordinates);
-    else if (geom.type === 'MultiPolygon') rings.push(...geom.coordinates);
-    const bbox = ringsBbox(rings);
-    return { iso: iso === '-99' ? 'XX' : iso, name, rings, bbox };
-  }).filter(Boolean);
+    if (!geom) return [];
+    const polys =
+      geom.type === 'Polygon'
+        ? [geom.coordinates]
+        : geom.type === 'MultiPolygon'
+          ? geom.coordinates
+          : [];
+    return polys.map((poly) => ({
+      iso: iso === '-99' ? 'XX' : iso,
+      name,
+      poly,
+      bbox: polygonBbox(poly),
+    }));
+  });
 }
 
-function ringsBbox(rings) {
+function polygonBbox(poly) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const poly of rings) {
-    for (const ring of poly) {
-      for (const [x, y] of ring) {
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
-      }
-    }
+  // The outer ring bounds the polygon; holes are inside it by definition.
+  for (const [x, y] of poly[0]) {
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x > maxX) maxX = x;
+    if (y > maxY) maxY = y;
   }
   return [minX, minY, maxX, maxY];
 }
@@ -90,20 +107,48 @@ function bboxDistance(x, y, [minX, minY, maxX, maxY]) {
   return Math.hypot(dx, dy);
 }
 
+/** Distance from a point to a line segment, in degrees. */
+function segmentDistance(x, y, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  // A degenerate segment is a point. Guard the division rather than return NaN,
+  // which compares false against every bound and would silently drop the
+  // candidate instead of failing.
+  const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / lenSq));
+  return Math.hypot(x - (x1 + t * dx), y - (y1 + t * dy));
+}
+
+/**
+ * Distance from a point outside a polygon to its boundary. Only the outer ring
+ * is measured: the exact pass has already rejected anything inside, and a point
+ * in a hole is not what this fallback exists for.
+ */
+function polygonDistance(x, y, poly) {
+  const ring = poly[0];
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const d = segmentDistance(x, y, ring[j][0], ring[j][1], ring[i][0], ring[i][1]);
+    if (d < best) best = d;
+  }
+  return best;
+}
+
 export async function countryLookup() {
   if (!index) await load();
   return function lookup(lat, lng) {
     for (const c of index) {
       if (bboxDistance(lng, lat, c.bbox) > 0) continue;
-      for (const poly of c.rings) {
-        if (pointInPolygon(lng, lat, poly)) return { iso: c.iso, name: c.name, exact: true };
-      }
+      if (pointInPolygon(lng, lat, c.poly)) return { iso: c.iso, name: c.name, exact: true };
     }
-    // Nearest-polygon fallback for coastal/island points.
+    // Nearest-polygon fallback for coastal/island points. The bbox is a cheap
+    // filter only; the ranking is true distance to the boundary, because a
+    // bbox can be arbitrarily larger than the land inside it.
     let best = null;
     let bestDist = NEAREST_TOLERANCE_DEG;
     for (const c of index) {
-      const d = bboxDistance(lng, lat, c.bbox);
+      if (bboxDistance(lng, lat, c.bbox) >= bestDist) continue;
+      const d = polygonDistance(lng, lat, c.poly);
       if (d < bestDist) {
         bestDist = d;
         best = c;

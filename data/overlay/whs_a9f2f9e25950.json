@@ -1,0 +1,17 @@
+{
+  "id": "whs_a9f2f9e25950",
+  "claims": {
+    "temperature.celsius": {
+      "value": 36,
+      "source": "https://de.wikipedia.org/wiki/Soltau-Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://de.wikipedia.org/wiki/Soltau-Therme",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

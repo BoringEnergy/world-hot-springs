@@ -8,7 +8,7 @@ survey, forum posts, and OpenStreetMap tags that nobody has ever normalised.
 This repository is an attempt to fix that, in public, with the provenance
 attached.
 
-**6,471 springs across 129 countries** in the current build.
+**6,467 springs across 131 countries** in the current build.
 
 ## What makes this different
 
@@ -21,7 +21,7 @@ That honesty is the whole product, because the real numbers are humbling:
 
 | Field | Known |
 | --- | --- |
-| Temperature | **2%** |
+| Temperature | **3%** |
 | Price | 14% |
 | Hours | 7% |
 | Clothing policy | 1% |

@@ -176,6 +176,32 @@ the research review asks for.
 
 ## Things that will bite you
 
+- **A bounding box is not a shape, and three countries cross the
+  antimeridian.** Fixed 2026-09-05. `countries.mjs` fell back to the nearest
+  country by distance to its BBOX, and the United States' box runs lng -178.2
+  to 179.8 (the Aleutians) by lat 19.0 to 71.4. That box is zero distance from
+  every northern coastal point on Earth, so 195 springs in Iceland, Italy,
+  Greece, Algeria, China and the Canaries were published as American; New
+  Zealand and Kiribati did the same to a further 7. Russia and Fiji have the
+  same global box and were only saved by feature order. 207 records corrected.
+  The index is now per-polygon, so each carries a tight box, and the fallback
+  ranks by true point-to-boundary distance. **The general lesson: any
+  prefilter that is also used as a ranking is a bug waiting for a shape that
+  does not fit its box.**
+- **Country attribution feeds the quarantine, so a country bug is a data
+  bug.** `data/known-bad-imports.json` keys its rules by country, so the four
+  Libyan coastal records above escaped `ly-kufra-wells` for as long as they
+  were labelled US -- among them a radiology clinic and a road, tagged
+  `natural=hot_spring`. Fixing the country dropped them into
+  `data/suspect.json`, which is why the published count fell 6,471 -> 6,467.
+  A change to `countries.mjs` is never only cosmetic; diff the record set.
+- **Natural Earth 50m omits small islands.** Ten springs in the Tokara and
+  Izu chains are more than the 0.5 degree (~55 km) tolerance from any
+  digitised coastline, so they resolve to `XX` / Unknown. They are really in
+  Japan. Unknown is honest and better than the wrong country they had before,
+  but do not read a `XX` as "not a real place". Raising the tolerance to
+  reach them would start attributing genuinely offshore points to whatever
+  land is vaguely nearby; the real fix is a 10m boundary set.
 - **Mocked providers cannot tell you the pipeline works.** 242 tests passed
   against stub providers while the proposer was architecturally unable to
   produce a claim. Stubs verify the plumbing between components; they say
@@ -501,21 +527,27 @@ Already satisfied from the spec's configuration section: **F10** (fork PR
 approval for all external contributors) and the Actions-review-approval
 toggle. Both verified above.
 
-## Known defect: `gate-1` fails every maintainer pull request
+## ~~Known defect: `gate-1` fails every maintainer pull request~~ — FIXED
 
-`validate-overlay.mjs --changed-only` applies `checkPaths` to *every* pull
-request, but the path guard exists to constrain strangers. Any maintainer PR
-touching `scripts/`, `src/`, `docs/`, or `package.json` therefore fails a
-**required** check. Demonstrated on PR #2 above; the only reason work still
-lands is `enforce_admins: false` letting an admin bypass.
+**This section was stale and cost a wrong prediction on 2026-09-05**, when a
+maintainer PR touching `scripts/lib/` was announced as certain to fail
+`validate` and then passed. Verify a "known defect" against a live run before
+repeating it; a defect list is a claim about the present, not a diary.
 
-This does not weaken the Gate 2 design — an overlay-only contribution passes
-gate-1 normally, and a failed gate-1 simply means `workflow_run` never fires,
-so no spend occurs. It is a maintainer-workflow defect, not a security one.
+The described fix is already implemented. `gate.yml` passes
+`IS_FORK_PR: ${{ github.event.pull_request.head.repo.fork }}`, and
+`validate-overlay.mjs:78` applies `checkPaths` only when that is `"true"`. A
+same-repo PR logs *"Same-repo change: validating overlay files, path guard
+not applied"* and passes. The job still runs on every PR, which is what
+matters: a required check that gets *skipped* sits pending forever and blocks
+a merge just as hard as a failing one.
 
-The fix is to enforce the path guard only on fork PRs while still running the
-job on every PR. It must keep running: a required check that gets *skipped*
-sits pending forever and blocks the merge just as hard as a failing one.
+For the record, the original defect: the path guard exists to constrain
+strangers, but it was applied to every pull request, so any maintainer PR
+touching `scripts/`, `src/`, `docs/`, or `package.json` failed a **required**
+check. It was never a security weakness — an overlay-only contribution passed
+normally, and a failed gate-1 means `workflow_run` never fires, so no spend
+occurs.
 
 
 ---
@@ -525,9 +557,32 @@ sits pending forever and blocks the merge just as hard as a failing one.
 The apparatus is done. What remains is filling the atlas, and it is
 repetitive rather than architectural.
 
-**Coverage: temperature 95 of 6,471 (1%).** That 1% is the whole point the
-project makes about the state of public hot-spring data, so moving it is the
-work.
+**Coverage: temperature 168 of 6,471 (3%)**, up from 95 on 2026-09-05.
+That number is the whole point the project makes about the state of public
+hot-spring data, so moving it is the work. 73 claims landed in one pass, in
+eight batches; the rate limit was research, never the apparatus.
+
+### The United States is blocked on a schema field
+
+2,025 springs, 15 with a temperature after this pass. It is the largest gap
+in the atlas and the cheapest to close -- **except that American sources
+publish Fahrenheit.**
+
+Colorado was surveyed end to end: 40 springs, 2 with a temperature, 10 with
+an operator website. Not one publishes Celsius. Iron Mountain Hot Springs
+states `89°-108°F` for its pools, which is a good, specific, verifiable
+figure -- and unclaimable, because `temperature.celsius` is the only
+claimable temperature field and converting 108F to 42C is computing a
+claimed value, which rule 2 forbids.
+
+Where American springs DID yield was English Wikipedia, which prints both:
+`Temperature 94 °C (201 °F)`. That is 7 claims from 11 articles. It does not
+scale -- only 11 of 2,025 US springs cite Wikipedia at all.
+
+**The fix is `temperature.fahrenheit` in CLAIMABLE, and it is two pull
+requests** (see rule 1). It would open the operator-website seam for the
+whole country. Not done here because no batch was blocked in a way that
+justified deciding it alone; raise it before the next US pass.
 
 ### The loop that works
 
@@ -540,15 +595,92 @@ work.
    `node scripts/verify-claims.mjs --files <path>` BEFORE committing.
 4. Rebuild, run the suite, open a PR. Gate 2 re-verifies from trusted code.
 
-**Yield is about 50%.** Of 11 springs researched, 5 published a findable
-figure. Expect to discard half, and prefer discarding to reaching for a
-weaker source.
+**Yield is about 50% on Western sources, near 70% on Japanese ones.** Of 11
+springs researched in the first pass, 5 published a findable figure; of 48
+Japanese articles checked, 28 carried one. Expect to discard, and prefer discarding to reaching
+for a weaker source.
+
+### Japanese Wikipedia is the largest single unlock
+
+`ja.wikipedia.org` onsen articles carry a standard infobox field,
+`泉温（摂氏）`, holding the SOURCE temperature. It is uniform enough to
+extract with one regex:
+
+```js
+r.text.match(/泉温（\s*摂氏\s*）\s*([^宿湧p液テ]{1,40})/)
+```
+
+Japan is ~950 springs, 15% of the atlas. 66 of them cited a `ja.wikipedia`
+article and had no temperature. **All 66 are now checked: 38 carried the
+field, 28 did not.** That is a 58% yield with no searching and no judgement
+call per spring -- read one field, take it.
+
+The handoff's ASCII-only warning about `valueAppears` did NOT bite: these
+articles write half-width digits, and every one of the twenty verified on the
+first pass. The warning still stands for pages using full-width or CJK
+numerals — it simply is not what Wikipedia does.
+
+**All thirty-eight are claimed. This seam is exhausted** -- do not re-run it
+hoping for more. Going further into Japan needs a source other than the
+`sources[]` already on the record: only 66 of ~950 Japanese springs ever
+carried a Wikipedia link, and every one has now been read.
+
+The 28 that carried no `泉温` field are mostly bath-house articles rather
+than spring articles (金の湯, 銀の湯, 竹瓦温泉, 片倉館) -- the building has
+an article, the water does not. A different source type, not a second pass.
+
+### Two traps this pass hit
+
+**Run `data:build` BEFORE `npm test`, not after.** `scripts/docs.test.mjs`
+asserts the README coverage table against `data/summary.json`. Testing first
+reads the pre-build summary and passes over a README that the batch has just
+made wrong. The first batch of this pass shipped a stale `1%` that way and
+needed a follow-up commit.
+
+**Batches conflict with each other through the derived files.** Every batch
+rewrites `data/hot-springs.json`, `.geojson` and `summary.json`, so two
+branches cut from the same `main` cannot both merge cleanly. Either land each
+batch before starting the next, or stack the branches — which is what
+2026-09-05 did, PRs #37 -> #38 -> #39 -> #40, each based on the one before.
 
 ### Known-unclaimable, checked and rejected
 
 Friedrichsbad, Therme Wien, Craters of the Moon, Termas do Geres, Anna Furdo
 publish no temperature this verifier can find. Do not re-research them
 without a new source.
+
+Added 2026-09-05, no figure on the cited page: Zelena zaba, Klevevz, Le
+Caldane, Poca da Dona Beija, Ecotermales, Thermae Bath Spa, Fortyseven
+Baden, Claudius Therme, Silvretta Therme, Balneario de Aguas de Lindoia,
+Therma Gera, Heisse Brunnen Ennetbaden, Felsentherme Bad Gastein, Terme
+Borrini, Terme dell'Osa, Complesso termale di Agnano, Thermes de
+Pre-Saint-Didier, Laugaras Lagoon, Banos Termales Maya, Manupirua Springs,
+El Safareig.
+
+Rejected for a stated reason, which is different — a figure exists but is
+not claimable:
+
+  Aqua Dome            the page contradicts itself: 68C from the 1997 bore,
+                       then 40C "aus einer Tiefe von 1.865 Metern" into the
+                       pools. Same depth, two numbers.
+  Hagymatikum          41C is the 1956 well, under "A furdo hoskora", with
+                       no stated link to today's supply
+  Skolska cesma        "17°-19 °C". The dash before 19 has a non-digit
+                       before it, so valueAppears reads it as a SIGN and the
+                       upper bound cannot verify. The lower bound is not
+                       ours to take. This is the one range shape the
+                       upper-bound convention cannot rescue.
+  Eurotherme Bad
+  Schallerbach         34C is one hotel wellness pool, not the baths
+  Kristalltherme
+  Altenau              36C is a 12% brine tub, not the thermal water
+  Termas da
+  Chavasqueira         43-63C describes Ourense's free pools broadly
+  Terme della
+  Ficoncella           "circa 60 gradi in uscita e 40 nelle vasche" -- circa
+                       governs both, and the record has no name
+  Szarvasi gyogyfurdo  http-only; the fetcher returns source-malformed, and
+                       it is worth checking whether an https host exists
 
 ### Open ideas, none blocking
 

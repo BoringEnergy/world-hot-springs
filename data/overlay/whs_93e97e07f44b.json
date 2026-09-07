@@ -1,0 +1,17 @@
+{
+  "id": "whs_93e97e07f44b",
+  "claims": {
+    "temperature.celsius": {
+      "value": 49,
+      "source": "https://es.wikipedia.org/wiki/Termas_de_Entre_R%C3%ADos%23Concordia",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://es.wikipedia.org/wiki/Termas_de_Entre_R%C3%ADos%23Concordia",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

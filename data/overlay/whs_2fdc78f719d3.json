@@ -1,0 +1,17 @@
+{
+  "id": "whs_2fdc78f719d3",
+  "claims": {
+    "temperature.celsius": {
+      "value": 49,
+      "source": "https://pt.wikipedia.org/wiki/Termas_de_Sangemil",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://pt.wikipedia.org/wiki/Termas_de_Sangemil",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

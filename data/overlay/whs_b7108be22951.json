@@ -1,0 +1,17 @@
+{
+  "id": "whs_b7108be22951",
+  "claims": {
+    "temperature.celsius": {
+      "value": 13.9,
+      "source": "https://ja.wikipedia.org/wiki/%E5%B0%8F%E6%B8%8B%E6%B8%A9%E6%B3%89",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://ja.wikipedia.org/wiki/%E5%B0%8F%E6%B8%8B%E6%B8%A9%E6%B3%89",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}

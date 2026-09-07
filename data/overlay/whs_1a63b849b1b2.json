@@ -1,0 +1,17 @@
+{
+  "id": "whs_1a63b849b1b2",
+  "claims": {
+    "temperature.celsius": {
+      "value": 39,
+      "source": "https://haciendaorosi.com/",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://haciendaorosi.com/",
+      "contributor": "HudsonR&D Meta 9.5.26",
+      "state": "active"
+    }
+  }
+}
