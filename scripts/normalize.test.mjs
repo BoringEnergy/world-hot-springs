@@ -24,10 +24,31 @@ test('temperature: fahrenheit converts to celsius', () => {
   assert.equal(parseTemperature('104 fahrenheit').celsius, 40);
 });
 
-test('temperature: ranges collapse to the midpoint and keep the original', () => {
+test('temperature: a range takes its UPPER bound and keeps the original', () => {
+  // The same convention the contribution rules impose on an authored claim,
+  // for the same reason: the error is asymmetric. Understating tells someone a
+  // 92C spring is a comfortable 78C. A midpoint is also a number that appears
+  // in no source, which is exactly what two retracted claims were retracted
+  // for -- the pipeline should not reach it by a route contributors may not.
   const r = parseTemperature('40-45');
-  assert.equal(r.celsius, 42.5);
+  assert.equal(r.celsius, 45);
   assert.match(r.note, /40-45/);
+});
+
+test('temperature: the upper bound survives a Fahrenheit range', () => {
+  // 104F is 40C. Taking the bound before converting, not after.
+  assert.equal(parseTemperature('95-104 F').celsius, 40);
+});
+
+test('temperature: a negative reading is still a sign, not a range', () => {
+  // The separator canonicaliser is what tells these apart, and taking the
+  // upper bound must not turn a below-zero reading into a positive one.
+  assert.equal(parseTemperature('-40').celsius, null);
+});
+
+test('temperature: an unordered range still yields its maximum', () => {
+  // Nothing guarantees a source writes the low end first.
+  assert.equal(parseTemperature('45-40').celsius, 45);
 });
 
 test('temperature: qualitative values yield no number but are preserved', () => {
