@@ -21,15 +21,52 @@ import { distanceMeters, normName } from './geo.mjs';
 export const MATCH_RADIUS_M = 200;
 
 /**
+ * Words that identify no particular spring. A name made only of these carries
+ * no information, so it must never be used as evidence that two records are
+ * the same place.
+ */
+const GENERIC = new Set(['hot', 'warm', 'spring', 'springs', 'pool', 'pools', 'the', 'and', 'of']);
+
+const words = (n) => String(n ?? '').toLowerCase().match(/\p{L}+/gu) ?? [];
+const isGeneric = (n) => { const w = words(n); return w.length > 0 && w.every((x) => GENERIC.has(x)); };
+
+/** Drop the qualifier that one source writes and the other does not. */
+const withoutQualifier = (n) => normName(String(n ?? '').replace(/\b(hot|warm)\b/gi, ' '));
+
+function contains(x, y) {
+  return x.includes(y) || y.includes(x);
+}
+
+/**
  * Containment, not equality: "Bijah Spring" and "Bijah Springs" are one place.
  * The substring hazard that bit the dedupe pass ("No. 4" matching "No. 4b") is
  * bounded here by the radius, which dedupe did not have.
+ *
+ * The second pass exists because "hot" is optional in American spring names and
+ * is often interpolated into the middle of one of them: WILBUR SPRINGS and
+ * Wilbur Hot Springs are one place, and plain containment fails on nothing but
+ * that word. Dropping it recovers seven real pairs.
+ *
+ * It is guarded, because dropping the qualifier can reduce a name to nothing
+ * distinctive. "SPRING (HOT)" becomes "spring", which is a substring of nearly
+ * every spring name there is; unguarded, it would match whatever happened to be
+ * nearest and attach NOAA's reading to a different spring. Measured, not
+ * imagined: it did exactly that to Gila / Lightfeather at 59 m.
+ *
+ * A name generic on BOTH sides is a different case and still agrees. Neither
+ * carries information, so the match rests on proximity alone -- which is how
+ * two unnamed springs are already treated.
  */
 function namesAgree(a, b) {
   const x = normName(a);
   const y = normName(b);
   if (!x || !y) return true; // one side unnamed is not a disagreement
-  return x.includes(y) || y.includes(x);
+  if (contains(x, y)) return true;
+  if (isGeneric(a) || isGeneric(b)) return false;
+  const sx = withoutQualifier(a);
+  const sy = withoutQualifier(b);
+  if (!sx || !sy) return false;
+  return contains(sx, sy);
 }
 
 export function matchNcei(nceiRows, atlasRecords) {
