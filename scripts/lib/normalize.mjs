@@ -46,8 +46,21 @@ export function parseTemperature(raw) {
   const vals = nums.map((n) => parseFloat(n.replace(',', '.'))).filter((n) => Number.isFinite(n));
   if (vals.length === 0) return { celsius: null, note: null, qualitative };
 
-  // A range is stored as its midpoint, with the original kept in the note.
-  let value = isRange && vals.length >= 2 ? (vals[0] + vals[1]) / 2 : vals[0];
+  // A range is stored as its UPPER bound, with the original kept in the note.
+  //
+  // The same convention the contribution rules impose on an authored claim,
+  // and adopted here on 2026-09-07 because the pipeline should not reach by
+  // one route a number a contributor may not claim by another. Two temperature
+  // claims were retracted for being midpoints that appeared on no page; this
+  // computed the same kind of number for every OSM range and published it.
+  //
+  // Upper because the error is asymmetric. Understating tells someone a 92C
+  // spring is a comfortable 78C, which is how the one real conflict NCEI
+  // surfaced read before this changed.
+  //
+  // Math.max, not vals[1]: nothing obliges a source to write the low end
+  // first.
+  let value = isRange && vals.length >= 2 ? Math.max(vals[0], vals[1]) : vals[0];
   if (isF) value = ((value - 32) * 5) / 9;
 
   // Anything outside this window is a mis-tag (units confusion, sentinel value),
