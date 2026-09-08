@@ -275,11 +275,17 @@ presentan una temperatura maxima superior a 30 C". Air, not water. Third time
 this pattern has cost a near-miss: Sol de Manana's 260C reservoir, Earth
 Lagoon's 45C steam bath, now this.
 
-**El Tatio is claimed at 86C from "el agua emerge a unos 86 C" -- `unos` is an
-approximation marker.** Accepted because the source is Wikipedia, the figure
-is unambiguous about which water it describes, and the article explains it as
-the boiling point at that altitude. Worth knowing it was a judgement call, and
-worth disagreeing with if you would rather the field were Unknown.
+**A hedged figure is not a figure. Settled 2026-09-08.** El Tatio was claimed
+at 86C from "el agua emerge a unos 86 C" and then dropped before it shipped:
+`unos` means "about", and an approximation marker disqualifies a number no
+matter how good the source or how physically plausible the value. The rule is
+now explicit rather than case-by-case, which is what makes it defensible --
+"circa 60 gradi" (Terme della Ficoncella) and "yaklasik olarak 56-60"
+(Karahayit) were rejected on the same ground, and El Tatio was the one that
+nearly went the other way because the source was strong.
+
+Do not re-research El Tatio expecting a different answer from that sentence.
+A different SOURCE stating an unhedged figure would qualify.
 
 ## Things that will bite you
 
