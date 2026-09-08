@@ -9,6 +9,7 @@
  * against a table with no type column, so it will miss some; shipping a
  * fumarole as a hot spring is the error that matters.
  */
+import { deriveWarnings } from './normalize.mjs';
 
 /**
  * A view-only feature word, as a WHOLE word. Substring matching is wrong in
@@ -73,4 +74,86 @@ export function classify(row, managers) {
     return { admit: false, reason: 'inside a no-bathing boundary' };
   }
   return { admit: true };
+}
+
+export const NCEI_PROVIDER = 'ncei';
+
+export const NCEI_SOURCE =
+  'NOAA NCEI, Thermal Springs List for the United States (1981), doi:10.25921/c8p0-zs06';
+
+/**
+ * The reading is 45 years old and so is the claim that the spring exists. A
+ * record nobody has visited should say so on its own card, not only in a
+ * provenance field a reader has to go looking for.
+ */
+export const NCEI_HISTORICAL_WARNING =
+  'Recorded in a 1981 federal compilation and not been checked on the ground since. ' +
+  'The temperature, and the existence of this spring, are historical.';
+
+/**
+ * The row's identity within its provider, and it must survive a re-fetch.
+ * The mirror has no id column, so the key is what the TSV prints: the file is
+ * pinned by sha256 and regenerated deterministically, so these strings are
+ * stable as long as the pin is.
+ */
+export function refKey(row) {
+  return `${row.state}/${row.lat}/${row.lng}`;
+}
+
+/** A NOAA row as a full HotSpring, ready to enter the pipeline before dedupe. */
+export function toRecord(row, ingestedAt) {
+  const celsius = row.celsius;
+  const warnings = [...deriveWarnings({}, celsius, 'natural'), NCEI_HISTORICAL_WARNING];
+  return {
+    // Provisional. resolveRegistry replaces it with the minted whs_ id, which
+    // it derives from sourceRefs below.
+    id: `${NCEI_PROVIDER}:${refKey(row)}`,
+    sourceRefs: [{ provider: NCEI_PROVIDER, externalId: refKey(row) }],
+    name: row.name,
+    location: {
+      lat: row.lat,
+      lng: row.lng,
+      elevation: null,
+      country: 'US',
+      countryName: 'United States of America',
+      region: row.state,
+      nearestTown: null,
+    },
+    temperature: {
+      celsius,
+      fahrenheit: celsius === null ? null : Math.round(((celsius * 9) / 5 + 32) * 10) / 10,
+      source: NCEI_SOURCE,
+      measuredAt: '1981',
+      qualitative: row.qualitative,
+      kind: 'source',
+    },
+    access: { price: null, currency: null, notes: null, status: 'unknown', bathingAllowed: null },
+    clothing: { policy: 'unknown', schedule: null, notes: null },
+    hours: { open: null, seasonalNotes: null, status: 'unknown' },
+    minerals: {
+      ph: null,
+      tds: null,
+      sulfate: null,
+      bicarbonate: null,
+      chloride: null,
+      calcium: null,
+      magnesium: null,
+      sodium: null,
+      silica: null,
+      iron: null,
+      types: [],
+      notes: null,
+      measuredAt: null,
+    },
+    type: 'natural',
+    unicorn: false,
+    verified: false,
+    lastVerified: ingestedAt,
+    sources: [NCEI_SOURCE],
+    description: null,
+    tags: [],
+    warnings,
+    quality: { provenance: [NCEI_PROVIDER], completeness: 0, known: [], ingestedAt },
+    osmRefs: [],
+  };
 }
