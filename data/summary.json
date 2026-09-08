@@ -1,21 +1,21 @@
 {
   "sourceDate": "2026-08-25T03:58:16.000Z",
-  "total": 6467,
+  "total": 7490,
   "countries": 131,
   "coverage": {
-    "temperature": 302,
+    "temperature": 1268,
     "price": 880,
     "hours": 467,
     "clothing": 48
   },
   "byType": {
-    "natural": 1918,
+    "natural": 2941,
     "wild": 2358,
     "developed": 2093,
     "resort": 98
   },
   "byCountry": {
-    "United States of America": 1826,
+    "United States of America": 2849,
     "Japan": 1023,
     "Iceland": 330,
     "Russia": 188,
@@ -147,7 +147,7 @@
     "Pakistan": 1,
     "Singapore": 1
   },
-  "droppedDuplicates": 1167,
+  "droppedDuplicates": 1173,
   "rejected": {
     "access=private/no": 60
   },

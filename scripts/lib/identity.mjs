@@ -265,6 +265,20 @@ export function loadRegistry(raw) {
  * that order to pick between several OSM refs.
  */
 function refsOf(record) {
+  // A record that declares its own refs is believed. This is the path every
+  // non-OSM provider takes: the derivation below reads an OSM-shaped id and
+  // openstreetmap.org URLs, so without this branch an NCEI record reaches the
+  // "yields no source ref" throw no matter what it carries -- which is exactly
+  // what happened the first time stage two ran.
+  //
+  // No OSM record sets sourceRefs, so this cannot move an existing id. That
+  // matters more than it looks: every overlay file is named for a spring id,
+  // and a moving id orphans the only layer in this repository that cannot be
+  // rebuilt.
+  if (Array.isArray(record.sourceRefs) && record.sourceRefs.length) {
+    return record.sourceRefs.map(toSourceRef);
+  }
+
   const externalIds = new Set();
   const own = osmRefOf(record.id);
   if (own) externalIds.add(own);
