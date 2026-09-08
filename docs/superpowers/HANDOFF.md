@@ -255,6 +255,32 @@ Balikli Kaplica; the Kalkim page publishes 28.0-28.6C and the Kangal page no
 figure at all, and the record's coordinates do not clearly pick one. Attaching
 the wrong one is the Verhne-Paratunskiye mistake again.
 
+## Chile, and the dead-operator-site pattern
+
+2026-09-08. 72 springs, 3 with a temperature, 6 citing anything beyond OSM --
+and **half of those six cite a domain that no longer resolves**. Termas de
+Cauquenes, Termas de Chihuio and Termas del Ventisquero all return
+`source-malformed` on http and `source-unreachable` or `source-malformed` on
+https. This is the first country where dead operator domains, rather than
+absent ones, were the limiting factor.
+
+Substituting a live source is allowed and is what Turkey established: when the
+record already cites a source you read it, and when you choose the source
+yourself the bar is higher. Termas de Cauquenes is claimed from es.wikipedia
+rather than its dead .cl domain.
+
+**Read the context, not the match.** Termas de Pica's page yields `30 °C` to
+any temperature regex, and it is the CLIMATE -- "la gran mayoria de dias
+presentan una temperatura maxima superior a 30 C". Air, not water. Third time
+this pattern has cost a near-miss: Sol de Manana's 260C reservoir, Earth
+Lagoon's 45C steam bath, now this.
+
+**El Tatio is claimed at 86C from "el agua emerge a unos 86 C" -- `unos` is an
+approximation marker.** Accepted because the source is Wikipedia, the figure
+is unambiguous about which water it describes, and the article explains it as
+the boiling point at that altitude. Worth knowing it was a judgement call, and
+worth disagreeing with if you would rather the field were Unknown.
+
 ## Things that will bite you
 
 - **A bounding box is not a shape, and three countries cross the
