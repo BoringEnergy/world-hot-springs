@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify } from './lib/ncei-admit.mjs';
+import {
+  classify,
+  toRecord,
+  NCEI_PROVIDER,
+  NCEI_SOURCE,
+  NCEI_HISTORICAL_WARNING,
+} from './lib/ncei-admit.mjs';
 
 /** One no-bathing manager, shaped like data/land-managers.json. */
 const MANAGERS = [
@@ -115,4 +121,86 @@ test('the rules are applied in a fixed order, so a row gets one reason', () => {
   // specific reason wins, and a row must never carry two.
   const both = row({ name: 'HOT SPRINGS', lat: 44.612, lng: -110.523 });
   assert.equal(classify(both, MANAGERS).reason, 'generic or absent name');
+});
+
+const built = () =>
+  toRecord(
+    {
+      state: 'AK',
+      lat: 57.085,
+      lng: -134.839,
+      name: 'BARANOF WARM SPRINGS',
+      celsius: 51,
+      qualitative: null,
+    },
+    '2026-09-08',
+  );
+
+test('an admitted record declares its own source ref, or it can never get an id', () => {
+  // identity.mjs throws by name for a record that yields no ref. This is the
+  // field that stops that happening.
+  assert.deepEqual(built().sourceRefs, [{ provider: 'ncei', externalId: 'AK/57.085/-134.839' }]);
+  assert.equal(NCEI_PROVIDER, 'ncei');
+});
+
+test('an admitted record is NCEI-only in its provenance', () => {
+  assert.deepEqual(built().quality.provenance, ['ncei']);
+});
+
+test('an admitted record is never verified and says when it was measured', () => {
+  const r = built();
+  assert.equal(r.verified, false);
+  assert.equal(r.temperature.celsius, 51);
+  assert.equal(r.temperature.fahrenheit, 123.8);
+  assert.equal(r.temperature.measuredAt, '1981');
+  assert.equal(r.temperature.source, NCEI_SOURCE);
+  assert.match(NCEI_SOURCE, /10\.25921\/c8p0-zs06/);
+});
+
+test('an admitted record warns that its very existence is unchecked', () => {
+  // Not just the reading. Nobody has confirmed the spring is still there.
+  const r = built();
+  assert.ok(r.warnings.includes(NCEI_HISTORICAL_WARNING));
+  assert.match(NCEI_HISTORICAL_WARNING, /1981/);
+  assert.match(NCEI_HISTORICAL_WARNING, /not been checked on the ground/i);
+});
+
+test('a scalding admitted record keeps the normal safety warning too', () => {
+  const hot = toRecord(
+    { state: 'WY', lat: 44.5, lng: -110.8, name: 'X SPRING', celsius: 92, qualitative: null },
+    '2026-09-08',
+  );
+  assert.ok(hot.warnings.some((w) => /Scalding/.test(w)), 'the 50C rule must still apply');
+  assert.ok(hot.warnings.includes(NCEI_HISTORICAL_WARNING));
+});
+
+test('a qualitative-only row carries the word and no number', () => {
+  const q = toRecord(
+    {
+      state: 'AK',
+      lat: 52.84,
+      lng: -169.9,
+      name: 'CHUGINADAK HOT SPRINGS',
+      celsius: null,
+      qualitative: 'hot',
+    },
+    '2026-09-08',
+  );
+  assert.equal(q.temperature.celsius, null);
+  assert.equal(q.temperature.fahrenheit, null);
+  assert.equal(q.temperature.qualitative, 'hot');
+});
+
+test('an admitted record cites the DOI and carries every schema field', () => {
+  const r = built();
+  assert.ok(r.sources.includes(NCEI_SOURCE));
+  // Unknown is stored, never omitted -- the schema rule the whole record model
+  // rests on. A missing key makes spring.minerals.ph throw in the UI.
+  for (const k of ['access', 'clothing', 'hours', 'minerals', 'location', 'temperature', 'quality']) {
+    assert.ok(r[k] && typeof r[k] === 'object', `${k} must be present`);
+  }
+  assert.equal(r.minerals.ph, null);
+  assert.equal(r.access.status, 'unknown');
+  assert.equal(r.location.country, 'US');
+  assert.equal(r.type, 'natural');
 });
