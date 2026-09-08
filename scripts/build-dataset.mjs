@@ -337,7 +337,7 @@ async function main() {
       path.join('data', 'ncei-match-report.json'),
       `${JSON.stringify(
         {
-          generatedAt: buildDate,
+          generatedAt: ingestedAt,
           counts: {
             rows: nceiRows.length,
             matched: matched.length,
