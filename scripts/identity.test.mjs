@@ -822,3 +822,35 @@ test('the selection rule does not sort OSM refs', () => {
   assert.equal(mintId(way), 'whs_2e84822fe59f', 'the committed id came from the way');
   assert.deepEqual(mintRef([way, node]), way, 'first OSM ref wins; sorting would rename it');
 });
+
+test('a record that declares sourceRefs is minted from them, not from its id', () => {
+  // The NCEI path. refsOf derived OSM refs from the id and the sources array
+  // and nothing else, so a non-OSM record reached the "yields no source ref"
+  // throw no matter what it declared. The declaration is now the answer.
+  const ncei = {
+    id: 'ncei:AK/57.085/-134.839',
+    name: 'BARANOF WARM SPRINGS',
+    location: { lat: 57.085, lng: -134.839 },
+    sources: ['NOAA NCEI, Thermal Springs List for the United States (1981)'],
+    sourceRefs: [{ provider: 'ncei', externalId: 'AK/57.085/-134.839' }],
+  };
+  const { registry, assignments } = resolveRegistry([ncei], {}, '2026-09-08');
+  const id = assignments.get('ncei:AK/57.085/-134.839');
+  assert.equal(id, mintId({ provider: 'ncei', externalId: 'AK/57.085/-134.839' }));
+  assert.match(id, /^whs_[0-9a-f]{12}$/);
+  assert.deepEqual(registry[id].osmRefs, [], 'an NCEI record has no OSM ref');
+});
+
+test('an OSM record without sourceRefs mints exactly the id it always did', () => {
+  // The seam that must not move. Every overlay file is named for a spring id,
+  // so an id that shifts orphans the only layer here that cannot be rebuilt.
+  const { assignments } = resolveRegistry(
+    [rec('osm-node-4702109263', 64.048, -21.2222, 'Reykjadalur')],
+    {},
+    '2026-09-08',
+  );
+  assert.equal(
+    assignments.get('osm-node-4702109263'),
+    mintId({ provider: 'osm', externalId: 'node/4702109263' }),
+  );
+});

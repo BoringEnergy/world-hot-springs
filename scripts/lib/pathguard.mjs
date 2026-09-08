@@ -18,6 +18,7 @@ export const ALLOWED_FILES = [
   'data/coverage.json',
   'data/refutations.jsonl',
   'data/ncei-match-report.json',
+  'data/ncei-candidates.json',
 ];
 
 /**

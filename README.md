@@ -8,7 +8,7 @@ survey, forum posts, and OpenStreetMap tags that nobody has ever normalised.
 This repository is an attempt to fix that, in public, with the provenance
 attached.
 
-**6,467 springs across 131 countries** in the current build.
+**7,490 springs across 131 countries** in the current build.
 
 ## What makes this different
 
@@ -21,16 +21,22 @@ That honesty is the whole product, because the real numbers are humbling:
 
 | Field | Known |
 | --- | --- |
-| Temperature | **5%** |
-| Price | 14% |
-| Hours | 7% |
+| Temperature | **17%** |
+| Price | 12% |
+| Hours | 6% |
 | Clothing policy | 1% |
 
-Barely one spring in a hundred, worldwide, has a recorded temperature. Most that
-carry a `temperature` tag say `hot`, which is not a temperature — so we store
-that separately and the card says *described as hot, no measurement recorded*.
-Any hot spring site showing you a confident number for every entry is making
-most of them up.
+Five springs in six have no recorded temperature. Most that carry a
+`temperature` tag say `hot`, which is not a temperature — so we store that
+separately and the card says *described as hot, no measurement recorded*. Any
+hot spring site showing you a confident number for every entry is making most
+of them up.
+
+That figure is lopsided, and the lopsidedness matters more than the average.
+A 1981 federal compilation covers the United States, where 1,097 of 2,849
+springs carry a temperature. Everywhere else it is 171 of 4,641 — under 4%,
+about one spring in twenty-seven. The American records say so on their own
+cards: unverified, dated 1981, and warned as historical.
 
 **We deliberately leave springs out.** See [PRIVACY.md](PRIVACY.md). Truly
 hidden local springs are not on this map and there is no mode, login, or request

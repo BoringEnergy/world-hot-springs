@@ -165,7 +165,16 @@ test('every record carries a temperature kind, defaulting to unknown', () => {
   const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
   const missing = all.filter((r) => !r.temperature.kind);
   assert.equal(missing.length, 0, `${missing.length} records lack temperature.kind`);
-  const osmDerived = all.filter((r) => r.temperature.celsius !== null && r.quality.provenance.length === 1);
+  // Exactly ['osm'], not "one provider". NOAA's list states a maximum SURFACE
+  // temperature -- it does say which water it measured -- so an NCEI record is
+  // entitled to kind: 'source'. Read as "single-provenance" this guard was
+  // asserting something about OSM against records that never touched it.
+  const osmDerived = all.filter(
+    (r) =>
+      r.temperature.celsius !== null &&
+      r.quality.provenance.length === 1 &&
+      r.quality.provenance[0] === 'osm',
+  );
   assert.ok(osmDerived.every((r) => r.temperature.kind === 'unknown' || r.quality.curated),
     'an OSM temperature must not claim to know which water it measured');
 });

@@ -21,6 +21,7 @@ import { appendEvents } from './lib/events.mjs';
 import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
 import { parseNcei } from './lib/ncei.mjs';
 import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
+import { classify, toRecord } from './lib/ncei-admit.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
@@ -219,6 +220,52 @@ async function main() {
     console.log(`  quarantined ${suspects.length} suspected mis-tags -> data/suspect.json`);
     console.log(
       `    ${Object.entries(byCountry).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${k} ${v}`).join(', ')}`,
+    );
+  }
+
+  // --- NCEI admission ---
+  // Creates records, so it must run above dedupe and identity: a record made
+  // after resolveRegistry never gets a durable whs_ id, and refsOf() throws by
+  // name for exactly that case. Placed here it also passes through
+  // isSameSpring, a second net under the 200 m matcher, and through the
+  // privacy filter, which is last.
+  const NCEI_TSV_ADMIT = path.join('data', 'reference', 'ncei-thermal-springs.tsv');
+  if (fs.existsSync(NCEI_TSV_ADMIT)) {
+    console.log('Admitting NCEI springs ...');
+    const { springs: allRows } = parseNcei(fs.readFileSync(NCEI_TSV_ADMIT, 'utf8'));
+    const admitManagers = loadLandManagers();
+    // Only rows that match nothing already in the atlas are candidates. A row
+    // that matches is stage one's business, not this stage's.
+    const { unmatched } = matchNcei(allRows, records);
+
+    const admitted = [];
+    const candidates = [];
+    for (const { row } of unmatched) {
+      const verdict = classify(row, admitManagers);
+      if (verdict.admit) admitted.push(toRecord(row, ingestedAt));
+      else candidates.push({ ...row, reason: verdict.reason });
+    }
+    records = [...records, ...admitted];
+
+    fs.writeFileSync(
+      path.join('data', 'ncei-candidates.json'),
+      `${JSON.stringify(
+        {
+          generatedAt: ingestedAt,
+          note:
+            'NOAA rows that did not become springs, and why. Public because ' +
+            'calling a row unfit is a claim and must be arguable. Never deleted.',
+          counts: candidates.reduce((acc, c) => ({ ...acc, [c.reason]: (acc[c.reason] ?? 0) + 1 }), {
+            admitted: admitted.length,
+          }),
+          candidates,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    console.log(
+      `  ${admitted.length} admitted, ${candidates.length} quarantined -> data/ncei-candidates.json`,
     );
   }
 

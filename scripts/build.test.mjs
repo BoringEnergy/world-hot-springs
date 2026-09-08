@@ -102,7 +102,14 @@ test('the shipped dataset uses durable ids', () => {
   assert.ok(springs.length > 6000, `expected the full dataset, got ${springs.length}`);
   for (const s of springs) {
     assert.match(s.id, /^whs_[0-9a-f]{12}$/, `${s.id} is not a durable id`);
-    assert.ok(Array.isArray(s.osmRefs) && s.osmRefs.length > 0, `${s.id} has no OSM refs`);
+    assert.ok(Array.isArray(s.osmRefs), `${s.id} has no osmRefs array`);
+    // An OSM record must keep its refs -- losing them is how a spring stops
+    // matching itself on the next build. A record from another provider has
+    // none by definition, and says so in its provenance.
+    assert.ok(
+      s.osmRefs.length > 0 || !s.quality.provenance.includes('osm'),
+      `${s.id} claims OSM provenance but carries no OSM ref`,
+    );
   }
 });
 
@@ -217,10 +224,7 @@ test('every shipped record names the providers it was built from', () => {
       s.quality.provenance.length,
       `${s.id} names the same provider twice`,
     );
-    assert.ok(
-      s.quality.provenance.includes('osm'),
-      `${s.id} is not derived from OSM, but every record's identity is`,
-    );
+
   }
 });
 
@@ -383,5 +387,26 @@ test('an overlay claim overwrites an NCEI temperature, and clears its date', asy
     'the 1981 date belonged to the NOAA reading and must not survive onto a ' +
       'claim that did not state one -- stale provenance on a fresh value is ' +
       'worse than no provenance.',
+  );
+});
+
+test('NCEI admission runs before dedupe and identity, or new records get no id', () => {
+  const admitAt = SOURCE.indexOf('classify(row,');
+  // The CALL, not the definition: `function dedupe(records)` appears earlier
+  // in the file than either stage, so anchoring on the bare name compares the
+  // admission stage against line 103 and proves nothing.
+  const dedupeAt = SOURCE.indexOf('= dedupe(records)');
+  const identityAt = SOURCE.indexOf('resolveRegistry(');
+  assert.ok(admitAt > 0, 'the admission stage must exist');
+  assert.ok(
+    admitAt < dedupeAt,
+    'admission must run BEFORE dedupe: a record created after it never reaches ' +
+      'isSameSpring, which is the second net catching duplicates the 200 m ' +
+      'matcher rejected on a name disagreement.',
+  );
+  assert.ok(
+    admitAt < identityAt,
+    'admission must run BEFORE resolveRegistry, which is where durable whs_ ids ' +
+      'are minted. A record created after it is published with no id at all.',
   );
 });
