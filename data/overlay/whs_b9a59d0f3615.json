@@ -1,0 +1,17 @@
+{
+  "id": "whs_b9a59d0f3615",
+  "claims": {
+    "temperature.celsius": {
+      "value": 43,
+      "source": "https://idilesom.com/kam/places/2882",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://idilesom.com/kam/places/2882",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}
