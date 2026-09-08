@@ -243,7 +243,7 @@ export function deriveWarnings(tags, temp, type) {
   return out;
 }
 
-function completeness(record) {
+export function completeness(record) {
   const known = [];
   if (record.name) known.push('name');
   if (record.temperature.celsius !== null) known.push('temperature');

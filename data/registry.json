@@ -28994,14 +28994,18 @@
       "node/2884721220"
     ],
     "centroid": [
-      -119.008089,
-      40.973811
+      -119.007,
+      40.972
     ],
-    "name": "Black Rock Hot Spring",
+    "name": "BLACK ROCK HOT SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
     "missingSince": null,
     "sourceRefs": [
+      {
+        "provider": "ncei",
+        "externalId": "NV/40.972/-119.007"
+      },
       {
         "provider": "osm",
         "externalId": "node/2884721220"
@@ -29916,14 +29920,18 @@
       "node/4783203677"
     ],
     "centroid": [
-      -107.80519,
-      37.451158
+      -107.803,
+      37.453
     ],
-    "name": "Pinkerton Hot Springs",
+    "name": "PINKERTON HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
     "missingSince": null,
     "sourceRefs": [
+      {
+        "provider": "ncei",
+        "externalId": "CO/37.453/-107.803"
+      },
       {
         "provider": "osm",
         "externalId": "node/4783203677"
@@ -30668,14 +30676,18 @@
       "node/7821270985"
     ],
     "centroid": [
-      -118.406122,
-      36.478138
+      -118.404,
+      36.477
     ],
-    "name": "Kern Hot Spring",
+    "name": "KERN HOT SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
     "missingSince": null,
     "sourceRefs": [
+      {
+        "provider": "ncei",
+        "externalId": "CA/36.477/-118.404"
+      },
       {
         "provider": "osm",
         "externalId": "node/7821270985"
@@ -31281,14 +31293,18 @@
       "node/8294770546"
     ],
     "centroid": [
-      -114.857058,
-      44.783572
+      -114.855,
+      44.785
     ],
-    "name": "Cox Hot Springs",
+    "name": "COX HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
     "missingSince": null,
     "sourceRefs": [
+      {
+        "provider": "ncei",
+        "externalId": "ID/44.785/-114.855"
+      },
       {
         "provider": "osm",
         "externalId": "node/8294770546"
@@ -44574,14 +44590,18 @@
       "way/762152162"
     ],
     "centroid": [
-      -116.707063,
-      43.415887
+      -116.707,
+      43.414
     ],
-    "name": "Givens Hot Springs",
+    "name": "GIVENS HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
     "missingSince": null,
     "sourceRefs": [
+      {
+        "provider": "ncei",
+        "externalId": "ID/43.414/-116.707"
+      },
       {
         "provider": "osm",
         "externalId": "way/762152162"
@@ -66237,14 +66257,18 @@
       "node/9661182872"
     ],
     "centroid": [
-      -120.35002,
-      39.575109
+      -120.348,
+      39.573
     ],
-    "name": "Campbell Hot Springs",
+    "name": "CAMPBELL HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
     "missingSince": null,
     "sourceRefs": [
+      {
+        "provider": "ncei",
+        "externalId": "CA/39.573/-120.348"
+      },
       {
         "provider": "osm",
         "externalId": "node/9661182872"

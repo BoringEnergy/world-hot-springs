@@ -2,11 +2,11 @@
   "generatedAt": "2026-08-25",
   "counts": {
     "rows": 1659,
-    "matched": 1151,
+    "matched": 1157,
     "filled": 119,
     "describedOnly": 6,
     "deferredToAuthor": 1,
-    "unmatched": 483,
+    "unmatched": 477,
     "rejected": 25,
     "parseRejects": 2,
     "conflicts": 1
@@ -1307,17 +1307,6 @@
     {
       "row": {
         "state": "CA",
-        "lat": 39.573,
-        "lng": -120.348,
-        "name": "CAMPBELL HOT SPRINGS",
-        "celsius": 44,
-        "qualitative": null
-      },
-      "nearestMeters": 291
-    },
-    {
-      "row": {
-        "state": "CA",
         "lat": 37.677,
         "lng": -118.79,
         "name": "DEHY HOT SPRING",
@@ -1512,17 +1501,6 @@
         "qualitative": null
       },
       "nearestMeters": 24477
-    },
-    {
-      "row": {
-        "state": "CA",
-        "lat": 36.477,
-        "lng": -118.404,
-        "name": "KERN HOT SPRING",
-        "celsius": 43,
-        "qualitative": null
-      },
-      "nearestMeters": 228
     },
     {
       "row": {
@@ -2264,17 +2242,6 @@
     {
       "row": {
         "state": "CO",
-        "lat": 37.453,
-        "lng": -107.803,
-        "name": "PINKERTON HOT SPRINGS",
-        "celsius": 32,
-        "qualitative": null
-      },
-      "nearestMeters": 282
-    },
-    {
-      "row": {
-        "state": "CO",
         "lat": 39.552,
         "lng": -107.412,
         "name": "SOUTH CANYON HOT SPRINGS",
@@ -2539,17 +2506,6 @@
     {
       "row": {
         "state": "ID",
-        "lat": 44.785,
-        "lng": -114.855,
-        "name": "COX HOT SPRINGS",
-        "celsius": 55,
-        "qualitative": null
-      },
-      "nearestMeters": 227
-    },
-    {
-      "row": {
-        "state": "ID",
         "lat": 43.129,
         "lng": -115.34,
         "name": "COYOTE HOT SPRING",
@@ -2590,17 +2546,6 @@
         "qualitative": null
       },
       "nearestMeters": 2871
-    },
-    {
-      "row": {
-        "state": "ID",
-        "lat": 43.414,
-        "lng": -116.707,
-        "name": "GIVENS HOT SPRINGS",
-        "celsius": 47,
-        "qualitative": null
-      },
-      "nearestMeters": 210
     },
     {
       "row": {
@@ -3184,17 +3129,6 @@
         "qualitative": null
       },
       "nearestMeters": 1509
-    },
-    {
-      "row": {
-        "state": "NV",
-        "lat": 40.972,
-        "lng": -119.007,
-        "name": "BLACK ROCK HOT SPRING",
-        "celsius": 58,
-        "qualitative": null
-      },
-      "nearestMeters": 221
     },
     {
       "row": {
