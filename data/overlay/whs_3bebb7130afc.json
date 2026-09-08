@@ -1,0 +1,17 @@
+{
+  "id": "whs_3bebb7130afc",
+  "claims": {
+    "temperature.celsius": {
+      "value": 27,
+      "source": "https://idilesom.com/sakh/places/78",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://idilesom.com/sakh/places/78",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}
