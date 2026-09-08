@@ -6,6 +6,7 @@ import {
   NCEI_PROVIDER,
   NCEI_SOURCE,
   NCEI_HISTORICAL_WARNING,
+  NCEI_DOI_URL,
 } from './lib/ncei-admit.mjs';
 
 /** One no-bathing manager, shaped like data/land-managers.json. */
@@ -193,7 +194,7 @@ test('a qualitative-only row carries the word and no number', () => {
 
 test('an admitted record cites the DOI and carries every schema field', () => {
   const r = built();
-  assert.ok(r.sources.includes(NCEI_SOURCE));
+  assert.ok(r.sources.includes(NCEI_DOI_URL), 'sources holds the resolvable DOI URL');
   // Unknown is stored, never omitted -- the schema rule the whole record model
   // rests on. A missing key makes spring.minerals.ph throw in the UI.
   for (const k of ['access', 'clothing', 'hours', 'minerals', 'location', 'temperature', 'quality']) {
@@ -203,4 +204,34 @@ test('an admitted record cites the DOI and carries every schema field', () => {
   assert.equal(r.access.status, 'unknown');
   assert.equal(r.location.country, 'US');
   assert.equal(r.type, 'natural');
+});
+
+test('sources holds a resolvable URL, because the UI renders it as a link', () => {
+  // DetailPanel does <a href={src}>. A citation string there becomes a
+  // relative link to nowhere, which looks like a source and is not one.
+  const r = built();
+  assert.deepEqual(r.sources, [NCEI_DOI_URL]);
+  assert.match(NCEI_DOI_URL, /^https:\/\/doi\.org\/10\.25921\/c8p0-zs06$/);
+  // The human-readable citation still belongs on the temperature, which is
+  // rendered as text.
+  assert.equal(r.temperature.source, NCEI_SOURCE);
+});
+
+test('an admitted record scores its completeness like any other', () => {
+  // normalizeElement computes this for OSM records at the end. Left at zero,
+  // an admitted record reads "0% complete" on a card that is showing its
+  // temperature, which is visibly false.
+  const r = built();
+  assert.ok(r.quality.known.includes('name'), 'it has a name');
+  assert.ok(r.quality.known.includes('temperature'), 'it has a temperature');
+  assert.ok(r.quality.known.includes('type'), 'it is typed natural');
+  assert.ok(r.quality.completeness > 0, `expected a score, got ${r.quality.completeness}`);
+});
+
+test('a qualitative-only record does not count as knowing a temperature', () => {
+  const q = toRecord(
+    { state: 'AK', lat: 52.84, lng: -169.9, name: 'CHUGINADAK HOT SPRINGS', celsius: null, qualitative: 'hot' },
+    '2026-09-08',
+  );
+  assert.ok(!q.quality.known.includes('temperature'), '"hot" is not a measurement');
 });

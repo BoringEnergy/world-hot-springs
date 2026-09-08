@@ -9,7 +9,7 @@
  * against a table with no type column, so it will miss some; shipping a
  * fumarole as a hot spring is the error that matters.
  */
-import { deriveWarnings } from './normalize.mjs';
+import { deriveWarnings, completeness } from './normalize.mjs';
 
 /**
  * A view-only feature word, as a WHOLE word. Substring matching is wrong in
@@ -82,6 +82,13 @@ export const NCEI_SOURCE =
   'NOAA NCEI, Thermal Springs List for the United States (1981), doi:10.25921/c8p0-zs06';
 
 /**
+ * `sources` is a list of URLs -- DetailPanel renders each as <a href={src}>.
+ * The citation string above belongs on temperature.source, which is rendered
+ * as text; put it here and the card grows a link to nowhere.
+ */
+export const NCEI_DOI_URL = 'https://doi.org/10.25921/c8p0-zs06';
+
+/**
  * The reading is 45 years old and so is the claim that the spring exists. A
  * record nobody has visited should say so on its own card, not only in a
  * provenance field a reader has to go looking for.
@@ -104,7 +111,7 @@ export function refKey(row) {
 export function toRecord(row, ingestedAt) {
   const celsius = row.celsius;
   const warnings = [...deriveWarnings({}, celsius, 'natural'), NCEI_HISTORICAL_WARNING];
-  return {
+  const record = {
     // Provisional. resolveRegistry replaces it with the minted whs_ id, which
     // it derives from sourceRefs below.
     id: `${NCEI_PROVIDER}:${refKey(row)}`,
@@ -149,11 +156,20 @@ export function toRecord(row, ingestedAt) {
     unicorn: false,
     verified: false,
     lastVerified: ingestedAt,
-    sources: [NCEI_SOURCE],
+    sources: [NCEI_DOI_URL],
     description: null,
     tags: [],
     warnings,
     quality: { provenance: [NCEI_PROVIDER], completeness: 0, known: [], ingestedAt },
     osmRefs: [],
   };
+
+  // Scored the same way and by the same function as an OSM record.
+  // normalizeElement does this at the end of its build; left undone, an
+  // admitted record reads "0% complete" on a card that is showing a
+  // temperature, a name and a type.
+  const c = completeness(record);
+  record.quality.completeness = c.score;
+  record.quality.known = c.known;
+  return record;
 }
