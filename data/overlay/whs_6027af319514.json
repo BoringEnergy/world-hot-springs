@@ -1,0 +1,17 @@
+{
+  "id": "whs_6027af319514",
+  "claims": {
+    "temperature.celsius": {
+      "value": 48,
+      "source": "https://es.wikipedia.org/wiki/Termas_de_Cauquenes",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://es.wikipedia.org/wiki/Termas_de_Cauquenes",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

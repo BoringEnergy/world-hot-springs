@@ -7599,3 +7599,6 @@
 {"ts":"2026-08-25T03:58:16.000Z","type":"spring.appeared","springId":"whs_88246b1469e1","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"spring.appeared","springId":"whs_ed890d33b623","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"spring.appeared","springId":"whs_3882f7fad5bb","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_6027af319514","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_82d94227d653","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_f7352dcb995d","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
