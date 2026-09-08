@@ -219,6 +219,42 @@ records always had a temperature, it was the wrong one.
 and a test pins it. The separator canonicaliser still distinguishes a range from
 a negative reading, so `-40` remains rejected rather than becoming +40.
 
+## Turkey needed a different method, and it changes the bar for sources
+
+2026-09-08. **All 76 Turkish springs cite OpenStreetMap and nothing else** --
+no Wikipedia, no Wikidata, no operator sites. The loop that worked for Japan,
+Iceland and Russia ("fetch what the record already cites, look for a figure")
+has literally nothing to fetch. Zero candidates.
+
+So Turkey was done by SEARCHING for a source and then verifying it with
+`scripts/lib/verify-source.mjs`, rather than by reading a cited one. That is
+what a human contributor does and it is legitimate, but it moves who chooses
+the source from OpenStreetMap to us, and that raises the bar:
+
+**When the record already cites a source, read it. When you choose the source
+yourself, a weaker one is no longer defensible.** guidetoiceland.is and
+idilesom.com were fine in Iceland and Russia because the atlas already pointed
+there. In Turkey, with a free choice, three claims came from Turkish
+government sites (a provincial governorship, a second governorship, a district
+municipality) and Karahayit was DISCARDED at 58C because the only fetchable
+sources were a commercial spa directory and a newspaper. Same figure, weaker
+provenance, and no reason to accept it when the rest of the batch is official.
+
+Turkish government pages are a good seam: `*.gov.tr` and `*.bel.tr` publish
+`su sicakligi` figures, and agri.gov.tr even cites its academic reference.
+Note `sivas.gov.tr/sicak-cermik` is http-only and returns `source-malformed`;
+the https host serves the same page.
+
+Also worth knowing: Cermik's municipality writes 48 degrees as `48 0C` -- a
+zero, not a degree sign. `valueAppears(48, ...)` is unaffected, but a scan
+that reads the character after the number will mis-parse it.
+
+**Do not re-research** Balikli Kaplica (whs_f424eaa424ff) without settling
+which spring it is. Sivas has both a Kangal Balikli Kaplica and a Kalkim
+Balikli Kaplica; the Kalkim page publishes 28.0-28.6C and the Kangal page no
+figure at all, and the record's coordinates do not clearly pick one. Attaching
+the wrong one is the Verhne-Paratunskiye mistake again.
+
 ## Things that will bite you
 
 - **A bounding box is not a shape, and three countries cross the

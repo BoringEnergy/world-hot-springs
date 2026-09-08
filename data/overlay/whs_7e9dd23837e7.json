@@ -1,0 +1,17 @@
+{
+  "id": "whs_7e9dd23837e7",
+  "claims": {
+    "temperature.celsius": {
+      "value": 78,
+      "source": "https://agri.gov.tr/gezilecek-yerler-diyadin-kaplicalari",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://agri.gov.tr/gezilecek-yerler-diyadin-kaplicalari",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}
