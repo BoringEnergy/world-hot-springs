@@ -1,0 +1,17 @@
+{
+  "id": "whs_2e078b8fa9d4",
+  "claims": {
+    "temperature.celsius": {
+      "value": 30,
+      "source": "https://guidetoiceland.is/travel-iceland/drive/geothermal-goldfish-pond-1",
+      "contributor": "HudsonR&D Meta 9.7.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://guidetoiceland.is/travel-iceland/drive/geothermal-goldfish-pond-1",
+      "contributor": "HudsonR&D Meta 9.7.26",
+      "state": "active"
+    }
+  }
+}

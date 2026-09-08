@@ -1,0 +1,17 @@
+{
+  "id": "whs_e99ca79536ca",
+  "claims": {
+    "temperature.celsius": {
+      "value": 40,
+      "source": "https://www.earthlagoon.is/",
+      "contributor": "HudsonR&D Meta 9.7.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://www.earthlagoon.is/",
+      "contributor": "HudsonR&D Meta 9.7.26",
+      "state": "active"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "whs_74eb5c4494e7",
+  "claims": {
+    "temperature.celsius": {
+      "value": 100,
+      "source": "https://www.krauma.is/",
+      "contributor": "HudsonR&D Meta 9.7.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.krauma.is/",
+      "contributor": "HudsonR&D Meta 9.7.26",
+      "state": "active"
+    }
+  }
+}
