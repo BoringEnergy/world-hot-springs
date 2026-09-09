@@ -1,0 +1,17 @@
+{
+  "id": "whs_d44eecc13c95",
+  "claims": {
+    "temperature.celsius": {
+      "value": 26,
+      "source": "https://wiesenbad.de/thermalbad-und-rehaklinik/thermalbad",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://wiesenbad.de/thermalbad-und-rehaklinik/thermalbad",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

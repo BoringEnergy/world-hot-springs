@@ -1,0 +1,17 @@
+{
+  "id": "whs_bd4e188370cf",
+  "claims": {
+    "temperature.celsius": {
+      "value": 34,
+      "source": "https://www.vitaltherme-wildbad.de/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://www.vitaltherme-wildbad.de/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

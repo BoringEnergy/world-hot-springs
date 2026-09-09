@@ -1,0 +1,17 @@
+{
+  "id": "whs_642c6abd3fb4",
+  "claims": {
+    "temperature.celsius": {
+      "value": 35,
+      "source": "https://kristall-rheinpark-therme.de/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://kristall-rheinpark-therme.de/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

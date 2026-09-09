@@ -1,0 +1,17 @@
+{
+  "id": "whs_d906d1ce5e6c",
+  "claims": {
+    "temperature.celsius": {
+      "value": 42,
+      "source": "https://www.badems-nassau.info/poi/roemerquelle",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.badems-nassau.info/poi/roemerquelle",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

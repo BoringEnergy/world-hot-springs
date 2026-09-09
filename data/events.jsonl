@@ -7602,3 +7602,10 @@
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_6027af319514","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_82d94227d653","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
 {"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_f7352dcb995d","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_642c6abd3fb4","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_687f3d0492a7","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_707d78b1236d","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_7719bf1ea037","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_bd4e188370cf","claimPath":"temperature.kind","from":"unknown","to":"bathing","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_d44eecc13c95","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
+{"ts":"2026-08-25T03:58:16.000Z","type":"claim.contested","springId":"whs_d906d1ce5e6c","claimPath":"temperature.kind","from":"unknown","to":"source","actor":"build"}
