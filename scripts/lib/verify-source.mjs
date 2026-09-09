@@ -45,6 +45,30 @@ export function textOf(html) {
 }
 
 /**
+ * What may sit between a digit and a range dash and still leave it a range.
+ *
+ * The sign rule asks whether a digit immediately precedes the dash. Written
+ * that literally it misreads the ordinary way a range carries its unit:
+ * ‘89°-108°F’ and ‘38°-40°C’ put a degree sign, and sometimes a letter,
+ * between the digit and the dash, so the upper bound read as a NEGATIVE
+ * number and could not verify. That is the Skolska cesma hole the handoff
+ * named, and it is house style rather than a rarity -- most American operator
+ * pages and a good many European ones write their ranges this way.
+ *
+ * So ‘does a digit precede this dash’ skips a unit first. At most one space,
+ * an optional degree sign, at most one more space, an optional C/F/K.
+ * Deliberately short and closed: it recognises a unit, it does not let
+ * arbitrary text separate a digit from a dash. `hay` is lowercased before
+ * matching, which is why the letters are lowercase here.
+ *
+ * What this deliberately does NOT change: a dash with NO digit before it at
+ * all is still a sign, so ‘-40’ and ‘sub-40’ still fail to certify a claim of
+ * 40. That half of the rule is what stops a negative reading certifying a
+ * positive claim, and a false positive on temperature can burn someone.
+ */
+const UNIT_BEFORE_DASH = ' ?°? ?[cfk]?';
+
+/**
  * Does `value` appear in `text`?
  *
  * Numbers are matched on a digit boundary, so 40 does not match 2400 and 42.5
@@ -94,7 +118,7 @@ export function valueAppears(value, text) {
     // second rejects a leading dash only when no digit precedes THAT dash --
     // nested lookbehind, so "38-40" is a range and "-40"/"sub-40" are signs.
     return new RegExp(
-      `(?<![\\d.,])(?<!(?<!\\d)[-\\u2212\\u2013])${body}(?![\\d.,]*\\d)`,
+      `(?<![\\d.,])(?<!(?<!\\d${UNIT_BEFORE_DASH})[-\\u2212\\u2013])${body}(?![\\d.,]*\\d)`,
     ).test(hay);
   }
 

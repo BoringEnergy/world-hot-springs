@@ -398,3 +398,45 @@ test('an endless redirect chain is an outcome, not a hang', async () => {
   assert.deepEqual(out, { ok: false, outcome: 'source-unreachable' });
   assert.ok(hops <= MAX_REDIRECTS + 1, `bounded, got ${hops} hops`);
 });
+
+/**
+ * A unit between the digit and the range dash.
+ *
+ * The sign rule asked whether a digit sat immediately before the dash, which
+ * misread the ordinary way a range carries its unit. Measured against real
+ * pages: Iron Mountain Hot Springs publishes ‘89°-108°F’ and the upper bound
+ * -- the value rule 2 says to claim -- could not verify, because ° sits
+ * between the 9 and the dash so ‘-108’ read as a negative number.
+ */
+test('a unit between the digit and the dash leaves it a range', () => {
+  // The authorised table, verbatim.
+  assert.equal(valueAppears(108, '89°-108°F'), true, 'degree before the dash');
+  assert.equal(valueAppears(108, '89°F-108°F'), true, 'degree and letter before the dash');
+  assert.equal(valueAppears(108, '89°–108°F'), true, 'en dash, same cause');
+  assert.equal(valueAppears(40, '38°-40°C'), true, 'the same shape in Celsius');
+  assert.equal(valueAppears(40, '38-40'), true, 'the bare range still verifies');
+  assert.equal(valueAppears(40, '-40'), false, 'a leading dash is still a sign');
+  assert.equal(valueAppears(40, 'sub-40'), false, 'a word before the dash is still a sign');
+});
+
+test('the unit skip still requires a digit, not merely a letter', () => {
+  // The hole this could have opened. C, F and K are skippable ONLY when a
+  // digit sits behind them; otherwise any word ending in one of those letters
+  // would turn its following dash into a range and certify a negative.
+  assert.equal(valueAppears(40, 'abc-40'), false, 'a letter alone must not make a range');
+  assert.equal(valueAppears(40, 'pH-40'), false);
+  assert.equal(valueAppears(40, 'deck-40'), false, 'k is skippable, the word behind it is not a digit');
+  assert.equal(valueAppears(40, 'temperature -40 °C'), false, 'still a negative reading');
+  // And the skip is short and closed: arbitrary text may not separate them.
+  assert.equal(valueAppears(40, '38 degrees-40'), false, 'a spelled-out unit is not skipped');
+});
+
+test('the change can only widen, never refute what already verified', () => {
+  // It relaxes a rejection, so no claim that verified before can stop
+  // verifying. Spot-checked on the shapes the atlas already relies on.
+  for (const [v, t] of [[42.5, '泉温 42.5℃'], [74, '泉温 74.0度'], [43.8, 'abrollan a 43,8 °C'],
+                        [72, 'entre 65 e 72 °C'], [42, '29° bis 42°C'], [2000, '2,000 m']]) {
+    assert.equal(valueAppears(v, t), true, JSON.stringify(t));
+  }
+  assert.equal(valueAppears(40, 'the 38-405 series'), false, 'the right-side guard is untouched');
+});
