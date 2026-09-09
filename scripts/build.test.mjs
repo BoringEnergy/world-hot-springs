@@ -459,3 +459,21 @@ test('completeness is rescored after every stage that can fill a first-class fie
   assert.ok(rescoreAt > overlayAt, 'a claim can fill a field; rescore must run after it');
   assert.ok(privacyAt > rescoreAt, 'the privacy filter still runs last');
 });
+
+test('enrichment matches the springs that were already here, not the pins this build made', () => {
+  // Admission runs first, so passing the whole record set here makes every
+  // admitted pin match itself and inflates the report into claiming
+  // corroboration that never happened. Anchored on the filtered set actually
+  // passed to matchNcei, not on the comment above it.
+  const merge = SOURCE.indexOf('Merging NCEI thermal springs');
+  assert.ok(merge > 0);
+  const tail = SOURCE.slice(merge);
+  assert.ok(
+    tail.includes('matchNcei(nceiRows, preexisting)'),
+    'the merge stage must match against pre-existing records only',
+  );
+  assert.ok(
+    !tail.includes('matchNcei(nceiRows, records)'),
+    'matching against the full set reintroduces the self-match',
+  );
+});
