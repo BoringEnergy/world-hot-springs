@@ -34,6 +34,10 @@ const COVERAGE = path.join('data', 'coverage.json');
  */
 export const LITERAL_FIELDS = [
   'temperature.celsius',
+  // A Fahrenheit claim is checkable exactly like a Celsius one: the number
+  // claimed is the number printed. It is the DERIVED companion that never
+  // appears on the page, and that is never what a claim carries.
+  'temperature.fahrenheit',
   'access.price',
   'access.currency',
   'location.elevation',
