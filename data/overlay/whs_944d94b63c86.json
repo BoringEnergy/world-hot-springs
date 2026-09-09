@@ -1,0 +1,17 @@
+{
+  "id": "whs_944d94b63c86",
+  "claims": {
+    "temperature.celsius": {
+      "value": 47,
+      "source": "https://kaba.hu/gyogyfurdo/",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://kaba.hu/gyogyfurdo/",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

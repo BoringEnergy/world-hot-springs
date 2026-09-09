@@ -1,0 +1,17 @@
+{
+  "id": "whs_87de38cc42a5",
+  "claims": {
+    "temperature.celsius": {
+      "value": 17,
+      "source": "https://www.valvital.fr/Les-stations/Lons-le-Saunier-Lons-le-Saunier",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.valvital.fr/Les-stations/Lons-le-Saunier-Lons-le-Saunier",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}
