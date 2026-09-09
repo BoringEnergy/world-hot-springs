@@ -222,15 +222,11 @@ test('every shipped record carries the unit key, and none states a figure withou
   const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
   const missingKey = all.filter((s) => !('unit' in s.minerals));
   assert.equal(missingKey.length, 0, `${missingKey.length} records lack minerals.unit`);
-  // One record predates the field: Radium Hot Springs carries five figures
-  // from a curated Parks Canada claim made before `unit` existed. It is named
-  // here rather than tolerated silently, so a SECOND unqualified record fails
-  // this test the day it appears. Adding the unit to that claim is data, and
-  // data cannot land in the same pull request as the field it uses.
+  // No exceptions remain. Radium Hot Springs was the one record that predated
+  // the field, and its Parks Canada page prints "Sulphate (302 mg/l)" -- the
+  // unit was always published, the schema just had nowhere to put it. Now that
+  // the claim states it, this is an unconditional invariant rather than a list
+  // with a name on it: any record that ships a figure without a unit fails.
   const unqualified = all.filter(mineralsNeedUnit).map((s) => s.id);
-  assert.deepEqual(
-    unqualified,
-    ['whs_ce8611720825'],
-    'the only figures published without a unit should be the one claim that predates the field',
-  );
+  assert.deepEqual(unqualified, [], 'no record may state a figure without naming its unit');
 });
