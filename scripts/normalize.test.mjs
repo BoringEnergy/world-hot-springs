@@ -7,7 +7,11 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseTemperature, parseAccess, parseClothing, parseType, normalizeElement } from './lib/normalize.mjs';
+import {
+  parseTemperature, parseAccess, parseClothing, parseType, normalizeElement,
+  temperatureWarnings, reconcileTemperatureWarnings, deriveWarnings, SCALDING, VERY_HOT,
+} from './lib/normalize.mjs';
+import fs from 'node:fs';
 import { isExcluded } from './lib/exclusions.mjs';
 
 test('temperature: plain numbers and unit suffixes', () => {
@@ -147,4 +151,98 @@ test('privacy: exclusion by osm id', () => {
   const exclusions = { entries: [{ osmId: 'node/123' }] };
   assert.equal(isExcluded({ id: 'osm-node-123', location: { lat: 0, lng: 0 } }, exclusions), true);
   assert.equal(isExcluded({ id: 'osm-node-124', location: { lat: 0, lng: 0 } }, exclusions), false);
+});
+
+
+/**
+ * The temperature warnings, and the stage that keeps them true.
+ *
+ * These exist because a spring shipped at 110C with nothing beside the
+ * number. deriveWarnings had run at normalize time, when the record had no
+ * temperature; NCEI enrichment and a curated claim both filled one in later
+ * and neither could reach the warning. 126 springs at 50C or above were
+ * affected, and the count grew with every seeding batch.
+ */
+test('the temperature warning boundaries are exactly 44 and 50', () => {
+  assert.deepEqual(temperatureWarnings(null), []);
+  assert.deepEqual(temperatureWarnings(43.9), []);
+  assert.deepEqual(temperatureWarnings(44), [VERY_HOT]);
+  assert.deepEqual(temperatureWarnings(49.9), [VERY_HOT]);
+  assert.deepEqual(temperatureWarnings(50), [SCALDING]);
+  assert.deepEqual(temperatureWarnings(110), [SCALDING]);
+  // Never both: 50 is scalding, not scalding AND very hot.
+  assert.equal(temperatureWarnings(50).length, 1);
+});
+
+test('deriveWarnings still emits the temperature warning first', () => {
+  // The split must not reorder what normalize already produced. A wild 60C
+  // spring leads with the burn, not with the access notice.
+  const out = deriveWarnings({}, 60, 'wild');
+  assert.equal(out[0], SCALDING);
+  assert.ok(out.some((w) => w.startsWith('Undeveloped source')));
+});
+
+test('a claim that raises a temperature gains the warning', () => {
+  // The defect itself. The record was normalized with no temperature, so it
+  // has no warning; the overlay then set 74.
+  const r = { temperature: { celsius: 74 }, warnings: [] };
+  assert.equal(reconcileTemperatureWarnings(r), true);
+  assert.deepEqual(r.warnings, [SCALDING]);
+});
+
+test('a claim that lowers a temperature loses the warning', () => {
+  // The same failure pointed the other way: a scalding notice about water
+  // that is no longer scalding is exactly as wrong as a missing one.
+  const r = { temperature: { celsius: 38 }, warnings: [SCALDING, 'Not drinking water.'] };
+  assert.equal(reconcileTemperatureWarnings(r), true);
+  assert.deepEqual(r.warnings, ['Not drinking water.']);
+});
+
+test('reconciling swaps one temperature warning for the other', () => {
+  const r = { temperature: { celsius: 46 }, warnings: [SCALDING] };
+  reconcileTemperatureWarnings(r);
+  assert.deepEqual(r.warnings, [VERY_HOT]);
+});
+
+test('reconciling leaves every other warning untouched and in order', () => {
+  // The stage owns two strings and nothing else. A contributor's prose, and
+  // the order it was written in, must survive.
+  const others = ['Undeveloped source: no staff.', 'Mapped hazard: cliff.', 'Not drinking water.'];
+  const r = { temperature: { celsius: 55 }, warnings: [...others] };
+  reconcileTemperatureWarnings(r);
+  assert.deepEqual(r.warnings, [SCALDING, ...others]);
+});
+
+test('reconciling an already-correct record reports no change', () => {
+  // The build prints this count. If it churned every record the number would
+  // be noise rather than a report of what the stage repaired.
+  const r = { temperature: { celsius: 55 }, warnings: [SCALDING, 'Not drinking water.'] };
+  assert.equal(reconcileTemperatureWarnings(r), false);
+  const cold = { temperature: { celsius: 20 }, warnings: [] };
+  assert.equal(reconcileTemperatureWarnings(cold), false);
+});
+
+test('a record with no temperature carries neither warning', () => {
+  const r = { temperature: { celsius: null }, warnings: [SCALDING] };
+  reconcileTemperatureWarnings(r);
+  assert.deepEqual(r.warnings, []);
+});
+
+test('every shipped record agrees with the temperature warning rule', () => {
+  // The data half. Tested against the build output rather than constructed
+  // records, because the defect was never in deriveWarnings -- it was in
+  // nothing calling it again once the temperature arrived.
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const wrong = all.filter((s) => {
+    const t = s.temperature.celsius;
+    const hasS = s.warnings.includes(SCALDING);
+    const hasV = s.warnings.includes(VERY_HOT);
+    return hasS !== (t !== null && t >= 50) || hasV !== (t !== null && t >= 44 && t < 50);
+  });
+  assert.deepEqual(wrong.map((s) => s.id), [], `${wrong.length} record(s) disagree with the rule`);
+  // Not vacuous: the dataset really does contain water this hot.
+  assert.ok(
+    all.filter((s) => s.warnings.includes(SCALDING)).length > 100,
+    'the scalding warning must actually be present on the hot records',
+  );
 });
