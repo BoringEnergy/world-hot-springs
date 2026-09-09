@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import {
   CLAIMABLE, AGENT_CLAIMABLE, ARRAY_FIELDS, FIELD_TYPES, RISK, validateOverlay, loadOverlays,
+  TEMPERATURE_RANGE,
 } from './lib/overlay.mjs';
 
 const ID = 'whs_a1b2c3d4e5f6';
@@ -96,6 +97,10 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
   // every correct price a proposer returned.
   assert.deepEqual(FIELD_TYPES, {
     'temperature.celsius': 'number',
+    // The same reading in the unit its source printed. American operators
+    // publish Fahrenheit and nothing else; the claim carries the printed
+    // number and the companion is derived. Only one may be claimed per spring.
+    'temperature.fahrenheit': 'number',
     // Which water the number describes. A developed spa publishes both a
     // source and a bathing figure and they are different facts.
     'temperature.kind': ['source', 'bathing', 'unknown'],
@@ -520,11 +525,13 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
     CLAIMABLE.filter((f) => !AGENT_CLAIMABLE.includes(f)).sort(),
     ['location.nearestTown', 'name', 'tags', 'warnings'].sort(),
   );
-  // 13 original + 14 mineral fields. The withheld four are unchanged: water
-  // chemistry is claimable by an agent because every numeric part of it is
-  // literally checkable against the cited analysis, which is a stronger
-  // guarantee than any field on the original list except temperature.
-  assert.equal(AGENT_CLAIMABLE.length, 28);
+  // 13 original + 14 mineral fields + temperature.fahrenheit. The withheld
+  // four are unchanged: water chemistry is claimable by an agent because every
+  // numeric part of it is literally checkable against the cited analysis,
+  // which is a stronger guarantee than any field on the original list except
+  // temperature. Fahrenheit joins for the same reason -- it is the printed
+  // number, so it is checkable in exactly the way Celsius is.
+  assert.equal(AGENT_CLAIMABLE.length, 29);
 });
 
 test('an agent may claim every permitted field', () => {
@@ -537,7 +544,13 @@ test('an agent may claim every permitted field', () => {
     if (t === 'string[]') return [];
     return t === 'number' ? 40 : 'x';
   };
-  const claims = Object.fromEntries(AGENT_CLAIMABLE.map((f) => [f, {
+  // Both temperature units are agent-claimable but MUTUALLY EXCLUSIVE, so a
+  // file claiming the whole list is now invalid by construction. Dropping
+  // Fahrenheit here keeps this test about "may an agent claim it" and leaves
+  // the exclusion rule to its own test below.
+  const claims = Object.fromEntries(AGENT_CLAIMABLE
+    .filter((f) => f !== 'temperature.fahrenheit')
+    .map((f) => [f, {
     value: shaped(f),
     source: 'https://e.org',
     contributor: 'openai:gpt-5',
@@ -566,4 +579,111 @@ test('the same field is accepted from a human author', () => {
     },
   });
   assert.deepEqual(errors, []);
+});
+
+
+/**
+ * Claiming a temperature in the unit its source printed.
+ *
+ * The US is the largest gap in the atlas -- 1,764 springs citing nothing but
+ * OSM -- and its operators publish Fahrenheit and only Fahrenheit. Rule 2
+ * forbids computing 42.2 from "108F" and claiming THAT, because the claimed
+ * value has to be the one on the page. So the unit decides which field
+ * carries the claim and the other is derived, exactly as fahrenheit has
+ * always been derived from a celsius claim.
+ */
+const overlayOf = (field, value) => new Map([[ID, {
+  id: ID,
+  claims: { [field]: { value, source: 'https://example.org/spa', contributor: 'github:someone', state: 'active' } },
+}]]);
+
+const bareRecord = () => ({
+  id: ID,
+  temperature: { celsius: null, fahrenheit: null, source: null, measuredAt: null, kind: 'unknown' },
+  name: 'Test', location: {}, access: { price: null }, clothing: { policy: 'unknown' },
+  hours: { open: null, status: 'unknown' }, type: 'unknown', sources: [],
+  quality: { provenance: ['osm'], completeness: 0, known: [] }, minerals: {},
+});
+
+test('a Fahrenheit claim derives Celsius, and keeps the printed number exact', () => {
+  const rec = bareRecord();
+  applyOverlays([rec], overlayOf('temperature.fahrenheit', 108));
+  // The claimed figure is untouched -- it is what verify-claims checks
+  // against the page.
+  assert.equal(rec.temperature.fahrenheit, 108);
+  // (108 - 32) * 5/9 = 42.222..., to the same 1dp the Celsius claims use.
+  assert.equal(rec.temperature.celsius, 42.2);
+});
+
+test('a Celsius claim still derives Fahrenheit, unchanged', () => {
+  const rec = bareRecord();
+  applyOverlays([rec], overlayOf('temperature.celsius', 42));
+  assert.equal(rec.temperature.celsius, 42);
+  assert.equal(rec.temperature.fahrenheit, 107.6);
+});
+
+test('a claimed temperature carries its provenance whichever unit it used', () => {
+  // temperature.source and measuredAt are derived from the claim in both
+  // directions, or the Fahrenheit path would publish a figure whose stated
+  // provenance still named whatever filled it upstream.
+  const rec = bareRecord();
+  applyOverlays([rec], overlayOf('temperature.fahrenheit', 104));
+  assert.match(rec.temperature.source, /Curated claim by github:someone/);
+  assert.equal(rec.temperature.measuredAt, null);
+});
+
+test('claiming both units is rejected, because the last one applied would win', () => {
+  const errors = validateOverlay({
+    id: ID,
+    claims: {
+      'temperature.celsius': claim({ value: 42 }),
+      'temperature.fahrenheit': claim({ value: 150 }),
+    },
+  }, { knownIds: new Set([ID]) });
+  assert.ok(errors.some((e) => /claim the unit the source printed, not both/.test(e)),
+    JSON.stringify(errors));
+});
+
+test('a retracted claim in the other unit does not trip the exclusion rule', () => {
+  // Retracted claims are not applied, so they cannot race. Counting them
+  // would make a correction permanently unclaimable in the other unit.
+  const errors = validateOverlay({
+    id: ID,
+    claims: {
+      'temperature.celsius': claim({ value: 42, state: 'retracted' }),
+      'temperature.fahrenheit': claim({ value: 150 }),
+    },
+  }, { knownIds: new Set([ID]) });
+  assert.deepEqual(errors, []);
+});
+
+test('the two temperature fields accept the same water', () => {
+  // The Fahrenheit bounds are the Celsius bounds converted. If they drifted,
+  // one unit would admit a reading the other rejects, and which one a
+  // contributor could file would depend on their source's typography.
+  const [cLo, cHi] = TEMPERATURE_RANGE['temperature.celsius'];
+  const [fLo, fHi] = TEMPERATURE_RANGE['temperature.fahrenheit'];
+  assert.equal(Math.round((cLo * 9) / 5 + 32), fLo);
+  assert.equal(Math.round((cHi * 9) / 5 + 32), fHi);
+});
+
+test('an out-of-range Fahrenheit claim is rejected in its own unit', () => {
+  // 108 is a hot spring; 108 C is not, and the error must say which unit it
+  // judged or it reads as a contradiction.
+  const errors = validateOverlay({
+    id: ID,
+    claims: { 'temperature.fahrenheit': claim({ value: 500 }) },
+  }, { knownIds: new Set([ID]) });
+  assert.ok(errors.some((e) => /between 23 and 266 F/.test(e)), JSON.stringify(errors));
+  assert.deepEqual(
+    validateOverlay({ id: ID, claims: { 'temperature.fahrenheit': claim({ value: 108 }) } },
+      { knownIds: new Set([ID]) }),
+    [],
+    '108 F is an ordinary American hot spring and must validate',
+  );
+});
+
+test('Fahrenheit is high-risk, like the number it restates', () => {
+  assert.ok(RISK.high.includes('temperature.fahrenheit'));
+  assert.ok(CLAIMABLE.includes('temperature.fahrenheit'));
 });

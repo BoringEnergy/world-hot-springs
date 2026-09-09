@@ -675,27 +675,50 @@ That number is the whole point the project makes about the state of public
 hot-spring data, so moving it is the work. 73 claims landed in one pass, in
 eight batches; the rate limit was research, never the apparatus.
 
-### The United States is blocked on a schema field
+### ~~The United States is blocked on a schema field~~ — MEASURED, AND WRONG
 
-2,025 springs, 15 with a temperature after this pass. It is the largest gap
-in the atlas and the cheapest to close -- **except that American sources
-publish Fahrenheit.**
+This section used to say that `temperature.fahrenheit` in CLAIMABLE "would
+open the operator-website seam for the whole country". It was inferred from a
+Colorado sample of ten operator sites. **Measured across the whole country on
+2026-09-09, it is not true**, and the field landing does not change the
+picture.
 
-Colorado was surveyed end to end: 40 springs, 2 with a temperature, 10 with
-an operator website. Not one publishes Celsius. Iron Mountain Hot Springs
-states `89°-108°F` for its pools, which is a good, specific, verifiable
-figure -- and unclaimable, because `temperature.celsius` is the only
-claimable temperature field and converting 108F to 42C is computing a
-claimed value, which rule 2 forbids.
+    US springs without a temperature                       1,752
+      ...with ANY readable non-OSM source                     85
+      ...citing only OSM or wikidata                       1,667
+    those 85, fetched                                         80 ok
+      ...printing a Fahrenheit figure anywhere on the page     1
+      ...whose figure verifies                                 0
 
-Where American springs DID yield was English Wikipedia, which prints both:
-`Temperature 94 °C (201 °F)`. That is 7 claims from 11 articles. It does not
-scale -- only 11 of 2,025 US springs cite Wikipedia at all.
+**The blocker was never the unit. It is that 1,667 of them have nothing to
+read.** Fahrenheit is now claimable — it is the right schema, and a source
+that prints only °F should be claimable in °F — but it is not what was
+standing between this project and the United States.
 
-**The fix is `temperature.fahrenheit` in CLAIMABLE, and it is two pull
-requests** (see rule 1). It would open the operator-website seam for the
-whole country. Not done here because no batch was blocked in a way that
-justified deciding it alone; raise it before the next US pass.
+**And the one page that does publish a figure is blocked by something else.**
+Iron Mountain Hot Springs prints `89°-108°F`, and `valueAppears` reads the
+dash as a SIGN because the character before it is `°` rather than a digit.
+This is the Skolska cesma shape, already recorded below, and it is not rare
+typography — a degree sign before the range dash is the ordinary American
+house style.
+
+    "89-108°F"              verifies
+    "89 - 108°F"            verifies
+    "between 89 and 108°F"  verifies
+    "up to 108°F"           verifies
+    "89°-108°F"             BLOCKED   <- the common American form
+    "89°F-108°F"            BLOCKED
+    "89°–108°F"             BLOCKED   (en dash, same cause)
+
+Left alone deliberately: that rule is in `verify-source.mjs`, the sign half of
+it is what stops a negative reading certifying a positive claim, and the gates
+are settled. If it is ever revisited, the narrow question is whether a unit
+symbol between a digit and a dash should count as "a digit precedes this
+dash". Nothing else about the rule needs to move.
+
+**What would actually unlock the US is a bulk upstream**, which is what NCEI
+stage two was, and it is why NCEI has filled more American temperatures than
+every operator page in this repository's history combined.
 
 ### The loop that works
 

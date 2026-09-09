@@ -37,6 +37,17 @@ import { completeness } from './normalize.mjs';
 export const CLAIMABLE = [
   'name',
   'temperature.celsius',
+  // The same reading as the source printed it, for sources that print
+  // Fahrenheit. American operators publish "89°-108°F" and nothing else, and
+  // rule 2 forbids computing 42.2 from 108 and claiming THAT -- the claimed
+  // value has to be the one on the page. So the unit the source used decides
+  // which field carries the claim, and the other is derived, exactly as
+  // temperature.fahrenheit has always been derived from a celsius claim. The
+  // atlas stays Celsius everywhere else; only the claim changes shape.
+  //
+  // Exactly one of the two may be claimed per spring. Both would race, and
+  // whichever applied last would silently win.
+  'temperature.fahrenheit',
   // Which water the figure describes. Claimable because a page usually says
   // plainly ("emerges at", "the pools are kept at"), and because without it
   // a source reading and a bathing reading render identically.
@@ -128,6 +139,9 @@ export const RISK = {
   ],
   high: [
     'temperature.celsius',
+    // Same tier as celsius, and for the same reason: the harm is in the water,
+    // not in the unit it was written down in.
+    'temperature.fahrenheit',
     // High with the number it qualifies. Labelling a 75 C source as bathing
     // is an invitation to get into water that will burn -- the mistake is
     // worse than the number being absent.
@@ -176,6 +190,7 @@ export const RISK = {
  */
 export const FIELD_TYPES = {
   'temperature.celsius': 'number',
+  'temperature.fahrenheit': 'number',
   'temperature.kind': ['source', 'bathing', 'unknown'],
   'location.elevation': 'number',
   'access.price': 'string',
@@ -253,6 +268,16 @@ const HAS_TYPE = {
  * which is also why every element is checked: merge-only means a wrong one is
  * permanent, and no later claim can take it back out.
  */
+/**
+ * Accepted range per temperature field. -5 to 130 C is the range a spring can
+ * be; 23 to 266 F is that same range, so neither field admits water the other
+ * would reject.
+ */
+export const TEMPERATURE_RANGE = {
+  'temperature.celsius': [-5, 130, 'C'],
+  'temperature.fahrenheit': [23, 266, 'F'],
+};
+
 export const ARRAY_FIELDS = Object.keys(FIELD_TYPES).filter((f) => FIELD_TYPES[f] === 'string[]');
 
 /** Matches a durable spring id. 12 hex characters; see identity.mjs on why. */
@@ -265,6 +290,21 @@ export const SPRING_ID = /^whs_[0-9a-f]{12}$/;
  */
 export function validateOverlay(overlay, opts = {}) {
   const errors = [];
+
+  // One reading, one unit. Both fields describe the same water, and
+  // applyOverlays derives each from the other -- so claiming both means
+  // whichever is applied last silently overwrites the other's derived value,
+  // and the record then states two temperatures that need not agree. The
+  // contributor has to say which unit their source actually printed.
+  const claimed = Object.entries(overlay?.claims ?? {})
+    .filter(([f, c]) => (c?.state ?? 'active') === 'active' && TEMPERATURE_RANGE[f])
+    .map(([f]) => f);
+  if (claimed.length > 1) {
+    errors.push(
+      `${claimed.join(' and ')}: claim the unit the source printed, not both. ` +
+        'The other is derived.',
+    );
+  }
 
   if (!SPRING_ID.test(overlay?.id ?? '')) {
     errors.push(`id must look like whs_a1b2c3d4e5f6, got ${JSON.stringify(overlay?.id)}`);
@@ -304,13 +344,15 @@ export function validateOverlay(overlay, opts = {}) {
     if (!claim?.contributor) errors.push(`${field}: contributor is required`);
 
     const expected = FIELD_TYPES[field];
-    if (field === 'temperature.celsius') {
+    if (TEMPERATURE_RANGE[field]) {
       // Type and range in one message, because a temperature is wrong the same
       // way whether it arrives as "38" or as 318: it is not a number in the
-      // range a spring can be.
+      // range a spring can be. The Fahrenheit bounds are the Celsius ones
+      // converted, so the two fields accept the same water.
+      const [lo, hi, unit] = TEMPERATURE_RANGE[field];
       const v = claim?.value;
-      if (!HAS_TYPE[expected](v) || v < -5 || v > 130) {
-        errors.push(`${field}: must be a number between -5 and 130, got ${JSON.stringify(v)}`);
+      if (!HAS_TYPE[expected](v) || v < lo || v > hi) {
+        errors.push(`${field}: must be a number between ${lo} and ${hi} ${unit}, got ${JSON.stringify(v)}`);
       }
     } else if (Array.isArray(expected)) {
       // Name the permitted values. Being told "clothes off" is wrong without
@@ -388,7 +430,13 @@ export function loadOverlays(dir) {
  * fraction of a degree is measurement noise, not a conflict worth a human's
  * attention. Everything else is exact.
  */
-const TOLERANCE = { 'temperature.celsius': 0.5 };
+const TOLERANCE = {
+  'temperature.celsius': 0.5,
+  // The same physical slack, expressed in the other unit: 0.5 C is 0.9 F.
+  // Using 0.5 here too would silently make the Fahrenheit path stricter than
+  // the Celsius one about the identical disagreement.
+  'temperature.fahrenheit': 0.9,
+};
 
 function setPath(obj, dotted, value) {
   const parts = dotted.split('.');
@@ -455,8 +503,18 @@ export function applyOverlays(records, overlays) {
         setPath(record, field, claim.value);
       }
 
-      if (field === 'temperature.celsius') {
-        record.temperature.fahrenheit = Math.round(((claim.value * 9) / 5 + 32) * 10) / 10;
+      if (TEMPERATURE_RANGE[field]) {
+        // Whichever unit was claimed, the other is computed from it. The
+        // claimed number stays exactly as the source printed it -- that is
+        // the one verify-claims.mjs checks against the page -- and only the
+        // companion is rounded, to the same 1dp the Celsius claims already
+        // use. Both are stored, so the UI's unit toggle never re-derives and
+        // never round-trips a claimed figure through a conversion.
+        if (field === 'temperature.celsius') {
+          record.temperature.fahrenheit = Math.round(((claim.value * 9) / 5 + 32) * 10) / 10;
+        } else {
+          record.temperature.celsius = Math.round((((claim.value - 32) * 5) / 9) * 10) / 10;
+        }
         // Derived from the claim, never separately claimable, so provenance
         // cannot drift from the value it describes.
         record.temperature.source = `Curated claim by ${claim.contributor}: ${claim.source}`;
