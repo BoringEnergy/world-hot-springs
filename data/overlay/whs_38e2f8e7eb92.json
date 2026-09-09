@@ -1,0 +1,17 @@
+{
+  "id": "whs_38e2f8e7eb92",
+  "claims": {
+    "temperature.celsius": {
+      "value": 42.5,
+      "source": "https://www.nikko-casual.jp/spa.html",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.nikko-casual.jp/spa.html",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

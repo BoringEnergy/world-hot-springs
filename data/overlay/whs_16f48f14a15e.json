@@ -1,0 +1,17 @@
+{
+  "id": "whs_16f48f14a15e",
+  "claims": {
+    "temperature.celsius": {
+      "value": 39,
+      "source": "https://onto.jp",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "bathing",
+      "source": "https://onto.jp",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}
