@@ -426,3 +426,19 @@ test('the SourceProvider union in types.ts names exactly the providers this buil
     'src/lib/types.ts and the PROVIDERS set above must name the same providers',
   );
 });
+
+
+test('temperature warnings are reconciled after the last stage that can change a temperature', () => {
+  // The stage is only correct where it sits. NCEI enrichment and the curated
+  // overlay both write temperature.celsius, so reconciling before either one
+  // reproduces the defect it fixes -- silently, because the output still
+  // looks like a warning list. Anchored on the call, not the comment.
+  const nceiAt = SOURCE.indexOf('matchNcei(');
+  const overlayAt = SOURCE.indexOf('applyOverlays(');
+  const reconcileAt = SOURCE.indexOf('reconcileTemperatureWarnings(r)');
+  const privacyAt = SOURCE.indexOf('isExcluded(');
+  assert.ok(reconcileAt > 0, 'the build must reconcile temperature warnings');
+  assert.ok(reconcileAt > nceiAt, 'NCEI enrichment fills temperatures; reconcile must run after it');
+  assert.ok(reconcileAt > overlayAt, 'a claim can set a temperature; reconcile must run after it');
+  assert.ok(privacyAt > reconcileAt, 'the privacy filter still runs last');
+});

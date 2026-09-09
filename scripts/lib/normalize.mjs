@@ -214,17 +214,60 @@ export function deriveTags(tags, temp) {
 }
 
 /**
+ * The two warnings that depend on nothing but the temperature.
+ *
+ * Split out of deriveWarnings because temperature is the ONE input a later
+ * stage can still change. Every other input below is an OSM tag, fixed at
+ * normalize time; the number is filled in afterwards by NCEI enrichment and
+ * can be set or corrected again by a curated claim. Neither of those stages
+ * could reach the warning, so a spring could ship at 110C with nothing beside
+ * the figure. reconcileTemperatureWarnings is what closes that, and these
+ * constants are exported so it can recognise its own output rather than
+ * matching on prose.
+ */
+export const SCALDING =
+  'Scalding: recorded at 50°C or above. Water at this temperature causes burns in seconds.';
+export const VERY_HOT =
+  'Very hot: above comfortable soaking temperature for most people. Enter slowly.';
+
+export function temperatureWarnings(temp) {
+  if (temp === null || temp === undefined) return [];
+  if (temp >= 50) return [SCALDING];
+  if (temp >= 44) return [VERY_HOT];
+  return [];
+}
+
+/**
+ * Bring the temperature warnings back in line with the final number.
+ *
+ * Both directions are load-bearing. A claim that RAISES a temperature has to
+ * gain the warning -- that is the defect this fixes. A claim that LOWERS one
+ * has to lose it, or the record keeps a scalding notice about water that is
+ * no longer scalding, which is the same failure pointed the other way.
+ *
+ * The two constants above are owned by the pipeline, so a stale one is
+ * dropped even if it arrived on a claimed `warnings` array. Anything a
+ * contributor actually wrote is left untouched and in its original order;
+ * only the derived pair is rewritten, and it stays first as deriveWarnings
+ * put it.
+ *
+ * @returns {boolean} whether the record's warnings changed
+ */
+export function reconcileTemperatureWarnings(record) {
+  const before = record.warnings ?? [];
+  const others = before.filter((w) => w !== SCALDING && w !== VERY_HOT);
+  const next = [...temperatureWarnings(record?.temperature?.celsius ?? null), ...others];
+  record.warnings = next;
+  return next.length !== before.length || next.some((w, i) => w !== before[i]);
+}
+
+/**
  * Safety and access warnings. These are generated from facts in the record, not
  * editorialised: a 60C spring will scald you, and saying so is the honest thing
  * to render next to the temperature.
  */
 export function deriveWarnings(tags, temp, type) {
-  const out = [];
-  if (temp !== null && temp >= 50) {
-    out.push('Scalding: recorded at 50°C or above. Water at this temperature causes burns in seconds.');
-  } else if (temp !== null && temp >= 44) {
-    out.push('Very hot: above comfortable soaking temperature for most people. Enter slowly.');
-  }
+  const out = [...temperatureWarnings(temp)];
   if (type === 'wild') {
     out.push('Undeveloped source: no staff, no facilities, and no maintained access. Conditions change.');
   }

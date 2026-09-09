@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { countryLookup } from './lib/countries.mjs';
-import { normalizeElement } from './lib/normalize.mjs';
+import { normalizeElement, reconcileTemperatureWarnings } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
@@ -431,6 +431,23 @@ async function main() {
     console.error('missingSince flag on these ids before removing the overlay files.');
     process.exit(1);
   }
+
+  // --- Temperature warnings, reconciled ---
+  // deriveWarnings ran at normalize time, when most of these records carried
+  // no temperature at all. NCEI enrichment fills one in, and a curated claim
+  // can set or correct it again -- and neither stage could reach the warning.
+  // The result was 126 springs at 50C or above shipping with nothing beside
+  // the number, the hottest at 110C, and the hole grew with every seeding
+  // batch because seeding is exactly what adds temperatures late.
+  //
+  // This is the first point that sees the FINAL temperature, so it is where
+  // the pair is brought back in line. It only rewrites the two derived
+  // strings; it cannot add, move or remove a record, which is why it is safe
+  // above the privacy filter.
+  console.log('Reconciling temperature warnings ...');
+  let rewarned = 0;
+  for (const r of records) if (reconcileTemperatureWarnings(r)) rewarned++;
+  console.log(`  ${rewarned} record(s) gained or lost a temperature warning`);
 
   // --- Land-manager restrictions ---
   // After the overlay, deliberately. Running last of the two means no authored
