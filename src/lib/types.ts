@@ -185,15 +185,25 @@ export type SpringType = 'natural' | 'developed' | 'resort' | 'wild' | 'unknown'
 /**
  * A data source a record can be built from.
  *
- * One member, because there is one normaliser. This is the same vocabulary
- * `scripts/lib/identity.mjs` established for the registry's `sourceRefs`
- * (`OSM_PROVIDER`), restated here rather than extended: a second, longer list
- * of providers nothing produces is exactly the divergence that `access.price`
- * and the `osmRefs` projection each had to be taught the hard way. A closed
- * union is also the only thing that will make `tsc` object if a provider is
- * added on one side of that seam and not the other.
+ * The same vocabulary `scripts/lib/identity.mjs` established for the registry's
+ * `sourceRefs`, restated here rather than extended: a second, longer list of
+ * providers nothing produces is exactly the divergence that `access.price` and
+ * the `osmRefs` projection each had to be taught the hard way.
+ *
+ * This union previously said `'osm'` alone and claimed, in this comment, that
+ * being closed would "make `tsc` object if a provider is added on one side of
+ * that seam and not the other". That was wrong, and it was wrong in a way that
+ * hid a real defect for a whole feature: NCEI stage two shipped thousands of
+ * records with `provenance: ['ncei']` and nothing complained. `tsc` never sees
+ * this data. `useStore` fetches the GeoJSON at runtime and casts it, so the
+ * union describes the payload without ever checking it.
+ *
+ * What actually holds the seam together is a test —
+ * `scripts/build.test.mjs` reads this declaration and asserts it names exactly
+ * the providers the build can produce. Add a member here and there, or the
+ * suite fails.
  */
-export type SourceProvider = 'osm';
+export type SourceProvider = 'osm' | 'ncei';
 
 export interface DataQuality {
   /**

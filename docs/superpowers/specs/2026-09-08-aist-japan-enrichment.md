@@ -1,7 +1,7 @@
 # AIST as a third upstream — Japanese enrichment
 
-Written 2026-09-08. Status: scope accepted, **two blockers and one open question
-before implementation**.
+Written 2026-09-08. Status: scope accepted, name rule resolved, **two blockers
+remain before implementation**.
 
 ## Scope, settled
 
@@ -82,7 +82,7 @@ Three ways out, none free:
 pipeline. Chemistry is the larger prize and deserves a decision about units
 rather than a footnote inside a temperature change.
 
-## Open question — the yield rests on short names
+## Resolved — the yield rests on short names, and the standard wins
 
 Measured against the real data, at the agreed 200 m gate:
 
@@ -115,13 +115,32 @@ than the standard the repository already argued for, and it carries the yield:
 | Accept short names at 200 m | **130** |
 | Apply `MIN_SUBSTRING_NAME_LENGTH` as dedupe does | **~20** |
 
-That is the difference between a worthwhile change and a marginal one, and it
-is a judgement about evidence, not a threshold to tune. It needs deciding
-before implementation, not during.
+**Decided 2026-09-08: apply the `identity.mjs` standard. Take the 20.**
 
-A middle option worth considering: require a short name to agree on **both**
-`温泉名` and `泉源名`, or require the atlas name to be long even when the AIST
-one is short. Neither is measured yet.
+The argument that governs dedupe governs this. A two-character name at 200 m,
+against a source whose position is a 190 m cell, in a country where onsen
+cluster, is not identity evidence — it is a coincidence with a plausible story
+attached. Accepting it would mean this repository holds one standard for
+merging two OSM records and a looser one for attaching a government analysis to
+somebody's bath.
+
+Concretely: a match may rest on a substring agreement only when both stripped
+names are at least `MIN_SUBSTRING_NAME_LENGTH` (4) characters. Shorter names
+stay eligible for EXACT agreement, and for the unnamed case, at the 200 m gate.
+
+This costs about 110 of 130 matches. That is the right trade and it should be
+stated as one rather than discovered later: **the yield is roughly 20
+temperatures, not 130.**
+
+Which means this change is now small enough that its value is mostly the
+apparatus — a third upstream, a Shift_JIS CSV reader, a WKT centroid key — and
+the argument for doing it at all rests on chemistry, which is blocked on units.
+That is worth weighing before implementation rather than after.
+
+Two options remain measured-but-unexplored, and either would recover some of
+the 110 honestly: require a short name to agree on **both** `温泉名` and
+`泉源名`, or require the atlas name to be long even when the AIST name is
+short. Both are curation-shaped and belong in an alias file, not the matcher.
 
 ## Contention — correct, and nearly worthless
 
@@ -144,12 +163,17 @@ temperatures. Recovering the rest is a hierarchy spec.
 
 ## Schema work, and a defect already on main
 
-**`SourceProvider` is still `'osm'` alone**, and `provenance` is typed
-`SourceProvider[]`. The shipped dataset already contains `ncei`, so **the type
-is a lie on `main` today** — stage two introduced it and `tsc` cannot catch it,
-because `useStore` fetches the GeoJSON at runtime and nothing validates the
-payload against the type. Widen to `'osm' | 'ncei' | 'aist'` and fix the
-existing untruth in the same change.
+**Fixed in this change.** `SourceProvider` said `'osm'` alone while the
+shipped dataset already contained `ncei`, so the type was a lie on `main`.
+Stage two introduced it and `tsc` could not catch it: `useStore` fetches the
+GeoJSON at runtime and casts it, so the union described the payload without
+ever checking it — and the old comment claimed the opposite guarantee.
+
+The union is now `'osm' | 'ncei'`, and a test in `scripts/build.test.mjs` reads
+the declaration and asserts it names exactly the providers the build produces.
+That test is what holds the seam, not the type. `'aist'` is added by the change
+that first writes an AIST record, not before: a member for a provider nothing
+produces is the same divergence in the other direction.
 
 **`minerals.potassium` does not exist** and `K` is present in 6,842 AIST rows.
 Do not add the field in the change that first writes minerals — that is the
@@ -192,8 +216,10 @@ the privacy filter. An authored claim beats AIST. Admission's placement above
 - Attribution in `DATA.md`, per the licence
 - A match report naming every withheld field and why
 
-Roughly 130 temperatures, plus about 7 recovered from agreeing contended
-groups. For scale, Iceland, Russia, Turkey and Chile together produced 17.
+Roughly **20** temperatures under the resolved name rule, plus up to 7 from
+agreeing contended groups. For scale, Iceland, Russia, Turkey and Chile
+together produced 17 — so this is a comparable country-sized batch, not the
+step change the raw 7,203-row count suggests.
 
 ## Deferred
 

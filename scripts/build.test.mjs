@@ -410,3 +410,19 @@ test('NCEI admission runs before dedupe and identity, or new records get no id',
       'are minted. A record created after it is published with no id at all.',
   );
 });
+
+test('the SourceProvider union in types.ts names exactly the providers this build can produce', () => {
+  // These are two lists of the same fact in two languages, and they drifted:
+  // stage two shipped records with provenance ['ncei'] while the union still
+  // said 'osm' alone. tsc cannot catch that -- useStore fetches the GeoJSON at
+  // runtime, so nothing ever checks the payload against the type. This does.
+  const types = fs.readFileSync('src/lib/types.ts', 'utf8');
+  const decl = types.match(/export type SourceProvider =([^;]+);/);
+  assert.ok(decl, 'SourceProvider must be a union declaration in src/lib/types.ts');
+  const declared = new Set([...decl[1].matchAll(/'([^']+)'/g)].map((m) => m[1]));
+  assert.deepEqual(
+    [...declared].sort(),
+    [...PROVIDERS].sort(),
+    'src/lib/types.ts and the PROVIDERS set above must name the same providers',
+  );
+});
