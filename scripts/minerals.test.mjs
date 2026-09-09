@@ -9,7 +9,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { FIELD_TYPES, CLAIMABLE, AGENT_CLAIMABLE, RISK, validateOverlay } from './lib/overlay.mjs';
+import {
+  FIELD_TYPES,
+  CLAIMABLE,
+  AGENT_CLAIMABLE,
+  RISK,
+  validateOverlay,
+  mineralsNeedUnit,
+} from './lib/overlay.mjs';
 import { NUMERIC_FIELDS, LITERAL_FIELDS } from './enrich.mjs';
 
 const PANEL = fs.readFileSync('src/components/DetailPanel.tsx', 'utf8');
@@ -186,4 +193,44 @@ test('the card labels which water a temperature describes', () => {
   // Not rendered for unknown: it is the majority case, and a label on every
   // record would be noise rather than information.
   assert.ok(panel.includes("temperature.kind !== 'unknown'"));
+});
+
+test('a figure without a unit is caught, whether or not any record has one yet', () => {
+  // Tested against CONSTRUCTED records on purpose. No spring carries chemistry
+  // today, so a check that only read data/hot-springs.json would pass on
+  // absence and go on passing for the wrong reason -- the trap this repository
+  // has already been caught by twice.
+  assert.equal(
+    mineralsNeedUnit({ minerals: { sodium: 216, unit: null } }),
+    true,
+    'a sodium figure with no unit is exactly what the field exists to prevent',
+  );
+  assert.equal(mineralsNeedUnit({ minerals: { sodium: 216, unit: 'mg/kg' } }), false);
+  assert.equal(
+    mineralsNeedUnit({ minerals: { ph: 7.8, unit: null } }),
+    false,
+    'pH is unitless, so a pH alone needs no unit',
+  );
+  assert.equal(mineralsNeedUnit({ minerals: { unit: null } }), false, 'no figures, nothing to qualify');
+  assert.equal(mineralsNeedUnit({}), false);
+});
+
+test('every shipped record carries the unit key, and none states a figure without it', () => {
+  // The data half of the same invariant. Today it is the key's presence that
+  // does the work: `unit` must exist on all 7,490 records so the UI can read
+  // it, and that part is not vacuous.
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const missingKey = all.filter((s) => !('unit' in s.minerals));
+  assert.equal(missingKey.length, 0, `${missingKey.length} records lack minerals.unit`);
+  // One record predates the field: Radium Hot Springs carries five figures
+  // from a curated Parks Canada claim made before `unit` existed. It is named
+  // here rather than tolerated silently, so a SECOND unqualified record fails
+  // this test the day it appears. Adding the unit to that claim is data, and
+  // data cannot land in the same pull request as the field it uses.
+  const unqualified = all.filter(mineralsNeedUnit).map((s) => s.id);
+  assert.deepEqual(
+    unqualified,
+    ['whs_ce8611720825'],
+    'the only figures published without a unit should be the one claim that predates the field',
+  );
 });

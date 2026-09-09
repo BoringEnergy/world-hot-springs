@@ -1,4 +1,4 @@
-import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, MineralType, SpringType } from './types';
+import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, MineralType, MineralUnit, SpringType } from './types';
 
 export type Units = 'c' | 'f';
 
@@ -19,6 +19,22 @@ export function formatTempValue(celsius: number | null, units: Units): string {
   return units === 'c'
     ? `${Math.round(celsius)}°C`
     : `${Math.round((celsius * 9) / 5 + 32)}°F`;
+}
+
+/**
+ * How a mineral unit is written on a card. The stored value is lowercase
+ * because that is how the source prints it; the display capitalises the litre
+ * the way every analysis does.
+ *
+ * Null when the source published figures without naming a unit. The card then
+ * shows the bare number and says so in the footnote, rather than assuming
+ * mg/L -- the same posture `measuredAt: null` already takes about an undated
+ * analysis.
+ */
+export function formatMineralUnit(unit: MineralUnit | null): string | null {
+  if (unit === 'mg/l') return 'mg/L';
+  if (unit === 'mg/kg') return 'mg/kg';
+  return null;
 }
 
 export function formatName(spring: HotSpring): string {

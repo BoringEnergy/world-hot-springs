@@ -17,6 +17,9 @@
  * classification under it, and 778 springs in this dataset are already tagged
  * onsen. A vocabulary of our own would have had no sources behind it.
  */
+/** The unit a published chemical panel is stated in. `ph` is unitless. */
+export type MineralUnit = 'mg/l' | 'mg/kg';
+
 export type MineralType =
   | 'simple'
   | 'chloride'
@@ -133,7 +136,10 @@ export interface HotSpring {
   minerals: {
     /** 0-14. Onsen exist at pH 1.5; this is a safety figure, not trivia. */
     ph: number | null;
-    /** Total dissolved solids, mg/L. The best single summary of strength. */
+    /**
+     * Total dissolved solids, in the unit named by `unit`. The best single
+     * summary of strength.
+     */
     tds: number | null;
     sulfate: number | null;
     bicarbonate: number | null;
@@ -149,6 +155,22 @@ export interface HotSpring {
     notes: string | null;
     /** ISO date the source states the water was analysed. */
     measuredAt: string | null;
+    /**
+     * The unit the source printed the panel in — every numeric member above
+     * except `ph`, which is unitless.
+     *
+     * Carried rather than normalised. mg/kg is the ordinary unit in Japanese
+     * and German spring chemistry, and converting it to mg/L needs the
+     * solution density, which the sources overwhelmingly do not publish: in
+     * the first dataset examined it was present on 26% of the mg/kg rows.
+     * A figure in a unit the source did not use is worse than a figure whose
+     * unit a reader has to read.
+     *
+     * `null` means the source published figures without saying which — the
+     * same honesty `measuredAt: null` carries for an undated analysis, and
+     * the card says so rather than assuming mg/L.
+     */
+    unit: MineralUnit | null;
   };
   type: SpringType;
   /**

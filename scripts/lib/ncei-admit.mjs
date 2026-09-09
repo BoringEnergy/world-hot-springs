@@ -151,6 +151,7 @@ export function toRecord(row, ingestedAt) {
       types: [],
       notes: null,
       measuredAt: null,
+      unit: null,
     },
     type: 'natural',
     unicorn: false,

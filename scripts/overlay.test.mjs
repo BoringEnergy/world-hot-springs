@@ -105,9 +105,10 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     'hours.status': ['open', 'seasonal', 'closed', 'unknown'],
     tags: 'string[]',
     warnings: 'string[]',
-    // Water chemistry, mg/L except ph. Numbers on purpose: a number is the
-    // one claim shape verify-claims.mjs can check literally against the page
-    // that states it, and published analyses give figures, not prose.
+    // Water chemistry, in the unit `minerals.unit` names, except ph which is
+    // unitless. Numbers on purpose: a number is the one claim shape
+    // verify-claims.mjs can check literally against the page that states it,
+    // and published analyses give figures, not prose.
     'minerals.ph': 'number',
     'minerals.tds': 'number',
     'minerals.sulfate': 'number',
@@ -124,6 +125,10 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     ],
     'minerals.notes': 'string',
     'minerals.measuredAt': 'string',
+    // Carried, never converted: mg/kg is the ordinary unit in Japanese and
+    // German analyses and converting it needs a density the sources mostly do
+    // not publish. See docs/superpowers/specs/2026-09-08-mineral-units.md.
+    'minerals.unit': ['mg/l', 'mg/kg'],
   });
   for (const field of Object.keys(FIELD_TYPES)) {
     assert.ok(CLAIMABLE.includes(field), `${field} must be claimable to be type-checked`);
@@ -515,11 +520,11 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
     CLAIMABLE.filter((f) => !AGENT_CLAIMABLE.includes(f)).sort(),
     ['location.nearestTown', 'name', 'tags', 'warnings'].sort(),
   );
-  // 13 original + 13 mineral fields. The withheld four are unchanged: water
+  // 13 original + 14 mineral fields. The withheld four are unchanged: water
   // chemistry is claimable by an agent because every numeric part of it is
   // literally checkable against the cited analysis, which is a stronger
   // guarantee than any field on the original list except temperature.
-  assert.equal(AGENT_CLAIMABLE.length, 27);
+  assert.equal(AGENT_CLAIMABLE.length, 28);
 });
 
 test('an agent may claim every permitted field', () => {
