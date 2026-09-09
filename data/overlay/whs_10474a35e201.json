@@ -1,0 +1,17 @@
+{
+  "id": "whs_10474a35e201",
+  "claims": {
+    "temperature.celsius": {
+      "value": 47,
+      "source": "https://yokote.co.jp/yuyu/onsen/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://yokote.co.jp/yuyu/onsen/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

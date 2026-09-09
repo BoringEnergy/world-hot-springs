@@ -1,0 +1,17 @@
+{
+  "id": "whs_020eef2975c3",
+  "claims": {
+    "temperature.celsius": {
+      "value": 52.5,
+      "source": "https://egamionsen.com/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://egamionsen.com/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

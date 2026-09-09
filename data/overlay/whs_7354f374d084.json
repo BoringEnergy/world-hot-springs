@@ -1,0 +1,17 @@
+{
+  "id": "whs_7354f374d084",
+  "claims": {
+    "temperature.celsius": {
+      "value": 38,
+      "source": "https://hotel-alegria.jp/spa/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://hotel-alegria.jp/spa/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

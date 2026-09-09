@@ -1,0 +1,17 @@
+{
+  "id": "whs_bd2e088a7636",
+  "claims": {
+    "temperature.celsius": {
+      "value": 24.5,
+      "source": "https://town.nakatane.kagoshima.jp/fukushi/machinojoho/kanko/shukuhaku-onsen/onsen/onsenhoyocenter.html",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://town.nakatane.kagoshima.jp/fukushi/machinojoho/kanko/shukuhaku-onsen/onsen/onsenhoyocenter.html",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

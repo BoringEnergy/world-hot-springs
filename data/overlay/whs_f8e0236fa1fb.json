@@ -1,0 +1,17 @@
+{
+  "id": "whs_f8e0236fa1fb",
+  "claims": {
+    "temperature.celsius": {
+      "value": 72,
+      "source": "https://sou-yu.net",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://sou-yu.net",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}

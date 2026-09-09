@@ -1,0 +1,17 @@
+{
+  "id": "whs_6dd2c9f854cb",
+  "claims": {
+    "temperature.celsius": {
+      "value": 50.8,
+      "source": "https://www.jupeer-zao.com/roten/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.jupeer-zao.com/roten/",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
+    }
+  }
+}
