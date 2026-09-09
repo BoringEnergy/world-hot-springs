@@ -15,6 +15,7 @@ import {
   formatTemp,
   formatType,
   distanceKm,
+  formatMineralUnit,
 } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { Field } from './Field';
@@ -36,6 +37,10 @@ export function DetailPanel() {
   }, [selectedId]);
 
   if (!selectedId || !spring) return null;
+
+  // After the guard: `spring` is narrowed here, and the unit is needed by both
+  // the panel rows and the footnote below.
+  const mineralUnit = formatMineralUnit(spring.minerals.unit);
 
   const band = tempBand(spring.temperature.celsius);
   const color = bandColor(band);
@@ -160,14 +165,18 @@ export function DetailPanel() {
             {spring.minerals.tds !== null && (
               <div className="col-span-2 flex justify-between border-b border-basalt-800 pb-1">
                 <dt className="text-steam-400">Dissolved solids</dt>
-                <dd className="tabular-nums text-steam-100">{spring.minerals.tds} mg/L</dd>
+                <dd className="tabular-nums text-steam-100">
+                  {spring.minerals.tds}{mineralUnit ? ` ${mineralUnit}` : ''}
+                </dd>
               </div>
             )}
             {MINERAL_CONSTITUENTS.map(([key, label]) =>
               spring.minerals[key] === null ? null : (
                 <div key={key} className="flex justify-between">
                   <dt className="text-steam-400">{label}</dt>
-                  <dd className="tabular-nums text-steam-100">{spring.minerals[key]} mg/L</dd>
+                  <dd className="tabular-nums text-steam-100">
+                    {spring.minerals[key]}{mineralUnit ? ` ${mineralUnit}` : ''}
+                  </dd>
                 </div>
               ),
             )}
@@ -181,6 +190,8 @@ export function DetailPanel() {
             {spring.minerals.measuredAt
               ? `Analysed ${spring.minerals.measuredAt} according to the source below.`
               : 'The source publishes these figures without stating when the water was analysed.'}{' '}
+            {mineralUnit === null &&
+              'The source does not state what unit these figures are in. '}
             Reported from public sources. This atlas does not test water and has
             not verified these figures on site.
           </p>

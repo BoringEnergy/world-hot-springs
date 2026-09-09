@@ -43,9 +43,17 @@ The mg/l rows are hotter and more concentrated. Importing only them would bias
 the atlas toward hot brines and quietly under-represent the dilute, cooler
 springs that make up most of Japan.
 
-**There is no existing data to reconcile.** Exactly one spring in 7,490 carries
-anything in `minerals` today, and it is a `notes` string on Radium Hot Springs.
-Whatever is decided here can be built before any figure depends on it.
+**There is almost nothing to reconcile — one record, corrected 2026-09-08.**
+This spec first said the single spring carrying anything in `minerals` held
+only a `notes` string. That was wrong: Radium Hot Springs (`whs_ce8611720825`)
+publishes five figures from a curated Parks Canada claim — sulfate 302,
+bicarbonate 100.8, calcium 135, magnesium 31.6, silica 31.8 — and the original
+check simply looked at the wrong keys.
+
+So there is exactly one pre-existing record that states figures without naming
+a unit. It cannot be fixed in the same pull request as the field, because a
+claim cannot land with the schema it uses; the test names it as a known
+exception so that a second one fails loudly.
 
 ## The options, with their measured cost
 

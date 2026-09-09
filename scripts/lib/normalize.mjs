@@ -380,7 +380,7 @@ export function normalizeElement(el, lookup, ingestedAt) {
       ph: null, tds: null,
       sulfate: null, bicarbonate: null, chloride: null, calcium: null,
       magnesium: null, sodium: null, silica: null, iron: null,
-      types: [], notes: null, measuredAt: null,
+      types: [], notes: null, measuredAt: null, unit: null,
     },
     type,
     unicorn: false,

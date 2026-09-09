@@ -74,6 +74,7 @@ export const CLAIMABLE = [
   'minerals.types',
   'minerals.notes',
   'minerals.measuredAt',
+  'minerals.unit',
 ];
 
 /**
@@ -120,6 +121,9 @@ export const RISK = {
     'minerals.chloride', 'minerals.calcium', 'minerals.magnesium',
     'minerals.sodium', 'minerals.silica', 'minerals.iron',
     'minerals.notes', 'minerals.measuredAt',
+    // The unit qualifies the panel the way measuredAt dates it. Elevated, not
+    // high: a wrong unit misinforms by up to a few percent, it does not burn.
+    'minerals.unit',
   ],
   high: [
     'temperature.celsius',
@@ -206,7 +210,30 @@ export const FIELD_TYPES = {
   // source published a composition without saying when it was measured, and
   // the UI says exactly that rather than implying freshness.
   'minerals.measuredAt': 'string',
+  // Carried, never converted. See docs/superpowers/specs/2026-09-08-mineral-units.md.
+  'minerals.unit': ['mg/l', 'mg/kg'],
 };
+
+/**
+ * Does this record state a chemical figure without saying what unit it is in?
+ *
+ * Exported so the invariant can be tested against constructed records today,
+ * rather than only against shipped data — nothing has chemistry yet, so a
+ * check that only reads the dataset would pass on absence and keep passing
+ * for the wrong reason.
+ *
+ * `ph` is deliberately excluded: it is unitless, so a pH alone needs no unit.
+ */
+export const UNITED_MINERALS = [
+  'tds', 'sulfate', 'bicarbonate', 'chloride', 'calcium',
+  'magnesium', 'sodium', 'silica', 'iron',
+];
+
+export function mineralsNeedUnit(record) {
+  const m = record?.minerals;
+  if (!m) return false;
+  return UNITED_MINERALS.some((k) => typeof m[k] === 'number') && !m.unit;
+}
 
 /**
  * `typeof` is not enough for a number: NaN and Infinity both pass it, and
