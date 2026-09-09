@@ -1,0 +1,17 @@
+{
+  "id": "whs_07f90be0020d",
+  "claims": {
+    "temperature.celsius": {
+      "value": 72,
+      "source": "https://gl.wikipedia.org/wiki/Termas_do_Mu%C3%AD%C3%B1o_da_Veiga",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://gl.wikipedia.org/wiki/Termas_do_Mu%C3%AD%C3%B1o_da_Veiga",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

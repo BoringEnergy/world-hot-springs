@@ -1,0 +1,17 @@
+{
+  "id": "whs_a046f1135f34",
+  "claims": {
+    "temperature.celsius": {
+      "value": 39,
+      "source": "https://www.saubusse-thermes.com",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://www.saubusse-thermes.com",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

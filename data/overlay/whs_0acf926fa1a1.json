@@ -1,0 +1,17 @@
+{
+  "id": "whs_0acf926fa1a1",
+  "claims": {
+    "temperature.celsius": {
+      "value": 43.8,
+      "source": "https://gl.wikipedia.org/wiki/Termas_romanas_de_Lugo",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://gl.wikipedia.org/wiki/Termas_romanas_de_Lugo",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

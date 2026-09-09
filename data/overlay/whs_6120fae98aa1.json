@@ -1,0 +1,17 @@
+{
+  "id": "whs_6120fae98aa1",
+  "claims": {
+    "temperature.celsius": {
+      "value": 40,
+      "source": "https://es.wikipedia.org/wiki/Balneario_de_Las_Caldas",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://es.wikipedia.org/wiki/Balneario_de_Las_Caldas",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

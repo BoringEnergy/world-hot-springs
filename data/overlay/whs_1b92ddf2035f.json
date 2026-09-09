@@ -1,0 +1,17 @@
+{
+  "id": "whs_1b92ddf2035f",
+  "claims": {
+    "temperature.celsius": {
+      "value": 25,
+      "source": "https://es.wikipedia.org/wiki/Fuente_de_los_Ba%C3%B1os_de_Montanejos",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://es.wikipedia.org/wiki/Fuente_de_los_Ba%C3%B1os_de_Montanejos",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}
