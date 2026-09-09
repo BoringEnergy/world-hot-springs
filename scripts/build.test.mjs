@@ -442,3 +442,20 @@ test('temperature warnings are reconciled after the last stage that can change a
   assert.ok(reconcileAt > overlayAt, 'a claim can set a temperature; reconcile must run after it');
   assert.ok(privacyAt > reconcileAt, 'the privacy filter still runs last');
 });
+
+
+test('completeness is rescored after every stage that can fill a first-class field', () => {
+  // Same guard as the temperature warnings, for the same reason and found the
+  // same way. NCEI enrichment fills temperature into an existing record, so a
+  // rescore above it understates by exactly the field just gained -- which is
+  // the defect this replaced, and it was silent because a score always looks
+  // like a score.
+  const nceiAt = SOURCE.indexOf('matchNcei(');
+  const overlayAt = SOURCE.indexOf('applyOverlays(');
+  const rescoreAt = SOURCE.indexOf('const c = completeness(r);');
+  const privacyAt = SOURCE.indexOf('isExcluded(');
+  assert.ok(rescoreAt > 0, 'the build must rescore completeness');
+  assert.ok(rescoreAt > nceiAt, 'NCEI enrichment fills temperature; rescore must run after it');
+  assert.ok(rescoreAt > overlayAt, 'a claim can fill a field; rescore must run after it');
+  assert.ok(privacyAt > rescoreAt, 'the privacy filter still runs last');
+});

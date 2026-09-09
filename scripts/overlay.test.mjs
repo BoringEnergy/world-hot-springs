@@ -237,7 +237,7 @@ test('validateOverlay accepts every ClothingPolicy src/lib/types.ts declares', (
 
 test('validateOverlay rejects an off-enum clothing policy and lists the permitted values', () => {
   // CLOTHING_LABEL in src/lib/format.ts is keyed on the value, so anything
-  // off-enum renders blank -- while recomputeCompleteness counts it as known
+  // off-enum renders blank -- while completeness() counts it as known
   // (policy !== 'unknown') and inflates the quality score.
   for (const bad of ['clothes off', 'Optional', 'nude', '', null, 42, ['optional'], undefined]) {
     const errors = validateOverlay({

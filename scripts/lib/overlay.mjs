@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseSourceUrl } from './source-url.mjs';
+import { completeness } from './normalize.mjs';
 
 /**
  * Fields a contributor may assert.
@@ -162,7 +163,7 @@ export const RISK = {
  * The two enums are transcribed from `ClothingPolicy` and `HoursStatus`. Both
  * reach the UI through a lookup keyed on the value (`CLOTHING_LABEL`,
  * `HOURS_LABEL` in src/lib/format.ts), so an off-enum value renders blank --
- * while `recomputeCompleteness` below counts it as known and raises the
+ * while `completeness()` counts it as known and raises the
  * quality score. Completeness is a measurement, not a target; a value nothing
  * can render must not be able to move it. `mixed` is currently unused in the
  * built dataset and is still permitted: the type is the contract.
@@ -379,7 +380,6 @@ export function loadOverlays(dir) {
   return overlays;
 }
 
-const FIRST_CLASS_COUNT = 6;
 
 /**
  * Per-field tolerance for calling two values a disagreement.
@@ -411,18 +411,6 @@ function disagrees(field, upstream, claimed) {
     return Math.abs(upstream - claimed) > slack;
   }
   return upstream !== claimed;
-}
-
-/** Mirrors the scoring in normalize.mjs so a claimed field counts as known. */
-function recomputeCompleteness(r) {
-  const known = [];
-  if (r.name) known.push('name');
-  if (r.temperature.celsius !== null) known.push('temperature');
-  if (r.access.price) known.push('price');
-  if (r.clothing.policy !== 'unknown') known.push('clothing');
-  if (r.hours.open || r.hours.status !== 'unknown') known.push('hours');
-  if (r.type !== 'unknown') known.push('type');
-  return { known, score: Math.round((known.length / FIRST_CLASS_COUNT) * 100) };
 }
 
 /**
@@ -479,7 +467,7 @@ export function applyOverlays(records, overlays) {
       applied++;
     }
 
-    const c = recomputeCompleteness(record);
+    const c = completeness(record);
     record.quality.completeness = c.score;
     record.quality.known = c.known;
     record.quality.curated = true;

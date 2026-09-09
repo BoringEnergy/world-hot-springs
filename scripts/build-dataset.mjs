@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { countryLookup } from './lib/countries.mjs';
-import { normalizeElement, reconcileTemperatureWarnings } from './lib/normalize.mjs';
+import { normalizeElement, reconcileTemperatureWarnings, completeness } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
@@ -78,23 +78,11 @@ export function mergeInto(winner, loser) {
     ...new Set([...winner.quality.provenance, ...loser.quality.provenance]),
   ].sort();
 
-  const c = recomputeCompleteness(winner);
+  const c = completeness(winner);
   winner.quality.completeness = c.score;
   winner.quality.known = c.known;
 }
 
-const FIRST_CLASS_COUNT = 6;
-
-function recomputeCompleteness(r) {
-  const known = [];
-  if (r.name) known.push('name');
-  if (r.temperature.celsius !== null) known.push('temperature');
-  if (r.access.price) known.push('price');
-  if (r.clothing.policy !== 'unknown') known.push('clothing');
-  if (r.hours.open || r.hours.status !== 'unknown') known.push('hours');
-  if (r.type !== 'unknown') known.push('type');
-  return { known, score: Math.round((known.length / FIRST_CLASS_COUNT) * 100) };
-}
 
 /**
  * Collapse duplicates. Keep the more complete record and merge the other's
@@ -448,6 +436,27 @@ async function main() {
   let rewarned = 0;
   for (const r of records) if (reconcileTemperatureWarnings(r)) rewarned++;
   console.log(`  ${rewarned} record(s) gained or lost a temperature warning`);
+
+  // --- Completeness, rescored ---
+  // The same defect in the same shape, found by looking for it. NCEI
+  // enrichment fills a temperature into an existing record and never
+  // rescored, so 119 springs understated their completeness by exactly the
+  // field they had just gained -- 33% showing where 50% was true. The overlay
+  // stage rescored and the merge stage rescored; the enrichment stage between
+  // them was the one that did not.
+  //
+  // Scoring here instead means the score is computed once, at the end, from
+  // the record that actually ships. No future stage can fill a field and
+  // forget, because there is no longer anywhere to forget it.
+  console.log('Rescoring completeness ...');
+  let rescored = 0;
+  for (const r of records) {
+    const c = completeness(r);
+    if (c.score !== r.quality.completeness) rescored++;
+    r.quality.completeness = c.score;
+    r.quality.known = c.known;
+  }
+  console.log(`  ${rescored} record(s) had a stale completeness score`);
 
   // --- Land-manager restrictions ---
   // After the overlay, deliberately. Running last of the two means no authored

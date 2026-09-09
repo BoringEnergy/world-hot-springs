@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import {
   parseTemperature, parseAccess, parseClothing, parseType, normalizeElement,
   temperatureWarnings, reconcileTemperatureWarnings, deriveWarnings, SCALDING, VERY_HOT,
+  completeness,
 } from './lib/normalize.mjs';
 import fs from 'node:fs';
 import { isExcluded } from './lib/exclusions.mjs';
@@ -245,4 +246,43 @@ test('every shipped record agrees with the temperature warning rule', () => {
     all.filter((s) => s.warnings.includes(SCALDING)).length > 100,
     'the scalding warning must actually be present on the hot records',
   );
+});
+
+
+/**
+ * Completeness, and the second instance of the same defect.
+ *
+ * Found by asking what else was scored once at normalize time. NCEI
+ * enrichment fills a temperature into an existing record; the overlay stage
+ * rescored and the merge stage rescored, but the enrichment stage between
+ * them did not -- so 119 springs understated their score by exactly the field
+ * they had just gained, showing 33% where 50% was true.
+ */
+test('every shipped record carries a completeness score matching a fresh computation', () => {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const stale = all.filter((s) => {
+    const c = completeness(s);
+    return c.score !== s.quality.completeness
+      || JSON.stringify(c.known) !== JSON.stringify(s.quality.known);
+  });
+  assert.deepEqual(stale.map((s) => s.id), [], `${stale.length} record(s) carry a stale score`);
+  // Not vacuous: scores must actually vary, or an all-zero dataset would pass.
+  const scores = new Set(all.map((s) => s.quality.completeness));
+  assert.ok(scores.size > 3, 'completeness must be a real distribution, not a constant');
+});
+
+test('completeness is scored in exactly one place', () => {
+  // The defect was possible because three copies existed -- normalize.mjs,
+  // build-dataset.mjs and overlay.mjs -- and only two were called late enough.
+  // They were identical, but two of them divided by their own FIRST_CLASS_COUNT
+  // literal while normalize.mjs divided by FIRST_CLASS.length, so adding a
+  // seventh first-class field would have scored /6 and /7 in the same build.
+  const files = ['scripts/lib/normalize.mjs', 'scripts/lib/overlay.mjs', 'scripts/build-dataset.mjs'];
+  const scorers = files.filter((f) => /known\.length \/ /.test(fs.readFileSync(f, 'utf8')));
+  assert.deepEqual(scorers, ['scripts/lib/normalize.mjs'],
+    'only normalize.mjs may compute the completeness score');
+  for (const f of files) {
+    assert.ok(!/FIRST_CLASS_COUNT/.test(fs.readFileSync(f, 'utf8')),
+      `${f} still carries its own copy of the denominator`);
+  }
 });
