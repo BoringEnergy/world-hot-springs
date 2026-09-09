@@ -2,10 +2,11 @@
   "generatedAt": "2026-08-25",
   "counts": {
     "rows": 1659,
-    "matched": 1157,
+    "matched": 134,
     "filled": 119,
     "describedOnly": 6,
     "deferredToAuthor": 1,
+    "becamePin": 1023,
     "unmatched": 477,
     "rejected": 25,
     "parseRejects": 2,
@@ -367,7 +368,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 8562
+      "nearestMeters": 78676
     },
     {
       "row": {
@@ -378,7 +379,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 104249
+      "nearestMeters": 298563
     },
     {
       "row": {
@@ -389,7 +390,7 @@
         "celsius": 65,
         "qualitative": null
       },
-      "nearestMeters": 126262
+      "nearestMeters": 351980
     },
     {
       "row": {
@@ -400,7 +401,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 11751
+      "nearestMeters": 32841
     },
     {
       "row": {
@@ -477,7 +478,7 @@
         "celsius": 49,
         "qualitative": null
       },
-      "nearestMeters": 173737
+      "nearestMeters": 303519
     },
     {
       "row": {
@@ -488,7 +489,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 121322
+      "nearestMeters": 314385
     },
     {
       "row": {
@@ -499,7 +500,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 92796
+      "nearestMeters": 558163
     },
     {
       "row": {
@@ -510,7 +511,7 @@
         "celsius": 41,
         "qualitative": null
       },
-      "nearestMeters": 123775
+      "nearestMeters": 361608
     },
     {
       "row": {
@@ -521,7 +522,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 26022
+      "nearestMeters": 56637
     },
     {
       "row": {
@@ -532,7 +533,7 @@
         "celsius": 38,
         "qualitative": null
       },
-      "nearestMeters": 31139
+      "nearestMeters": 35320
     },
     {
       "row": {
@@ -565,7 +566,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 87374
+      "nearestMeters": 313389
     },
     {
       "row": {
@@ -609,7 +610,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 194970
+      "nearestMeters": 382207
     },
     {
       "row": {
@@ -620,7 +621,7 @@
         "celsius": 65,
         "qualitative": null
       },
-      "nearestMeters": 4440
+      "nearestMeters": 381348
     },
     {
       "row": {
@@ -631,7 +632,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 89043
+      "nearestMeters": 90716
     },
     {
       "row": {
@@ -642,7 +643,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 187894
+      "nearestMeters": 654065
     },
     {
       "row": {
@@ -653,7 +654,7 @@
         "celsius": 52,
         "qualitative": null
       },
-      "nearestMeters": 31428
+      "nearestMeters": 43432
     },
     {
       "row": {
@@ -664,7 +665,7 @@
         "celsius": 83,
         "qualitative": null
       },
-      "nearestMeters": 49957
+      "nearestMeters": 190344
     },
     {
       "row": {
@@ -675,7 +676,7 @@
         "celsius": 67,
         "qualitative": null
       },
-      "nearestMeters": 73189
+      "nearestMeters": 79177
     },
     {
       "row": {
@@ -686,7 +687,7 @@
         "celsius": 53,
         "qualitative": null
       },
-      "nearestMeters": 95465
+      "nearestMeters": 378951
     },
     {
       "row": {
@@ -697,7 +698,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 104796
+      "nearestMeters": 569758
     },
     {
       "row": {
@@ -708,7 +709,7 @@
         "celsius": 63,
         "qualitative": null
       },
-      "nearestMeters": 47226
+      "nearestMeters": 484908
     },
     {
       "row": {
@@ -719,7 +720,7 @@
         "celsius": 50,
         "qualitative": null
       },
-      "nearestMeters": 22863
+      "nearestMeters": 172040
     },
     {
       "row": {
@@ -741,7 +742,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 75705
+      "nearestMeters": 164104
     },
     {
       "row": {
@@ -752,7 +753,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 64702
+      "nearestMeters": 175638
     },
     {
       "row": {
@@ -796,7 +797,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 56492
+      "nearestMeters": 330277
     },
     {
       "row": {
@@ -807,7 +808,7 @@
         "celsius": 61,
         "qualitative": null
       },
-      "nearestMeters": 16405
+      "nearestMeters": 111078
     },
     {
       "row": {
@@ -818,7 +819,7 @@
         "celsius": 66,
         "qualitative": null
       },
-      "nearestMeters": 42257
+      "nearestMeters": 149543
     },
     {
       "row": {
@@ -829,7 +830,7 @@
         "celsius": 50,
         "qualitative": null
       },
-      "nearestMeters": 22319
+      "nearestMeters": 124852
     },
     {
       "row": {
@@ -840,7 +841,7 @@
         "celsius": 154,
         "qualitative": null
       },
-      "nearestMeters": 4626
+      "nearestMeters": 266557
     },
     {
       "row": {
@@ -851,7 +852,7 @@
         "celsius": 49,
         "qualitative": null
       },
-      "nearestMeters": 84052
+      "nearestMeters": 495551
     },
     {
       "row": {
@@ -862,7 +863,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 44064
+      "nearestMeters": 122199
     },
     {
       "row": {
@@ -873,7 +874,7 @@
         "celsius": 77,
         "qualitative": null
       },
-      "nearestMeters": 85625
+      "nearestMeters": 396930
     },
     {
       "row": {
@@ -884,7 +885,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 18615
+      "nearestMeters": 73641
     },
     {
       "row": {
@@ -895,7 +896,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 72375
+      "nearestMeters": 326910
     },
     {
       "row": {
@@ -906,7 +907,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 17688
+      "nearestMeters": 85024
     },
     {
       "row": {
@@ -928,7 +929,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 279744
+      "nearestMeters": 283787
     },
     {
       "row": {
@@ -939,7 +940,7 @@
         "celsius": 30,
         "qualitative": null
       },
-      "nearestMeters": 6561
+      "nearestMeters": 125273
     },
     {
       "row": {
@@ -950,7 +951,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 30697
+      "nearestMeters": 114655
     },
     {
       "row": {
@@ -961,7 +962,7 @@
         "celsius": 37,
         "qualitative": null
       },
-      "nearestMeters": 10525
+      "nearestMeters": 111885
     },
     {
       "row": {
@@ -994,7 +995,7 @@
         "celsius": 56,
         "qualitative": null
       },
-      "nearestMeters": 36214
+      "nearestMeters": 50941
     },
     {
       "row": {
@@ -1005,7 +1006,7 @@
         "celsius": 53,
         "qualitative": null
       },
-      "nearestMeters": 1508
+      "nearestMeters": 79106
     },
     {
       "row": {
@@ -1016,7 +1017,7 @@
         "celsius": 59,
         "qualitative": null
       },
-      "nearestMeters": 2878
+      "nearestMeters": 12689
     },
     {
       "row": {
@@ -1027,7 +1028,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 34553
+      "nearestMeters": 103840
     },
     {
       "row": {
@@ -1038,7 +1039,7 @@
         "celsius": 35,
         "qualitative": null
       },
-      "nearestMeters": 2241
+      "nearestMeters": 12347
     },
     {
       "row": {
@@ -1060,7 +1061,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 6928
+      "nearestMeters": 129756
     },
     {
       "row": {
@@ -1071,7 +1072,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 2466
+      "nearestMeters": 124023
     },
     {
       "row": {
@@ -1082,7 +1083,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 59233
+      "nearestMeters": 59562
     },
     {
       "row": {
@@ -1104,7 +1105,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 40044
+      "nearestMeters": 125384
     },
     {
       "row": {
@@ -1115,7 +1116,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 24132
+      "nearestMeters": 153659
     },
     {
       "row": {
@@ -1137,7 +1138,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 10401
+      "nearestMeters": 59176
     },
     {
       "row": {
@@ -1159,7 +1160,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 8374
+      "nearestMeters": 126907
     },
     {
       "row": {
@@ -1170,7 +1171,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 31105
+      "nearestMeters": 95386
     },
     {
       "row": {
@@ -1181,7 +1182,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 2682
+      "nearestMeters": 79481
     },
     {
       "row": {
@@ -1192,7 +1193,7 @@
         "celsius": 30,
         "qualitative": null
       },
-      "nearestMeters": 34531
+      "nearestMeters": 95458
     },
     {
       "row": {
@@ -1203,7 +1204,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 7546
+      "nearestMeters": 124812
     },
     {
       "row": {
@@ -1225,7 +1226,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 955
+      "nearestMeters": 29879
     },
     {
       "row": {
@@ -1236,7 +1237,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 34416
+      "nearestMeters": 74534
     },
     {
       "row": {
@@ -1247,7 +1248,7 @@
         "celsius": 62,
         "qualitative": null
       },
-      "nearestMeters": 1883
+      "nearestMeters": 28913
     },
     {
       "row": {
@@ -1258,7 +1259,7 @@
         "celsius": 79,
         "qualitative": null
       },
-      "nearestMeters": 7123
+      "nearestMeters": 81723
     },
     {
       "row": {
@@ -1280,7 +1281,7 @@
         "celsius": 50,
         "qualitative": null
       },
-      "nearestMeters": 27921
+      "nearestMeters": 35459
     },
     {
       "row": {
@@ -1291,7 +1292,7 @@
         "celsius": 78,
         "qualitative": null
       },
-      "nearestMeters": 11411
+      "nearestMeters": 30607
     },
     {
       "row": {
@@ -1302,7 +1303,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 31547
+      "nearestMeters": 41204
     },
     {
       "row": {
@@ -1335,7 +1336,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 12391
+      "nearestMeters": 117634
     },
     {
       "row": {
@@ -1357,7 +1358,7 @@
         "celsius": 45,
         "qualitative": null
       },
-      "nearestMeters": 27636
+      "nearestMeters": 57835
     },
     {
       "row": {
@@ -1368,7 +1369,7 @@
         "celsius": 95,
         "qualitative": null
       },
-      "nearestMeters": 2842
+      "nearestMeters": 34790
     },
     {
       "row": {
@@ -1379,7 +1380,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 2307
+      "nearestMeters": 21599
     },
     {
       "row": {
@@ -1401,7 +1402,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 2701
+      "nearestMeters": 32700
     },
     {
       "row": {
@@ -1412,7 +1413,7 @@
         "celsius": 38,
         "qualitative": null
       },
-      "nearestMeters": 17528
+      "nearestMeters": 40681
     },
     {
       "row": {
@@ -1423,7 +1424,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 2898
+      "nearestMeters": 3278
     },
     {
       "row": {
@@ -1434,7 +1435,7 @@
         "celsius": 66,
         "qualitative": null
       },
-      "nearestMeters": 7678
+      "nearestMeters": 15542
     },
     {
       "row": {
@@ -1456,7 +1457,7 @@
         "celsius": 96,
         "qualitative": null
       },
-      "nearestMeters": 1552
+      "nearestMeters": 68298
     },
     {
       "row": {
@@ -1467,7 +1468,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 24207
+      "nearestMeters": 64265
     },
     {
       "row": {
@@ -1478,7 +1479,7 @@
         "celsius": 57,
         "qualitative": null
       },
-      "nearestMeters": 5356
+      "nearestMeters": 72099
     },
     {
       "row": {
@@ -1500,7 +1501,7 @@
         "celsius": 92,
         "qualitative": null
       },
-      "nearestMeters": 24477
+      "nearestMeters": 113645
     },
     {
       "row": {
@@ -1511,7 +1512,7 @@
         "celsius": 97,
         "qualitative": null
       },
-      "nearestMeters": 10587
+      "nearestMeters": 78176
     },
     {
       "row": {
@@ -1522,7 +1523,7 @@
         "celsius": 62,
         "qualitative": null
       },
-      "nearestMeters": 2034
+      "nearestMeters": 76690
     },
     {
       "row": {
@@ -1533,7 +1534,7 @@
         "celsius": 99,
         "qualitative": null
       },
-      "nearestMeters": 1711
+      "nearestMeters": 41392
     },
     {
       "row": {
@@ -1544,7 +1545,7 @@
         "celsius": 31,
         "qualitative": null
       },
-      "nearestMeters": 22314
+      "nearestMeters": 33358
     },
     {
       "row": {
@@ -1555,7 +1556,7 @@
         "celsius": 48,
         "qualitative": null
       },
-      "nearestMeters": 8488
+      "nearestMeters": 89636
     },
     {
       "row": {
@@ -1676,7 +1677,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 22093
+      "nearestMeters": 28168
     },
     {
       "row": {
@@ -1687,7 +1688,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 20015
+      "nearestMeters": 29923
     },
     {
       "row": {
@@ -1698,7 +1699,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 2102
+      "nearestMeters": 31518
     },
     {
       "row": {
@@ -1731,7 +1732,7 @@
         "celsius": 50,
         "qualitative": null
       },
-      "nearestMeters": 6642
+      "nearestMeters": 14962
     },
     {
       "row": {
@@ -1742,7 +1743,7 @@
         "celsius": 39,
         "qualitative": null
       },
-      "nearestMeters": 6849
+      "nearestMeters": 63561
     },
     {
       "row": {
@@ -1753,7 +1754,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 3873
+      "nearestMeters": 53403
     },
     {
       "row": {
@@ -1764,7 +1765,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 7279
+      "nearestMeters": 16353
     },
     {
       "row": {
@@ -1775,7 +1776,7 @@
         "celsius": 38,
         "qualitative": null
       },
-      "nearestMeters": 11499
+      "nearestMeters": 24274
     },
     {
       "row": {
@@ -1786,7 +1787,7 @@
         "celsius": 37,
         "qualitative": null
       },
-      "nearestMeters": 16152
+      "nearestMeters": 53292
     },
     {
       "row": {
@@ -1797,7 +1798,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 17625
+      "nearestMeters": 119647
     },
     {
       "row": {
@@ -1808,7 +1809,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 929
+      "nearestMeters": 90773
     },
     {
       "row": {
@@ -1819,7 +1820,7 @@
         "celsius": 35,
         "qualitative": null
       },
-      "nearestMeters": 11993
+      "nearestMeters": 86119
     },
     {
       "row": {
@@ -1830,7 +1831,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 1548
+      "nearestMeters": 10248
     },
     {
       "row": {
@@ -1852,7 +1853,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 30312
+      "nearestMeters": 105946
     },
     {
       "row": {
@@ -1863,7 +1864,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 7126
+      "nearestMeters": 44079
     },
     {
       "row": {
@@ -1896,7 +1897,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 3201
+      "nearestMeters": 5086
     },
     {
       "row": {
@@ -1907,7 +1908,7 @@
         "celsius": 36,
         "qualitative": null
       },
-      "nearestMeters": 11665
+      "nearestMeters": 19576
     },
     {
       "row": {
@@ -1918,7 +1919,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 14420
+      "nearestMeters": 44649
     },
     {
       "row": {
@@ -1940,7 +1941,7 @@
         "celsius": 101,
         "qualitative": null
       },
-      "nearestMeters": 3256
+      "nearestMeters": 42719
     },
     {
       "row": {
@@ -1951,7 +1952,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 5240
+      "nearestMeters": 76369
     },
     {
       "row": {
@@ -1962,7 +1963,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 18257
+      "nearestMeters": 37521
     },
     {
       "row": {
@@ -1973,7 +1974,7 @@
         "celsius": 30,
         "qualitative": null
       },
-      "nearestMeters": 53093
+      "nearestMeters": 62977
     },
     {
       "row": {
@@ -1995,7 +1996,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 11303
+      "nearestMeters": 39965
     },
     {
       "row": {
@@ -2006,7 +2007,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 30955
+      "nearestMeters": 63393
     },
     {
       "row": {
@@ -2017,7 +2018,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 40010
+      "nearestMeters": 66629
     },
     {
       "row": {
@@ -2028,7 +2029,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 28953
+      "nearestMeters": 100823
     },
     {
       "row": {
@@ -2050,7 +2051,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 23798
+      "nearestMeters": 108865
     },
     {
       "row": {
@@ -2061,7 +2062,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 14651
+      "nearestMeters": 102658
     },
     {
       "row": {
@@ -2072,7 +2073,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 42078
+      "nearestMeters": 52221
     },
     {
       "row": {
@@ -2094,7 +2095,7 @@
         "celsius": 77,
         "qualitative": null
       },
-      "nearestMeters": 26715
+      "nearestMeters": 98498
     },
     {
       "row": {
@@ -2127,7 +2128,7 @@
         "celsius": 52,
         "qualitative": null
       },
-      "nearestMeters": 18233
+      "nearestMeters": 75676
     },
     {
       "row": {
@@ -2138,7 +2139,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 4160
+      "nearestMeters": 22414
     },
     {
       "row": {
@@ -2160,7 +2161,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 24138
+      "nearestMeters": 99853
     },
     {
       "row": {
@@ -2171,7 +2172,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 20287
+      "nearestMeters": 116964
     },
     {
       "row": {
@@ -2182,7 +2183,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 14019
+      "nearestMeters": 43504
     },
     {
       "row": {
@@ -2193,7 +2194,7 @@
         "celsius": 42,
         "qualitative": null
       },
-      "nearestMeters": 7295
+      "nearestMeters": 35354
     },
     {
       "row": {
@@ -2204,7 +2205,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 1047
+      "nearestMeters": 31756
     },
     {
       "row": {
@@ -2226,7 +2227,7 @@
         "celsius": 41,
         "qualitative": null
       },
-      "nearestMeters": 57279
+      "nearestMeters": 57588
     },
     {
       "row": {
@@ -2270,7 +2271,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 1783
+      "nearestMeters": 33579
     },
     {
       "row": {
@@ -2281,7 +2282,7 @@
         "celsius": 30,
         "qualitative": null
       },
-      "nearestMeters": 3180
+      "nearestMeters": 476387
     },
     {
       "row": {
@@ -2292,7 +2293,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 7506
+      "nearestMeters": 302141
     },
     {
       "row": {
@@ -2303,7 +2304,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 9697
+      "nearestMeters": 315372
     },
     {
       "row": {
@@ -2314,7 +2315,7 @@
         "celsius": 31,
         "qualitative": null
       },
-      "nearestMeters": 13537
+      "nearestMeters": 313680
     },
     {
       "row": {
@@ -2325,7 +2326,7 @@
         "celsius": 36,
         "qualitative": null
       },
-      "nearestMeters": 5027
+      "nearestMeters": 550673
     },
     {
       "row": {
@@ -2336,7 +2337,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 7775
+      "nearestMeters": 541643
     },
     {
       "row": {
@@ -2347,7 +2348,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 28449
+      "nearestMeters": 514110
     },
     {
       "row": {
@@ -2358,7 +2359,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 28088
+      "nearestMeters": 525188
     },
     {
       "row": {
@@ -2369,7 +2370,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 38838
+      "nearestMeters": 482391
     },
     {
       "row": {
@@ -2380,7 +2381,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 34810
+      "nearestMeters": 484594
     },
     {
       "row": {
@@ -2391,7 +2392,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 25510
+      "nearestMeters": 515296
     },
     {
       "row": {
@@ -2402,7 +2403,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 22369
+      "nearestMeters": 513345
     },
     {
       "row": {
@@ -2413,7 +2414,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 5197
+      "nearestMeters": 20873
     },
     {
       "row": {
@@ -2424,7 +2425,7 @@
         "celsius": 44,
         "qualitative": null
       },
-      "nearestMeters": 9826
+      "nearestMeters": 22220
     },
     {
       "row": {
@@ -2435,7 +2436,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 11585
+      "nearestMeters": 42078
     },
     {
       "row": {
@@ -2446,7 +2447,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 6687
+      "nearestMeters": 8942
     },
     {
       "row": {
@@ -2457,7 +2458,7 @@
         "celsius": 95,
         "qualitative": null
       },
-      "nearestMeters": 14564
+      "nearestMeters": 112500
     },
     {
       "row": {
@@ -2468,7 +2469,7 @@
         "celsius": 59,
         "qualitative": null
       },
-      "nearestMeters": 2226
+      "nearestMeters": 32462
     },
     {
       "row": {
@@ -2490,7 +2491,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 7111
+      "nearestMeters": 11645
     },
     {
       "row": {
@@ -2501,7 +2502,7 @@
         "celsius": 55,
         "qualitative": null
       },
-      "nearestMeters": 10925
+      "nearestMeters": 54241
     },
     {
       "row": {
@@ -2512,7 +2513,7 @@
         "celsius": 57,
         "qualitative": null
       },
-      "nearestMeters": 3187
+      "nearestMeters": 62373
     },
     {
       "row": {
@@ -2534,7 +2535,7 @@
         "celsius": 41,
         "qualitative": null
       },
-      "nearestMeters": 1281
+      "nearestMeters": 7154
     },
     {
       "row": {
@@ -2545,7 +2546,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 2871
+      "nearestMeters": 54663
     },
     {
       "row": {
@@ -2556,7 +2557,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 1424
+      "nearestMeters": 7966
     },
     {
       "row": {
@@ -2578,7 +2579,7 @@
         "celsius": 70,
         "qualitative": null
       },
-      "nearestMeters": 7825
+      "nearestMeters": 33901
     },
     {
       "row": {
@@ -2589,7 +2590,7 @@
         "celsius": 36,
         "qualitative": null
       },
-      "nearestMeters": 15644
+      "nearestMeters": 16301
     },
     {
       "row": {
@@ -2600,7 +2601,7 @@
         "celsius": 70,
         "qualitative": null
       },
-      "nearestMeters": 17819
+      "nearestMeters": 61257
     },
     {
       "row": {
@@ -2611,7 +2612,7 @@
         "celsius": 71,
         "qualitative": null
       },
-      "nearestMeters": 40981
+      "nearestMeters": 76047
     },
     {
       "row": {
@@ -2622,7 +2623,7 @@
         "celsius": 70,
         "qualitative": null
       },
-      "nearestMeters": 11573
+      "nearestMeters": 27288
     },
     {
       "row": {
@@ -2633,7 +2634,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 19178
+      "nearestMeters": 26819
     },
     {
       "row": {
@@ -2644,7 +2645,7 @@
         "celsius": 38,
         "qualitative": null
       },
-      "nearestMeters": 1654
+      "nearestMeters": 5532
     },
     {
       "row": {
@@ -2655,7 +2656,7 @@
         "celsius": 43,
         "qualitative": null
       },
-      "nearestMeters": 13391
+      "nearestMeters": 27831
     },
     {
       "row": {
@@ -2699,7 +2700,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 12756
+      "nearestMeters": 113155
     },
     {
       "row": {
@@ -2710,7 +2711,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 14463
+      "nearestMeters": 36977
     },
     {
       "row": {
@@ -2721,7 +2722,7 @@
         "celsius": 59,
         "qualitative": null
       },
-      "nearestMeters": 1476
+      "nearestMeters": 1585
     },
     {
       "row": {
@@ -2732,7 +2733,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 6757
+      "nearestMeters": 34525
     },
     {
       "row": {
@@ -2743,7 +2744,7 @@
         "celsius": 42,
         "qualitative": null
       },
-      "nearestMeters": 20975
+      "nearestMeters": 21120
     },
     {
       "row": {
@@ -2754,7 +2755,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 14178
+      "nearestMeters": 113787
     },
     {
       "row": {
@@ -2765,7 +2766,7 @@
         "celsius": 55,
         "qualitative": null
       },
-      "nearestMeters": 14456
+      "nearestMeters": 19494
     },
     {
       "row": {
@@ -2787,7 +2788,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 17562
+      "nearestMeters": 60274
     },
     {
       "row": {
@@ -2798,7 +2799,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 16885
+      "nearestMeters": 69581
     },
     {
       "row": {
@@ -2820,7 +2821,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 1073
+      "nearestMeters": 10472
     },
     {
       "row": {
@@ -2831,7 +2832,7 @@
         "celsius": 55,
         "qualitative": null
       },
-      "nearestMeters": 17164
+      "nearestMeters": 74477
     },
     {
       "row": {
@@ -2842,7 +2843,7 @@
         "celsius": 38,
         "qualitative": null
       },
-      "nearestMeters": 12747
+      "nearestMeters": 34951
     },
     {
       "row": {
@@ -2853,7 +2854,7 @@
         "celsius": 68,
         "qualitative": null
       },
-      "nearestMeters": 28224
+      "nearestMeters": 36717
     },
     {
       "row": {
@@ -2864,7 +2865,7 @@
         "celsius": 50,
         "qualitative": null
       },
-      "nearestMeters": 16892
+      "nearestMeters": 28505
     },
     {
       "row": {
@@ -2875,7 +2876,7 @@
         "celsius": 51,
         "qualitative": null
       },
-      "nearestMeters": 17151
+      "nearestMeters": 27420
     },
     {
       "row": {
@@ -2886,7 +2887,7 @@
         "celsius": 43,
         "qualitative": null
       },
-      "nearestMeters": 17137
+      "nearestMeters": 69924
     },
     {
       "row": {
@@ -2908,7 +2909,7 @@
         "celsius": 37,
         "qualitative": null
       },
-      "nearestMeters": 24892
+      "nearestMeters": 77460
     },
     {
       "row": {
@@ -2919,7 +2920,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 16038
+      "nearestMeters": 88700
     },
     {
       "row": {
@@ -2930,7 +2931,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 7754
+      "nearestMeters": 32493
     },
     {
       "row": {
@@ -2941,7 +2942,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 37238
+      "nearestMeters": 52743
     },
     {
       "row": {
@@ -2952,7 +2953,7 @@
         "celsius": 52,
         "qualitative": null
       },
-      "nearestMeters": 2808
+      "nearestMeters": 6911
     },
     {
       "row": {
@@ -2985,7 +2986,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 8352
+      "nearestMeters": 112754
     },
     {
       "row": {
@@ -2996,7 +2997,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 6606
+      "nearestMeters": 24360
     },
     {
       "row": {
@@ -3018,7 +3019,7 @@
         "celsius": 49,
         "qualitative": null
       },
-      "nearestMeters": 37849
+      "nearestMeters": 53179
     },
     {
       "row": {
@@ -3029,7 +3030,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 2600
+      "nearestMeters": 29680
     },
     {
       "row": {
@@ -3040,7 +3041,7 @@
         "celsius": 34,
         "qualitative": null
       },
-      "nearestMeters": 1227
+      "nearestMeters": 105269
     },
     {
       "row": {
@@ -3051,7 +3052,7 @@
         "celsius": 31,
         "qualitative": null
       },
-      "nearestMeters": 22504
+      "nearestMeters": 58241
     },
     {
       "row": {
@@ -3062,7 +3063,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 8860
+      "nearestMeters": 125847
     },
     {
       "row": {
@@ -3073,7 +3074,7 @@
         "celsius": 44,
         "qualitative": null
       },
-      "nearestMeters": 4114
+      "nearestMeters": 8312
     },
     {
       "row": {
@@ -3084,7 +3085,7 @@
         "celsius": 34,
         "qualitative": null
       },
-      "nearestMeters": 1655
+      "nearestMeters": 2751
     },
     {
       "row": {
@@ -3095,7 +3096,7 @@
         "celsius": 31,
         "qualitative": null
       },
-      "nearestMeters": 32699
+      "nearestMeters": 33617
     },
     {
       "row": {
@@ -3106,7 +3107,7 @@
         "celsius": 54,
         "qualitative": null
       },
-      "nearestMeters": 12213
+      "nearestMeters": 22625
     },
     {
       "row": {
@@ -3117,7 +3118,7 @@
         "celsius": 35,
         "qualitative": null
       },
-      "nearestMeters": 33038
+      "nearestMeters": 36321
     },
     {
       "row": {
@@ -3128,7 +3129,7 @@
         "celsius": 34,
         "qualitative": null
       },
-      "nearestMeters": 1509
+      "nearestMeters": 62653
     },
     {
       "row": {
@@ -3150,7 +3151,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 2119
+      "nearestMeters": 20490
     },
     {
       "row": {
@@ -3161,7 +3162,7 @@
         "celsius": 48,
         "qualitative": null
       },
-      "nearestMeters": 18083
+      "nearestMeters": 121449
     },
     {
       "row": {
@@ -3194,7 +3195,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 9170
+      "nearestMeters": 103758
     },
     {
       "row": {
@@ -3205,7 +3206,7 @@
         "celsius": 53,
         "qualitative": null
       },
-      "nearestMeters": 1722
+      "nearestMeters": 17397
     },
     {
       "row": {
@@ -3216,7 +3217,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 6030
+      "nearestMeters": 6331
     },
     {
       "row": {
@@ -3227,7 +3228,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 12882
+      "nearestMeters": 32207
     },
     {
       "row": {
@@ -3238,7 +3239,7 @@
         "celsius": 96,
         "qualitative": null
       },
-      "nearestMeters": 12981
+      "nearestMeters": 21655
     },
     {
       "row": {
@@ -3249,7 +3250,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 1695
+      "nearestMeters": 24113
     },
     {
       "row": {
@@ -3260,7 +3261,7 @@
         "celsius": 30,
         "qualitative": null
       },
-      "nearestMeters": 11196
+      "nearestMeters": 87019
     },
     {
       "row": {
@@ -3271,7 +3272,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 10119
+      "nearestMeters": 44356
     },
     {
       "row": {
@@ -3282,7 +3283,7 @@
         "celsius": 51,
         "qualitative": null
       },
-      "nearestMeters": 1142
+      "nearestMeters": 35477
     },
     {
       "row": {
@@ -3293,7 +3294,7 @@
         "celsius": 86,
         "qualitative": null
       },
-      "nearestMeters": 12100
+      "nearestMeters": 27944
     },
     {
       "row": {
@@ -3315,7 +3316,7 @@
         "celsius": 50,
         "qualitative": null
       },
-      "nearestMeters": 14954
+      "nearestMeters": 23745
     },
     {
       "row": {
@@ -3348,7 +3349,7 @@
         "celsius": 61,
         "qualitative": null
       },
-      "nearestMeters": 2701
+      "nearestMeters": 24137
     },
     {
       "row": {
@@ -3381,7 +3382,7 @@
         "celsius": 64,
         "qualitative": null
       },
-      "nearestMeters": 10736
+      "nearestMeters": 48897
     },
     {
       "row": {
@@ -3392,7 +3393,7 @@
         "celsius": 90,
         "qualitative": null
       },
-      "nearestMeters": 12001
+      "nearestMeters": 78351
     },
     {
       "row": {
@@ -3403,7 +3404,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 1382
+      "nearestMeters": 56183
     },
     {
       "row": {
@@ -3414,7 +3415,7 @@
         "celsius": 49,
         "qualitative": null
       },
-      "nearestMeters": 5004
+      "nearestMeters": 39577
     },
     {
       "row": {
@@ -3425,7 +3426,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 1346
+      "nearestMeters": 80596
     },
     {
       "row": {
@@ -3447,7 +3448,7 @@
         "celsius": 62,
         "qualitative": null
       },
-      "nearestMeters": 25101
+      "nearestMeters": 30060
     },
     {
       "row": {
@@ -3458,7 +3459,7 @@
         "celsius": 31,
         "qualitative": null
       },
-      "nearestMeters": 13275
+      "nearestMeters": 109865
     },
     {
       "row": {
@@ -3469,7 +3470,7 @@
         "celsius": 86,
         "qualitative": null
       },
-      "nearestMeters": 16298
+      "nearestMeters": 71114
     },
     {
       "row": {
@@ -3480,7 +3481,7 @@
         "celsius": 45,
         "qualitative": null
       },
-      "nearestMeters": 5926
+      "nearestMeters": 32778
     },
     {
       "row": {
@@ -3491,7 +3492,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 15192
+      "nearestMeters": 44648
     },
     {
       "row": {
@@ -3502,7 +3503,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 15338
+      "nearestMeters": 51097
     },
     {
       "row": {
@@ -3513,7 +3514,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 19827
+      "nearestMeters": 69877
     },
     {
       "row": {
@@ -3524,7 +3525,7 @@
         "celsius": null,
         "qualitative": "boiling"
       },
-      "nearestMeters": 11619
+      "nearestMeters": 28559
     },
     {
       "row": {
@@ -3535,7 +3536,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 20575
+      "nearestMeters": 55652
     },
     {
       "row": {
@@ -3546,7 +3547,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 4287
+      "nearestMeters": 93304
     },
     {
       "row": {
@@ -3579,7 +3580,7 @@
         "celsius": 40,
         "qualitative": null
       },
-      "nearestMeters": 4144
+      "nearestMeters": 27747
     },
     {
       "row": {
@@ -3590,7 +3591,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 11326
+      "nearestMeters": 96828
     },
     {
       "row": {
@@ -3601,7 +3602,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 716
+      "nearestMeters": 53106
     },
     {
       "row": {
@@ -3612,7 +3613,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 3502
+      "nearestMeters": 59133
     },
     {
       "row": {
@@ -3623,7 +3624,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 1226
+      "nearestMeters": 58943
     },
     {
       "row": {
@@ -3634,7 +3635,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 7223
+      "nearestMeters": 61323
     },
     {
       "row": {
@@ -3645,7 +3646,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 1647
+      "nearestMeters": 63115
     },
     {
       "row": {
@@ -3656,7 +3657,7 @@
         "celsius": 31,
         "qualitative": null
       },
-      "nearestMeters": 2940
+      "nearestMeters": 90549
     },
     {
       "row": {
@@ -3667,7 +3668,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 2983
+      "nearestMeters": 93589
     },
     {
       "row": {
@@ -3678,7 +3679,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 14062
+      "nearestMeters": 73098
     },
     {
       "row": {
@@ -3689,7 +3690,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 27439
+      "nearestMeters": 34679
     },
     {
       "row": {
@@ -3700,7 +3701,7 @@
         "celsius": 30,
         "qualitative": null
       },
-      "nearestMeters": 25987
+      "nearestMeters": 32735
     },
     {
       "row": {
@@ -3711,7 +3712,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 3745
+      "nearestMeters": 43993
     },
     {
       "row": {
@@ -3722,7 +3723,7 @@
         "celsius": 34,
         "qualitative": null
       },
-      "nearestMeters": 19717
+      "nearestMeters": 22796
     },
     {
       "row": {
@@ -3733,7 +3734,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 10347
+      "nearestMeters": 27101
     },
     {
       "row": {
@@ -3766,7 +3767,7 @@
         "celsius": 44,
         "qualitative": null
       },
-      "nearestMeters": 2635
+      "nearestMeters": 96009
     },
     {
       "row": {
@@ -3777,7 +3778,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 1342
+      "nearestMeters": 2123
     },
     {
       "row": {
@@ -3810,7 +3811,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 14244
+      "nearestMeters": 66833
     },
     {
       "row": {
@@ -3821,7 +3822,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 6007
+      "nearestMeters": 93166
     },
     {
       "row": {
@@ -3832,7 +3833,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 2696
+      "nearestMeters": 14247
     },
     {
       "row": {
@@ -3843,7 +3844,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 17918
+      "nearestMeters": 23657
     },
     {
       "row": {
@@ -3865,7 +3866,7 @@
         "celsius": 96,
         "qualitative": null
       },
-      "nearestMeters": 926
+      "nearestMeters": 13651
     },
     {
       "row": {
@@ -3876,7 +3877,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 3449
+      "nearestMeters": 81475
     },
     {
       "row": {
@@ -3887,7 +3888,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 17310
+      "nearestMeters": 30364
     },
     {
       "row": {
@@ -3898,7 +3899,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 22871
+      "nearestMeters": 44288
     },
     {
       "row": {
@@ -3920,7 +3921,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 1634
+      "nearestMeters": 61250
     },
     {
       "row": {
@@ -3953,7 +3954,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 4768
+      "nearestMeters": 97865
     },
     {
       "row": {
@@ -3964,7 +3965,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 24761
+      "nearestMeters": 51438
     },
     {
       "row": {
@@ -3975,7 +3976,7 @@
         "celsius": 35,
         "qualitative": null
       },
-      "nearestMeters": 7435
+      "nearestMeters": 82406
     },
     {
       "row": {
@@ -3986,7 +3987,7 @@
         "celsius": 53,
         "qualitative": null
       },
-      "nearestMeters": 13099
+      "nearestMeters": 40517
     },
     {
       "row": {
@@ -4008,7 +4009,7 @@
         "celsius": null,
         "qualitative": "hot"
       },
-      "nearestMeters": 4498
+      "nearestMeters": 49607
     },
     {
       "row": {
@@ -4041,7 +4042,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 15348
+      "nearestMeters": 54530
     },
     {
       "row": {
@@ -4052,7 +4053,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 6121
+      "nearestMeters": 46350
     },
     {
       "row": {
@@ -4063,7 +4064,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 2413
+      "nearestMeters": 59493
     },
     {
       "row": {
@@ -4074,7 +4075,7 @@
         "celsius": 41,
         "qualitative": null
       },
-      "nearestMeters": 13655
+      "nearestMeters": 56054
     },
     {
       "row": {
@@ -4085,7 +4086,7 @@
         "celsius": 97,
         "qualitative": null
       },
-      "nearestMeters": 1223
+      "nearestMeters": 23580
     },
     {
       "row": {
@@ -4096,7 +4097,7 @@
         "celsius": 40,
         "qualitative": null
       },
-      "nearestMeters": 20247
+      "nearestMeters": 96683
     },
     {
       "row": {
@@ -4107,7 +4108,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 1223
+      "nearestMeters": 37248
     },
     {
       "row": {
@@ -4118,7 +4119,7 @@
         "celsius": 90,
         "qualitative": null
       },
-      "nearestMeters": 8965
+      "nearestMeters": 61271
     },
     {
       "row": {
@@ -4129,7 +4130,7 @@
         "celsius": 87,
         "qualitative": null
       },
-      "nearestMeters": 1418
+      "nearestMeters": 90816
     },
     {
       "row": {
@@ -4140,7 +4141,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 9615
+      "nearestMeters": 96033
     },
     {
       "row": {
@@ -4151,7 +4152,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 29969
+      "nearestMeters": 39033
     },
     {
       "row": {
@@ -4162,7 +4163,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 2866
+      "nearestMeters": 50472
     },
     {
       "row": {
@@ -4173,7 +4174,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 5241
+      "nearestMeters": 116361
     },
     {
       "row": {
@@ -4184,7 +4185,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 7612
+      "nearestMeters": 89175
     },
     {
       "row": {
@@ -4195,7 +4196,7 @@
         "celsius": 52,
         "qualitative": null
       },
-      "nearestMeters": 2199
+      "nearestMeters": 59710
     },
     {
       "row": {
@@ -4206,7 +4207,7 @@
         "celsius": 41,
         "qualitative": null
       },
-      "nearestMeters": 11873
+      "nearestMeters": 27292
     },
     {
       "row": {
@@ -4217,7 +4218,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 23580
+      "nearestMeters": 98711
     },
     {
       "row": {
@@ -4228,7 +4229,7 @@
         "celsius": null,
         "qualitative": "warm"
       },
-      "nearestMeters": 2566
+      "nearestMeters": 60560
     },
     {
       "row": {
@@ -4239,7 +4240,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 12915
+      "nearestMeters": 136983
     },
     {
       "row": {
@@ -4250,7 +4251,7 @@
         "celsius": 32,
         "qualitative": null
       },
-      "nearestMeters": 3821
+      "nearestMeters": 42462
     },
     {
       "row": {
@@ -4261,7 +4262,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 5875
+      "nearestMeters": 97936
     },
     {
       "row": {
@@ -4272,7 +4273,7 @@
         "celsius": 42,
         "qualitative": null
       },
-      "nearestMeters": 1619
+      "nearestMeters": 47712
     },
     {
       "row": {
@@ -4283,7 +4284,7 @@
         "celsius": 33,
         "qualitative": null
       },
-      "nearestMeters": 2780
+      "nearestMeters": 42459
     },
     {
       "row": {
@@ -4294,7 +4295,7 @@
         "celsius": 52,
         "qualitative": null
       },
-      "nearestMeters": 49438
+      "nearestMeters": 68971
     },
     {
       "row": {
@@ -4316,7 +4317,7 @@
         "celsius": 37,
         "qualitative": null
       },
-      "nearestMeters": 9386
+      "nearestMeters": 189800
     },
     {
       "row": {
@@ -4338,7 +4339,7 @@
         "celsius": 37,
         "qualitative": null
       },
-      "nearestMeters": 4853
+      "nearestMeters": 293090
     },
     {
       "row": {
@@ -4349,7 +4350,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 29750
+      "nearestMeters": 33348
     },
     {
       "row": {
@@ -4382,7 +4383,7 @@
         "celsius": 21,
         "qualitative": null
       },
-      "nearestMeters": 9376
+      "nearestMeters": 93661
     },
     {
       "row": {
@@ -4393,7 +4394,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 819
+      "nearestMeters": 44601
     },
     {
       "row": {
@@ -4415,7 +4416,7 @@
         "celsius": 42,
         "qualitative": null
       },
-      "nearestMeters": 14042
+      "nearestMeters": 121566
     },
     {
       "row": {
@@ -4426,7 +4427,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 28857
+      "nearestMeters": 33557
     },
     {
       "row": {
@@ -4437,7 +4438,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 17118
+      "nearestMeters": 51941
     },
     {
       "row": {
@@ -4448,7 +4449,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 7094
+      "nearestMeters": 8390
     },
     {
       "row": {
@@ -4470,7 +4471,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 24410
+      "nearestMeters": 34346
     },
     {
       "row": {
@@ -4481,7 +4482,7 @@
         "celsius": 28,
         "qualitative": null
       },
-      "nearestMeters": 1798
+      "nearestMeters": 62044
     },
     {
       "row": {
@@ -4492,7 +4493,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 1334
+      "nearestMeters": 118248
     },
     {
       "row": {
@@ -4503,7 +4504,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 177901
+      "nearestMeters": 180096
     },
     {
       "row": {
@@ -4514,7 +4515,7 @@
         "celsius": 20,
         "qualitative": null
       },
-      "nearestMeters": 24148
+      "nearestMeters": 114773
     },
     {
       "row": {
@@ -4525,7 +4526,7 @@
         "celsius": 27,
         "qualitative": null
       },
-      "nearestMeters": 9152
+      "nearestMeters": 115481
     },
     {
       "row": {
@@ -4536,7 +4537,7 @@
         "celsius": 26,
         "qualitative": null
       },
-      "nearestMeters": 54816
+      "nearestMeters": 56438
     },
     {
       "row": {
@@ -4547,7 +4548,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 8434
+      "nearestMeters": 13520
     },
     {
       "row": {
@@ -4558,7 +4559,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 8053
+      "nearestMeters": 14138
     },
     {
       "row": {
@@ -4580,7 +4581,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 73659
+      "nearestMeters": 291980
     },
     {
       "row": {
@@ -4591,7 +4592,7 @@
         "celsius": 24,
         "qualitative": null
       },
-      "nearestMeters": 2997
+      "nearestMeters": 143502
     },
     {
       "row": {
@@ -4602,7 +4603,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 12117
+      "nearestMeters": 189946
     },
     {
       "row": {
@@ -4613,7 +4614,7 @@
         "celsius": 41,
         "qualitative": null
       },
-      "nearestMeters": 4656
+      "nearestMeters": 173493
     },
     {
       "row": {
@@ -4624,7 +4625,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 15978
+      "nearestMeters": 194077
     },
     {
       "row": {
@@ -4635,7 +4636,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 51854
+      "nearestMeters": 278341
     },
     {
       "row": {
@@ -4646,7 +4647,7 @@
         "celsius": 35,
         "qualitative": null
       },
-      "nearestMeters": 12450
+      "nearestMeters": 165822
     },
     {
       "row": {
@@ -4679,7 +4680,7 @@
         "celsius": 66,
         "qualitative": null
       },
-      "nearestMeters": 29917
+      "nearestMeters": 53767
     },
     {
       "row": {
@@ -4690,7 +4691,7 @@
         "celsius": 72,
         "qualitative": null
       },
-      "nearestMeters": 11908
+      "nearestMeters": 19603
     },
     {
       "row": {
@@ -4712,7 +4713,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 26833
+      "nearestMeters": 43706
     },
     {
       "row": {
@@ -4734,7 +4735,7 @@
         "celsius": 49,
         "qualitative": null
       },
-      "nearestMeters": 6345
+      "nearestMeters": 62113
     },
     {
       "row": {
@@ -4756,7 +4757,7 @@
         "celsius": 22,
         "qualitative": null
       },
-      "nearestMeters": 34400
+      "nearestMeters": 59288
     },
     {
       "row": {
@@ -4767,7 +4768,7 @@
         "celsius": 23,
         "qualitative": null
       },
-      "nearestMeters": 1677
+      "nearestMeters": 227878
     },
     {
       "row": {
@@ -4800,7 +4801,7 @@
         "celsius": 37,
         "qualitative": null
       },
-      "nearestMeters": 19623
+      "nearestMeters": 27752
     },
     {
       "row": {
@@ -4998,7 +4999,7 @@
         "celsius": 29,
         "qualitative": null
       },
-      "nearestMeters": 12930
+      "nearestMeters": 61349
     },
     {
       "row": {
@@ -5306,7 +5307,7 @@
         "celsius": 25,
         "qualitative": null
       },
-      "nearestMeters": 6207
+      "nearestMeters": 64862
     },
     {
       "row": {
@@ -5449,7 +5450,7 @@
         "celsius": 39,
         "qualitative": null
       },
-      "nearestMeters": 67623
+      "nearestMeters": 95905
     },
     {
       "row": {

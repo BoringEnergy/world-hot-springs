@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { matchNcei, MATCH_RADIUS_M, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 
 /** A minimal atlas record: only the fields the matcher reads. */
@@ -172,4 +173,49 @@ test('a spring with no overlay, or an overlay claiming something else, is fillab
     hasAuthoredTemperature({ claims: { 'access.price': { value: 'x', state: 'active' } } }),
     false,
   );
+});
+
+/**
+ * NOAA agreeing with itself is not corroboration.
+ *
+ * Admission runs above dedupe and so BEFORE enrichment. By the time the merge
+ * stage ran, 1,023 NOAA rows had already become records sitting at their own
+ * coordinates, and every one matched itself. Nothing was written wrongly --
+ * an admitted record already holds NOAA's value -- but the report counted
+ * them, so it claimed 1,157 matches where 134 springs the atlas already had
+ * were corroborated.
+ */
+test('the match report buckets partition every row exactly once', () => {
+  const c = JSON.parse(fs.readFileSync('data/ncei-match-report.json', 'utf8')).counts;
+  assert.equal(
+    c.matched + c.becamePin + c.unmatched + c.rejected,
+    c.rows,
+    'every row is matched, a new pin, unmatched or rejected -- and only one of them',
+  );
+});
+
+test('a row that became a pin is never also counted as a match', () => {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const c = JSON.parse(fs.readFileSync('data/ncei-match-report.json', 'utf8')).counts;
+  // A record carrying ncei provenance and nothing else IS a pin this upstream
+  // minted. The two counts are the same set seen from two sides, so they must
+  // agree exactly -- if the merge stage ever sees them again, this breaks.
+  const mintedPins = all.filter(
+    (s) => s.quality.provenance.length === 1 && s.quality.provenance[0] === 'ncei',
+  ).length;
+  assert.equal(c.becamePin, mintedPins);
+  assert.ok(mintedPins > 500, 'not vacuous: this upstream really did mint pins');
+});
+
+test('matched counts springs the atlas already had, and only those', () => {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const c = JSON.parse(fs.readFileSync('data/ncei-match-report.json', 'utf8')).counts;
+  const enriched = all.filter(
+    (s) => s.quality.provenance.includes('ncei') && s.quality.provenance.includes('osm'),
+  ).length;
+  // Every enriched record came from a match. A few matches write nothing --
+  // one is deferred to an author, one conflicts, one already held the same
+  // value -- so matched is a little larger, never smaller, and never by much.
+  assert.ok(c.matched >= enriched, `matched ${c.matched} < enriched ${enriched}`);
+  assert.ok(c.matched - enriched <= 25, `matched ${c.matched} is too far above enriched ${enriched}`);
 });

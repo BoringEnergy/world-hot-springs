@@ -21,7 +21,7 @@ import { appendEvents } from './lib/events.mjs';
 import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
 import { parseNcei } from './lib/ncei.mjs';
 import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
-import { classify, toRecord } from './lib/ncei-admit.mjs';
+import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
@@ -311,7 +311,35 @@ async function main() {
       fs.readFileSync(NCEI_TSV, 'utf8'),
     );
     const byId = new Map(records.map((r) => [r.id, r]));
-    const { matched, unmatched, rejected } = matchNcei(nceiRows, records);
+    // Match against the springs that were already here, NOT against the pins
+    // this same build just created.
+    //
+    // Admission runs above dedupe and therefore BEFORE this stage, so by the
+    // time enrichment ran, 1,023 NOAA rows had already become records sitting
+    // at their own coordinates. Every one of them then matched itself. The
+    // outcome was harmless -- an admitted record already holds NOAA's value,
+    // so there was nothing to fill and nothing to conflict -- but the REPORT
+    // said "1,157 matched" when NOAA had corroborated 131 springs the atlas
+    // already had. That reads as independent agreement and it is not: 1,023 of
+    // those were NOAA agreeing with itself.
+    //
+    // A record carrying an ncei ref and no other provenance is a pin this
+    // upstream minted. Excluding them is what makes the count mean what it
+    // says, and it drops ~7.6M distance computations on the way.
+    const mintedHere = new Set(
+      records
+        .filter((r) => r.quality.provenance.length === 1 && r.quality.provenance[0] === NCEI_PROVIDER)
+        .flatMap((r) => (r.sourceRefs ?? []).filter((x) => x.provider === NCEI_PROVIDER).map((x) => x.externalId)),
+    );
+    const preexisting = records.filter(
+      (r) => !(r.quality.provenance.length === 1 && r.quality.provenance[0] === NCEI_PROVIDER),
+    );
+    const { matched, unmatched: unmatchedAll, rejected } = matchNcei(nceiRows, preexisting);
+
+    // A row that became a pin is not "unmatched" in any sense a reader wants
+    // counted as a miss. Naming the two apart is the whole point of the change.
+    const becamePin = unmatchedAll.filter((u) => mintedHere.has(refKey(u.row)));
+    const unmatched = unmatchedAll.filter((u) => !mintedHere.has(refKey(u.row)));
 
     const SOURCE_NOTE =
       'NOAA NCEI, Thermal Springs List for the United States (1981), doi:10.25921/c8p0-zs06';
@@ -379,6 +407,7 @@ async function main() {
             filled,
             describedOnly,
             deferredToAuthor,
+            becamePin: becamePin.length,
             unmatched: unmatched.length,
             rejected: rejected.length,
             parseRejects: parseRejects.length,
@@ -396,7 +425,7 @@ async function main() {
     console.log(
       `  ${matched.length} matched, ${filled} temperature(s) filled, ` +
         `${describedOnly} described, ${deferredToAuthor} left to an author, ` +
-        `${unmatched.length} unmatched, ` +
+        `${becamePin.length} became pins, ${unmatched.length} unmatched, ` +
         `${rejected.length} rejected -> data/ncei-match-report.json`,
     );
     if (conflicts.length) {
