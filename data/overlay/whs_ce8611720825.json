@@ -67,6 +67,12 @@
       "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
       "contributor": "HudsonR&D Meta 9.5.26",
       "state": "active"
+    },
+    "minerals.unit": {
+      "value": "mg/l",
+      "source": "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
+      "contributor": "HudsonR&D Meta 9.8.26",
+      "state": "active"
     }
   }
 }
