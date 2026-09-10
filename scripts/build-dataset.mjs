@@ -22,6 +22,8 @@ import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
 import { parseNcei } from './lib/ncei.mjs';
 import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs';
+import { fromTsv, AIST_PROVIDER, AIST_SOURCE, AIST_PAGE } from './lib/aist.mjs';
+import { matchAist, agreedValue, agreedUnit, agreedYear, NUMERIC_FIELDS as AIST_NUMERIC_FIELDS } from './lib/aist-match.mjs';
 
 const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
@@ -431,6 +433,118 @@ async function main() {
     if (conflicts.length) {
       console.log(`  ${conflicts.length} conflict(s) with an existing temperature, left alone`);
     }
+  }
+
+  // --- AIST / GSJ Japanese wellhead analyses ---
+  // Enrichment only, and placed here for the same reason the NCEI merge is:
+  // after identity, so ids are final, and before the curated overlay, so an
+  // authored claim still wins. Nothing in this stage adds, moves or removes a
+  // record -- AIST publishes a 187-191 m cell per row and a cell that wide in
+  // a mountain valley is enough to put a pin on the wrong ravine, so the
+  // centroid is a distance key and never a coordinate.
+  const AIST_TSV = path.join('data', 'reference', 'aist-onsen.tsv');
+  if (fs.existsSync(AIST_TSV)) {
+    console.log('Merging AIST hot spring analyses ...');
+    const aistRows = fromTsv(fs.readFileSync(AIST_TSV, 'utf8'));
+    const { matched: aistMatched, rejected: aistRejected } = matchAist(aistRows, records);
+
+    let aistTemps = 0;
+    let aistChem = 0;
+    const withheld = [];
+    const aistReport = [];
+
+    for (const m of aistMatched) {
+      const rec = records.find((r) => r.id === m.id);
+      if (!rec) continue;
+      const overlay = overlays.get(m.id);
+      const claimed = (field) => {
+        const c = overlay?.claims?.[field];
+        return Boolean(c) && c.state !== 'retracted';
+      };
+      const year = agreedYear(m.rows);
+      const written = [];
+      let touched = false;
+
+      // The unit qualifies the whole panel, so it is decided BEFORE any figure
+      // is written. A group whose wells were printed in different units, or in
+      // none, has no commensurable panel to publish -- and writing figures
+      // anyway is exactly what minerals.unit was added to prevent. Caught by
+      // its own test rather than reasoned about: the first cut of this stage
+      // wrote a chloride reading with unit null and the guard failed.
+      const groupUnit = agreedUnit(m.rows);
+
+      for (const [field, tolerance] of AIST_NUMERIC_FIELDS) {
+        const value = agreedValue(m.rows, field, tolerance);
+        if (field === 'celsius') {
+          // Withheld rather than averaged when the wells disagree. Under one
+          // onsen name they genuinely differ -- different depths, different
+          // sources -- and picking one would publish a number nobody stated.
+          if (value === null) { withheld.push({ id: m.id, field, reason: 'wells disagree or none stated' }); continue; }
+          if (rec.temperature.celsius !== null || claimed('temperature.celsius')) continue;
+          rec.temperature.celsius = value;
+          rec.temperature.fahrenheit = Math.round(((value * 9) / 5 + 32) * 10) / 10;
+          // AIST publishes 泉温 at the wellhead, so this is a source reading.
+          rec.temperature.kind = 'source';
+          rec.temperature.measuredAt = year;
+          rec.temperature.source = AIST_SOURCE;
+          aistTemps++; touched = true; written.push('temperature');
+          continue;
+        }
+        // pH is unitless, so it is publishable whatever the panel's unit is.
+        // Everything else needs one, and a figure whose unit the source did
+        // not agree on is not a figure this atlas can render honestly.
+        if (field !== 'ph' && !groupUnit) {
+          withheld.push({ id: m.id, field, reason: 'no agreed unit for the panel' });
+          continue;
+        }
+        if (value === null) { withheld.push({ id: m.id, field, reason: 'wells disagree or none stated' }); continue; }
+        if (rec.minerals[field] !== null && rec.minerals[field] !== undefined) continue;
+        if (claimed(`minerals.${field}`)) continue;
+        rec.minerals[field] = value;
+        touched = true; written.push(field);
+      }
+
+      // Written only when something numeric that NEEDS a unit actually landed.
+      // A unit beside no figures is decoration, and pH alone needs none.
+      const wroteUnited = written.some((w) => w !== 'temperature' && w !== 'ph');
+      if (wroteUnited && groupUnit && !claimed('minerals.unit')) rec.minerals.unit = groupUnit;
+      if (written.some((w) => w !== 'temperature')) {
+        if (!rec.minerals.measuredAt && !claimed('minerals.measuredAt')) rec.minerals.measuredAt = year;
+        aistChem++;
+      }
+
+      if (touched) {
+        if (!rec.quality.provenance.includes(AIST_PROVIDER)) {
+          rec.quality.provenance = [...rec.quality.provenance, AIST_PROVIDER].sort();
+        }
+        rec.sources = [...new Set([...rec.sources, AIST_PAGE])];
+      }
+      aistReport.push({ id: m.id, name: rec.name, group: m.group, wells: m.rows.length,
+                        meters: m.meters, agreement: m.agreement, written, measuredAt: year });
+    }
+
+    fs.writeFileSync(
+      path.join('data', 'aist-match-report.json'),
+      `${JSON.stringify({
+        generatedAt: buildTimestamp,
+        counts: {
+          rows: aistRows.length,
+          groupsMatched: aistMatched.length,
+          temperaturesFilled: aistTemps,
+          panelsFilled: aistChem,
+          fieldsWithheld: withheld.length,
+          groupsRejected: aistRejected.length,
+        },
+        matched: aistReport,
+        withheld,
+        rejected: aistRejected,
+      }, null, 2)}\n`,
+    );
+    console.log(
+      `  ${aistMatched.length} group(s) matched, ${aistTemps} temperature(s) filled, ` +
+        `${aistChem} panel(s) filled, ${withheld.length} field(s) withheld, ` +
+        `${aistRejected.length} contended -> data/aist-match-report.json`,
+    );
   }
 
   // --- Curated overlay ---

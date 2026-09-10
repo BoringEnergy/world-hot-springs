@@ -11,13 +11,48 @@ Overpass API  ->  data/raw/osm/tile-*.json   (scripts/fetch-osm.mjs)
               ->  normalise                  (scripts/lib/normalize.mjs)
               ->  country resolve            (scripts/lib/countries.mjs)
               ->  bad-import quarantine      (data/known-bad-imports.json)
+              ->  NCEI admission             (scripts/lib/ncei-admit.mjs)
               ->  dedupe                     (scripts/lib/identity.mjs)
               ->  durable identity           (scripts/lib/identity.mjs)
+              ->  NCEI enrichment            (scripts/lib/ncei-match.mjs)
+              ->  AIST enrichment            (scripts/lib/aist-match.mjs)
               ->  curated overlay            (scripts/lib/overlay.mjs)
+              ->  temperature warnings       (scripts/lib/normalize.mjs)
+              ->  completeness rescore       (scripts/lib/normalize.mjs)
+              ->  land-manager restrictions  (scripts/lib/land-manager.mjs)
               ->  privacy filter             (scripts/lib/exclusions.mjs)   <- always last
               ->  data/hot-springs.{json,geojson}, data/summary.json
                   data/registry.json, data/events.jsonl
 ```
+
+## Upstreams, and the attribution each one requires
+
+| Upstream | What it supplies | Licence |
+| --- | --- | --- |
+| OpenStreetMap | every pin's position, name and tags | ODbL 1.0, attribution required |
+| NOAA NCEI | US thermal springs: 1,023 pins and 131 enrichments | public domain, doi:10.25921/c8p0-zs06 |
+| AIST / GSJ | Japanese wellhead temperature and chemistry | 政府標準利用規約 2.0 (CC BY 4.0 compatible), attribution required |
+
+**Map data © OpenStreetMap contributors, ODbL 1.0.**
+
+**NOAA National Centers for Environmental Information, *Thermal Springs List
+for the United States* (1981), doi:10.25921/c8p0-zs06.** A federal compilation
+that has not been checked on the ground since; every record derived from it
+says so on its own card.
+
+**産業技術総合研究所 地質調査総合センター『日本の温泉』 (AIST/GSJ, Geochemical
+Map of Hot Spring Waters, GRES-DB ONSEN 2020).** Used under 政府標準利用規約
+第2.0版, which the publisher states is CC BY 4.0 compatible; attribution is
+required and commercial use is permitted.
+
+Two things about the AIST data are worth stating here rather than burying in
+code. Its analyses run **1910 to 2005, median 1975**, and 2,692 of 7,203 rows
+state no date at all -- so `minerals.measuredAt` is doing real work on these
+records, not decoration. And every row's published position is a **187-191 m
+cell**, which is a publisher privacy choice; this project uses the centroid as
+a distance key only. It never writes one to a record's coordinates and never
+mints a pin from one, which is exactly why AIST is admitted as enrichment and
+not as an upstream that can place springs.
 
 The privacy filter is last, and a test asserts it. Nothing that can add, move,
 or reintroduce a record may run below it. `mergeInto()` adopts the winner's
