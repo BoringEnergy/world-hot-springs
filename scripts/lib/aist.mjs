@@ -241,8 +241,20 @@ export function toTsv(rows) {
   return `${TSV_COLUMNS.join('\t')}\n${body.join('\n')}\n`;
 }
 
+/**
+ * Read the mirror back.
+ *
+ * Splits on /\r?\n/ rather than '\n' because the mirror is a COMMITTED file
+ * and git hands it back with CRLF on Windows. Splitting on '\n' alone left a
+ * trailing carriage return welded to the last column name, so the parsed row
+ * carried `silica\r` and every silica reading was silently absent -- present
+ * in the file, never read, withheld with no error. The dataset built before
+ * the first checkout still had them, so this was a reproducibility break
+ * rather than a visible one: the same command on the same input would produce
+ * different output depending on whose machine ran it.
+ */
 export function fromTsv(text) {
-  const lines = text.split('\n').filter((l) => l && !l.startsWith('#'));
+  const lines = text.split(/\r?\n/).filter((l) => l && !l.startsWith('#'));
   const header = lines[0].split('\t');
   return lines.slice(1).map((line) => {
     const cells = line.split('\t');

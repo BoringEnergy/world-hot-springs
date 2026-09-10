@@ -122,6 +122,9 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     'minerals.calcium': 'number',
     'minerals.magnesium': 'number',
     'minerals.sodium': 'number',
+    // Late to the panel: nothing published potassium until AIST, where 6,842
+    // of 7,203 rows state one.
+    'minerals.potassium': 'number',
     'minerals.silica': 'number',
     'minerals.iron': 'number',
     'minerals.types': [
@@ -525,13 +528,13 @@ test('AGENT_CLAIMABLE withholds exactly the four human-only fields', () => {
     CLAIMABLE.filter((f) => !AGENT_CLAIMABLE.includes(f)).sort(),
     ['location.nearestTown', 'name', 'tags', 'warnings'].sort(),
   );
-  // 13 original + 14 mineral fields + temperature.fahrenheit. The withheld
+  // 13 original + 15 mineral fields + temperature.fahrenheit. The withheld
   // four are unchanged: water chemistry is claimable by an agent because every
   // numeric part of it is literally checkable against the cited analysis,
   // which is a stronger guarantee than any field on the original list except
   // temperature. Fahrenheit joins for the same reason -- it is the printed
   // number, so it is checkable in exactly the way Celsius is.
-  assert.equal(AGENT_CLAIMABLE.length, 29);
+  assert.equal(AGENT_CLAIMABLE.length, 30);
 });
 
 test('an agent may claim every permitted field', () => {

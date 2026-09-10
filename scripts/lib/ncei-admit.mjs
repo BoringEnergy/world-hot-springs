@@ -146,6 +146,7 @@ export function toRecord(row, ingestedAt) {
       calcium: null,
       magnesium: null,
       sodium: null,
+      potassium: null,
       silica: null,
       iron: null,
       types: [],

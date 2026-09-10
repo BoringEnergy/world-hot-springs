@@ -81,6 +81,7 @@ export const CLAIMABLE = [
   'minerals.calcium',
   'minerals.magnesium',
   'minerals.sodium',
+  'minerals.potassium',
   'minerals.silica',
   'minerals.iron',
   'minerals.types',
@@ -131,7 +132,7 @@ export const RISK = {
     // mis-stated sulfate figure misinforms, it does not burn.
     'minerals.tds', 'minerals.sulfate', 'minerals.bicarbonate',
     'minerals.chloride', 'minerals.calcium', 'minerals.magnesium',
-    'minerals.sodium', 'minerals.silica', 'minerals.iron',
+    'minerals.sodium', 'minerals.potassium', 'minerals.silica', 'minerals.iron',
     'minerals.notes', 'minerals.measuredAt',
     // The unit qualifies the panel the way measuredAt dates it. Elevated, not
     // high: a wrong unit misinforms by up to a few percent, it does not burn.
@@ -210,6 +211,7 @@ export const FIELD_TYPES = {
   'minerals.calcium': 'number',
   'minerals.magnesium': 'number',
   'minerals.sodium': 'number',
+  'minerals.potassium': 'number',
   'minerals.silica': 'number',
   'minerals.iron': 'number',
 
@@ -242,7 +244,7 @@ export const FIELD_TYPES = {
  */
 export const UNITED_MINERALS = [
   'tds', 'sulfate', 'bicarbonate', 'chloride', 'calcium',
-  'magnesium', 'sodium', 'silica', 'iron',
+  'magnesium', 'sodium', 'potassium', 'silica', 'iron',
 ];
 
 export function mineralsNeedUnit(record) {

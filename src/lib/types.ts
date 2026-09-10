@@ -147,6 +147,12 @@ export interface HotSpring {
     calcium: number | null;
     magnesium: number | null;
     sodium: number | null;
+    /**
+     * Potassium. Late to this panel because nothing published it until AIST:
+     * 6,842 of its 7,203 rows state a K figure, which made the absence a real
+     * gap rather than a tidy schema.
+     */
+    potassium: number | null;
     silica: number | null;
     iron: number | null;
     /** Japan's Hot Spring Law classification. Adopted, not invented. */

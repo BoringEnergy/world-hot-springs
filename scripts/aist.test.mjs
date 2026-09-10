@@ -180,3 +180,17 @@ test('AIST runs after identity and before the curated overlay', () => {
   assert.ok(overlay > aist, 'an authored claim must still beat the upstream');
   assert.ok(privacy > aist, 'the privacy filter still runs last');
 });
+
+test('the mirror reads the same whether git checked it out LF or CRLF', () => {
+  // It is a COMMITTED file, so git hands it back with CRLF on Windows.
+  // Splitting on a bare newline welded a carriage return to the last column
+  // NAME, so the parsed row carried a silica key nobody could look up: every
+  // silica reading was absent, and nothing errored. The build that produced
+  // the committed dataset ran before the first checkout, so the two agreed
+  // there and would have disagreed on the next machine to rebuild.
+  const lf = ['a\tb\tsilica', '1\t2\t3', ''].join('\n');
+  const crlf = ['a\tb\tsilica', '1\t2\t3', ''].join('\r\n');
+  assert.deepEqual(Object.keys(fromTsv(lf)[0]), ['a', 'b', 'silica']);
+  assert.deepEqual(Object.keys(fromTsv(crlf)[0]), ['a', 'b', 'silica']);
+  assert.deepEqual(fromTsv(lf), fromTsv(crlf));
+});
