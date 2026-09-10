@@ -139,6 +139,7 @@ export const MINERAL_CONSTITUENTS = [
   ['calcium', 'Calcium'],
   ['magnesium', 'Magnesium'],
   ['sodium', 'Sodium'],
+  ['potassium', 'Potassium'],
   ['silica', 'Silica'],
   ['iron', 'Iron'],
 ] as const;

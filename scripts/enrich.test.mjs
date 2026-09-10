@@ -733,7 +733,8 @@ test('the numeric fields are the literal fields that hold numbers', () => {
   assert.deepEqual(NUMERIC_FIELDS, [
     'temperature.celsius', 'temperature.fahrenheit', 'location.elevation',
     'minerals.ph', 'minerals.tds', 'minerals.sulfate', 'minerals.bicarbonate', 'minerals.chloride',
-    'minerals.calcium', 'minerals.magnesium', 'minerals.sodium', 'minerals.silica', 'minerals.iron',
+    'minerals.calcium', 'minerals.magnesium', 'minerals.sodium', 'minerals.potassium',
+    'minerals.silica', 'minerals.iron',
   ]);
   for (const f of NUMERIC_FIELDS) {
     assert.ok(LITERAL_FIELDS.includes(f), `${f} must also be fetch-checkable`);

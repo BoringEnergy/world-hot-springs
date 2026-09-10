@@ -53,6 +53,7 @@ export const LITERAL_FIELDS = [
   'minerals.calcium',
   'minerals.magnesium',
   'minerals.sodium',
+  'minerals.potassium',
   'minerals.silica',
   'minerals.iron',
 ];

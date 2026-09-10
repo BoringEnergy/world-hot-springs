@@ -29,7 +29,7 @@ test('every mineral concentration is a number, so it can be verified literally',
   // verify-claims.mjs can check it without a model. Storing the panel as
   // prose would have made every mineral claim unverifiable.
   const numeric = MINERAL_FIELDS.filter((f) => FIELD_TYPES[f] === 'number');
-  assert.equal(numeric.length, 10, 'ph, tds and the eight constituents');
+  assert.equal(numeric.length, 11, 'ph, tds and the nine constituents');
   for (const f of numeric) {
     assert.ok(LITERAL_FIELDS.includes(f), `${f} must be fetch-checkable`);
     assert.ok(NUMERIC_FIELDS.includes(f), `${f} must be in NUMERIC_FIELDS`);
