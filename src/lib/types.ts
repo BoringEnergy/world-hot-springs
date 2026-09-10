@@ -225,7 +225,7 @@ export type SpringType = 'natural' | 'developed' | 'resort' | 'wild' | 'unknown'
  * the providers the build can produce. Add a member here and there, or the
  * suite fails.
  */
-export type SourceProvider = 'osm' | 'ncei';
+export type SourceProvider = 'osm' | 'ncei' | 'aist';
 
 export interface DataQuality {
   /**

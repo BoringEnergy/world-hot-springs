@@ -1,0 +1,3267 @@
+{
+  "counts": {
+    "rows": 7203,
+    "groupsMatched": 78,
+    "temperaturesFilled": 47,
+    "panelsFilled": 63,
+    "fieldsWithheld": 385,
+    "groupsRejected": 2
+  },
+  "matched": [
+    {
+      "id": "whs_5332ec636e92",
+      "name": "中岳温泉",
+      "group": "中岳温泉",
+      "wells": 4,
+      "meters": 23,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1988"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "name": "川北温泉",
+      "group": "川北温泉",
+      "wells": 7,
+      "meters": 45,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "name": "川湯温泉",
+      "group": "川湯温泉",
+      "wells": 51,
+      "meters": 24,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1991"
+    },
+    {
+      "id": "whs_9a7d09ecb358",
+      "name": "越川温泉",
+      "group": "越川温泉",
+      "wells": 1,
+      "meters": 7,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "iron",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": "1998"
+    },
+    {
+      "id": "whs_dcf39f04ded7",
+      "name": "森林公園温泉；きよら",
+      "group": "森林公園",
+      "wells": 1,
+      "meters": 7,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "name": "ワイス温泉",
+      "group": "ワイス",
+      "wells": 2,
+      "meters": 77,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "magnesium"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "name": "川上温泉",
+      "group": "川上",
+      "wells": 2,
+      "meters": 59,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_c3bc7557a1f8",
+      "name": "谷地頭温泉",
+      "group": "谷地頭",
+      "wells": 1,
+      "meters": 31,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_73d25ed36b77",
+      "name": "新湯",
+      "group": "下風呂",
+      "wells": 1,
+      "meters": 50,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_11e073a512ef",
+      "name": "浅虫温泉",
+      "group": "浅虫",
+      "wells": 1,
+      "meters": 62,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_c794014d6acf",
+      "name": "平川温泉",
+      "group": "大袋",
+      "wells": 1,
+      "meters": 21,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_bd539e0483fc",
+      "name": "三世寺温泉",
+      "group": "三世寺",
+      "wells": 1,
+      "meters": 29,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_da113bd4f3d4",
+      "name": "桔梗野温泉",
+      "group": "桔梗野",
+      "wells": 1,
+      "meters": 6,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_d9190fad09a2",
+      "name": "新鳩ノ湯温泉",
+      "group": "新鳩の湯",
+      "wells": 1,
+      "meters": 14,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_b66e6fffdfe2",
+      "name": "千畑温泉",
+      "group": "千畑",
+      "wells": 1,
+      "meters": 92,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_10474a35e201",
+      "name": "横手駅前温泉ゆうゆうプラザ",
+      "group": "横手駅前・細谷第1",
+      "wells": 1,
+      "meters": 77,
+      "agreement": "substring",
+      "written": [
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_84e420a8e915",
+      "name": "貝の沢温泉",
+      "group": "貝の沢",
+      "wells": 1,
+      "meters": 61,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "name": "寺の湯",
+      "group": "新湯",
+      "wells": 3,
+      "meters": 46,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_6d7a6ce2f1cf",
+      "name": "鴻の巣温泉",
+      "group": "鴻の巣",
+      "wells": 1,
+      "meters": 76,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_22bd7828fae8",
+      "name": "神ケ根温泉",
+      "group": "神ケ根",
+      "wells": 1,
+      "meters": 57,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_21d077e3805b",
+      "name": "石抱温泉",
+      "group": "石抱",
+      "wells": 1,
+      "meters": 66,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_77ea32e61d8f",
+      "name": "湯沼温泉",
+      "group": "湯沼",
+      "wells": 1,
+      "meters": 43,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_b98e810e5426",
+      "name": "瀬波温泉",
+      "group": "瀬波",
+      "wells": 1,
+      "meters": 1,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_b0f9e9e645e5",
+      "name": "微温湯温泉",
+      "group": "微温湯",
+      "wells": 1,
+      "meters": 29,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_d2aa3793b4eb",
+      "name": "大塩温泉",
+      "group": "大塩",
+      "wells": 1,
+      "meters": 43,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_50b1c35eee6f",
+      "name": "大塚温泉",
+      "group": "大塚",
+      "wells": 1,
+      "meters": 63,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_0dc8badd8689",
+      "name": "松代荘",
+      "group": "松代",
+      "wells": 1,
+      "meters": 121,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_703c1e62ac90",
+      "name": "阿字ヶ浦温泉 のぞみ",
+      "group": "阿字ヶ浦温泉",
+      "wells": 1,
+      "meters": 11,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "2001"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "name": "安眠の湯",
+      "group": "金山温泉",
+      "wells": 2,
+      "meters": 31,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "name": "秩父川端温泉;凡の湯",
+      "group": "秩父川端温泉",
+      "wells": 2,
+      "meters": 98,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "magnesium"
+      ],
+      "measuredAt": "2000"
+    },
+    {
+      "id": "whs_7e2644cae2f6",
+      "name": "秩父温泉 満願の湯",
+      "group": "秩父満願の湯",
+      "wells": 1,
+      "meters": 61,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1989"
+    },
+    {
+      "id": "whs_0bc827d5a705",
+      "name": "行田天然温泉;古代蓮物語",
+      "group": "行田天然温泉",
+      "wells": 1,
+      "meters": 23,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "bicarbonate"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_89efb3104383",
+      "name": "四季の湯温泉",
+      "group": "四季の湯温泉",
+      "wells": 1,
+      "meters": 12,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "bicarbonate"
+      ],
+      "measuredAt": "1995"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "name": "蒲田温泉",
+      "group": "蒲田温泉",
+      "wells": 3,
+      "meters": 14,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1986"
+    },
+    {
+      "id": "whs_f431de4ad6b6",
+      "name": "豊島園 庭の湯",
+      "group": "豊島園庭の湯",
+      "wells": 1,
+      "meters": 21,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_94d9c8dc4427",
+      "name": "生涯青春の湯 つるつる温泉",
+      "group": "生涯青春の湯つるつる温泉",
+      "wells": 1,
+      "meters": 158,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1994"
+    },
+    {
+      "id": "whs_194611569e65",
+      "name": "七沢荘",
+      "group": "七沢温泉",
+      "wells": 6,
+      "meters": 14,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1996"
+    },
+    {
+      "id": "whs_a1baa4f80c27",
+      "name": "日吉湯",
+      "group": "日吉湯",
+      "wells": 1,
+      "meters": 11,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1998"
+    },
+    {
+      "id": "whs_fea01b79a546",
+      "name": "奥山温泉",
+      "group": "奥山温泉",
+      "wells": 1,
+      "meters": 58,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate"
+      ],
+      "measuredAt": "1992"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "name": "やまなみの湯",
+      "group": "甲西温泉",
+      "wells": 2,
+      "meters": 20,
+      "agreement": "exact",
+      "written": [
+        "ph"
+      ],
+      "measuredAt": "2001"
+    },
+    {
+      "id": "whs_48dc82ae5639",
+      "name": "正徳寺温泉",
+      "group": "正徳寺温泉",
+      "wells": 1,
+      "meters": 58,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1989"
+    },
+    {
+      "id": "whs_5987b23fc4af",
+      "name": "はやぶさ温泉",
+      "group": "はやぶさ温泉",
+      "wells": 1,
+      "meters": 23,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1991"
+    },
+    {
+      "id": "whs_ab4838e605a3",
+      "name": "山梨日帰り温泉 湯めみの丘",
+      "group": "響ヶ丘温泉",
+      "wells": 1,
+      "meters": 13,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "bicarbonate"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_9eea1bcb9e7a",
+      "name": "富士眺望の湯;ゆらり",
+      "group": "(鳴沢村)",
+      "wells": 1,
+      "meters": 8,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1998"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "name": "湖畔の湯",
+      "group": "下諏訪温泉",
+      "wells": 19,
+      "meters": 10,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1980"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "name": "信州布引温泉;御牧乃湯",
+      "group": "布引温泉",
+      "wells": 2,
+      "meters": 62,
+      "agreement": "substring",
+      "written": [
+        "ph",
+        "tds"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "name": "足付温泉",
+      "group": "足付温泉",
+      "wells": 3,
+      "meters": 27,
+      "agreement": "exact",
+      "written": [
+        "bicarbonate"
+      ],
+      "measuredAt": "1988"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "name": "神津島温泉保養センター",
+      "group": "神津島温泉",
+      "wells": 5,
+      "meters": 74,
+      "agreement": "substring",
+      "written": [
+        "tds"
+      ],
+      "measuredAt": "1992"
+    },
+    {
+      "id": "whs_bf0736b5d12a",
+      "name": "みはらしの湯",
+      "group": "末吉道ヶ沢温泉",
+      "wells": 1,
+      "meters": 34,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate"
+      ],
+      "measuredAt": "1992"
+    },
+    {
+      "id": "whs_599f9a7a94c2",
+      "name": "洞輪沢温泉",
+      "group": "洞輪沢温泉",
+      "wells": 1,
+      "meters": 5,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": "1989"
+    },
+    {
+      "id": "whs_f3a278482d83",
+      "name": "裏見ヶ滝温泉",
+      "group": "中之郷尾越温泉",
+      "wells": 1,
+      "meters": 53,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "2001"
+    },
+    {
+      "id": "whs_91dffa0bec89",
+      "name": "樫立向里温泉 ふれあいの湯",
+      "group": "樫立向里温泉",
+      "wells": 1,
+      "meters": 77,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_cf0a2404802a",
+      "name": "阿曽原温泉",
+      "group": "阿曽原温泉",
+      "wells": 1,
+      "meters": 15,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": "1965"
+    },
+    {
+      "id": "whs_e66e2f2b83f7",
+      "name": "福光温泉",
+      "group": "福光温泉",
+      "wells": 1,
+      "meters": 60,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1971"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "name": "高天原温泉",
+      "group": "高天原温泉",
+      "wells": 2,
+      "meters": 5,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "calcium",
+        "magnesium",
+        "sulfate"
+      ],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_cca0e1e400ec",
+      "name": "奉納温泉",
+      "group": "奉納温泉",
+      "wells": 1,
+      "meters": 11,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "bicarbonate"
+      ],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_4bb8c90cf8b9",
+      "name": "四徳鉱泉",
+      "group": "四徳鉱泉",
+      "wells": 1,
+      "meters": 127,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1969"
+    },
+    {
+      "id": "whs_b7108be22951",
+      "name": "小渋温泉",
+      "group": "小渋温泉",
+      "wells": 1,
+      "meters": 22,
+      "agreement": "exact",
+      "written": [
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1965"
+    },
+    {
+      "id": "whs_f983126ed91b",
+      "name": "湯ノ口温泉",
+      "group": "湯ノ口温泉",
+      "wells": 1,
+      "meters": 88,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "iron",
+        "chloride",
+        "silica"
+      ],
+      "measuredAt": "1991"
+    },
+    {
+      "id": "whs_a1341ab7fec4",
+      "name": "くらま温泉",
+      "group": "鞍馬鉱泉",
+      "wells": 1,
+      "meters": 96,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1968"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "name": "スパワールド",
+      "group": "スパワールド",
+      "wells": 1,
+      "meters": 59,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1994"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "name": "わたらせ温泉 大露天風呂",
+      "group": "わたらせ温泉",
+      "wells": 6,
+      "meters": 5,
+      "agreement": "substring",
+      "written": [],
+      "measuredAt": "1995"
+    },
+    {
+      "id": "whs_c387639fca19",
+      "name": "岡山桃太郎温泉",
+      "group": "岡山桃太郎温泉",
+      "wells": 1,
+      "meters": 24,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "calcium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1996"
+    },
+    {
+      "id": "whs_5652ccff8ec7",
+      "name": "鷺の湯温泉",
+      "group": "鷺ノ湯",
+      "wells": 1,
+      "meters": 31,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "iron",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1995"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "name": "ホテル祖谷温泉",
+      "group": "祖谷温泉",
+      "wells": 3,
+      "meters": 56,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1973"
+    },
+    {
+      "id": "whs_0bf35c243573",
+      "name": "こんぴら温泉湯元八千代",
+      "group": "こんぴら温泉",
+      "wells": 1,
+      "meters": 28,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1976"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "name": "湯野温泉",
+      "group": "湯野温泉",
+      "wells": 4,
+      "meters": 35,
+      "agreement": "exact",
+      "written": [
+        "magnesium"
+      ],
+      "measuredAt": "1969"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "name": "俵山温泉",
+      "group": "俵山温泉",
+      "wells": 4,
+      "meters": 11,
+      "agreement": "exact",
+      "written": [
+        "magnesium"
+      ],
+      "measuredAt": "1970"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "name": "川棚温泉",
+      "group": "川棚温泉",
+      "wells": 7,
+      "meters": 84,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1963"
+    },
+    {
+      "id": "whs_1ec277f915cf",
+      "name": "堀田温泉",
+      "group": "別府/堀田",
+      "wells": 1,
+      "meters": 141,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "ph",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "name": "渓谷苑",
+      "group": "渓谷苑",
+      "wells": 1,
+      "meters": 3,
+      "agreement": "exact",
+      "written": [
+        "temperature"
+      ],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_a572af6c37eb",
+      "name": "楠川温泉",
+      "group": "楠川温泉",
+      "wells": 1,
+      "meters": 13,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "tds",
+        "sodium",
+        "calcium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "silica"
+      ],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "name": "湯泊温泉",
+      "group": "湯泊温泉",
+      "wells": 2,
+      "meters": 5,
+      "agreement": "exact",
+      "written": [],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "name": "東温泉",
+      "group": "東温泉",
+      "wells": 5,
+      "meters": 22,
+      "agreement": "exact",
+      "written": [
+        "ph"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "name": "坂本温泉",
+      "group": "坂本温泉",
+      "wells": 2,
+      "meters": 50,
+      "agreement": "exact",
+      "written": [
+        "ph"
+      ],
+      "measuredAt": "1988"
+    },
+    {
+      "id": "whs_9fa4dadb079d",
+      "name": "寝待温泉",
+      "group": "寝待温泉",
+      "wells": 1,
+      "meters": 4,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "silica"
+      ],
+      "measuredAt": "1987"
+    },
+    {
+      "id": "whs_7b4ecc61ec83",
+      "name": "Terme VILLA ちゅらーゆ",
+      "group": "ちゅらーゆ",
+      "wells": 1,
+      "meters": 38,
+      "agreement": "substring",
+      "written": [
+        "temperature",
+        "ph",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_7f9ba819aa3a",
+      "name": "りっかりっか湯",
+      "group": "りっかりっか湯",
+      "wells": 1,
+      "meters": 51,
+      "agreement": "exact",
+      "written": [
+        "temperature",
+        "tds",
+        "sodium",
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1997"
+    }
+  ],
+  "withheld": [
+    {
+      "id": "whs_5332ec636e92",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_dcf39f04ded7",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_dcf39f04ded7",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_c3bc7557a1f8",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c3bc7557a1f8",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_73d25ed36b77",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_73d25ed36b77",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_11e073a512ef",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_11e073a512ef",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c794014d6acf",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c794014d6acf",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_bd539e0483fc",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_bd539e0483fc",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_da113bd4f3d4",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_da113bd4f3d4",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d9190fad09a2",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d9190fad09a2",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b66e6fffdfe2",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b66e6fffdfe2",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b66e6fffdfe2",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_10474a35e201",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_10474a35e201",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_84e420a8e915",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_84e420a8e915",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_6d7a6ce2f1cf",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_6d7a6ce2f1cf",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_22bd7828fae8",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_22bd7828fae8",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_21d077e3805b",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_21d077e3805b",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_77ea32e61d8f",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_77ea32e61d8f",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b98e810e5426",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b98e810e5426",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0f9e9e645e5",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0f9e9e645e5",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0f9e9e645e5",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d2aa3793b4eb",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d2aa3793b4eb",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_50b1c35eee6f",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_50b1c35eee6f",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0dc8badd8689",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0dc8badd8689",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0dc8badd8689",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_703c1e62ac90",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_703c1e62ac90",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7e2644cae2f6",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7e2644cae2f6",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0bc827d5a705",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0bc827d5a705",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0bc827d5a705",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_89efb3104383",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_89efb3104383",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_89efb3104383",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_89efb3104383",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_89efb3104383",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f431de4ad6b6",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f431de4ad6b6",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_94d9c8dc4427",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_94d9c8dc4427",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a1baa4f80c27",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a1baa4f80c27",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a1baa4f80c27",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_fea01b79a546",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_fea01b79a546",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_fea01b79a546",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_48dc82ae5639",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_48dc82ae5639",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_5987b23fc4af",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_5987b23fc4af",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_5987b23fc4af",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_ab4838e605a3",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_ab4838e605a3",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_ab4838e605a3",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9eea1bcb9e7a",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9eea1bcb9e7a",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_bf0736b5d12a",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_bf0736b5d12a",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_bf0736b5d12a",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_bf0736b5d12a",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_599f9a7a94c2",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f3a278482d83",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f3a278482d83",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_91dffa0bec89",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_91dffa0bec89",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_cf0a2404802a",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_e66e2f2b83f7",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_e66e2f2b83f7",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_433e4965e02c",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_cca0e1e400ec",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_cca0e1e400ec",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_cca0e1e400ec",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_4bb8c90cf8b9",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_4bb8c90cf8b9",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b7108be22951",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b7108be22951",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f983126ed91b",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f983126ed91b",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a1341ab7fec4",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a1341ab7fec4",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_c387639fca19",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c387639fca19",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c387639fca19",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c387639fca19",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_5652ccff8ec7",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b0b5b660d1b7",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0bf35c243573",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0bf35c243573",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_0bf35c243573",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f75f5fa85d68",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c6b8d125b85a",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_1ec277f915cf",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_1ec277f915cf",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_a572af6c37eb",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a572af6c37eb",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a572af6c37eb",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "tds",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "calcium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "magnesium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "chloride",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "sulfate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "celsius",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "tds",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "calcium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "magnesium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "iron",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "chloride",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "sulfate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "bicarbonate",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "silica",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9fa4dadb079d",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9fa4dadb079d",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_9fa4dadb079d",
+      "field": "bicarbonate",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7b4ecc61ec83",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7b4ecc61ec83",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7f9ba819aa3a",
+      "field": "ph",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7f9ba819aa3a",
+      "field": "iron",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_7f9ba819aa3a",
+      "field": "silica",
+      "reason": "wells disagree or none stated"
+    }
+  ],
+  "rejected": [
+    {
+      "group": "鹿塩温泉",
+      "reason": "one group, several springs",
+      "ids": [
+        "whs_d0f007ebe288",
+        "whs_b452103d0d51"
+      ]
+    },
+    {
+      "group": "有馬温泉",
+      "reason": "one group, several springs",
+      "ids": [
+        "whs_4956b18a7e3f",
+        "whs_fa3dcbf9e659",
+        "whs_215ae7308a5a",
+        "whs_14d064209997"
+      ]
+    }
+  ]
+}
