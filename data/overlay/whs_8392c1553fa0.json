@@ -1,0 +1,17 @@
+{
+  "id": "whs_8392c1553fa0",
+  "claims": {
+    "temperature.celsius": {
+      "value": 77,
+      "source": "https://parks.canada.ca/pn-np/bc/gwaiihaanas/culture/cultural-sites-culturels/cultural-sites-culturels-4",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://parks.canada.ca/pn-np/bc/gwaiihaanas/culture/cultural-sites-culturels/cultural-sites-culturels-4",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

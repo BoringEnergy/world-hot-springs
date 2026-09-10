@@ -3,10 +3,10 @@
   "total": 7490,
   "countries": 131,
   "coverage": {
-    "temperature": 1296,
-    "price": 880,
-    "hours": 467,
-    "clothing": 48
+    "temperature": 1308,
+    "price": 879,
+    "hours": 466,
+    "clothing": 47
   },
   "byType": {
     "natural": 2941,
