@@ -1,15 +1,15 @@
 {
-  "id": "whs_f9eacbbc41b0",
+  "id": "whs_634cf0d96a04",
   "claims": {
     "temperature.celsius": {
-      "value": 40,
-      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs",
+      "value": 36,
+      "source": "https://www.mondorf.lu/",
       "contributor": "HudsonR&D Meta 9.9.26",
       "state": "active"
     },
     "temperature.kind": {
       "value": "bathing",
-      "source": "https://parks.canada.ca/pn-np/ab/banff/sources-banff-springs",
+      "source": "https://www.mondorf.lu/",
       "contributor": "HudsonR&D Meta 9.9.26",
       "state": "active"
     }

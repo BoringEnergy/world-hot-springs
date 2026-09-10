@@ -1,0 +1,17 @@
+{
+  "id": "whs_461e5f263101",
+  "claims": {
+    "temperature.celsius": {
+      "value": 49,
+      "source": "https://de.wikipedia.org/wiki/Embros-Therme",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://de.wikipedia.org/wiki/Embros-Therme",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}

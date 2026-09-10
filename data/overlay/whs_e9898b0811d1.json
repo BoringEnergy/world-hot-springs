@@ -1,0 +1,17 @@
+{
+  "id": "whs_e9898b0811d1",
+  "claims": {
+    "temperature.celsius": {
+      "value": 43,
+      "source": "https://kupaliskobanovce.sk/",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    },
+    "temperature.kind": {
+      "value": "source",
+      "source": "https://kupaliskobanovce.sk/",
+      "contributor": "HudsonR&D Meta 9.9.26",
+      "state": "active"
+    }
+  }
+}
