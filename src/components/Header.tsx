@@ -13,6 +13,16 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
 
   return (
     <header className="relative z-40 flex shrink-0 items-center gap-2 border-b border-basalt-800/80 bg-basalt-950/80 px-3 py-2.5 backdrop-blur-xl sm:px-4">
+      {/*
+        The page had no h1. The name lives in <title> and in the About panel,
+        and the header shows controls rather than a wordmark, so there was no
+        heading of any level until the filter rail's "Filters" h2 -- which left
+        a screen reader's heading list starting at a panel that is usually
+        closed. Hidden rather than shown, because adding a visible wordmark is
+        a design change and this is not.
+      */}
+      <h1 className="sr-only">World Hot Springs</h1>
+
       <button
         onClick={onToggleFilters}
         aria-pressed={filtersOpen}
@@ -59,10 +69,26 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
         )}
       </div>
 
-      <span className="hidden shrink-0 text-xs tabular-nums text-steam-400 md:inline">
+      <span aria-hidden className="hidden shrink-0 text-xs tabular-nums text-steam-400 md:inline">
         {loading
           ? 'Loading…'
           : `${visible.length.toLocaleString()} spring${visible.length === 1 ? '' : 's'}`}
+      </span>
+
+      {/*
+        The same count, announced.
+        Filtering and searching change nothing a screen reader is told: the map
+        is a canvas, the results list only exists during a search, and this
+        count was the sole feedback that a filter did anything -- silent, and
+        display:none below md, where a live region announces nothing at all.
+        So the visible span is now decorative and this one is the accessible
+        copy: always in the tree, polite so it waits for a pause in typing
+        rather than reading a new total on every keystroke.
+      */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {loading
+          ? 'Loading the atlas'
+          : `${visible.length.toLocaleString()} spring${visible.length === 1 ? '' : 's'} shown`}
       </span>
 
       <button

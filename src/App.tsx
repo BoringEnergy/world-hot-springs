@@ -39,7 +39,13 @@ export default function App() {
     <div className="flex h-full w-full flex-col overflow-hidden">
       <Header onToggleFilters={() => setFiltersOpen((v) => !v)} filtersOpen={filtersOpen} />
 
-      <div className="relative flex-1 overflow-hidden">
+      {/*
+        A landmark, so the atlas is something a screen reader can jump to
+        rather than something it has to be tabbed into past the whole header.
+        The element is the only structural change: it lays out exactly as the
+        div it replaced.
+      */}
+      <main className="relative flex-1 overflow-hidden">
         <MapView />
         <FilterRail open={filtersOpen} onClose={() => setFiltersOpen(false)} />
         {!filtersOpen && <ResultsList />}
@@ -62,7 +68,7 @@ export default function App() {
             </pre>
           </div>
         )}
-      </div>
+      </main>
 
       <AboutPanel />
     </div>
