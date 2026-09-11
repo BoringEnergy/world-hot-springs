@@ -203,7 +203,10 @@ test('the field is present on every record and claimed by nobody', () => {
   // privacy radius.
   const overlay = fs.readFileSync('scripts/lib/overlay.mjs', 'utf8');
   assert.ok(!overlay.includes("'location.accuracyMeters'"), 'must not be claimable');
-  // And no record carries a value yet: this is PR 1 of 2, the field landing
-  // empty before anything fills it.
-  assert.deepEqual(all.filter((s) => s.location.accuracyMeters !== null).map((s) => s.id), []);
+  // The values themselves are derived in scripts/lib/accuracy.mjs and pinned
+  // by scripts/accuracy.test.mjs. What matters here is that every record
+  // carries the key, so the card can read it without a guard on 7,490 pins.
+  const stated = all.filter((s) => s.location.accuracyMeters !== null);
+  assert.ok(stated.length > 500, 'not vacuous: some pins do state a precision');
+  for (const s of stated) assert.ok(Number.isFinite(s.location.accuracyMeters), s.id);
 });
