@@ -194,3 +194,37 @@ test('the mirror reads the same whether git checked it out LF or CRLF', () => {
   assert.deepEqual(Object.keys(fromTsv(crlf)[0]), ['a', 'b', 'silica']);
   assert.deepEqual(fromTsv(lf), fromTsv(crlf));
 });
+
+test('every measurement column survives the mirror round trip as a number', () => {
+  // TSV_NUMERIC used to be a second hand-kept copy of the column list, and the
+  // two drifted the first time a column was added. `potassium` reached
+  // TSV_COLUMNS, was written to the mirror correctly, and came back as the
+  // STRING "23.800" -- not `typeof v === 'number'`, so every agreement check
+  // skipped it and the field published nothing. No error, no NaN, just a
+  // panel quietly missing one constituent.
+  const rows = fromTsv(fs.readFileSync('data/reference/aist-onsen.tsv', 'utf8'));
+  const TEXT = new Set(['ser', 'onsenName', 'sourceName', 'prefecture', 'measuredAt', 'unit']);
+  for (const col of TSV_COLUMNS) {
+    const stated = rows.filter((r) => r[col] !== null);
+    assert.ok(stated.length > 0, `${col} is empty in the mirror`);
+    const wrongType = stated.filter((r) => (TEXT.has(col)
+      ? typeof r[col] !== 'string'
+      : typeof r[col] !== 'number' || Number.isNaN(r[col])));
+    assert.deepEqual(
+      wrongType.slice(0, 3).map((r) => r[col]),
+      [],
+      `${col} should parse back as ${TEXT.has(col) ? 'text' : 'a number'}`,
+    );
+  }
+});
+
+test('potassium is read from the K column, not the one beside it', () => {
+  // Column 21 sits between Na (20) and NH4 (22). An off-by-one here would
+  // publish ammonium as potassium, and both are plausible small numbers, so
+  // nothing downstream would look wrong.
+  const rows = fromTsv(fs.readFileSync('data/reference/aist-onsen.tsv', 'utf8'));
+  assert.equal(rows.filter((r) => typeof r.potassium === 'number').length, 6842);
+  // The first row of the published file: Na 334.5, K 23.8.
+  assert.equal(rows[0].sodium, 334.5);
+  assert.equal(rows[0].potassium, 23.8);
+});
