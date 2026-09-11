@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-09-05.
+Last updated 2026-09-11.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -28,8 +28,9 @@ and a distance in kilometres -- and both times the conclusion was wrong.
 
 ## What this is
 
-An open atlas of the world's public hot springs. **6,471 springs across 129
-countries**, derived from OpenStreetMap and published as a static site.
+An open atlas of the world's public hot springs. **7,490 springs across 131
+countries**, derived from OpenStreetMap and three further upstreams, and
+published as a static site.
 
 Repo: `https://github.com/BoringEnergy/world-hot-springs` (**public** --
 deliberately; a fork exists at HudsonR-D/world-hot-springs and going private
@@ -41,9 +42,14 @@ min/month Actions pool while public is unlimited).
 Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` (advisory)
 and `gate-2` (the one that counts).
 
-## Current state, 2026-09-05
+## Current state, 2026-09-11
 
-**464 tests. `main` is green and everything below is merged.**
+**610 tests. `main` is green and everything below is merged.**
+
+**Coverage: temperature 1,395 of 7,490 (19%).** It was 95 of 6,471 (1%) when
+the seeding work started on 2026-09-05. Four upstreams now: OSM, NCEI, AIST
+and the Water Quality Portal. See "Where 2026-09-11 left off" below for what
+is exhausted, what is left, and the three defect shapes that kept recurring.
 
 The validator is the project's centre of gravity now. A hostile agent cannot
 land a fabricated NUMBER -- temperature, elevation, pH, any concentration --
@@ -94,9 +100,12 @@ edit and checks the value literally appears. Proven on a real fork PR.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **325 tests**, `npm test`. All passing. Worth remembering that 242 of them
+- **610 tests**, `npm test`. All passing. Worth remembering that 242 of them
   passed while the enrichment pipeline could not do its job at all, and 320
-  passed over a UI where clicking a search result blanked the page.
+  passed over a UI where clicking a search result blanked the page. That
+  second one is partly addressed now: the card's display model lives in
+  `src/lib/format.ts` and is tested against committed real records, without a
+  browser or a second test runner. See Layer B below.
 - **Build is byte-reproducible.** Two runs from identical inputs produce
   identical output; verified with `cmp`.
 - The app runs: `npm run dev` (port 5177 via `.claude/launch.json`).
@@ -106,7 +115,11 @@ npm test && npm run data:build && npx tsc -b --force && npm run build
 ```
 
 That is the full green-path check. The build prints its counts; expect
-`merged 1167 duplicate record(s) -> 6471 springs`.
+`merged 1173 duplicate record(s) -> 7490 springs`.
+
+**Run `data:build` BEFORE `npm test`, always.** `docs.test.mjs` asserts the
+README coverage table against `data/summary.json`, so testing first reads the
+pre-build summary and passes over a README the batch has just made wrong.
 
 ## The three documents that matter
 
@@ -665,12 +678,127 @@ occurs.
 
 ---
 
-## Next up, 2026-09-05: seeding
+## Where 2026-09-11 left off
+
+Coverage went 1% to 19%. Almost none of that came from researching harder.
+
+### The readable-source seam is exhausted, and that is a measurement
+
+Every country with a non-OSM, non-wikidata source on the record has now been
+fetched through `verify-source.mjs`, with every match read in context.
+
+    Germany                 63 candidates    7 claims   11%
+    Japan, operator sites  181 candidates   10 claims    6%
+    Spain/Italy/France/HU  147 candidates    9 claims    6%
+    rest of the world      130 candidates   12 claims    9%
+    United States           80 pages fetched  1 figure   1%
+
+**Do not re-run these.** The ceiling is not research effort, it is whether a
+page prints a number. What a spa page advertises is its saunas: the dominant
+match shape in Germany is `6 Themensaunen (70 °C – 100 °C)`, and Aquaria
+Sirmione publishes eighteen figures without one being the spring.
+
+Everything after that came from bulk upstreams instead, which is the lesson:
+
+    NCEI 1981      1,023 pins + 131 enrichments
+    AIST Japan        47 temperatures, 58 analyses, 38 classifications
+    WQP (USGS/EPA)    40 US temperatures
+    per-page work     55 across four passes and three days
+
+### Four upstreams, and one of them broke the pinning rule
+
+`fetch-ncei.mjs` and `fetch-aist.mjs` verify a published archive by sha256.
+**The Water Quality Portal publishes no archive — it is a query**, and running
+it next month returns more rows. So the MIRROR is the pinned artefact: it
+carries its fetch date and its own sha256, `data:build` stays deterministic
+from it, and nothing reproduces the fetch. That sentence is in the mirror's
+own header, where the next person to wonder will find it.
+
+`npm run data:wqp` is a **one-off, out-of-band fetch of about ninety minutes**
+— 133 frozen 2° tiles, resumable per tile, cache gitignored. The service
+answers in ~60s whatever it is asked, so a bbox returning 5 stations costs the
+same as a state returning 1,339; a statewide California query never answered
+at all.
+
+### Three defect shapes that kept recurring
+
+Worth knowing because each appeared more than once and none of them failed loudly.
+
+**1. A second copy of one fact.** Three times.
+
+    completeness         3 copies of the scorer; the one nobody called late
+                         left 119 records understating their score
+    TSV numeric columns  a hand-kept list beside TSV_COLUMNS; potassium
+                         reached the mirror and came back a STRING, so the
+                         field published nothing at all
+    text-column list     restated in a test, which then drifted when senshitsu
+                         was added
+
+Each was fixed by deriving rather than restating. If you find yourself writing
+a list that mirrors another list, that is the bug.
+
+**2. A rule applied in one direction only.**
+
+    temperature warnings  derived at normalize time and never again, so 126
+                          springs at >=50C shipped with nothing beside the
+                          number -- the hottest at 110C
+    WQP contention        rejected many-stations-near-one-spring, missed
+                          one-station-near-many-springs. The spec predicted
+                          270 springs; the true answer is 40
+
+**3. A test that checks location instead of behaviour.** Three source-scan
+tests asserted strings lived in `DetailPanel.tsx`. Moving the logic to
+`format.ts` broke them — they would have passed just as happily on a card that
+rendered those strings into a hidden div.
+
+### Layer B: the card has a display model now
+
+`mineralRows`, `mineralsFootnote`, `temperatureDisplay` and
+`prohibitionNotice` live in `src/lib/format.ts`. `scripts/card-model.test.mjs`
+tests them against **seven committed real records** chosen for shapes that have
+actually broken, and a test asserts those fixtures still match the live
+dataset.
+
+**No new runner.** Node imports the `.ts` directly by stripping types, so
+`npm test` is unchanged and nothing needs `npm ci` on Gate 2. Layer C (a
+render harness for `Field` and `DetailPanel`, no MapLibre) is deliberately not
+built; it would now be a much smaller job.
+
+### All four 2026-09-10 deferments are closed
+
+    泉質 -> MineralType   spec'd and built, fail-closed, 38 records
+    AIST admission       stays closed: the 190 m cell is a publisher privacy
+                         choice, so a centroid pin is a location AIST refused
+                         to give
+    frontend tests       Layer B done, Layer C declined
+    the 22 prose claims  no model in CI. Gate 2 having no secrets is
+                         load-bearing. A focused agentic pass on "needs a
+                         reader" is Hudson's to schedule
+
+### What is actually left
+
+- **A fifth upstream, or nothing.** The US still has ~1,670 springs citing only
+  OSM, and 1,391 of them are unnamed, so any new source must match positionally.
+  NGDS and the state geological surveys are unexamined.
+- **The Turkey citation-search method** — finding sources not already on the
+  record. The only approach that grows the candidate pool rather than draining
+  it, and slow per spring.
+- **WQP chemistry.** pH and conductance are available under the same query
+  shape and would reuse `minerals.unit`. A second import with its own
+  contention questions.
+- **`isLiterallyVerifiable` treats every enum as our vocabulary**, so
+  `minerals.unit` and `temperature.fahrenheit` are reported as "needs a reader"
+  even though their values are the source's own printed tokens. Noted, not
+  changed; the gates are settled.
+- **`temperature.fahrenheit` is claimable and unused.** Deliberately: measured
+  at one American page in eighty. Leave it until a Fahrenheit source appears.
+
+## ~~Next up, 2026-09-05: seeding~~ — SUPERSEDED, kept for its method
 
 The apparatus is done. What remains is filling the atlas, and it is
 repetitive rather than architectural.
 
-**Coverage: temperature 168 of 6,471 (3%)**, up from 95 on 2026-09-05.
+**Coverage was 168 of 6,471 (3%) when this was written; it is 1,395 of 7,490 (19%) now.**
 That number is the whole point the project makes about the state of public
 hot-spring data, so moving it is the work. 73 claims landed in one pass, in
 eight batches; the rate limit was research, never the apparatus.
@@ -792,6 +920,36 @@ Therma Gera, Heisse Brunnen Ennetbaden, Felsentherme Bad Gastein, Terme
 Borrini, Terme dell'Osa, Complesso termale di Agnano, Thermes de
 Pre-Saint-Didier, Laugaras Lagoon, Banos Termales Maya, Manupirua Springs,
 El Safareig.
+
+Added 2026-09-08/11. Each was re-fetched and re-read; a figure exists and is
+not claimable, which is a different verdict from "no figure":
+
+  Arpad furdo        two wells, 76C and 40C, feeding one bath. The contention
+                     rule says a number is written only when the wells agree
+  Fuente Santa       60C is a government SONDEO that found groundwater, plus
+                     an intention to build there in future. Not the spring
+  Barbantes          "oscila entre 21 y 28 grados, dependiendo de la epoca
+                     del ano" -- seasonal, so there is no single figure
+  Sonnen-Therme      publishes 30, 33, 34 and 35 for different basins and
+                     nothing that describes the spring
+  Jaszboldoghazi     32C is one sitting pool of three
+  Poca da Dona Beija now has a figure, "a rondar os 39" -- still hedged
+
+And the near misses worth knowing by shape, because a bare regex takes all
+of them:
+
+  GrimmingTherme     25C/30C/35C is a DISCOUNT PROMOTION keyed to the outside
+                     air temperature. The best one found
+  Waikite Valley     98 degrees is real, and sits in a CUSTOMER REVIEW signed
+                     "Roland September 2025"
+  Spazio Giappone    "Cafe37C" is the name of a cafe
+  Caracalla-Therme   the only figure on the page is 48.763718, a LATITUDE
+  Keidel Therme      19C in the header is a weather widget
+  Vinzenz Therme     its own summary table reads "Quelle 0 C" -- a broken
+                     widget. The prose was right and the table was not
+  Yanasara           17C on the same page is the mean annual AIR temperature
+  Dampfbad/sauna     the dominant false positive in German and Finnish pages;
+                     air in a room nobody swims in
 
 Rejected for a stated reason, which is different — a figure exists but is
 not claimable:
