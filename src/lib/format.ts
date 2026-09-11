@@ -288,3 +288,24 @@ export function prohibitionNotice(spring: HotSpring): { prohibited: boolean; tex
     text: prohibited ? `Bathing is not permitted here. ${formatAccessStatus(spring.access.status)}` : '',
   };
 }
+
+/**
+ * How precisely a pin is placed, as the card says it.
+ *
+ * Null renders nothing rather than "Unknown": the coordinate is shown either
+ * way, and a label on every record would be noise on the majority. What this
+ * exists to stop is a 190 m cell centroid reading like somebody standing at
+ * the spring.
+ */
+export function formatAccuracy(metres: number | null, units: Units): string | null {
+  if (metres === null || !Number.isFinite(metres)) return null;
+  if (units === 'c') {
+    return metres >= 1000
+      ? `located to about ${Math.round(metres / 100) / 10} km`
+      : `located to about ${Math.round(metres)} m`;
+  }
+  const feet = metres * 3.28084;
+  return feet >= 5280
+    ? `located to about ${Math.round((feet / 5280) * 10) / 10} miles`
+    : `located to about ${Math.round(feet / 10) * 10} ft`;
+}

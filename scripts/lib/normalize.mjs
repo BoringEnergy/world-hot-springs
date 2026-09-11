@@ -393,6 +393,7 @@ export function normalizeElement(el, lookup, ingestedAt) {
       countryName: country.name,
       region: tags['addr:state'] || tags['addr:province'] || tags['is_in:state'] || null,
       nearestTown: tags['addr:city'] || tags['addr:town'] || tags['is_in:city'] || null,
+      accuracyMeters: null,
     },
     temperature: {
       celsius,

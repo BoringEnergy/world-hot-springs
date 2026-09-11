@@ -125,6 +125,7 @@ export function toRecord(row, ingestedAt) {
       countryName: 'United States of America',
       region: row.state,
       nearestTown: null,
+      accuracyMeters: null,
     },
     temperature: {
       celsius,
