@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ClothingPolicy, HotSpring, SpringType } from '../lib/types';
 import type { Units } from '../lib/format';
-import { distanceKm } from '../lib/format';
+import { distanceKm } from '../lib/format.ts';
 
 export type PriceFilter = 'any' | 'free' | 'paid' | 'unknown';
 
@@ -138,15 +138,23 @@ export const useStore = create<State>((set, get) => ({
  * - "Open now" only ever includes springs we actually know are open. Unknown
  *   hours are excluded, because guessing is how someone drives four hours to a
  *   locked gate.
+ * - The ceiling is a floor on the last band, not a lid on the dataset. The rail
+ *   already renders it as "212°F+" and means it; the predicate has to agree.
+ *   Three springs boil -- 110C, 102C, 101C -- and a hard `c > tempMax` hid all
+ *   three from every view the UI can reach, including a search for one by name,
+ *   which answered "0 springs" for a spring this atlas holds. They are the
+ *   hottest water in here, so they are the records the scalding warning exists
+ *   to carry.
  */
 export function applyFilters(springs: HotSpring[], f: Filters): HotSpring[] {
   const q = f.query.trim().toLowerCase();
+  const capped = f.tempMax < TEMP_CEIL;
 
   return springs.filter((s) => {
     const c = s.temperature.celsius;
     if (c === null) {
       if (!f.includeUnknownTemp) return false;
-    } else if (c < f.tempMin || c > f.tempMax) {
+    } else if (c < f.tempMin || (capped && c > f.tempMax)) {
       return false;
     }
 

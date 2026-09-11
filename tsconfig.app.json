@@ -13,6 +13,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    // Lets `node --test` import the store directly (Node strips types but will
+    // not resolve an extensionless relative specifier). Type-only imports are
+    // erased and need no extension; a value import does.
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
