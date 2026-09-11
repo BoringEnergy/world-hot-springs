@@ -13,5 +13,5 @@
   ],
   "categoryScores": { "console": 100, "links": 100, "visual": 100, "functional": 100, "ux": 100, "performance": 100, "content": 100, "accessibility": 100 },
   "categoryScoresBefore": { "console": 100, "links": 100, "visual": 100, "functional": 85, "ux": 100, "performance": 100, "content": 15, "accessibility": 92 },
-  "tests": { "before": 646, "after": 668 }
+  "tests": { "before": 646, "after": 659 }
 }

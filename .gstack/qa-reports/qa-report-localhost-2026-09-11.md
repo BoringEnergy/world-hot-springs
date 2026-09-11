@@ -209,7 +209,7 @@ reflects the deferred third-party link.
 
 ## Tests added
 
-657 → 668 passing. Every guard was mutation-tested: the fix was reverted and
+646 → 659 passing (13 added). Every guard was mutation-tested: the fix was reverted and
 the test observed to fail.
 
 | File | Tests | Mutation result |
