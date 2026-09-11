@@ -301,3 +301,40 @@ export function bandColor(band: TempBandId): string {
   if (band === 'unknown') return UNKNOWN_TEMP_COLOR;
   return TEMP_BANDS.find((b) => b.id === band)?.color ?? UNKNOWN_TEMP_COLOR;
 }
+
+/**
+ * One upstream, as it travels with the data.
+ *
+ * Shaped by `licenceMetadata()` in scripts/lib/sources.mjs, which is the single
+ * definition of who this atlas draws from. British spelling in the repository,
+ * American in the emitted GeoJSON, so these keys are the emitted ones.
+ */
+export interface DatasetSource {
+  provider: string;
+  name: string;
+  license: string;
+  licenseUrl: string;
+  attribution: string;
+  url: string;
+}
+
+/**
+ * The `metadata` block on data/hot-springs.geojson.
+ *
+ * The About panel renders from this rather than from prose, because the panel
+ * held a hand-written copy of the source list and it drifted: it still credited
+ * OpenStreetMap alone after four more upstreams had been added, one of whose
+ * licences requires attribution. Reading the shipped file is the only version
+ * of this that cannot go stale -- if a source is in the build, it is on the
+ * page.
+ */
+export interface DatasetMeta {
+  name: string;
+  sourceDate: string;
+  count: number;
+  license: string;
+  licenseUrl: string;
+  licenseNote: string;
+  attribution: string;
+  sources: DatasetSource[];
+}

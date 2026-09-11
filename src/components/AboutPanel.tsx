@@ -27,6 +27,7 @@ function Stat({ label, value, of }: { label: string; value: number; of?: number 
 export function AboutPanel() {
   const show = useStore((s) => s.showAbout);
   const setShow = useStore((s) => s.setShowAbout);
+  const meta = useStore((s) => s.meta);
   const [summary, setSummary] = useState<Summary | null>(null);
 
   useEffect(() => {
@@ -110,12 +111,44 @@ export function AboutPanel() {
             Where the data comes from
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-steam-300">
-            Public sources only. The current build is derived from OpenStreetMap
+            Public sources only, normalised into our own schema with provenance on
+            every record. Every spring links back to the sources it came from, so you
+            can check us one pin at a time. OpenStreetMap placed most of the pins
             (<code className="text-steam-200">natural=hot_spring</code> and thermal{' '}
-            <code className="text-steam-200">amenity=public_bath</code>), normalised into
-            our own schema with provenance on every record. Every spring links back to
-            its sources so you can check us.
+            <code className="text-steam-200">amenity=public_bath</code>); the rest of
+            this list is where the temperatures and the chemistry come from.
           </p>
+
+          {/*
+            Rendered from the dataset's own metadata, never from prose. This
+            paragraph used to name OpenStreetMap alone and stayed that way
+            through four more upstreams, one of which requires attribution as a
+            condition of its licence. A list that is typed by hand is a list
+            that goes stale; this one cannot say less than the build contains.
+          */}
+          {meta && (
+            <ul className="mt-3 space-y-2">
+              {meta.sources.map((src) => (
+                <li
+                  key={src.provider}
+                  className="rounded-xl border border-basalt-800 bg-basalt-850 px-3 py-2"
+                >
+                  <a
+                    href={src.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="text-sm leading-snug text-steam-200 underline decoration-basalt-700 underline-offset-2 hover:decoration-steam-400"
+                  >
+                    {src.name}
+                  </a>
+                  <p className="mt-1 text-[11px] leading-relaxed text-steam-400">
+                    {src.attribution} · {src.license}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+
           <p className="mt-2 text-sm leading-relaxed text-steam-300">
             Records are machine-ingested and marked unverified until a human checks them
             against a primary source. The completeness bar on each card tells you how
@@ -134,13 +167,30 @@ export function AboutPanel() {
           </p>
         </section>
 
+        {/*
+          The dataset line reads from metadata; the basemap line is typed here
+          because the basemap is not in the dataset and has no entry to read.
+          The OSM fetch date describes the OSM layer alone, so it is named as
+          that and not as the age of the whole atlas.
+        */}
         <footer className="mt-6 border-t border-basalt-800 pt-4 text-[11px] leading-relaxed text-steam-400">
-          Map data © OpenStreetMap contributors, ODbL 1.0. Basemap © CARTO,
-          satellite imagery © Esri, Maxar, Earthstar Geographics, terrain
-          Mapzen Terrain Tiles (AWS Open Data). Live air temperature from
-          Open-Meteo, CC BY 4.0. Dataset
-          {summary ? ` from OpenStreetMap as of ${summary.sourceDate.slice(0, 10)}` : ''}.
-          Code MIT.
+          Dataset {meta?.attribution ?? '© OpenStreetMap contributors'} —{' '}
+          {meta ? (
+            <a
+              href={meta.licenseUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline underline-offset-2"
+            >
+              {meta.license}
+            </a>
+          ) : (
+            'ODbL 1.0'
+          )}
+          {summary ? `, OpenStreetMap layer as of ${summary.sourceDate.slice(0, 10)}` : ''}.
+          Basemap © CARTO, satellite imagery © Esri, Maxar, Earthstar
+          Geographics, terrain Mapzen Terrain Tiles (AWS Open Data). Live air
+          temperature from Open-Meteo, CC BY 4.0. Code MIT.
         </footer>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ClothingPolicy, HotSpring, SpringType } from '../lib/types';
+import type { ClothingPolicy, DatasetMeta, HotSpring, SpringType } from '../lib/types';
 import type { Units } from '../lib/format';
 import { distanceKm } from '../lib/format.ts';
 
@@ -42,6 +42,12 @@ interface State {
    * subscriber.
    */
   visible: HotSpring[];
+  /**
+   * The dataset's own licence and source list, kept rather than discarded:
+   * it is the only copy of that list the browser can see, and the About panel
+   * is required to render from it instead of from prose.
+   */
+  meta: DatasetMeta | null;
   loading: boolean;
   error: string | null;
   units: Units;
@@ -75,6 +81,7 @@ function initialUnits(): Units {
 export const useStore = create<State>((set, get) => ({
   springs: [],
   visible: [],
+  meta: null,
   loading: true,
   error: null,
   units: initialUnits(),
@@ -90,7 +97,12 @@ export const useStore = create<State>((set, get) => ({
       if (!res.ok) throw new Error(`dataset request failed (HTTP ${res.status})`);
       const geo = await res.json();
       const springs: HotSpring[] = geo.features.map((f: { properties: HotSpring }) => f.properties);
-      set({ springs, visible: applyFilters(springs, get().filters), loading: false });
+      set({
+        springs,
+        meta: (geo.metadata as DatasetMeta | undefined) ?? null,
+        visible: applyFilters(springs, get().filters),
+        loading: false,
+      });
     } catch (err) {
       set({
         loading: false,
