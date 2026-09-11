@@ -27,6 +27,9 @@ const COL = {
   ph: 14,
   tds: 17,
   sodium: 20,
+  // Column 21, between Na and NH4. Verified against the CSV header rather
+  // than counted: an off-by-one here would publish ammonium as potassium.
+  potassium: 21,
   calcium: 23,
   magnesium: 24,
   iron: 25,
@@ -194,6 +197,7 @@ export function toRow(cols) {
     ph: num(cols[COL.ph]),
     tds: num(cols[COL.tds]),
     sodium: num(cols[COL.sodium]),
+    potassium: num(cols[COL.potassium]),
     calcium: num(cols[COL.calcium]),
     magnesium: num(cols[COL.magnesium]),
     iron: num(cols[COL.iron]),
@@ -229,12 +233,26 @@ export function parseAist(text) {
 /** The columns this pipeline keeps, in the order the pruned TSV writes them. */
 export const TSV_COLUMNS = [
   'ser', 'onsenName', 'sourceName', 'prefecture', 'lat', 'lng', 'measuredAt',
-  'celsius', 'unit', 'ph', 'tds', 'sodium', 'calcium', 'magnesium', 'iron',
+  'celsius', 'unit', 'ph', 'tds', 'sodium', 'potassium', 'calcium', 'magnesium', 'iron',
   'chloride', 'sulfate', 'bicarbonate', 'silica',
 ];
 
-const TSV_NUMERIC = new Set(['lat', 'lng', 'celsius', 'ph', 'tds', 'sodium', 'calcium',
-  'magnesium', 'iron', 'chloride', 'sulfate', 'bicarbonate', 'silica']);
+/**
+ * The columns that are text. Everything else in TSV_COLUMNS is a measurement.
+ *
+ * Derived rather than listed, because the listed version was a SECOND
+ * hand-kept copy of the column set and the two drifted the first time a
+ * column was added. `potassium` reached TSV_COLUMNS, was written to the
+ * mirror correctly, and came back from fromTsv as the STRING "23.800" --
+ * which is not `typeof v === 'number'`, so every agreement check skipped it
+ * and the field published nothing. No error, no NaN, just a panel that
+ * quietly lacked one constituent.
+ *
+ * Inverting it means a new measurement column is numeric by default, and the
+ * only way to get the old failure back is to add a name here on purpose.
+ */
+const TSV_TEXT = new Set(['ser', 'onsenName', 'sourceName', 'prefecture', 'measuredAt', 'unit']);
+const TSV_NUMERIC = new Set(TSV_COLUMNS.filter((c) => !TSV_TEXT.has(c)));
 
 export function toTsv(rows) {
   const body = rows.map((r) => TSV_COLUMNS.map((c) => r[c] ?? '').join('\t'));

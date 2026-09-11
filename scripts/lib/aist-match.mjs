@@ -65,6 +65,7 @@ export const NUMERIC_FIELDS = [
   ['ph', 0.1],
   ['tds', 1],
   ['sodium', 1],
+  ['potassium', 1],
   ['calcium', 1],
   ['magnesium', 1],
   ['iron', 0.1],

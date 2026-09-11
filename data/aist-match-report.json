@@ -3,8 +3,8 @@
     "rows": 7203,
     "groupsMatched": 78,
     "temperaturesFilled": 47,
-    "panelsFilled": 63,
-    "fieldsWithheld": 385,
+    "panelsFilled": 64,
+    "fieldsWithheld": 407,
     "groupsRejected": 2
   },
   "matched": [
@@ -50,6 +50,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "iron",
@@ -71,6 +72,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -113,6 +115,7 @@
       "written": [
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -133,6 +136,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -153,6 +157,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -173,6 +178,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -193,6 +199,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -213,6 +220,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -233,6 +241,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -253,6 +262,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "chloride",
         "sulfate",
@@ -271,6 +281,7 @@
       "written": [
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -291,6 +302,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -321,6 +333,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -341,6 +354,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -361,6 +375,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -381,6 +396,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -401,6 +417,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -420,6 +437,7 @@
       "written": [
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -439,6 +457,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -459,6 +478,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -479,6 +499,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -499,6 +520,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -542,6 +564,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -562,6 +585,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -579,6 +603,7 @@
       "written": [
         "temperature",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -607,6 +632,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -627,6 +653,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -656,6 +683,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -676,6 +704,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -706,6 +735,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -726,6 +756,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "chloride",
         "sulfate",
@@ -745,6 +776,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -764,6 +796,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -830,6 +863,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -849,6 +883,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -870,6 +905,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -890,6 +926,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -909,6 +946,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -930,6 +968,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -947,6 +986,7 @@
       "agreement": "exact",
       "written": [
         "ph",
+        "potassium",
         "calcium",
         "magnesium",
         "sulfate"
@@ -965,6 +1005,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -984,6 +1025,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1003,6 +1045,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1023,6 +1066,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "iron",
@@ -1043,6 +1087,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1082,6 +1127,7 @@
         "temperature",
         "ph",
         "tds",
+        "potassium",
         "calcium",
         "chloride",
         "sulfate",
@@ -1101,6 +1147,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "iron",
@@ -1117,7 +1164,9 @@
       "wells": 3,
       "meters": 56,
       "agreement": "exact",
-      "written": [],
+      "written": [
+        "potassium"
+      ],
       "measuredAt": "1973"
     },
     {
@@ -1131,6 +1180,7 @@
         "temperature",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1147,6 +1197,7 @@
       "meters": 35,
       "agreement": "exact",
       "written": [
+        "potassium",
         "magnesium"
       ],
       "measuredAt": "1969"
@@ -1159,6 +1210,7 @@
       "meters": 11,
       "agreement": "exact",
       "written": [
+        "potassium",
         "magnesium"
       ],
       "measuredAt": "1970"
@@ -1184,6 +1236,7 @@
         "temperature",
         "ph",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1216,6 +1269,7 @@
         "temperature",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "chloride",
         "sulfate",
@@ -1269,6 +1323,7 @@
         "temperature",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1289,6 +1344,7 @@
         "ph",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1308,6 +1364,7 @@
         "temperature",
         "tds",
         "sodium",
+        "potassium",
         "calcium",
         "magnesium",
         "chloride",
@@ -1340,6 +1397,11 @@
     },
     {
       "id": "whs_5332ec636e92",
+      "field": "potassium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_5332ec636e92",
       "field": "calcium",
       "reason": "no agreed unit for the panel"
     },
@@ -1395,6 +1457,11 @@
     },
     {
       "id": "whs_017d323b64db",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017d323b64db",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -1446,6 +1513,11 @@
     {
       "id": "whs_05649762a0b8",
       "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_05649762a0b8",
+      "field": "potassium",
       "reason": "no agreed unit for the panel"
     },
     {
@@ -1510,6 +1582,11 @@
     },
     {
       "id": "whs_017e7b64a3d1",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_017e7b64a3d1",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -1556,6 +1633,11 @@
     {
       "id": "whs_9beb200b34ef",
       "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_9beb200b34ef",
+      "field": "potassium",
       "reason": "no agreed unit for the panel"
     },
     {
@@ -1716,6 +1798,11 @@
     {
       "id": "whs_d8ac5d337e20",
       "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_d8ac5d337e20",
+      "field": "potassium",
       "reason": "wells disagree or none stated"
     },
     {
@@ -1885,6 +1972,11 @@
     },
     {
       "id": "whs_be7b75c9dbda",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_be7b75c9dbda",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -1931,6 +2023,11 @@
     {
       "id": "whs_96d5af105b86",
       "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_96d5af105b86",
+      "field": "potassium",
       "reason": "wells disagree or none stated"
     },
     {
@@ -2035,6 +2132,11 @@
     },
     {
       "id": "whs_7e9d0f207ac2",
+      "field": "potassium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_7e9d0f207ac2",
       "field": "calcium",
       "reason": "no agreed unit for the panel"
     },
@@ -2110,6 +2212,11 @@
     },
     {
       "id": "whs_194611569e65",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_194611569e65",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -2186,6 +2293,11 @@
     {
       "id": "whs_a183359313c6",
       "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a183359313c6",
+      "field": "potassium",
       "reason": "wells disagree or none stated"
     },
     {
@@ -2295,6 +2407,11 @@
     },
     {
       "id": "whs_a9dbf9960928",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_a9dbf9960928",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -2336,6 +2453,11 @@
     {
       "id": "whs_c5b8e888bb57",
       "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_c5b8e888bb57",
+      "field": "potassium",
       "reason": "wells disagree or none stated"
     },
     {
@@ -2395,6 +2517,11 @@
     },
     {
       "id": "whs_97bccb458dd5",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_97bccb458dd5",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -2436,6 +2563,11 @@
     {
       "id": "whs_35096d8f88b4",
       "field": "sodium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_35096d8f88b4",
+      "field": "potassium",
       "reason": "wells disagree or none stated"
     },
     {
@@ -2635,6 +2767,11 @@
     },
     {
       "id": "whs_58a2d5fa8b22",
+      "field": "potassium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_58a2d5fa8b22",
       "field": "calcium",
       "reason": "no agreed unit for the panel"
     },
@@ -2686,6 +2823,11 @@
     {
       "id": "whs_22b651f39a4d",
       "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_22b651f39a4d",
+      "field": "potassium",
       "reason": "no agreed unit for the panel"
     },
     {
@@ -2940,6 +3082,11 @@
     },
     {
       "id": "whs_aa6df74d1f46",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_aa6df74d1f46",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -3000,6 +3147,11 @@
     },
     {
       "id": "whs_ea55c75755e3",
+      "field": "potassium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_ea55c75755e3",
       "field": "calcium",
       "reason": "no agreed unit for the panel"
     },
@@ -3070,6 +3222,11 @@
     },
     {
       "id": "whs_b280dc260d12",
+      "field": "potassium",
+      "reason": "wells disagree or none stated"
+    },
+    {
+      "id": "whs_b280dc260d12",
       "field": "calcium",
       "reason": "wells disagree or none stated"
     },
@@ -3120,6 +3277,11 @@
     },
     {
       "id": "whs_f3758c581dc1",
+      "field": "potassium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_f3758c581dc1",
       "field": "calcium",
       "reason": "no agreed unit for the panel"
     },
@@ -3166,6 +3328,11 @@
     {
       "id": "whs_13d8346cfc93",
       "field": "sodium",
+      "reason": "no agreed unit for the panel"
+    },
+    {
+      "id": "whs_13d8346cfc93",
+      "field": "potassium",
       "reason": "no agreed unit for the panel"
     },
     {
