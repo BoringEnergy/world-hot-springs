@@ -1,0 +1,11 @@
+site	name	state	lat	lng	measuredAt	calcium	magnesium	sodium	potassium	silica	chloride	sulfate	bicarbonate	iron	ph
+http://resources.usgin.org/uri-gin/cogs/thermalspring/cogs:38.73278-106.17417/	Chaffee County Mt. Princeton Hot Springs	CO	38.73278	-106.17417	1993										8.6
+http://resources.usgin.org/uri-gin/cogs/thermalspring/COHS_ 55_18/	Chaffee County Mt. Princeton Hot Springs	CO	38.73278	-106.17417	1975	6.4		84	2.8	72	8.3	92	75		
+http://resources.usgin.org/uri-gin/cogs/thermalspring/COHS_ 55_19/	Chaffee County Mt. Princeton Hot Springs	CO	38.73278	-106.17417	1993	4.15		91.85	2.41	102	13	101			
+http://resources.usgin.org/uri-gin/cogs/thermalspring/COHS_55-Hortesnse_Well-18/	Chaffee County Mt. Princeton Hot Springs	CO	38.73278	-106.17417	1975	6.4	0.1	84	2.8	72	8.3	92			
+http://resources.usgin.org/uri-gin/cogs/thermalspring/COHS_55-Hortesnse_Well-18/	Chaffee County Mt. Princeton Hot Springs	CO	38.73278	-106.17417	1993	4.15		91.85	2.41	102	13	101			
+http://resources.usgin.org/uri-gin/nbmg/thermalspring/NBMG: 1011/	King Spring / Point of Rocks Spring / Indian Rock Spring	NV	36.40136	-116.27287	1963	48	21	67	7	22	21	76			
+http://resources.usgin.org/uri-gin/nbmg/thermalspring/NBMG: 1011/	King Spring / Point of Rocks Spring / Indian Rock Spring	NV	36.40136	-116.27287	1963	48		67	7	22	21	76	304	-9999999	
+http://resources.usgin.org/uri-gin/nbmg/thermalspring/NBMG: 1053/	Indian Rock Spring / Point of Rocks Spring / King Spring	NV	36.40008	-116.27147	1966	46	21	68	7.4	22	21	78			
+http://resources.usgin.org/uri-gin/cogs/thermalspring/cogs:38.51583-106.51611/	Gunnison County Lower Waunita Hot Springs	CO	38.51583	-106.51611	1993										7.8
+http://resources.usgin.org/uri-gin/cogs/thermalspring/cogs:38.73278-106.17417/	Chaffee County Mt. Princeton Hot Springs	CO	38.73278	-106.17417	1993										8.6

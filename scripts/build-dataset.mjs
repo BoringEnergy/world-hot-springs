@@ -25,6 +25,8 @@ import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs'
 import { mineralTypesOf, classifySenshitsu } from './lib/senshitsu.mjs';
 import { fromTsv as wqpFromTsv, WQP_SOURCE, WQP_PAGE, WQP_PROVIDER } from './lib/wqp.mjs';
 import { matchWqp } from './lib/wqp-match.mjs';
+import { fromTsv as nbmgFromTsv, NBMG_PAGE, NBMG_PROVIDER } from './lib/nbmg.mjs';
+import { matchNbmg } from './lib/nbmg-match.mjs';
 import { fromTsv, AIST_PROVIDER, AIST_SOURCE, AIST_PAGE } from './lib/aist.mjs';
 import { matchAist, agreedValue, agreedUnit, agreedYear, NUMERIC_FIELDS as AIST_NUMERIC_FIELDS } from './lib/aist-match.mjs';
 
@@ -634,6 +636,72 @@ async function main() {
     console.log(
       `  ${wqpMatched.length} matched, ${wqpFilled} temperature(s) filled, `
       + `${wqpWithheld.length} withheld -> data/wqp-match-report.json`,
+    );
+  }
+
+  // --- NBMG spring chemistry: Nevada and Colorado ---
+  // Chemistry only, and enrichment only. No pin is minted and no temperature
+  // is written: this source yields twelve temperatures against the atlas and
+  // that seam is closed. Same slot as the other enrichments -- after identity,
+  // above the curated overlay, so an authored claim still wins.
+  const NBMG_TSV = path.join('data', 'reference', 'nbmg-spring-chemistry.tsv');
+  if (fs.existsSync(NBMG_TSV)) {
+    console.log('Merging NBMG spring chemistry ...');
+    const nbmgRows = nbmgFromTsv(fs.readFileSync(NBMG_TSV, 'utf8'));
+    const { matched: nbmgMatched, withheld: nbmgWithheld } = matchNbmg(nbmgRows, records);
+
+    let nbmgPanels = 0;
+    let nbmgFields = 0;
+    let nbmgDeferred = 0;
+    const nbmgById = new Map(records.map((r) => [r.id, r]));
+    for (const m of nbmgMatched) {
+      const rec = nbmgById.get(m.id);
+      if (!rec) continue;
+      const overlay = overlays.get(m.id);
+      const claimed = (f) => Boolean(overlay?.claims?.[f]) && overlay.claims[f].state !== 'retracted';
+      let wrote = 0;
+      for (const [field, value] of Object.entries(m.values)) {
+        if (claimed(`minerals.${field}`)) { nbmgDeferred++; continue; }
+        if (rec.minerals[field] !== null && rec.minerals[field] !== undefined) continue;
+        rec.minerals[field] = value;
+        wrote++;
+      }
+      if (!wrote) continue;
+      nbmgFields += wrote;
+      nbmgPanels++;
+      // Every column in this source names mg/L, so the unit is known rather
+      // than inferred -- the question the AIST import needed a whole spec for
+      // does not arise. pH is unitless and does not imply one on its own.
+      const unitedWritten = Object.keys(m.values).some((f) => f !== 'ph');
+      if (unitedWritten && !rec.minerals.unit && !claimed('minerals.unit')) rec.minerals.unit = 'mg/l';
+      if (m.measuredAt && !rec.minerals.measuredAt && !claimed('minerals.measuredAt')) {
+        rec.minerals.measuredAt = m.measuredAt;
+      }
+      rec.sources = [...new Set([...rec.sources, NBMG_PAGE])];
+      if (!rec.quality.provenance.includes(NBMG_PROVIDER)) {
+        rec.quality.provenance = [...rec.quality.provenance, NBMG_PROVIDER].sort();
+      }
+    }
+
+    fs.writeFileSync(
+      path.join('data', 'nbmg-match-report.json'),
+      `${JSON.stringify({
+        generatedAt: buildTimestamp,
+        counts: {
+          rows: nbmgRows.length,
+          matched: nbmgMatched.length,
+          panelsWritten: nbmgPanels,
+          fieldsWritten: nbmgFields,
+          deferredToAuthor: nbmgDeferred,
+          withheld: nbmgWithheld.length,
+        },
+        matched: nbmgMatched,
+        withheld: nbmgWithheld,
+      }, null, 2)}\n`,
+    );
+    console.log(
+      `  ${nbmgMatched.length} matched, ${nbmgPanels} panel(s) written, `
+      + `${nbmgFields} field(s), ${nbmgWithheld.length} withheld -> data/nbmg-match-report.json`,
     );
   }
 
