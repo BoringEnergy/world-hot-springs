@@ -1,10 +1,12 @@
 import { useRef, useEffect } from 'react';
 import { bandColor, tempBand } from '../lib/types';
 import {
-  MINERAL_CONSTITUENTS,
-  formatAccessStatus,
   formatMineralType,
   hasMinerals,
+  mineralRows,
+  mineralsFootnote,
+  temperatureDisplay,
+  prohibitionNotice,
   formatClothing,
   formatCoords,
   formatDistance,
@@ -12,10 +14,8 @@ import {
   formatHoursStatus,
   formatName,
   formatPrice,
-  formatTemp,
   formatType,
   distanceKm,
-  formatMineralUnit,
 } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { Field } from './Field';
@@ -38,9 +38,11 @@ export function DetailPanel() {
 
   if (!selectedId || !spring) return null;
 
-  // After the guard: `spring` is narrowed here, and the unit is needed by both
-  // the panel rows and the footnote below.
-  const mineralUnit = formatMineralUnit(spring.minerals.unit);
+  // After the guard, `spring` is narrowed. What this card SAYS is decided in
+  // format.ts rather than in the markup below, so node --test can assert it
+  // against real records without a browser -- see scripts/card-model.test.mjs.
+  const temp = temperatureDisplay(spring, units);
+  const prohibition = prohibitionNotice(spring);
 
   const band = tempBand(spring.temperature.celsius);
   const color = bandColor(band);
@@ -101,7 +103,7 @@ export function DetailPanel() {
             Do not enter the water
           </h3>
           <p className="mt-1.5 text-xs leading-relaxed text-steam-100">
-            Bathing is not permitted here. {formatAccessStatus(spring.access.status)}
+            {prohibition.text}
           </p>
         </div>
       )}
@@ -155,31 +157,27 @@ export function DetailPanel() {
             </ul>
           )}
 
+          {/*
+            Rows and footnote come from format.ts, not from decisions taken
+            here. pH leading the panel, the unit suffix, and whether the
+            footnote mentions a missing unit are all model questions, and
+            scripts/card-model.test.mjs asserts them against real records.
+            What stays in this file is layout: pH and TDS span both columns.
+          */}
           <dl className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            {spring.minerals.ph !== null && (
-              <div className="col-span-2 flex justify-between border-b border-basalt-800 pb-1">
-                <dt className="text-steam-400">pH</dt>
-                <dd className="tabular-nums text-steam-100">{spring.minerals.ph}</dd>
+            {mineralRows(spring.minerals).map((row) => (
+              <div
+                key={row.key}
+                className={
+                  row.key === 'ph' || row.key === 'tds'
+                    ? 'col-span-2 flex justify-between border-b border-basalt-800 pb-1'
+                    : 'flex justify-between'
+                }
+              >
+                <dt className="text-steam-400">{row.label}</dt>
+                <dd className="tabular-nums text-steam-100">{row.value}</dd>
               </div>
-            )}
-            {spring.minerals.tds !== null && (
-              <div className="col-span-2 flex justify-between border-b border-basalt-800 pb-1">
-                <dt className="text-steam-400">Dissolved solids</dt>
-                <dd className="tabular-nums text-steam-100">
-                  {spring.minerals.tds}{mineralUnit ? ` ${mineralUnit}` : ''}
-                </dd>
-              </div>
-            )}
-            {MINERAL_CONSTITUENTS.map(([key, label]) =>
-              spring.minerals[key] === null ? null : (
-                <div key={key} className="flex justify-between">
-                  <dt className="text-steam-400">{label}</dt>
-                  <dd className="tabular-nums text-steam-100">
-                    {spring.minerals[key]}{mineralUnit ? ` ${mineralUnit}` : ''}
-                  </dd>
-                </div>
-              ),
-            )}
+            ))}
           </dl>
 
           {spring.minerals.notes && (
@@ -187,13 +185,7 @@ export function DetailPanel() {
           )}
 
           <p className="mt-2.5 border-t border-basalt-800 pt-2 text-[11px] leading-relaxed text-steam-400">
-            {spring.minerals.measuredAt
-              ? `Analysed ${spring.minerals.measuredAt} according to the source below.`
-              : 'The source publishes these figures without stating when the water was analysed.'}{' '}
-            {mineralUnit === null &&
-              'The source does not state what unit these figures are in. '}
-            Reported from public sources. This atlas does not test water and has
-            not verified these figures on site.
+            {mineralsFootnote(spring.minerals)}
           </p>
         </section>
       )}
@@ -229,18 +221,14 @@ export function DetailPanel() {
               }
               style={spring.temperature.celsius === null ? undefined : { color }}
             >
-              {formatTemp(spring, units)}
+              {temp.primary}
             </span>
-            {spring.temperature.celsius !== null && (
-              <span className="text-xs text-steam-400">
-                {units === 'c'
-                  ? `${spring.temperature.fahrenheit}°F`
-                  : `${spring.temperature.celsius}°C`}
-              </span>
+            {temp.secondary !== null && (
+              <span className="text-xs text-steam-400">{temp.secondary}</span>
             )}
-            {spring.temperature.celsius === null && spring.temperature.qualitative && (
+            {temp.qualitative !== null && (
               <span className="rounded-full border border-basalt-700 bg-basalt-850 px-2 py-0.5 text-[11px] text-steam-300">
-                described as {spring.temperature.qualitative}
+                {temp.qualitative}
               </span>
             )}
             {/*
@@ -252,10 +240,8 @@ export function DetailPanel() {
               that. w-full, not block -- the siblings are a flex row, so a plain
               block would still share the line.
             */}
-            {spring.temperature.measuredAt && (
-              <span className="w-full text-xs text-steam-400">
-                Measured {spring.temperature.measuredAt} according to the source below.
-              </span>
+            {temp.measuredAt !== null && (
+              <span className="w-full text-xs text-steam-400">{temp.measuredAt}</span>
             )}
             {/*
               Which water this number describes, when a source said so. A spa
@@ -264,9 +250,9 @@ export function DetailPanel() {
               get into. `unknown` shows nothing rather than "unknown" -- it is
               the majority case and a label on every record would be noise.
             */}
-            {spring.temperature.celsius !== null && spring.temperature.kind !== 'unknown' && (
+            {temp.kind !== null && (
               <span className="rounded-full border border-basalt-700 bg-basalt-850 px-2 py-0.5 text-[11px] text-steam-300">
-                {spring.temperature.kind === 'source' ? 'at source' : 'bathing water'}
+                {temp.kind}
               </span>
             )}
           </div>

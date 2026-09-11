@@ -1,0 +1,613 @@
+{
+  "radium": {
+    "id": "whs_ce8611720825",
+    "name": "Radium Hot Springs",
+    "location": {
+      "lat": 50.634863,
+      "lng": -116.039148,
+      "elevation": null,
+      "country": "CA",
+      "countryName": "Canada",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": 40,
+      "fahrenheit": 104,
+      "source": "Curated claim by HudsonR&D Meta 9.9.26: https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "bathing"
+    },
+    "access": {
+      "price": "Adult $19.75",
+      "currency": "CAD",
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": "Open daily year-round including holidays; hours vary by season (summer daily 8:30am-10pm)",
+      "status": "open"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": 302,
+      "bicarbonate": 100.8,
+      "chloride": null,
+      "calcium": 135,
+      "magnesium": 31.6,
+      "sodium": null,
+      "potassium": null,
+      "silica": 31.8,
+      "iron": null,
+      "types": [],
+      "notes": "Parks Canada publishes the top five minerals only; the full analysis is not given.",
+      "measuredAt": null,
+      "unit": "mg/l"
+    },
+    "type": "developed",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/way/1123052659",
+      "https://www.hotsprings.ca/radium",
+      "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs",
+      "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/tarifs-fees",
+      "https://parks.canada.ca/pn-np/bc/kootenay/sources-radium-springs/heures-hours"
+    ],
+    "description": null,
+    "tags": [
+      "wheelchair-accessible"
+    ],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 83,
+      "known": [
+        "name",
+        "temperature",
+        "price",
+        "hours",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "curated": true
+    },
+    "osmRefs": [
+      "way/1123052659"
+    ]
+  },
+  "aistTyped": {
+    "id": "whs_9eea1bcb9e7a",
+    "name": "富士眺望の湯;ゆらり",
+    "location": {
+      "lat": 35.476316,
+      "lng": 138.691413,
+      "elevation": null,
+      "country": "JP",
+      "countryName": "Japan",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": 26.2,
+      "fahrenheit": 79.2,
+      "source": "AIST/GSJ, Geochemical Map of Hot Spring Waters (GRES-DB ONSEN 2020), gbank.gsj.jp/gres-db",
+      "measuredAt": "1998",
+      "qualitative": null,
+      "kind": "source"
+    },
+    "access": {
+      "price": "Paid (amount unknown)",
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": "10:00-22:00",
+      "seasonalNotes": null,
+      "status": "open"
+    },
+    "minerals": {
+      "ph": 7.9,
+      "tds": 1332,
+      "sulfate": 560.5,
+      "bicarbonate": 158.7,
+      "chloride": 212.1,
+      "calcium": 201.2,
+      "magnesium": 61.1,
+      "sodium": 110.8,
+      "potassium": 1.7,
+      "silica": null,
+      "iron": null,
+      "types": [
+        "chloride",
+        "sulfate"
+      ],
+      "notes": null,
+      "measuredAt": "1998",
+      "unit": "mg/kg"
+    },
+    "type": "developed",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/way/182943462",
+      "https://www.fuji-yurari.jp/",
+      "https://gbank.gsj.jp/gres-db/"
+    ],
+    "description": null,
+    "tags": [
+      "indoor",
+      "onsen",
+      "open-air"
+    ],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "aist",
+        "osm"
+      ],
+      "completeness": 83,
+      "known": [
+        "name",
+        "temperature",
+        "price",
+        "hours",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25"
+    },
+    "osmRefs": [
+      "way/182943462"
+    ]
+  },
+  "noTemp": {
+    "id": "whs_a23d3a68657d",
+    "name": "Burimet Termale te Vromonerit",
+    "location": {
+      "lat": 40.098401,
+      "lng": 20.673412,
+      "elevation": null,
+      "country": "GR",
+      "countryName": "Greece",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": null,
+      "fahrenheit": null,
+      "source": null,
+      "measuredAt": null,
+      "qualitative": "warm",
+      "kind": "unknown"
+    },
+    "access": {
+      "price": "Free",
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "potassium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null,
+      "unit": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/9201240939",
+      "https://sq.wikipedia.org/wiki/Burimet_termale_te_Vromonerit",
+      "https://www.wikidata.org/wiki/Q97244098",
+      "https://www.openstreetmap.org/way/1381963418"
+    ],
+    "description": "semi-warm",
+    "tags": [
+      "hot-spring",
+      "well-documented"
+    ],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 50,
+      "known": [
+        "name",
+        "price",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25"
+    },
+    "osmRefs": [
+      "node/9201240939",
+      "way/1381963418"
+    ]
+  },
+  "prohibited": {
+    "id": "whs_72b506bb5baa",
+    "name": "Artists' Paintpots",
+    "location": {
+      "lat": 44.69154,
+      "lng": -110.738248,
+      "elevation": null,
+      "country": "US",
+      "countryName": "United States of America",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": 93,
+      "fahrenheit": 199.4,
+      "source": "NOAA NCEI, Thermal Springs List for the United States (1981), doi:10.25921/c8p0-zs06",
+      "measuredAt": "1981",
+      "qualitative": null,
+      "kind": "unknown"
+    },
+    "access": {
+      "price": null,
+      "currency": null,
+      "notes": null,
+      "status": "view-only",
+      "bathingAllowed": false
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "potassium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null,
+      "unit": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/264936668"
+    ],
+    "description": null,
+    "tags": [],
+    "warnings": [
+      "Scalding: recorded at 50°C or above. Water at this temperature causes burns in seconds.",
+      "Entering or soaking in thermal features is prohibited in Yellowstone National Park. The water can be near boiling and has caused fatal injuries. View from boardwalks and marked trails only."
+    ],
+    "quality": {
+      "provenance": [
+        "osm",
+        "ncei"
+      ],
+      "completeness": 50,
+      "known": [
+        "name",
+        "temperature",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25"
+    },
+    "osmRefs": [
+      "node/264936668"
+    ]
+  },
+  "sourceKind": {
+    "id": "whs_c3bb4b03a9f4",
+    "name": "Rognerbad Bad Blumau",
+    "location": {
+      "lat": 47.123954,
+      "lng": 16.04593,
+      "elevation": null,
+      "country": "AT",
+      "countryName": "Austria",
+      "region": null,
+      "nearestTown": "Bad Blumau"
+    },
+    "temperature": {
+      "celsius": 110,
+      "fahrenheit": 230,
+      "source": "Curated claim by HudsonR&D Meta 9.5.26: https://de.wikipedia.org/wiki/Rogner_Bad_Blumau",
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "source"
+    },
+    "access": {
+      "price": "Paid (amount unknown)",
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": "Mo-Su 09:00-23:00",
+      "seasonalNotes": null,
+      "status": "open"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "potassium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null,
+      "unit": null
+    },
+    "type": "developed",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/way/334217981",
+      "https://www.blumau.com/",
+      "https://de.wikipedia.org/wiki/Rogner_Bad_Blumau",
+      "https://www.wikidata.org/wiki/Q1270593"
+    ],
+    "description": null,
+    "tags": [
+      "thermal",
+      "well-documented"
+    ],
+    "warnings": [
+      "Scalding: recorded at 50°C or above. Water at this temperature causes burns in seconds."
+    ],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 83,
+      "known": [
+        "name",
+        "temperature",
+        "price",
+        "hours",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "curated": true
+    },
+    "osmRefs": [
+      "way/334217981"
+    ]
+  },
+  "bathingKind": {
+    "id": "whs_b73180a96452",
+    "name": "Eurotherme Bad Hall",
+    "location": {
+      "lat": 48.034701,
+      "lng": 14.205321,
+      "elevation": null,
+      "country": "AT",
+      "countryName": "Austria",
+      "region": null,
+      "nearestTown": "Bad Hall"
+    },
+    "temperature": {
+      "celsius": 32,
+      "fahrenheit": 89.6,
+      "source": "Curated claim by HudsonR&D Meta 9.5.26: https://de.wikipedia.org/wiki/Eurotherme_Bad_Hall",
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "bathing"
+    },
+    "access": {
+      "price": "Paid (amount unknown)",
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "potassium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null,
+      "unit": null
+    },
+    "type": "developed",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/way/475251767",
+      "https://de.wikipedia.org/wiki/Eurotherme_Bad_Hall",
+      "https://www.wikidata.org/wiki/Q1378317"
+    ],
+    "description": null,
+    "tags": [
+      "indoor",
+      "thermal",
+      "well-documented"
+    ],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 67,
+      "known": [
+        "name",
+        "temperature",
+        "price",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "curated": true
+    },
+    "osmRefs": [
+      "way/475251767"
+    ]
+  },
+  "bare": {
+    "id": "whs_b803e624c229",
+    "name": "Ali Su",
+    "location": {
+      "lat": 37.235377,
+      "lng": 73.1049,
+      "elevation": null,
+      "country": "AF",
+      "countryName": "Afghanistan",
+      "region": null,
+      "nearestTown": null
+    },
+    "temperature": {
+      "celsius": null,
+      "fahrenheit": null,
+      "source": null,
+      "measuredAt": null,
+      "qualitative": null,
+      "kind": "unknown"
+    },
+    "access": {
+      "price": null,
+      "currency": null,
+      "notes": null,
+      "status": "unknown",
+      "bathingAllowed": null
+    },
+    "clothing": {
+      "policy": "unknown",
+      "schedule": null,
+      "notes": null
+    },
+    "hours": {
+      "open": null,
+      "seasonalNotes": null,
+      "status": "unknown"
+    },
+    "minerals": {
+      "ph": null,
+      "tds": null,
+      "sulfate": null,
+      "bicarbonate": null,
+      "chloride": null,
+      "calcium": null,
+      "magnesium": null,
+      "sodium": null,
+      "potassium": null,
+      "silica": null,
+      "iron": null,
+      "types": [],
+      "notes": null,
+      "measuredAt": null,
+      "unit": null
+    },
+    "type": "natural",
+    "unicorn": false,
+    "verified": false,
+    "lastVerified": "2026-08-25",
+    "sources": [
+      "https://www.openstreetmap.org/node/9922710351"
+    ],
+    "description": null,
+    "tags": [],
+    "warnings": [],
+    "quality": {
+      "provenance": [
+        "osm"
+      ],
+      "completeness": 33,
+      "known": [
+        "name",
+        "type"
+      ],
+      "ingestedAt": "2026-08-25",
+      "attributeFree": true
+    },
+    "osmRefs": [
+      "node/9922710351"
+    ]
+  }
+}

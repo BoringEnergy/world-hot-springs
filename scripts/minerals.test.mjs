@@ -20,6 +20,7 @@ import {
 import { NUMERIC_FIELDS, LITERAL_FIELDS } from './enrich.mjs';
 
 const PANEL = fs.readFileSync('src/components/DetailPanel.tsx', 'utf8');
+const FORMAT = fs.readFileSync('src/lib/format.ts', 'utf8');
 const TYPES = fs.readFileSync('src/lib/types.ts', 'utf8');
 const MINERAL_FIELDS = CLAIMABLE.filter((f) => f.startsWith('minerals.'));
 
@@ -107,25 +108,23 @@ test('a non-numeric concentration is rejected', () => {
   assert.ok(errors.some((e) => e.includes('minerals.sulfate')), JSON.stringify(errors));
 });
 
-test('the detail card states that this atlas does not test water', () => {
-  // The standing disclaimer. Unconditional, not gated on measuredAt: the
-  // figures are transcribed from a source in every case.
-  assert.ok(
-    PANEL.includes('does not test water'),
-    'the composition section must say the atlas does not test water',
-  );
-  assert.ok(
-    PANEL.includes('not verified these figures on site'),
-    'and that it has not verified them on site',
-  );
-});
-
-test('an undated analysis says so rather than implying freshness', () => {
+test('the mineral panel is rendered from the model, not from inline decisions', () => {
+  // A tripwire, and the only thing a source scan can prove that
+  // scripts/card-model.test.mjs cannot: the card actually CALLS the model.
+  // Reinline the rows or the footnote here and every model test still
+  // passes while the card quietly diverges from them.
+  assert.ok(PANEL.includes('mineralRows(spring.minerals)'), 'rows must come from format.ts');
+  assert.ok(PANEL.includes('mineralsFootnote(spring.minerals)'), 'the footnote must too');
+  // And the strings themselves live where the model test can reach them.
+  // Unconditional, not gated on measuredAt: the figures are transcribed
+  // from a source in every case.
+  assert.ok(FORMAT.includes('does not test water'));
+  assert.ok(FORMAT.includes('not verified these figures on site'));
   // Chemistry drifts, and an undated analysis may be decades old. "Analysed
   // <date>" and "the source does not say when" are different things to act
-  // on, so the card must not collapse them.
-  assert.ok(PANEL.includes('without stating when the water was analysed'));
-  assert.ok(PANEL.includes('measuredAt'), 'the distinction must be data-driven');
+  // on, so the model must not collapse them.
+  assert.ok(FORMAT.includes('without stating when the water was analysed'));
+  assert.ok(FORMAT.includes('measuredAt'), 'the distinction must be data-driven');
 });
 
 test('every record carries a minerals block, present and empty', () => {
@@ -187,12 +186,15 @@ test('every record carries a temperature kind, defaulting to unknown', () => {
 });
 
 test('the card labels which water a temperature describes', () => {
-  const panel = fs.readFileSync('src/components/DetailPanel.tsx', 'utf8');
-  assert.ok(panel.includes("'at source'"), 'a source reading must say so');
-  assert.ok(panel.includes("'bathing water'"), 'a bathing reading must say so');
+  // The labels and the unknown rule now live in the model, where
+  // card-model.test.mjs asserts them against real records rather than
+  // against markup. This keeps the tripwire on the wiring.
+  assert.ok(FORMAT.includes("'at source'"), 'a source reading must say so');
+  assert.ok(FORMAT.includes("'bathing water'"), 'a bathing reading must say so');
   // Not rendered for unknown: it is the majority case, and a label on every
   // record would be noise rather than information.
-  assert.ok(panel.includes("temperature.kind !== 'unknown'"));
+  assert.ok(FORMAT.includes("kind !== 'unknown'"));
+  assert.ok(PANEL.includes('temperatureDisplay(spring, units)'), 'the card must use the model');
 });
 
 test('a figure without a unit is caught, whether or not any record has one yet', () => {
