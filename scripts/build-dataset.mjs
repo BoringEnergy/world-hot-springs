@@ -27,6 +27,7 @@ import { fromTsv as wqpFromTsv, WQP_SOURCE, WQP_PAGE, WQP_PROVIDER } from './lib
 import { matchWqp } from './lib/wqp-match.mjs';
 import { fromTsv as nbmgFromTsv, NBMG_PAGE, NBMG_PROVIDER } from './lib/nbmg.mjs';
 import { matchNbmg } from './lib/nbmg-match.mjs';
+import { reconcileAccuracy } from './lib/accuracy.mjs';
 import { fromTsv, AIST_PROVIDER, AIST_SOURCE, AIST_PAGE } from './lib/aist.mjs';
 import { matchAist, agreedValue, agreedUnit, agreedYear, NUMERIC_FIELDS as AIST_NUMERIC_FIELDS } from './lib/aist-match.mjs';
 
@@ -738,6 +739,22 @@ async function main() {
   for (const r of records) if (reconcileTemperatureWarnings(r)) rewarned++;
   console.log(`  ${rewarned} record(s) gained or lost a temperature warning`);
 
+  // --- Pin accuracy, derived from who placed the point ---
+  // Late, with the other derived fields, and for the same reason: dedupe can
+  // merge an admitted NCEI pin into an OSM record and mergeInto adopts the
+  // winner's coordinates. Stamped at mint time the 110 would outlive the
+  // coordinate it described.
+  //
+  // Keyed on the refs that MINTED the point, never on quality.provenance.
+  // 131 records carry ncei provenance while sitting on an OSM node -- springs
+  // NOAA confirmed rather than placed -- and provenance cannot tell them apart.
+  console.log('Deriving pin accuracy ...');
+  let accuracySet = 0;
+  for (const r of records) {
+    reconcileAccuracy(r);
+    if (r.location.accuracyMeters !== null) accuracySet++;
+  }
+  console.log(`  ${accuracySet} pin(s) state a precision; the rest are OSM and say nothing`);
   // --- Completeness, rescored ---
   // The same defect in the same shape, found by looking for it. NCEI
   // enrichment fills a temperature into an existing record and never
