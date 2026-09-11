@@ -1,0 +1,2943 @@
+{
+  "counts": {
+    "rows": 6319,
+    "matched": 109,
+    "panelsWritten": 109,
+    "fieldsWritten": 649,
+    "deferredToAuthor": 0,
+    "withheld": 197
+  },
+  "matched": [
+    {
+      "id": "whs_b6b5f4bdfbb4",
+      "site": "38.19111,-105.80917",
+      "siteName": "Saguache County Valley View Hot Springs",
+      "meters": 42,
+      "values": {
+        "calcium": 50,
+        "magnesium": 13,
+        "potassium": 2.5,
+        "silica": 18,
+        "bicarbonate": 125
+      },
+      "withheldFields": [
+        "sodium",
+        "chloride",
+        "sulfate",
+        "ph"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_b7f6327bbd76",
+      "site": "35.96533,-114.74332",
+      "siteName": "Boy Scout Hot Spring - Black Canyon Hot Springs / Hoover Dam Hot Springs",
+      "meters": 8,
+      "values": {
+        "calcium": 290,
+        "magnesium": 10,
+        "sodium": 650,
+        "potassium": 15,
+        "silica": 34,
+        "chloride": 1100,
+        "sulfate": 660,
+        "bicarbonate": 48,
+        "iron": 0.01,
+        "ph": 7.8
+      },
+      "withheldFields": [],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_d499eb72d43c",
+      "site": "38.81278,-106.22250",
+      "siteName": "Chaffee County Cottonwood",
+      "meters": 20,
+      "values": {
+        "calcium": 6.4,
+        "potassium": 2.6,
+        "sulfate": 110,
+        "magnesium": 0.3
+      },
+      "withheldFields": [
+        "ph",
+        "sodium",
+        "silica",
+        "chloride",
+        "bicarbonate"
+      ],
+      "measuredAt": "1976"
+    },
+    {
+      "id": "whs_228266049c8e",
+      "site": "40.77185,-119.11679",
+      "siteName": "Trego Hot Springs / Butte Hot Springs",
+      "meters": 92,
+      "values": {
+        "magnesium": 0.2
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "ph",
+        "iron"
+      ],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_a66866af4ba3",
+      "site": "39.55306,-107.41111",
+      "siteName": "Garfield County Smith Canyon Spring",
+      "meters": 81,
+      "values": {
+        "calcium": 7,
+        "potassium": 8.2
+      },
+      "withheldFields": [
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_00177ecf7718",
+      "site": "39.23056,-107.22611",
+      "siteName": "Pitkin County Penny Hot Springs",
+      "meters": 177,
+      "values": {
+        "calcium": 440,
+        "magnesium": 55,
+        "sodium": 400,
+        "potassium": 38,
+        "silica": 81,
+        "chloride": 260,
+        "sulfate": 1400,
+        "bicarbonate": 565,
+        "ph": 9.2
+      },
+      "withheldFields": [],
+      "measuredAt": "1976"
+    },
+    {
+      "id": "whs_9939af5e623e",
+      "site": "41.36365,-119.21758",
+      "siteName": "Spring 9 - Soldier Meadows Hot Springs / Mud Meadow Hot Springs",
+      "meters": 14,
+      "values": {
+        "calcium": 3.2,
+        "magnesium": -0.01,
+        "sodium": 73,
+        "potassium": 1.1,
+        "silica": 62,
+        "chloride": 18,
+        "sulfate": 39,
+        "iron": 0.01,
+        "ph": 9
+      },
+      "withheldFields": [],
+      "measuredAt": "1980"
+    },
+    {
+      "id": "whs_0e30be02a176",
+      "site": "38.48964,-118.97418",
+      "siteName": "Grant View Hot Springs / East Walker River Hot Springs / Walker Hot Springs",
+      "meters": 6,
+      "values": {
+        "magnesium": 0.1,
+        "potassium": 2.2
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_2f66bc94bee3",
+      "site": "39.55854,-117.43114",
+      "siteName": "Petersons Mill Hot Spring",
+      "meters": 13,
+      "values": {
+        "silica": 6.84594459873246
+      },
+      "withheldFields": [],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_4869d2878dec",
+      "site": "39.94086,-116.07520",
+      "siteName": "Shipley Hot Spring / Sadler Hot Spring",
+      "meters": 9,
+      "values": {
+        "magnesium": 21,
+        "sodium": 30,
+        "potassium": 6
+      },
+      "withheldFields": [
+        "calcium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2006"
+    },
+    {
+      "id": "whs_79bbc93ffb83",
+      "site": "37.86006,-117.98378",
+      "siteName": "Swimming Pool Well",
+      "meters": 6,
+      "values": {
+        "calcium": 4.2,
+        "magnesium": 0.2,
+        "sodium": 322,
+        "potassium": 31.6,
+        "silica": 80.7,
+        "chloride": -0.001,
+        "sulfate": 76.8,
+        "bicarbonate": 12.7,
+        "iron": 6.6,
+        "ph": 7.95
+      },
+      "withheldFields": [],
+      "measuredAt": "2005"
+    },
+    {
+      "id": "whs_5df5194fa21c",
+      "site": "41.38021,-119.18255",
+      "siteName": "Spring 1X Orifice A - Soldier Meadows Hot Springs / Mud Meadow Hot Springs",
+      "meters": 58,
+      "values": {
+        "bicarbonate": 79
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_753d585c716a",
+      "site": "41.35684,-119.18904",
+      "siteName": "Spring 4 - Soldier Meadows Hot Springs / Mud Meadow Hot Springs",
+      "meters": 11,
+      "values": {
+        "calcium": 2.8,
+        "magnesium": 0.2,
+        "potassium": 0.8,
+        "ph": 8.8,
+        "bicarbonate": 77
+      },
+      "withheldFields": [
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "iron"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_4f3502be785f",
+      "site": "41.35273,-119.21780",
+      "siteName": "Spring 2 - Soldier Meadows Hot Springs / Mud Meadow Hot Springs",
+      "meters": 47,
+      "values": {
+        "calcium": 3.1,
+        "magnesium": 0.13,
+        "potassium": 1.2,
+        "ph": 8.8,
+        "bicarbonate": 77
+      },
+      "withheldFields": [
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "iron"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_ffc6d17ecfe7",
+      "site": "41.02347,-119.01551",
+      "siteName": "Spring 2 Orifice E - W Black Rock Range",
+      "meters": 9,
+      "values": {
+        "calcium": 9.4,
+        "magnesium": 0.5,
+        "sodium": 240,
+        "potassium": 10,
+        "silica": 130,
+        "chloride": 84,
+        "sulfate": 160,
+        "iron": 0.01,
+        "ph": 7.9
+      },
+      "withheldFields": [],
+      "measuredAt": "1980"
+    },
+    {
+      "id": "whs_a2324e743309",
+      "site": "41.00313,-119.01461",
+      "siteName": "Spring 4 Orifice B - Casey Springs / Casey Hot Springs",
+      "meters": 187,
+      "values": {
+        "calcium": 18,
+        "magnesium": 0.19,
+        "sodium": 265,
+        "potassium": 10,
+        "silica": 86,
+        "chloride": 120,
+        "sulfate": 135,
+        "bicarbonate": 280,
+        "iron": 10,
+        "ph": 7.1
+      },
+      "withheldFields": [],
+      "measuredAt": "1960"
+    },
+    {
+      "id": "whs_06e0cfcc02b3",
+      "site": "40.95516,-119.00291",
+      "siteName": "S Black Rock Hot Springs",
+      "meters": 13,
+      "values": {
+        "calcium": 36,
+        "magnesium": 4,
+        "sodium": 1500,
+        "potassium": 20,
+        "silica": 120,
+        "chloride": 790,
+        "sulfate": 290,
+        "bicarbonate": 932,
+        "iron": 14,
+        "ph": 8.1
+      },
+      "withheldFields": [],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_41c9d30839de",
+      "site": "37.82464,-117.33752",
+      "siteName": "Alkali Hot Spring",
+      "meters": 2,
+      "values": {
+        "calcium": 46,
+        "potassium": 16
+      },
+      "withheldFields": [
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "magnesium",
+        "ph"
+      ],
+      "measuredAt": "1957"
+    },
+    {
+      "id": "whs_6b09c1de1f0c",
+      "site": "38.52013,-116.36779",
+      "siteName": "Upper Hot Creek Ranch Springs - Hot Creek Canyon",
+      "meters": 10,
+      "values": {
+        "sodium": 192,
+        "potassium": 13,
+        "silica": 134,
+        "iron": 7.6,
+        "ph": 8
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate"
+      ],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_0efab74ada85",
+      "site": "39.32717,-116.85581",
+      "siteName": "Spencer Hot Springs Well (Artesian)",
+      "meters": 6,
+      "values": {
+        "sodium": 201,
+        "potassium": 35,
+        "silica": 80,
+        "chloride": 22,
+        "iron": 5
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1962"
+    },
+    {
+      "id": "whs_7c673ef9c9c9",
+      "site": "41.75280,-118.84111",
+      "siteName": "Hot Spring - Gridley Lake Springs",
+      "meters": 13,
+      "values": {
+        "calcium": 1.4,
+        "magnesium": 0.1,
+        "sodium": 32,
+        "potassium": 6.3,
+        "silica": 67,
+        "chloride": 7,
+        "sulfate": 13,
+        "bicarbonate": 68,
+        "ph": 7.7
+      },
+      "withheldFields": [],
+      "measuredAt": "1954"
+    },
+    {
+      "id": "whs_71c0404866ce",
+      "site": "38.59452,-115.13915",
+      "siteName": "Moorman Spring / Morman Spring",
+      "meters": 8,
+      "values": {
+        "chloride": 9,
+        "sulfate": 46,
+        "bicarbonate": 290,
+        "sodium": 24,
+        "potassium": 5.9,
+        "silica": 27,
+        "iron": 1.3,
+        "ph": 7
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium"
+      ],
+      "measuredAt": "1981"
+    },
+    {
+      "id": "whs_a2da450a33b6",
+      "site": "38.80972,-106.22250",
+      "siteName": "Chaffee County Cottonwood",
+      "meters": 36,
+      "values": {
+        "calcium": 9.5,
+        "magnesium": 0.8,
+        "sodium": 81,
+        "potassium": 2.5,
+        "silica": 48,
+        "chloride": 23,
+        "sulfate": 87,
+        "bicarbonate": 71
+      },
+      "withheldFields": [
+        "ph"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_9578f456de8d",
+      "site": "39.01194,-106.89083",
+      "siteName": "Pitkin County Conundrum Hot Springs",
+      "meters": 60,
+      "values": {
+        "bicarbonate": 18
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate"
+      ],
+      "measuredAt": "1975"
+    },
+    {
+      "id": "whs_6d4308824557",
+      "site": "39.19324,-119.75268",
+      "siteName": "Carson Hot Springs / Shaws Hot Springs / Swifts Hot Springs",
+      "meters": 64,
+      "values": {
+        "calcium": 2.6,
+        "magnesium": 0.4,
+        "chloride": 29,
+        "sulfate": 96,
+        "bicarbonate": 36,
+        "ph": 9.3
+      },
+      "withheldFields": [],
+      "measuredAt": "1950"
+    },
+    {
+      "id": "whs_981ca33f35dd",
+      "site": "37.29472,-105.78500",
+      "siteName": "Conejos County Dexter Spring",
+      "meters": 119,
+      "values": {
+        "ph": 7.9
+      },
+      "withheldFields": [],
+      "measuredAt": "1976"
+    },
+    {
+      "id": "whs_5c4f710d9f85",
+      "site": "37.77139,-108.09250",
+      "siteName": "Dolores County Dunton Hot Spring",
+      "meters": 139,
+      "values": {
+        "sodium": 35,
+        "chloride": 6.6
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "potassium",
+        "silica",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_5ac0cbfd973a",
+      "site": "37.74667,-108.11694",
+      "siteName": "Dolores County Geyser",
+      "meters": 37,
+      "values": {
+        "calcium": 170,
+        "magnesium": 40,
+        "sodium": 400,
+        "potassium": 29,
+        "silica": 37,
+        "chloride": 2.4,
+        "sulfate": 68,
+        "bicarbonate": 1770
+      },
+      "withheldFields": [],
+      "measuredAt": "1975"
+    },
+    {
+      "id": "whs_9096c1f77024",
+      "site": "39.22583,-107.22472",
+      "siteName": "Pitkin County Penny Hot Springs",
+      "meters": 144,
+      "values": {
+        "ph": 6.3
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1976"
+    },
+    {
+      "id": "whs_d31014a17ed8",
+      "site": "37.75028,-106.31694",
+      "siteName": "Saguache County Shaws",
+      "meters": 80,
+      "values": {
+        "magnesium": 0.3,
+        "sodium": 130,
+        "potassium": 1.4,
+        "chloride": 7.2
+      },
+      "withheldFields": [
+        "calcium",
+        "silica",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_27385e867567",
+      "site": "40.48278,-106.82694",
+      "siteName": "Routt County Steamboat Springs",
+      "meters": 25,
+      "values": {
+        "magnesium": 1
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1992"
+    },
+    {
+      "id": "whs_fb9b8c45755f",
+      "site": "38.51389,-106.50750",
+      "siteName": "Gunnison County Waunita Hot Springs",
+      "meters": 45,
+      "values": {
+        "potassium": 10
+      },
+      "withheldFields": [
+        "ph",
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1993"
+    },
+    {
+      "id": "whs_d0a0cf867fae",
+      "site": "38.36491,-115.86768",
+      "siteName": "Abel Spring",
+      "meters": 60,
+      "values": {
+        "calcium": 100,
+        "magnesium": 26,
+        "sodium": 120,
+        "potassium": 22,
+        "silica": 27,
+        "chloride": 15,
+        "sulfate": 51,
+        "iron": 2.7,
+        "ph": 7.6
+      },
+      "withheldFields": [],
+      "measuredAt": "1968"
+    },
+    {
+      "id": "whs_91ea565b9481",
+      "site": "37.46362,-115.19255",
+      "siteName": "Ash Springs / Alamo Springs",
+      "meters": 84,
+      "values": {
+        "magnesium": 17.99,
+        "chloride": 8.86,
+        "potassium": 6.8,
+        "silica": 31,
+        "iron": 0.5,
+        "ph": 8.1
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "sulfate",
+        "bicarbonate"
+      ],
+      "measuredAt": "1945"
+    },
+    {
+      "id": "whs_2b246a9a1018",
+      "site": "36.42634,-116.41254",
+      "siteName": "Ash Tree Spring",
+      "meters": 143,
+      "values": {
+        "magnesium": 4.2,
+        "potassium": 8.8,
+        "chloride": 6.6,
+        "ph": 7.9
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "silica",
+        "sulfate",
+        "bicarbonate",
+        "iron"
+      ],
+      "measuredAt": "1974"
+    },
+    {
+      "id": "whs_9da9960e09f4",
+      "site": "37.78351,-114.52903",
+      "siteName": "Bennett Springs / Bennetts Springs",
+      "meters": 107,
+      "values": {
+        "calcium": 56,
+        "magnesium": 26,
+        "sodium": 6.5,
+        "potassium": 1.5,
+        "silica": 14,
+        "chloride": 7.9,
+        "sulfate": 6.9,
+        "iron": 0.1,
+        "ph": 7.5
+      },
+      "withheldFields": [],
+      "measuredAt": "1985"
+    },
+    {
+      "id": "whs_66d555244087",
+      "site": "36.37461,-116.27437",
+      "siteName": "Big Spring / Ash Meadows Spring / Deep Spring",
+      "meters": 55,
+      "values": {
+        "potassium": 8.6
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1996"
+    },
+    {
+      "id": "whs_62a01ccca500",
+      "site": "38.95368,-117.05062",
+      "siteName": "Big Blue Springs / Charnock Springs",
+      "meters": 145,
+      "values": {
+        "sodium": 74,
+        "potassium": 13,
+        "sulfate": 38,
+        "ph": 7.5
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "silica",
+        "chloride",
+        "bicarbonate",
+        "iron"
+      ],
+      "measuredAt": "1962"
+    },
+    {
+      "id": "whs_e45b5997e81c",
+      "site": "40.26213,-119.38003",
+      "siteName": "Warm Spring - Lake Range",
+      "meters": 89,
+      "values": {
+        "calcium": 7,
+        "magnesium": 2,
+        "sodium": 39,
+        "potassium": 13,
+        "chloride": 19,
+        "sulfate": 21,
+        "bicarbonate": 109,
+        "ph": 8.2
+      },
+      "withheldFields": [],
+      "measuredAt": "1969"
+    },
+    {
+      "id": "whs_fd536af8f5c2",
+      "site": "36.36334,-116.27187",
+      "siteName": "Bole Spring / Bole Hot Spring",
+      "meters": 87,
+      "values": {
+        "potassium": 9.8
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1977"
+    },
+    {
+      "id": "whs_97c40b124c62",
+      "site": "39.78608,-119.01185",
+      "siteName": "Warm Spring - Bradys Hot Springs / Springers Hot Springs / Fernley Hot Springs / Nightingale Hot Springs",
+      "meters": 125,
+      "values": {
+        "calcium": 44,
+        "magnesium": 2.6,
+        "sodium": 200,
+        "potassium": 31,
+        "silica": 108,
+        "chloride": 43,
+        "sulfate": 341,
+        "bicarbonate": 204,
+        "iron": 5.6,
+        "ph": 7.3
+      },
+      "withheldFields": [],
+      "measuredAt": "1960"
+    },
+    {
+      "id": "whs_f932d3233677",
+      "site": "40.82870,-117.30635",
+      "siteName": "Brooks Spring",
+      "meters": 44,
+      "values": {
+        "magnesium": 16,
+        "iron": 1.7
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1977"
+    },
+    {
+      "id": "whs_1ae8f04219b7",
+      "site": "36.03361,-115.88875",
+      "siteName": "Browns Spring / Steve Brown Spring",
+      "meters": 96,
+      "values": {
+        "calcium": 73,
+        "magnesium": 13,
+        "silica": 51,
+        "chloride": 0.5,
+        "bicarbonate": 269
+      },
+      "withheldFields": [],
+      "measuredAt": "1978"
+    },
+    {
+      "id": "whs_87912d02c4be",
+      "site": "41.02063,-119.27522",
+      "siteName": "Cane Springs - Calico Hills",
+      "meters": 153,
+      "values": {
+        "calcium": 23,
+        "magnesium": 8.4,
+        "sodium": 74,
+        "potassium": 10,
+        "silica": 74
+      },
+      "withheldFields": [],
+      "measuredAt": "1961"
+    },
+    {
+      "id": "whs_afc56038808f",
+      "site": "37.75086,-116.27369",
+      "siteName": "Cedar Spring",
+      "meters": 31,
+      "values": {
+        "calcium": 62,
+        "magnesium": 5.9,
+        "sodium": 47,
+        "potassium": 2.5,
+        "silica": 38,
+        "chloride": 23,
+        "sulfate": 0.4,
+        "iron": 0.8,
+        "ph": 7.7
+      },
+      "withheldFields": [],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_60882897e002",
+      "site": "38.38825,-115.86658",
+      "siteName": "Coyote Hole Spring - Railroad Valley",
+      "meters": 58,
+      "values": {
+        "calcium": 91,
+        "magnesium": 31,
+        "sodium": 123,
+        "potassium": 25,
+        "silica": 37,
+        "sulfate": 59,
+        "bicarbonate": 698,
+        "iron": 2.4,
+        "ph": 8
+      },
+      "withheldFields": [
+        "chloride"
+      ],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_eda9e76618a5",
+      "site": "40.40353,-116.51722",
+      "siteName": "Hot Spring - Hot Springs Point",
+      "meters": 55,
+      "values": {
+        "calcium": 46,
+        "magnesium": 40,
+        "sodium": 285,
+        "potassium": 56,
+        "silica": 70,
+        "chloride": 48,
+        "sulfate": 116,
+        "bicarbonate": 949,
+        "iron": 7,
+        "ph": 6.9
+      },
+      "withheldFields": [],
+      "measuredAt": "1974"
+    },
+    {
+      "id": "whs_b081182827e7",
+      "site": "40.41775,-116.50702",
+      "siteName": "Hot Spring - Hot Springs Point",
+      "meters": 83,
+      "values": {
+        "calcium": 47.3,
+        "magnesium": 33.4,
+        "sodium": 282,
+        "potassium": 49,
+        "silica": 48.8,
+        "chloride": 65.9,
+        "sulfate": 115,
+        "bicarbonate": 820,
+        "iron": 1.6,
+        "ph": 6.95
+      },
+      "withheldFields": [],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_43ac7a66cca4",
+      "site": "36.42020,-116.32377",
+      "siteName": "Crystal Pool",
+      "meters": 182,
+      "values": {
+        "potassium": 8.6
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1998"
+    },
+    {
+      "id": "whs_b69f25606eae",
+      "site": "36.42539,-116.29137",
+      "siteName": "Devils Hole Spring / Button Spring",
+      "meters": 55,
+      "values": {
+        "potassium": 7.6
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_862433fcee8c",
+      "site": "39.03024,-116.66661",
+      "siteName": "Dianas Punch Bowl / Diannas Punch Bowl",
+      "meters": 100,
+      "values": {
+        "calcium": 47,
+        "magnesium": 11,
+        "potassium": 15,
+        "chloride": 9,
+        "bicarbonate": 270.08
+      },
+      "withheldFields": [
+        "sodium",
+        "silica",
+        "sulfate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_1bc1d7fd568a",
+      "site": "40.81325,-115.77923",
+      "siteName": "Elko Hot Springs / Sulfur Hot Springs / Sulphur Hot Springs",
+      "meters": 107,
+      "values": {
+        "calcium": 66,
+        "magnesium": 13,
+        "sodium": 110,
+        "potassium": 35,
+        "silica": 63,
+        "chloride": 15
+      },
+      "withheldFields": [
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1980"
+    },
+    {
+      "id": "whs_23d17a9d1715",
+      "site": "40.68441,-116.15431",
+      "siteName": "Tyrol Spring / Long John Warm Spring",
+      "meters": 119,
+      "values": {
+        "calcium": 43,
+        "magnesium": 8.8,
+        "sodium": 27,
+        "silica": 67,
+        "chloride": 17,
+        "iron": 0.5
+      },
+      "withheldFields": [
+        "potassium",
+        "sulfate",
+        "bicarbonate",
+        "ph"
+      ],
+      "measuredAt": "1990"
+    },
+    {
+      "id": "whs_65d42ff04176",
+      "site": "36.49042,-116.34207",
+      "siteName": "Fairbanks Spring",
+      "meters": 65,
+      "values": {
+        "potassium": 8
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1998"
+    },
+    {
+      "id": "whs_8e29d28debb9",
+      "site": "41.76302,-118.28019",
+      "siteName": "Fivemile Spring - Kings River Valley",
+      "meters": 99,
+      "values": {
+        "calcium": 14,
+        "magnesium": 2.8,
+        "sodium": 28,
+        "potassium": 6.3,
+        "silica": 53,
+        "chloride": 15,
+        "sulfate": 14,
+        "bicarbonate": 94,
+        "ph": 7.3
+      },
+      "withheldFields": [],
+      "measuredAt": "1975"
+    },
+    {
+      "id": "whs_0262992e3c6d",
+      "site": "37.89607,-114.22665",
+      "siteName": "Flatnose Spring",
+      "meters": 32,
+      "values": {
+        "sodium": 34,
+        "potassium": 5.6,
+        "iron": 1.3,
+        "ph": 8,
+        "bicarbonate": 162
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "silica",
+        "chloride",
+        "sulfate"
+      ],
+      "measuredAt": "1985"
+    },
+    {
+      "id": "whs_42a636e6811c",
+      "site": "41.88492,-114.11752",
+      "siteName": "Gambles Hole Spring ",
+      "meters": 111,
+      "values": {
+        "calcium": 31,
+        "magnesium": 8.9,
+        "silica": 32,
+        "chloride": 3.2,
+        "sulfate": 15,
+        "bicarbonate": 147,
+        "iron": 0.06
+      },
+      "withheldFields": [],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_aa3cd36a7f77",
+      "site": "38.67083,-114.62839",
+      "siteName": "Geyser Ranch Springs",
+      "meters": 39,
+      "values": {
+        "calcium": 44,
+        "magnesium": 37,
+        "silica": 11,
+        "chloride": 2,
+        "sulfate": 11,
+        "bicarbonate": 124,
+        "iron": 0.1
+      },
+      "withheldFields": [],
+      "measuredAt": "1979"
+    },
+    {
+      "id": "whs_d41ee0807fdb",
+      "site": "40.95419,-117.49025",
+      "siteName": "Golconda Hot Springs / Segerstroms Hot Springs",
+      "meters": 190,
+      "values": {
+        "calcium": 30.8,
+        "magnesium": 9.3,
+        "sodium": 185,
+        "potassium": 27.9,
+        "silica": 46.9,
+        "chloride": 23,
+        "sulfate": 56.0164,
+        "bicarbonate": 516,
+        "iron": 1.07,
+        "ph": 6.01
+      },
+      "withheldFields": [],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_40816d3a168c",
+      "site": "36.97449,-116.72219",
+      "siteName": "Amargosa Hot Springs / Hicks Hot Springs / Baileys Hot Springs",
+      "meters": 120,
+      "values": {
+        "magnesium": 0.8,
+        "potassium": 7.2,
+        "chloride": 46
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "silica",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1996"
+    },
+    {
+      "id": "whs_395ba47f0fcd",
+      "site": "37.59836,-115.21535",
+      "siteName": "Hiko Spring",
+      "meters": 51,
+      "values": {
+        "calcium": 44,
+        "magnesium": 23,
+        "sodium": 29,
+        "potassium": 7.2,
+        "silica": 33,
+        "chloride": 11,
+        "sulfate": 36,
+        "bicarbonate": 260,
+        "iron": 0.5,
+        "ph": 8
+      },
+      "withheldFields": [],
+      "measuredAt": "1962"
+    },
+    {
+      "id": "whs_0beabd6a71b6",
+      "site": "39.05908,-119.81571",
+      "siteName": "Hobo Hot Springs",
+      "meters": 62,
+      "values": {
+        "calcium": 3.3642661926309,
+        "magnesium": 0,
+        "sodium": 154.487927959281,
+        "potassium": 2.28,
+        "silica": 43.0010895107883,
+        "chloride": 89.8604,
+        "sulfate": 132.9634,
+        "bicarbonate": 60,
+        "iron": 8.6719,
+        "ph": 8.63
+      },
+      "withheldFields": [],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_bd04dbfbe667",
+      "site": "40.17823,-117.49680",
+      "siteName": "Orifice 88 - Jersey Hot Springs",
+      "meters": 73,
+      "values": {
+        "calcium": 28.9,
+        "magnesium": 3.77,
+        "sodium": 180,
+        "potassium": 18,
+        "silica": 122,
+        "chloride": 36.9,
+        "sulfate": 91.9,
+        "iron": 1.3,
+        "ph": 6.8
+      },
+      "withheldFields": [],
+      "measuredAt": "1980"
+    },
+    {
+      "id": "whs_6c53ac457d6f",
+      "site": "38.38298,-115.15335",
+      "siteName": "Hot Creek Spring / Hot Creek Ranch Springs",
+      "meters": 31,
+      "values": {
+        "potassium": 5.1
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "sodium",
+        "ph"
+      ],
+      "measuredAt": "1981"
+    },
+    {
+      "id": "whs_ed4bc3163dcb",
+      "site": "40.81855,-115.77740",
+      "siteName": "Hot Hole Spring - Sulfur Hot Springs / Elko Hot Springs / Sulphur Hot Springs",
+      "meters": 60,
+      "values": {
+        "potassium": 39
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1978"
+    },
+    {
+      "id": "whs_134fd4f67dc3",
+      "site": "41.14658,-116.73261",
+      "siteName": "Hot Lake - E Midas",
+      "meters": 161,
+      "values": {
+        "calcium": 29,
+        "magnesium": 5.8,
+        "sodium": 33,
+        "potassium": 7,
+        "silica": 57,
+        "chloride": 22,
+        "sulfate": 34,
+        "bicarbonate": 132,
+        "iron": 0.42,
+        "ph": 7.2
+      },
+      "withheldFields": [],
+      "measuredAt": "1983"
+    },
+    {
+      "id": "whs_0f33172b4df9",
+      "site": "40.92061,-117.10944",
+      "siteName": "Hot Pot Springs / Hot Pot Hot Springs / Blossom Hot Springs",
+      "meters": 196,
+      "values": {
+        "calcium": 29,
+        "magnesium": 5,
+        "sodium": 288,
+        "potassium": 33,
+        "silica": 80,
+        "chloride": 28,
+        "sulfate": 60,
+        "bicarbonate": 823,
+        "iron": 4.5,
+        "ph": 7.97
+      },
+      "withheldFields": [],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_71ba95b0ab47",
+      "site": "41.72107,-118.50560",
+      "siteName": "Howard Hot Spring",
+      "meters": 50,
+      "values": {
+        "calcium": 2.4,
+        "magnesium": 0.5,
+        "potassium": 2,
+        "silica": 84
+      },
+      "withheldFields": [
+        "sodium",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_f1b526470d4c",
+      "site": "39.89264,-116.65022",
+      "siteName": "Little Hot Springs - SE Hot Springs Point",
+      "meters": 112,
+      "values": {
+        "calcium": 13.6,
+        "magnesium": 0.8,
+        "sodium": 127,
+        "potassium": 22.1,
+        "silica": 148.3,
+        "chloride": -0.001,
+        "sulfate": 62.5,
+        "bicarbonate": 9.2,
+        "iron": 8.7,
+        "ph": 7.88
+      },
+      "withheldFields": [],
+      "measuredAt": "2005"
+    },
+    {
+      "id": "whs_ad04a05f3edb",
+      "site": "36.46754,-116.32647",
+      "siteName": "Longstreet Spring",
+      "meters": 141,
+      "values": {
+        "potassium": 7.8
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_e1c595eb25ef",
+      "site": "41.05094,-118.71876",
+      "siteName": "MacFarlanes Bath House Spring / MacFarlanes Hot Spring / MacFarlanes Bathhouse Hot Spring",
+      "meters": 189,
+      "values": {
+        "magnesium": 11
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_5b7ebc61b9cb",
+      "site": "39.41266,-114.77955",
+      "siteName": "McGill Warm Springs",
+      "meters": 61,
+      "values": {
+        "magnesium": 21,
+        "silica": 32,
+        "chloride": 4.3,
+        "sulfate": 21,
+        "bicarbonate": 267,
+        "iron": 0.1,
+        "sodium": 15
+      },
+      "withheldFields": [
+        "calcium"
+      ],
+      "measuredAt": "1945"
+    },
+    {
+      "id": "whs_a24789b3b54e",
+      "site": "39.48290,-119.80382",
+      "siteName": "Hot Well - Moana Hot Springs",
+      "meters": 123,
+      "values": {
+        "calcium": 16,
+        "magnesium": 0.41,
+        "sodium": 189,
+        "potassium": 5.5,
+        "silica": 93,
+        "chloride": 33,
+        "sulfate": 305,
+        "bicarbonate": 131,
+        "iron": 4.2,
+        "ph": 8.1
+      },
+      "withheldFields": [],
+      "measuredAt": "1946"
+    },
+    {
+      "id": "whs_3e157805beb2",
+      "site": "38.35157,-115.18126",
+      "siteName": "Moon River Spring",
+      "meters": 53,
+      "values": {
+        "potassium": 4.6,
+        "chloride": 9.1,
+        "bicarbonate": 267
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "sulfate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1982"
+    },
+    {
+      "id": "whs_fe9c7a699c0d",
+      "site": "36.72195,-114.71683",
+      "siteName": "Muddy Spring / Big Muddy Spring - Moapa Warm Springs / Muddy River Springs",
+      "meters": 74,
+      "values": {
+        "calcium": 65,
+        "potassium": 10,
+        "chloride": 60,
+        "bicarbonate": 288,
+        "ph": 7.2
+      },
+      "withheldFields": [
+        "magnesium",
+        "sodium",
+        "silica",
+        "sulfate",
+        "iron"
+      ],
+      "measuredAt": "1981"
+    },
+    {
+      "id": "whs_41316b1c7a6d",
+      "site": "39.15991,-119.73601",
+      "siteName": "Nevada State Prison Spring",
+      "meters": 132,
+      "values": {
+        "calcium": 14,
+        "magnesium": 0.33,
+        "sodium": 82,
+        "potassium": 2,
+        "silica": 33,
+        "chloride": 21,
+        "sulfate": 148,
+        "bicarbonate": 48,
+        "iron": 5.8,
+        "ph": 8.8
+      },
+      "withheldFields": [],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_175b269f87d6",
+      "site": "41.92862,-114.07175",
+      "siteName": "Nile Spring",
+      "meters": 75,
+      "values": {
+        "calcium": 40,
+        "magnesium": 11.5,
+        "sodium": 10,
+        "potassium": 5.6,
+        "silica": 31,
+        "chloride": 8.7,
+        "sulfate": 37,
+        "bicarbonate": 149,
+        "iron": 0.4,
+        "ph": 7.2
+      },
+      "withheldFields": [],
+      "measuredAt": "1973"
+    },
+    {
+      "id": "whs_ece14c9a2f50",
+      "site": "41.70557,-118.26169",
+      "siteName": "Ninemile Springs",
+      "meters": 75,
+      "values": {
+        "calcium": 25,
+        "sodium": 27,
+        "potassium": 6.3,
+        "silica": 54,
+        "sulfate": 20,
+        "iron": 0.1,
+        "ph": 8,
+        "magnesium": 5.8,
+        "bicarbonate": 117
+      },
+      "withheldFields": [
+        "chloride"
+      ],
+      "measuredAt": "1973"
+    },
+    {
+      "id": "whs_c40ec804bf80",
+      "site": "36.40136,-116.27287",
+      "siteName": "King Spring / Point of Rocks Spring / Indian Rock Spring",
+      "meters": 124,
+      "values": {
+        "potassium": 7
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2006"
+    },
+    {
+      "id": "whs_f7c330884150",
+      "site": "40.59170,-116.15541",
+      "siteName": "Raine Ranch Springs",
+      "meters": 138,
+      "values": {
+        "calcium": 30.1121128261338,
+        "magnesium": 12.2423655276064,
+        "sodium": 60.955061556532,
+        "potassium": 15.7,
+        "silica": 23.9608060955636,
+        "chloride": 14.7,
+        "sulfate": 17.1,
+        "bicarbonate": 272,
+        "iron": 2.33
+      },
+      "withheldFields": [],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_cf185a966e8f",
+      "site": "40.95133,-114.75160",
+      "siteName": "Ralphs Warm Springs / Warm Springs Ranch",
+      "meters": 90,
+      "values": {
+        "calcium": 34.2712444319534,
+        "magnesium": 16.4477582660971,
+        "sodium": 12.2979510157915,
+        "potassium": 4.54,
+        "silica": 18.7621669159012,
+        "chloride": 7.512,
+        "sulfate": 27.6858,
+        "bicarbonate": 163,
+        "iron": 0.3273
+      },
+      "withheldFields": [],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_1eefea064c4e",
+      "site": "41.77366,-115.92222",
+      "siteName": "Rizzi Ranch Hot Spring",
+      "meters": 180,
+      "values": {
+        "magnesium": 6.8,
+        "potassium": 7.9,
+        "chloride": 5
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "silica",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1973"
+    },
+    {
+      "id": "whs_0394c5c767b0",
+      "site": "36.47923,-116.32637",
+      "siteName": "Rogers Spring / Rodgers Spring",
+      "meters": 42,
+      "values": {
+        "calcium": 55,
+        "magnesium": 15,
+        "sodium": 78,
+        "potassium": 9,
+        "chloride": 27,
+        "sulfate": 96,
+        "bicarbonate": 290,
+        "iron": 1.8,
+        "ph": 8
+      },
+      "withheldFields": [],
+      "measuredAt": "1966"
+    },
+    {
+      "id": "whs_da2e36df8dc3",
+      "site": "40.87322,-117.93717",
+      "siteName": "South Big Alkali Spring - Rose Creek Springs / North East Range Springs",
+      "meters": 28,
+      "values": {
+        "magnesium": 11
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1960"
+    },
+    {
+      "id": "whs_bbcac46fadfc",
+      "site": "37.90567,-118.17184",
+      "siteName": "Sand Spring - Fish Lake Valley",
+      "meters": 82,
+      "values": {
+        "calcium": 1.1,
+        "magnesium": 0.6,
+        "sulfate": 22,
+        "iron": 0.2,
+        "ph": 7.2,
+        "sodium": 29.5763072606256,
+        "potassium": 2.31,
+        "silica": 68.4594459873246
+      },
+      "withheldFields": [
+        "chloride",
+        "bicarbonate"
+      ],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_5a1ba06a2e49",
+      "site": "37.73976,-115.75297",
+      "siteName": "Sand Spring - Sand Spring Valley",
+      "meters": 138,
+      "values": {
+        "calcium": 36,
+        "magnesium": 22,
+        "chloride": 5,
+        "sulfate": 25,
+        "bicarbonate": 357,
+        "ph": 8
+      },
+      "withheldFields": [],
+      "measuredAt": "1927"
+    },
+    {
+      "id": "whs_4978cb4f4aef",
+      "site": "39.05751,-119.74260",
+      "siteName": "Saratoga Hot Spring",
+      "meters": 75,
+      "values": {
+        "sodium": 161,
+        "potassium": 5,
+        "chloride": 39,
+        "bicarbonate": 4.5,
+        "iron": 3.3
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "silica",
+        "sulfate",
+        "ph"
+      ],
+      "measuredAt": "1968"
+    },
+    {
+      "id": "whs_3c50fa117e0a",
+      "site": "38.25449,-116.83011",
+      "siteName": "Saulsbury Spring / Salisbury Spring",
+      "meters": 112,
+      "values": {
+        "calcium": 1.6,
+        "magnesium": 0.1,
+        "sodium": 65,
+        "potassium": 2.5,
+        "silica": 76,
+        "chloride": 10,
+        "sulfate": 26,
+        "bicarbonate": 132,
+        "iron": 1.2,
+        "ph": 8.1
+      },
+      "withheldFields": [],
+      "measuredAt": "1950"
+    },
+    {
+      "id": "whs_f8b71bb40c58",
+      "site": "36.43217,-116.30920",
+      "siteName": "Scruggs Spring",
+      "meters": 142,
+      "values": {
+        "calcium": 46,
+        "magnesium": 19,
+        "sodium": 71,
+        "potassium": 7.8,
+        "silica": 28,
+        "chloride": 22,
+        "sulfate": 80,
+        "bicarbonate": 283,
+        "iron": 1.2,
+        "ph": 7.6
+      },
+      "withheldFields": [],
+      "measuredAt": "1980"
+    },
+    {
+      "id": "whs_96055bba6b04",
+      "site": "39.94399,-116.07389",
+      "siteName": "N Shipley Hot Spring / N Sadler Hot Spring",
+      "meters": 134,
+      "values": {
+        "potassium": 6.4
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sodium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "bicarbonate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_f10d88481006",
+      "site": "37.76019,-117.63201",
+      "siteName": "Silver Peak Hot Springs / Silverpeak Hot Springs / Waterworks Hot Springs",
+      "meters": 90,
+      "values": {
+        "calcium": 540,
+        "magnesium": 71,
+        "sodium": 10000,
+        "potassium": 750,
+        "silica": 105,
+        "chloride": 17000,
+        "sulfate": 410,
+        "bicarbonate": 557,
+        "iron": 3.6,
+        "ph": 7.18
+      },
+      "withheldFields": [],
+      "measuredAt": "1976"
+    },
+    {
+      "id": "whs_f9d1bcb0f732",
+      "site": "39.98873,-116.04440",
+      "siteName": "Siri Ranch Spring",
+      "meters": 88,
+      "values": {
+        "calcium": 49,
+        "magnesium": 21.5,
+        "sodium": 12.1,
+        "potassium": 3.3,
+        "silica": 31.4,
+        "chloride": 17.7,
+        "sulfate": 26.5,
+        "bicarbonate": 216,
+        "iron": 0.2,
+        "ph": 7.44
+      },
+      "withheldFields": [],
+      "measuredAt": "2003"
+    },
+    {
+      "id": "whs_6277b37305a2",
+      "site": "38.82210,-116.71701",
+      "siteName": "Mosquito Creek Springs / Mosquito Ranch Springs",
+      "meters": 100,
+      "values": {
+        "calcium": 6.4,
+        "magnesium": 0.1,
+        "sodium": 49,
+        "potassium": 1.9,
+        "silica": 56,
+        "chloride": 7.9,
+        "sulfate": 20,
+        "iron": 1.9,
+        "ph": 7.5
+      },
+      "withheldFields": [],
+      "measuredAt": "1967"
+    },
+    {
+      "id": "whs_afb4134ef8db",
+      "site": "38.39829,-115.86228",
+      "siteName": "Storm Spring",
+      "meters": 40,
+      "values": {
+        "bicarbonate": 736,
+        "ph": 7.6
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "chloride",
+        "sulfate"
+      ],
+      "measuredAt": "1966"
+    },
+    {
+      "id": "whs_f9ffdea74809",
+      "site": "40.86423,-117.35005",
+      "siteName": "Sulphur Spring / Sulfur Spring",
+      "meters": 92,
+      "values": {
+        "calcium": 22.5,
+        "magnesium": 3.3,
+        "sodium": 180,
+        "potassium": 15,
+        "silica": 63,
+        "chloride": 37.9,
+        "sulfate": 52,
+        "bicarbonate": 462.6,
+        "iron": 3.8,
+        "ph": 7.7
+      },
+      "withheldFields": [],
+      "measuredAt": null
+    },
+    {
+      "id": "whs_124a8424989e",
+      "site": "41.42217,-117.38746",
+      "siteName": "The Hot Springs",
+      "meters": 138,
+      "values": {
+        "chloride": 26,
+        "iron": 4.92
+      },
+      "withheldFields": [
+        "calcium",
+        "magnesium",
+        "sulfate",
+        "sodium",
+        "bicarbonate",
+        "potassium",
+        "silica",
+        "ph"
+      ],
+      "measuredAt": "1972"
+    },
+    {
+      "id": "whs_fb95394b2283",
+      "site": "40.14540,-119.67393",
+      "siteName": "The Needle Rocks Hot Springs",
+      "meters": 103,
+      "values": {
+        "magnesium": 0.34,
+        "iron": -0.03,
+        "bicarbonate": 100
+      },
+      "withheldFields": [
+        "calcium",
+        "sodium",
+        "potassium",
+        "silica",
+        "chloride",
+        "sulfate",
+        "ph"
+      ],
+      "measuredAt": "1978"
+    },
+    {
+      "id": "whs_e7a3ebd08a3c",
+      "site": "40.13967,-119.68553",
+      "siteName": "The Needle Rocks Hot Springs",
+      "meters": 194,
+      "values": {
+        "calcium": 152,
+        "magnesium": 16,
+        "chloride": 1830,
+        "sulfate": 307,
+        "ph": 8.1
+      },
+      "withheldFields": [],
+      "measuredAt": "1969"
+    },
+    {
+      "id": "whs_b2aa6491ef83",
+      "site": "39.90095,-115.86869",
+      "siteName": "Thompson Ranch Springs / Jacobson Ranch Springs",
+      "meters": 59,
+      "values": {
+        "calcium": 69,
+        "magnesium": 22,
+        "sodium": 21,
+        "potassium": 4.6,
+        "silica": 21,
+        "chloride": 6.9,
+        "sulfate": 53,
+        "iron": 0.4,
+        "ph": 6.8
+      },
+      "withheldFields": [],
+      "measuredAt": "1981"
+    },
+    {
+      "id": "whs_7832ce118fdb",
+      "site": "41.24271,-114.94788",
+      "siteName": "Twelvemile Spring / Metropolis Spring",
+      "meters": 80,
+      "values": {
+        "calcium": 45.3,
+        "magnesium": 17.6,
+        "sodium": 16,
+        "potassium": 5.8,
+        "silica": 39.6,
+        "chloride": 4.7,
+        "sulfate": 32.2,
+        "bicarbonate": 239,
+        "iron": 0.42
+      },
+      "withheldFields": [],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_f40aff7e4f65",
+      "site": "41.59037,-119.86248",
+      "siteName": "Twin Spring / Vya Spring",
+      "meters": 81,
+      "values": {
+        "calcium": 10.5,
+        "magnesium": 3.83,
+        "sodium": 29.1,
+        "potassium": 5.48,
+        "silica": 59.9020152389091,
+        "chloride": 15.7869,
+        "sulfate": 10.1712,
+        "bicarbonate": 86.4,
+        "iron": 0.0645,
+        "ph": 7.39
+      },
+      "withheldFields": [],
+      "measuredAt": "2007"
+    },
+    {
+      "id": "whs_f3f732a86441",
+      "site": "38.53195,-116.46520",
+      "siteName": "Upper Warm Spring - Hot Creek Canyon",
+      "meters": 18,
+      "values": {
+        "magnesium": 0.1,
+        "sodium": 38,
+        "potassium": 0.8,
+        "sulfate": 19,
+        "bicarbonate": 67
+      },
+      "withheldFields": [
+        "calcium",
+        "silica",
+        "chloride",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "2002"
+    },
+    {
+      "id": "whs_e4013879b20a",
+      "site": "40.74574,-116.68954",
+      "siteName": "White House Spring / White Rock Spring",
+      "meters": 54,
+      "values": {
+        "calcium": 33,
+        "magnesium": 12,
+        "sodium": 38,
+        "potassium": 5,
+        "silica": 52,
+        "chloride": 31,
+        "sulfate": 33,
+        "bicarbonate": 152,
+        "iron": 10.008,
+        "ph": 7.6
+      },
+      "withheldFields": [],
+      "measuredAt": "1992"
+    },
+    {
+      "id": "whs_0b5d385733f5",
+      "site": "36.17418,-115.47954",
+      "siteName": "White Rock Spring - Spring Mountains",
+      "meters": 52,
+      "values": {
+        "calcium": 94,
+        "magnesium": 29,
+        "sodium": 8.4,
+        "potassium": 1.8,
+        "silica": 13,
+        "chloride": 16,
+        "sulfate": 180,
+        "iron": 0.2,
+        "ph": 7
+      },
+      "withheldFields": [],
+      "measuredAt": "1985"
+    },
+    {
+      "id": "whs_095715b70ae1",
+      "site": "41.41115,-114.67587",
+      "siteName": "Hot Spring - Wine Cup Ranch Springs / Thousand Springs",
+      "meters": 119,
+      "values": {
+        "calcium": 57.4791987924267,
+        "magnesium": 15.4197733744661,
+        "sodium": 83.679536259625,
+        "potassium": 39.1,
+        "silica": 71.2406109805597,
+        "chloride": 14.9413,
+        "sulfate": 41.813,
+        "bicarbonate": 432.8,
+        "iron": 2.3362
+      },
+      "withheldFields": [],
+      "measuredAt": "2008"
+    },
+    {
+      "id": "whs_a9256cd368a1",
+      "site": "40.67401,-119.36449",
+      "siteName": "Ditch Spring - Great Boiling Springs / Gerlach Hot Springs",
+      "meters": 41,
+      "values": {
+        "magnesium": 1,
+        "sodium": 1400,
+        "silica": 145,
+        "bicarbonate": 68
+      },
+      "withheldFields": [
+        "calcium",
+        "potassium",
+        "chloride",
+        "sulfate",
+        "iron",
+        "ph"
+      ],
+      "measuredAt": "1979"
+    },
+    {
+      "id": "whs_8e42ed3425e4",
+      "site": "37.99303,-117.98574",
+      "siteName": "Warm Spring - S Columbus Marsh",
+      "meters": 153,
+      "values": {
+        "chloride": 578
+      },
+      "withheldFields": [],
+      "measuredAt": "1978"
+    },
+    {
+      "id": "whs_30db648fe480",
+      "site": "41.02826,-117.31981",
+      "siteName": "Warm Spring - Lone Butte",
+      "meters": 173,
+      "values": {
+        "calcium": 2,
+        "sodium": 620,
+        "potassium": 3.5,
+        "silica": 34,
+        "chloride": 46,
+        "sulfate": 98,
+        "bicarbonate": 1080,
+        "ph": 9.2
+      },
+      "withheldFields": [
+        "magnesium",
+        "iron"
+      ],
+      "measuredAt": "1961"
+    },
+    {
+      "id": "whs_0477b952c714",
+      "site": "41.72235,-118.52410",
+      "siteName": "W Howard Hot Spring",
+      "meters": 99,
+      "values": {
+        "calcium": 3.2,
+        "magnesium": -9999999,
+        "sodium": 90,
+        "potassium": 2.3,
+        "silica": 84,
+        "chloride": 12,
+        "sulfate": 46,
+        "bicarbonate": 58,
+        "iron": 8,
+        "ph": 9.3
+      },
+      "withheldFields": [],
+      "measuredAt": "1973"
+    }
+  ],
+  "withheld": [
+    {
+      "id": "whs_7e8e57ee71e5",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_1ac93e0b1e98",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2bca2fb6e0ae",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_4a58675274c5",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_43894952a362",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_46d7f1066399",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_d50cc1c873f0",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_f8e561555a30",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_8afa40875db9",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_bfbfb2358530",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_038869b65792",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_a3528a532cc7",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_b9eef3e2218e",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_5b0769d5ec55",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c30afa073637",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_61cd8c474305",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_a77c5dd1cf16",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_030c28156a1d",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_71d9d1593420",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_a763cfd40ef4",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_36babfb6ed11",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_5fd3aec1fa58",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_3101d271216f",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_9e938caf6a95",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_85486b55b811",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_dd19ed953c87",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_e31f3cff31bf",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2d2b8bb1cd08",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c17020f6ebd8",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_56c29ccc86da",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_88a7df9ce847",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_300779f5033e",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_9c17aef7b713",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_71821557e044",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_7d575c3271f1",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_457fd33fd143",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c01a2212b40c",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c2d90aa2fd65",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_27a440ae8839",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_acb629c56b2b",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_9eff3f0487b1",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_fdb862d09dd4",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_0d0ca2a40031",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_ef4814ab361b",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_243206b76b8b",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_a56a1284b71a",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_cb4fe70269e9",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_437bc8894184",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_e334084e45b4",
+      "reason": "13 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_b67e4e59d1db",
+      "reason": "13 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_88b67a6dc722",
+      "reason": "12 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_ed2f022f4cd2",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_3da067015928",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_5bd98b6f2b94",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c424e29d8963",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_1b7452261649",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_3b38f55dd843",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_1562d8e4f13b",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_cdd4c9204555",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_036f7f440112",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_9db3ca841cca",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c6423fc62f53",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_6575d0545f5b",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_12ffb0ae561f",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_7d81c2dae947",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_f44493b3948a",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_1dc31d0280dc",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_57728fcb9087",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_aa61c9516923",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_6552c1e39af8",
+      "reason": "9 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_78a8557254b9",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_21274470d7e4",
+      "reason": "7 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_67d4ecfbe791",
+      "reason": "6 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c21c5a0311f2",
+      "reason": "10 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_7f73f46072fb",
+      "reason": "8 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_44c497866e30",
+      "reason": "6 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_f0dba8bef4dc",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_189c76cbf8be",
+      "reason": "9 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2c87a936105c",
+      "reason": "7 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c3476aaf4562",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2c131344b495",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_49399ec5a32f",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_5e99f3f3b98d",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_f031f37ca3dc",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_edd214e0d0f6",
+      "reason": "7 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c4c246bc5ce1",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c2719a8e0744",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_f9bde70a522c",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_5367c9ac2eb4",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_b1da89a2f885",
+      "reason": "5 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_4fb678ec5fe5",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_f0a4abe3d82a",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_8837eb6953db",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_85934303f1b8",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_6fb6d87a5e28",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_1a5b9139e7b1",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_33f154ae7920",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c29f3de9e9b2",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_fc31bfec2a1a",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_50ece4616ab1",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_735fe4decfbd",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_6e580047ac97",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2fa3ae40f83d",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_e98a6cf8a381",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_444ddb116d5c",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_8d85c747cee9",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_d274d59030d4",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_23c649ad86a6",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_3babceabf969",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_39ca2d401ae1",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_22973e4dedd3",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_77035fbd5c58",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_fed2b0cf7b75",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_d4bfb8d2dced",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_37ab237b086a",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_4fc9cb83d86b",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_e60eeb16164c",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_9c48c494d2ac",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_ba5e0f29d814",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_13b1bb33bb7c",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2ad0205bd604",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_2754cddbc79f",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_ec7524cb9774",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c35e72c3105b",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_ab2ef6130282",
+      "reason": "3 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_e5e1877ab3a3",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_0256ae990732",
+      "reason": "6 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_1172a13e9039",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_c205896707fd",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_9df42422e290",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_a76177878b3e",
+      "reason": "4 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_dcbb47d1b51f",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_6e4b408e09ea",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_fd96d6d38d1d",
+      "reason": "2 chemistry sites within 200 m"
+    },
+    {
+      "id": "whs_7e268cd7c78d",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_da0d5c1f813d",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_93726ab5c676",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_7e873ffadbf5",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_9b7b99c1cd66",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_547dad51ef69",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_88973fb8eb8a",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_c3639c664b83",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_0a766e668d11",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_b7dc9ca055ad",
+      "reason": "one site is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_1d80da6b4db2",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_54d7d19cab8a",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_ca95d936db63",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_d7dd74b15442",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_5de0766c2826",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_fde074c9b363",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_9fb3498b6df4",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_270bceed894b",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_91d26bcc8eeb",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_50dae36e3534",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_e531f49d73a1",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_98a0f2ff7498",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_2e41a43bc2bc",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_9cac877dc41a",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_8b3935c4cd9f",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_d774e3708535",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_2e200ec4020d",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_d46b55086a56",
+      "reason": "one site is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_627c66db8435",
+      "reason": "one site is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_1428da10aac5",
+      "reason": "one site is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_107c20182f6d",
+      "reason": "one site is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_9d41ac2f81bb",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, iron, ph"
+    },
+    {
+      "id": "whs_05c98f7c3520",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_fb4eaa81c36c",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_de9942d634c5",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_fc6d30c5283e",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_74b071629049",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_f3b90720bd99",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_76fba56b0b0e",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_262c3fc6af2b",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_dde0fb4d3b78",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_e5cc1b0e2a54",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_109c42edddaf",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_ef6f89deafc6",
+      "reason": "one site is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_ba1b35512d76",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_f4992f5c589e",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_d80bb0169b56",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_998b5985539c",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_3ac55d225c46",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_0a69a075b6a6",
+      "reason": "every field disagrees across analyses: ph"
+    },
+    {
+      "id": "whs_45ef30f277f4",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_d643b30e8f02",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_a3414091de00",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_18c6a3924bdf",
+      "reason": "one site is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_fce7f1c8a992",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_cfc4f40df344",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_1081076591d4",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
+    },
+    {
+      "id": "whs_263107a6b770",
+      "reason": "every field disagrees across analyses: ph"
+    },
+    {
+      "id": "whs_6c8bdc65572e",
+      "reason": "one site is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_9b93b310c908",
+      "reason": "every field disagrees across analyses: calcium, magnesium, chloride, sulfate, bicarbonate, sodium, potassium, silica, iron, ph"
+    },
+    {
+      "id": "whs_2338b6f8192c",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, iron, ph"
+    },
+    {
+      "id": "whs_18695e3386b0",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, iron, ph"
+    },
+    {
+      "id": "whs_15c7ddcb365c",
+      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, iron, ph"
+    }
+  ]
+}
