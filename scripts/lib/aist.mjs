@@ -38,6 +38,9 @@ const COL = {
   bicarbonate: 36,
   silica: 51,
   unit: 70,
+  // The Hot Spring Law classification, as free text. Verified against the
+  // CSV header: 73 sits between Rn単位 (72) and 出典 (74).
+  senshitsu: 73,
 };
 
 export const AIST_PROVIDER = 'aist';
@@ -194,6 +197,7 @@ export function toRow(cols) {
     measuredAt: sampledYear(cols[COL.sampledYear]),
     celsius: num(cols[COL.celsius]),
     unit: unitOf(cols[COL.unit]),
+    senshitsu: clean(cols[COL.senshitsu]),
     ph: num(cols[COL.ph]),
     tds: num(cols[COL.tds]),
     sodium: num(cols[COL.sodium]),
@@ -234,7 +238,7 @@ export function parseAist(text) {
 export const TSV_COLUMNS = [
   'ser', 'onsenName', 'sourceName', 'prefecture', 'lat', 'lng', 'measuredAt',
   'celsius', 'unit', 'ph', 'tds', 'sodium', 'potassium', 'calcium', 'magnesium', 'iron',
-  'chloride', 'sulfate', 'bicarbonate', 'silica',
+  'chloride', 'sulfate', 'bicarbonate', 'silica', 'senshitsu',
 ];
 
 /**
@@ -251,7 +255,7 @@ export const TSV_COLUMNS = [
  * Inverting it means a new measurement column is numeric by default, and the
  * only way to get the old failure back is to add a name here on purpose.
  */
-const TSV_TEXT = new Set(['ser', 'onsenName', 'sourceName', 'prefecture', 'measuredAt', 'unit']);
+export const TSV_TEXT = new Set(['ser', 'onsenName', 'sourceName', 'prefecture', 'measuredAt', 'unit', 'senshitsu']);
 const TSV_NUMERIC = new Set(TSV_COLUMNS.filter((c) => !TSV_TEXT.has(c)));
 
 export function toTsv(rows) {
