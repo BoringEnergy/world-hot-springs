@@ -4,6 +4,35 @@ Last updated 2026-09-11.
 
 Read this first in a new session. It is the shortest path to being useful.
 
+## v1 — 2026-09-11
+
+> **v1 is the SPEC success criteria. Coverage is a description of public
+> data, not a backlog. The next temperature is welcome as a correction. It is
+> not a reason to keep the project in motion.**
+
+All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
+**closed**, deliberately and not for lack of energy.
+
+**In scope after v1**
+
+- An overlay PR correcting a real error, with its citation, as always.
+- A defect fix in the pipeline or the UI.
+- Re-running an existing fetcher if an upstream republishes.
+
+**Out of scope without a new decision**
+
+- A new bulk upstream. Five were examined in three days and the last two
+  closed as *do not build*; that is the seam reporting itself empty.
+- A country sweep. Every readable non-OSM source has been fetched once and
+  the yields are recorded below. 90% of the remaining gap cites nothing but
+  OpenStreetMap, so there is nothing there to read.
+- `facilities[]`, photo collection, or any field that starts a new harvest.
+- Coverage as a target. It was 1%, it is 19%, and the number was never the
+  finish line.
+
+If you are an agent picking this up and looking for the next task: **there
+isn't one by default.** Ask.
+
 ## Read this before touching anything
 
 Three rules the hard way. Each cost a real defect.
@@ -29,7 +58,7 @@ and a distance in kilometres -- and both times the conclusion was wrong.
 ## What this is
 
 An open atlas of the world's public hot springs. **7,490 springs across 131
-countries**, derived from OpenStreetMap and three further upstreams, and
+countries**, derived from OpenStreetMap and four further upstreams, and
 published as a static site.
 
 Repo: `https://github.com/BoringEnergy/world-hot-springs` (**public** --
@@ -44,7 +73,7 @@ and `gate-2` (the one that counts).
 
 ## Current state, 2026-09-11
 
-**628 tests. `main` is green and everything below is merged.**
+**646 tests. `main` is green and everything below is merged.**
 
 **Coverage: temperature 1,395 of 7,490 (19%), chemistry 174.** It was 95 of 6,471 (1%) when
 the seeding work started on 2026-09-05. Five upstreams now: OSM, NCEI, AIST, the
@@ -100,7 +129,7 @@ edit and checks the value literally appears. Proven on a real fork PR.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **628 tests**, `npm test`. All passing. Worth remembering that 242 of them
+- **646 tests**, `npm test`. All passing. Worth remembering that 242 of them
   passed while the enrichment pipeline could not do its job at all, and 320
   passed over a UI where clicking a search result blanked the page. That
   second one is partly addressed now: the card's display model lives in
@@ -739,33 +768,45 @@ NGDS was investigated and closed. NBMG's temperature seam was closed at
 twelve. No further bulk source has been identified, and two of the last three
 probes ended in a deliberate "do not build".
 
-### So the endgame is a choice, not a milestone
+### The endgame was a choice, and it was made
 
-There is no state in which this becomes "finished" by continuing. The
-realistic options, in the order I would rank them:
+Decided 2026-09-11: **a trimmed option 2, then option 1.** Two honesty items
+shipped, then v1 and the data campaign closed. Recorded here with the
+reasoning, because the refusals are the useful half.
 
-**1. Declare v1 and stop the data work.** Everything in the success criteria
-is true. Tag it, write the launch note, and treat further coverage as
-maintenance rather than a project. The strongest argument for this is that
-the next 2 percentage points cost more than the last 18 did.
+**Shipped before calling it, and why each earned its place:**
 
-**2. Do the four unbuilt product items and then stop.** From the deep-research
-review, still open and all small: `location.accuracyMeters`, per-source
-licences, `facilities[]`, photo rendering. These change what the card can say
-rather than how many cards have something to say.
+  location.accuracyMeters   the one v1 lie still on the map. The card
+                            treated an OSM node, a NOAA 3 dp pin and a
+                            fuzzed 190 m cell as the same claim about where
+                            to drive. 1,023 pins now state a precision and
+                            6,467 OSM points correctly say nothing
+  per-source licences       AIST requires attribution rather than inviting
+                            it, and the README named one parent out of five
+                            for a month. DATA.md plus GeoJSON metadata,
+                            generated from one definition
 
-**3. Open a genuinely different seam.** The Turkey method — searching for
-citations that are not already on the record — is the only approach that grows
-the candidate pool instead of draining it. It is slow, per-spring, and would
-need a decision about how much of it is worth doing.
+Neither raises a percentage. Both close an argument this month created.
 
-**4. Phase 4+ from SPEC.md.** Voice, offline, PWA, community moderation. A
-different product, not a continuation of this one.
+**Refused, with reasons that should survive:**
 
-**What to avoid:** more upstream probes hoping for another NCEI. Five have
-been examined in three days; the two most recent both ended in "do not
-build", which is the signal that the seam is worked out rather than that the
-search was unlucky.
+  option 3, citation search   the only method that CREATES candidates rather
+                              than draining them, and therefore unbounded.
+                              A v1.1 research programme with a budget -- N
+                              springs, M days -- never the default next merge
+  option 4, phase 4+          voice, PWA, moderation. A different product,
+                              and building it now is how 'we noticed we were
+                              done' becomes a reboot
+  facilities[]                a new schema surface and a new harvest. It
+                              would rebuild the coverage treadmill on
+                              showers and changing rooms
+  photos                      SPEC lists photos[]; rendering empty arrays is
+                              not a product item. No permissioned set exists,
+                              and collecting images to justify a renderer is
+                              the treadmill again
+  more upstreams              five in three days, the last two closing as
+                              'do not build'. That is the seam reporting
+                              itself empty, not a run of bad luck
 
 ## Where 2026-09-11 left off
 

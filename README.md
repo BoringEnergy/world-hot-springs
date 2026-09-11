@@ -10,6 +10,12 @@ attached.
 
 **7,490 springs across 131 countries** in the current build.
 
+**v1 — 2026-09-11.** The atlas meets every success criterion in
+[SPEC.md](SPEC.md) §9. Coverage is a description of what public data exists,
+not a backlog: 19% of these springs have a recorded temperature because
+81% of them have never had one published, and the card says so on every
+one. Corrections are welcome; the data campaign is closed.
+
 ## What makes this different
 
 **Unknown is a value.** Temperature, price, clothing policy and opening hours
