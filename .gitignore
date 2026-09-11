@@ -20,3 +20,7 @@ enrichment.config.json
 
 .vercel
 .env*
+
+# Per-tile cache for scripts/fetch-wqp.mjs. Makes a multi-hour fetch
+# resumable; the MIRROR is the artefact, not the cache.
+data/reference/.wqp-cache/
