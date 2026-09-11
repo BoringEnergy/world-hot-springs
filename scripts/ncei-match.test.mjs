@@ -197,11 +197,14 @@ test('the match report buckets partition every row exactly once', () => {
 test('a row that became a pin is never also counted as a match', () => {
   const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
   const c = JSON.parse(fs.readFileSync('data/ncei-match-report.json', 'utf8')).counts;
-  // A record carrying ncei provenance and nothing else IS a pin this upstream
-  // minted. The two counts are the same set seen from two sides, so they must
-  // agree exactly -- if the merge stage ever sees them again, this breaks.
+  // A pin this upstream minted is one with ncei provenance and NO OSM
+  // provenance. It used to be expressed as "provenance is exactly ['ncei']",
+  // which was the same set until a fourth upstream arrived: WQP enriches six
+  // of these pins with a temperature, so their provenance became
+  // ['ncei','wqp'] and the old form undercounted by exactly six. The pipeline
+  // was right; the test was describing it by a coincidence.
   const mintedPins = all.filter(
-    (s) => s.quality.provenance.length === 1 && s.quality.provenance[0] === 'ncei',
+    (s) => s.quality.provenance.includes('ncei') && !s.quality.provenance.includes('osm'),
   ).length;
   assert.equal(c.becamePin, mintedPins);
   assert.ok(mintedPins > 500, 'not vacuous: this upstream really did mint pins');
