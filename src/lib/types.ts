@@ -53,6 +53,24 @@ export interface HotSpring {
     countryName: string;
     region: string | null;
     nearestTown: string | null;
+    /**
+     * How precisely this point is known, in metres, or null when nobody has
+     * said.
+     *
+     * The card treats every coordinate as somewhere to drive to, and until
+     * this field existed that was the same claim for all of them. It is not:
+     * an OSM node is somebody standing at the spring, NOAA published three
+     * decimal places, and AIST publishes a 190 m cell it deliberately fuzzed.
+     * Rendering those identically asserts a precision two of the three
+     * upstreams never offered.
+     *
+     * Pipeline-owned and NOT claimable, like `quality.*`. It describes how
+     * this atlas came to hold the coordinate, which is not a fact about the
+     * spring that a contributor is in a position to correct — and
+     * `location.lat`/`lng` are already withheld because relocation is how the
+     * privacy radius would be defeated.
+     */
+    accuracyMeters: number | null;
   };
   temperature: {
     celsius: number | null;

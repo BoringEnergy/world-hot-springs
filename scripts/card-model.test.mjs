@@ -22,7 +22,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
-  mineralRows, mineralsFootnote, temperatureDisplay, prohibitionNotice, UNKNOWN,
+  mineralRows, mineralsFootnote, temperatureDisplay, prohibitionNotice, UNKNOWN, formatAccuracy,
 } from '../src/lib/format.ts';
 
 const F = JSON.parse(fs.readFileSync('scripts/fixtures/cards.json', 'utf8'));
@@ -165,4 +165,45 @@ test('the prohibition notice is keyed on bathingAllowed === false, not on falsin
   assert.equal(prohibitionNotice(F.bare).prohibited, false);
   const undef = { ...F.bare, access: { ...F.bare.access, bathingAllowed: undefined } };
   assert.equal(prohibitionNotice(undef).prohibited, false, 'undefined is not false');
+});
+
+/**
+ * How precisely a pin is placed.
+ *
+ * The card treats every coordinate as somewhere to drive to, and until this
+ * field existed that was the same claim for all of them. An OSM node is
+ * somebody standing at the spring; AIST publishes a 190 m cell it fuzzed on
+ * purpose. Rendering those identically asserts a precision two of three
+ * upstreams never offered.
+ */
+test('an unstated accuracy renders nothing, not Unknown', () => {
+  // The coordinate is shown either way, so a label on every record would be
+  // noise on the majority. Null is absence, not a value to display.
+  assert.equal(formatAccuracy(null, 'c'), null);
+  assert.equal(formatAccuracy(Number.NaN, 'c'), null);
+});
+
+test('accuracy is phrased as an approximation, in the reader units', () => {
+  assert.equal(formatAccuracy(190, 'c'), 'located to about 190 m');
+  assert.equal(formatAccuracy(1500, 'c'), 'located to about 1.5 km');
+  assert.match(formatAccuracy(190, 'f'), /^located to about \d+ ft$/);
+  assert.match(formatAccuracy(3000, 'f'), /miles$/);
+  // "about" is not decoration: every value this field will carry is derived
+  // from a source's stated precision, never measured.
+  for (const u of ['c', 'f']) assert.match(formatAccuracy(200, u), /^located to about /);
+});
+
+test('the field is present on every record and claimed by nobody', () => {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const missing = all.filter((s) => !('accuracyMeters' in s.location));
+  assert.deepEqual(missing.map((s) => s.id), [], 'the key must exist everywhere');
+  // Pipeline-owned, like quality.*: it describes how this atlas came to hold
+  // the coordinate, which is not a fact a contributor can correct. And
+  // location.lat/lng are already withheld because relocation would defeat the
+  // privacy radius.
+  const overlay = fs.readFileSync('scripts/lib/overlay.mjs', 'utf8');
+  assert.ok(!overlay.includes("'location.accuracyMeters'"), 'must not be claimable');
+  // And no record carries a value yet: this is PR 1 of 2, the field landing
+  // empty before anything fills it.
+  assert.deepEqual(all.filter((s) => s.location.accuracyMeters !== null).map((s) => s.id), []);
 });

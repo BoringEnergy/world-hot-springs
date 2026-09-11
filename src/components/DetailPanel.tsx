@@ -9,6 +9,7 @@ import {
   prohibitionNotice,
   formatClothing,
   formatCoords,
+  formatAccuracy,
   formatDistance,
   formatElevation,
   formatHoursStatus,
@@ -43,6 +44,7 @@ export function DetailPanel() {
   // against real records without a browser -- see scripts/card-model.test.mjs.
   const temp = temperatureDisplay(spring, units);
   const prohibition = prohibitionNotice(spring);
+  const accuracy = formatAccuracy(spring.location.accuracyMeters, units);
 
   const band = tempBand(spring.temperature.celsius);
   const color = bandColor(band);
@@ -291,6 +293,16 @@ export function DetailPanel() {
           >
             {formatCoords(spring.location.lat, spring.location.lng)}
           </a>
+          {/*
+            How precisely the pin is placed, when the admitting source said.
+            Below the coordinate rather than beside it: the number is still
+            the number, this qualifies how far to trust it on arrival.
+            Rendered only where it is known, because a label on every record
+            would be noise on the majority that are OSM nodes.
+          */}
+          {accuracy !== null && (
+            <span className="mt-0.5 block text-xs text-steam-400">{accuracy}</span>
+          )}
         </Field>
 
         {spring.description && <Field label="Description" value={spring.description} />}
