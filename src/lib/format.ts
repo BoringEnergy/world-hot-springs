@@ -172,3 +172,119 @@ export function hasMinerals(m: HotSpring['minerals']): boolean {
     MINERAL_CONSTITUENTS.some(([k]) => m[k] !== null)
   );
 }
+
+/**
+ * The card's display model.
+ *
+ * Everything below answers "what does this card SAY about a spring", as a
+ * function of a HotSpring rather than a thicket of JSX. That distinction is
+ * the point: the two worst display bugs this project has shipped were both
+ * model bugs wearing a rendering costume.
+ *
+ *   The blank page      an optional key present-but-undefined is not the same
+ *                       as an absent key, and the difference was invisible in
+ *                       markup.
+ *   The bare figures    Radium rendered `Sulfate 302` under a hardcoded mg/L
+ *                       while its source said mg/l and the schema had nowhere
+ *                       to put it.
+ *
+ * Neither needed a browser to catch. They needed the decision to be a value
+ * something could assert on. These functions import no React and touch no DOM,
+ * so `node --test` reaches them with the runner this repository already has.
+ */
+
+/** One rendered line of the mineral panel. */
+export interface MineralRow {
+  key: string;
+  label: string;
+  /** Exactly the text the card shows, unit included when the source named one. */
+  value: string;
+}
+
+/**
+ * The mineral panel, as lines.
+ *
+ * pH is first and carries no unit -- it is unitless, and appending the panel's
+ * mg/kg to it would be a units error on a field people read for skin safety.
+ * Every other figure takes the unit `minerals.unit` names, or none at all when
+ * the source published figures without saying.
+ */
+export function mineralRows(m: HotSpring['minerals']): MineralRow[] {
+  const unit = formatMineralUnit(m.unit);
+  const suffix = unit ? ` ${unit}` : '';
+  const rows: MineralRow[] = [];
+  if (m.ph !== null) rows.push({ key: 'ph', label: 'pH', value: String(m.ph) });
+  if (m.tds !== null) rows.push({ key: 'tds', label: 'Dissolved solids', value: `${m.tds}${suffix}` });
+  for (const [key, label] of MINERAL_CONSTITUENTS) {
+    const v = m[key];
+    if (v !== null) rows.push({ key, label, value: `${v}${suffix}` });
+  }
+  return rows;
+}
+
+/**
+ * The sentence under the mineral panel.
+ *
+ * Three facts, each conditional, in a fixed order: when it was analysed, what
+ * unit it is in, and that this atlas did not measure any of it. The last is
+ * unconditional and must stay that way -- a panel rendered bare reads as a
+ * measurement somebody took for you.
+ */
+export function mineralsFootnote(m: HotSpring['minerals']): string {
+  const parts = [
+    m.measuredAt
+      ? `Analysed ${m.measuredAt} according to the source below.`
+      : 'The source publishes these figures without stating when the water was analysed.',
+  ];
+  if (formatMineralUnit(m.unit) === null && mineralRows(m).some((r) => r.key !== 'ph')) {
+    parts.push('The source does not state what unit these figures are in.');
+  }
+  parts.push('Reported from public sources. This atlas does not test water and has not verified these figures on site.');
+  return parts.join(' ');
+}
+
+/** Everything the temperature block shows, or null where it shows nothing. */
+export interface TemperatureDisplay {
+  primary: string;
+  /** The same reading in the other unit, so a reader can check the conversion. */
+  secondary: string | null;
+  /** "described as hot", when there is no number at all. */
+  qualitative: string | null;
+  measuredAt: string | null;
+  /** "at source" / "bathing water". Null for `unknown`, the majority case. */
+  kind: string | null;
+  source: string | null;
+}
+
+export function temperatureDisplay(spring: HotSpring, units: Units): TemperatureDisplay {
+  const { celsius, fahrenheit, qualitative, measuredAt, kind, source } = spring.temperature;
+  const known = celsius !== null;
+  return {
+    primary: formatTemp(spring, units),
+    secondary: known ? (units === 'c' ? `${fahrenheit}°F` : `${celsius}°C`) : null,
+    // Only where there is no number. A qualitative word beside a figure is
+    // noise; on its own it is the only thing the source said.
+    qualitative: !known && qualitative ? `described as ${qualitative}` : null,
+    measuredAt: measuredAt ? `Measured ${measuredAt} according to the source below.` : null,
+    // `unknown` renders nothing rather than the word "unknown": it is the
+    // majority case, and a label on every record would be noise.
+    kind: known && kind !== 'unknown' ? (kind === 'source' ? 'at source' : 'bathing water') : null,
+    source: source ?? null,
+  };
+}
+
+/**
+ * Whether the card must tell someone not to get in.
+ *
+ * Keyed on `access.bathingAllowed === false` and nothing else, because the
+ * same field decides whether the soak illustration is drawn at all. An atlas
+ * that draws inviting water on a pool you must not enter argues against its
+ * own warning, so the two must never disagree about which springs those are.
+ */
+export function prohibitionNotice(spring: HotSpring): { prohibited: boolean; text: string } {
+  const prohibited = spring.access.bathingAllowed === false;
+  return {
+    prohibited,
+    text: prohibited ? `Bathing is not permitted here. ${formatAccessStatus(spring.access.status)}` : '',
+  };
+}
