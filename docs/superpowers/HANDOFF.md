@@ -44,11 +44,11 @@ and `gate-2` (the one that counts).
 
 ## Current state, 2026-09-11
 
-**610 tests. `main` is green and everything below is merged.**
+**628 tests. `main` is green and everything below is merged.**
 
-**Coverage: temperature 1,395 of 7,490 (19%).** It was 95 of 6,471 (1%) when
-the seeding work started on 2026-09-05. Four upstreams now: OSM, NCEI, AIST
-and the Water Quality Portal. See "Where 2026-09-11 left off" below for what
+**Coverage: temperature 1,395 of 7,490 (19%), chemistry 174.** It was 95 of 6,471 (1%) when
+the seeding work started on 2026-09-05. Five upstreams now: OSM, NCEI, AIST, the
+Water Quality Portal and NBMG. See "Where 2026-09-11 left off" below for what
 is exhausted, what is left, and the three defect shapes that kept recurring.
 
 The validator is the project's centre of gravity now. A hostile agent cannot
@@ -100,7 +100,7 @@ edit and checks the value literally appears. Proven on a real fork PR.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **610 tests**, `npm test`. All passing. Worth remembering that 242 of them
+- **628 tests**, `npm test`. All passing. Worth remembering that 242 of them
   passed while the enrichment pipeline could not do its job at all, and 320
   passed over a UI where clicking a search result blanked the page. That
   second one is partly addressed now: the card's display model lives in
@@ -678,6 +678,95 @@ occurs.
 
 ---
 
+## Where the project actually stands — read this before planning more work
+
+Written 2026-09-11, after three days of data work took temperature coverage
+from 1% to 19%. The honest summary is that **the product is finished against
+its own specification and the data work is close to its practical ceiling.**
+What follows is the evidence for both halves, because "keep seeding" has no
+natural stopping point and somebody should decide rather than drift.
+
+### SPEC.md's success criteria are all met
+
+    a visitor can explore thousands of real springs
+      with transparent data quality                    7,490 springs, quality
+                                                       scored, provenance named
+    temperature, price, clothing and hours are
+      first-class and clearly labelled when unknown    all four render;
+                                                       Unknown is a value
+    zero public exposure of true unicorns              privacy filter runs last,
+                                                       asserted by test
+    the dataset is ours, versioned, attributable       5 upstreams, overlay,
+                                                       registry, events log
+    the product feels respectful and delightful        built; subjective
+
+SPEC phases 0–3 are complete. Phase 4+ in that document is "voice, offline
+support, community moderation, mobile PWA" and is explicitly marked later.
+
+**Coverage is not a success criterion.** The spec asks for unknowns to be
+labelled honestly, which was true at 1% and is true at 19%. The number is the
+argument the project makes about public hot-spring data, not a threshold it
+has to clear.
+
+### The data work is near its ceiling, and this is measured
+
+Of the 6,095 springs with no temperature:
+
+    citing ONLY OpenStreetMap or wikidata       5,486   (90%)
+    with any readable non-OSM source              609
+    with a wikipedia link                          76
+
+**Ninety per cent of the remaining gap has nothing to read.** No amount of
+research effort reaches a spring whose only citation is an OSM node.
+
+The 609 that do have a source are not untouched ground either — every
+country-level seam was swept on 2026-09-08/09 and the yields are recorded
+above: Germany 11%, Japan 6%, southern Europe 6%, rest of world 9%, the US 1%.
+Applying those rates, the readable remainder is worth **roughly 40 to 70
+springs**, at a few days' work, and each one is a judgement call about a spa
+page rather than a bulk import.
+
+Bulk upstreams, which produced almost everything, are exhausted for
+temperature:
+
+    OSM       the base layer
+    NCEI      1,023 pins + 131 enrichments
+    AIST      47 temperatures, 58 analyses, 38 classifications
+    WQP       40 temperatures
+    NBMG      109 chemistry panels (temperature refused at 12)
+
+NGDS was investigated and closed. NBMG's temperature seam was closed at
+twelve. No further bulk source has been identified, and two of the last three
+probes ended in a deliberate "do not build".
+
+### So the endgame is a choice, not a milestone
+
+There is no state in which this becomes "finished" by continuing. The
+realistic options, in the order I would rank them:
+
+**1. Declare v1 and stop the data work.** Everything in the success criteria
+is true. Tag it, write the launch note, and treat further coverage as
+maintenance rather than a project. The strongest argument for this is that
+the next 2 percentage points cost more than the last 18 did.
+
+**2. Do the four unbuilt product items and then stop.** From the deep-research
+review, still open and all small: `location.accuracyMeters`, per-source
+licences, `facilities[]`, photo rendering. These change what the card can say
+rather than how many cards have something to say.
+
+**3. Open a genuinely different seam.** The Turkey method — searching for
+citations that are not already on the record — is the only approach that grows
+the candidate pool instead of draining it. It is slow, per-spring, and would
+need a decision about how much of it is worth doing.
+
+**4. Phase 4+ from SPEC.md.** Voice, offline, PWA, community moderation. A
+different product, not a continuation of this one.
+
+**What to avoid:** more upstream probes hoping for another NCEI. Five have
+been examined in three days; the two most recent both ended in "do not
+build", which is the signal that the seam is worked out rather than that the
+search was unlucky.
+
 ## Where 2026-09-11 left off
 
 Coverage went 1% to 19%. Almost none of that came from researching harder.
@@ -703,6 +792,7 @@ Everything after that came from bulk upstreams instead, which is the lesson:
     NCEI 1981      1,023 pins + 131 enrichments
     AIST Japan        47 temperatures, 58 analyses, 38 classifications
     WQP (USGS/EPA)    40 US temperatures
+    NBMG (NV + CO)   109 US chemistry panels
     per-page work     55 across four passes and three days
 
 ### Four upstreams, and one of them broke the pinning rule
