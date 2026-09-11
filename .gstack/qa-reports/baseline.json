@@ -1,0 +1,17 @@
+{
+  "date": "2026-09-11",
+  "url": "http://localhost:5177",
+  "branch": "docs/v1-2026-09-11",
+  "tier": "standard",
+  "healthScore": 96,
+  "healthScoreBefore": 72,
+  "issues": [
+    { "id": "ISSUE-001", "title": "Temperature ceiling excluded the 3 springs above 100C", "severity": "high", "category": "functional", "status": "verified", "commit": "457756c" },
+    { "id": "ISSUE-002", "title": "About panel credited 1 of 5 sources; AIST attribution is a licence condition", "severity": "high", "category": "content", "status": "verified", "commit": "9bed1ce" },
+    { "id": "ISSUE-003", "title": "No h1, no main landmark, spring count never announced", "severity": "medium", "category": "accessibility", "status": "verified", "commit": "514466b" },
+    { "id": "DEF-001", "title": "maplibre attribution link: target=_blank without rel=noopener, over http", "severity": "low", "category": "accessibility", "status": "deferred", "reason": "third-party control, not fixable from source" }
+  ],
+  "categoryScores": { "console": 100, "links": 100, "visual": 100, "functional": 100, "ux": 100, "performance": 100, "content": 100, "accessibility": 100 },
+  "categoryScoresBefore": { "console": 100, "links": 100, "visual": 100, "functional": 85, "ux": 100, "performance": 100, "content": 15, "accessibility": 92 },
+  "tests": { "before": 646, "after": 668 }
+}
