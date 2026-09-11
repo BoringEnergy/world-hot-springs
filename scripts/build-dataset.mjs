@@ -28,6 +28,7 @@ import { matchWqp } from './lib/wqp-match.mjs';
 import { fromTsv as nbmgFromTsv, NBMG_PAGE, NBMG_PROVIDER } from './lib/nbmg.mjs';
 import { matchNbmg } from './lib/nbmg-match.mjs';
 import { reconcileAccuracy } from './lib/accuracy.mjs';
+import { licenceMetadata } from './lib/sources.mjs';
 import { fromTsv, AIST_PROVIDER, AIST_SOURCE, AIST_PAGE } from './lib/aist.mjs';
 import { matchAist, agreedValue, agreedUnit, agreedYear, NUMERIC_FIELDS as AIST_NUMERIC_FIELDS } from './lib/aist-match.mjs';
 
@@ -835,8 +836,7 @@ async function main() {
       name: "World Hot Springs — public hot spring atlas",
       sourceDate: generatedAt,
       count: records.length,
-      license: 'ODbL 1.0 (derived from OpenStreetMap)',
-      attribution: '© OpenStreetMap contributors',
+      ...licenceMetadata(),
       note: 'Hidden local springs are deliberately excluded. See PRIVACY.md.',
     },
     features: records.map((r) => ({

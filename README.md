@@ -99,13 +99,23 @@ app is static and deploys anywhere.
 
 ## Sources and license
 
-Current build derives from OpenStreetMap: `natural=hot_spring` plus
-`amenity=public_bath` with a thermal `bath:type`. Map data © OpenStreetMap
-contributors, licensed **ODbL 1.0** — which the derived dataset inherits.
-Basemap © CARTO.
+Five upstreams. **[DATA.md](DATA.md) names each one, what it gave, and the
+terms it comes under**, and the same list travels with the data in
+`data/hot-springs.geojson` under `metadata.sources`.
 
-Code is **MIT**. The dataset is **ODbL 1.0** with attribution, matching its
-upstream.
+| Source | Gave | Licence |
+| --- | --- | --- |
+| OpenStreetMap | the base layer and most pins | ODbL 1.0 |
+| NOAA NCEI (1981) | 1,023 US pins | CC0 1.0 |
+| AIST / GSJ | Japanese temperature and chemistry | CC BY 4.0-compatible, **attribution required** |
+| Water Quality Portal | US temperatures | US federal, public domain |
+| Nevada Bureau of Mines and Geology | NV and CO chemistry | public domain |
+
+Map data © OpenStreetMap contributors. Basemap © CARTO.
+
+Code is **MIT**. The dataset is **ODbL 1.0** with attribution — ODbL because
+it is share-alike and OpenStreetMap is in here, so the derived database
+inherits the strictest term rather than the most convenient one.
 
 ## Contributing
 
