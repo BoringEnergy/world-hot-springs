@@ -7,7 +7,7 @@
  * the pin is what makes every row key in data/ stable across a re-fetch.
  *
  * The published archive is 817 KB and the CSV inside it is 3.9 MB across 82
- * columns. This keeps the 20 columns the pipeline uses. That is a deliberate
+ * columns. This keeps the 21 columns the pipeline uses. That is a deliberate
  * prune, not a summary: every row survives, and the report and the matcher
  * both need the full set to be honest about what was not used.
  *

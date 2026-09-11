@@ -9,7 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
-  parseCsv, centroidOf, sampledYear, unitOf, fromTsv, TSV_COLUMNS,
+  parseCsv, centroidOf, sampledYear, unitOf, fromTsv, TSV_COLUMNS, TSV_TEXT,
 } from './lib/aist.mjs';
 import {
   nameAgreement, agreedValue, agreedUnit, agreedYear, stripped, AIST_RADIUS_M,
@@ -203,7 +203,9 @@ test('every measurement column survives the mirror round trip as a number', () =
   // skipped it and the field published nothing. No error, no NaN, just a
   // panel quietly missing one constituent.
   const rows = fromTsv(fs.readFileSync('data/reference/aist-onsen.tsv', 'utf8'));
-  const TEXT = new Set(['ser', 'onsenName', 'sourceName', 'prefecture', 'measuredAt', 'unit']);
+  // Imported, not restated. A third copy of this list is how the second one
+  // drifted, and this test exists because of that drift.
+  const TEXT = TSV_TEXT;
   for (const col of TSV_COLUMNS) {
     const stated = rows.filter((r) => r[col] !== null);
     assert.ok(stated.length > 0, `${col} is empty in the mirror`);

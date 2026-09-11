@@ -22,6 +22,7 @@ import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
 import { parseNcei } from './lib/ncei.mjs';
 import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs';
+import { mineralTypesOf, classifySenshitsu } from './lib/senshitsu.mjs';
 import { fromTsv, AIST_PROVIDER, AIST_SOURCE, AIST_PAGE } from './lib/aist.mjs';
 import { matchAist, agreedValue, agreedUnit, agreedYear, NUMERIC_FIELDS as AIST_NUMERIC_FIELDS } from './lib/aist-match.mjs';
 
@@ -450,6 +451,7 @@ async function main() {
 
     let aistTemps = 0;
     let aistChem = 0;
+    let aistTypes = 0;
     const withheld = [];
     const aistReport = [];
 
@@ -504,6 +506,32 @@ async function main() {
         touched = true; written.push(field);
       }
 
+      // 泉質 -> minerals.types, fail-closed.
+      //
+      // The wells must agree on the RAW string before anything is read from
+      // it. Two different classifications under one onsen name are two facts,
+      // and reconciling them would publish a name nobody wrote.
+      //
+      // mineralTypesOf returns null when it could not account for every token.
+      // That is not the same as [], and the difference is the whole rule: an
+      // incomplete types array is indistinguishable from a complete one on the
+      // card, so a value we only half understand publishes nothing.
+      const senshitsu = [...new Set(m.rows.map((r) => r.senshitsu).filter(Boolean))];
+      if (senshitsu.length > 1) {
+        withheld.push({ id: m.id, field: 'types', reason: 'wells disagree on 泉質' });
+      } else if (senshitsu.length === 1 && !rec.minerals.types.length && !claimed('minerals.types')) {
+        const types = mineralTypesOf(senshitsu[0]);
+        if (types === null) {
+          withheld.push({
+            id: m.id,
+            field: 'types',
+            reason: `泉質 not fully understood: ${JSON.stringify(classifySenshitsu(senshitsu[0]).residue)}`,
+          });
+        } else if (types.length) {
+          rec.minerals.types = types;
+          aistTypes++; touched = true; written.push('types');
+        }
+      }
       // Written only when something numeric that NEEDS a unit actually landed.
       // A unit beside no figures is decoration, and pH alone needs none.
       const wroteUnited = written.some((w) => w !== 'temperature' && w !== 'ph');
@@ -542,7 +570,8 @@ async function main() {
     );
     console.log(
       `  ${aistMatched.length} group(s) matched, ${aistTemps} temperature(s) filled, ` +
-        `${aistChem} panel(s) filled, ${withheld.length} field(s) withheld, ` +
+        `${aistChem} panel(s) filled, ${aistTypes} classification(s), ` +
+        `${withheld.length} field(s) withheld, ` +
         `${aistRejected.length} contended -> data/aist-match-report.json`,
     );
   }
