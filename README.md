@@ -21,7 +21,7 @@ That honesty is the whole product, because the real numbers are humbling:
 
 | Field | Known |
 | --- | --- |
-| Temperature | **18%** |
+| Temperature | **19%** |
 | Price | 12% |
 | Hours | 6% |
 | Clothing policy | 1% |

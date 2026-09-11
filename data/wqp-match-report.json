@@ -1,0 +1,1109 @@
+{
+  "counts": {
+    "readings": 48707,
+    "matched": 40,
+    "filled": 40,
+    "deferredToAuthor": 0,
+    "withheld": 184
+  },
+  "matched": [
+    {
+      "id": "whs_b6b5f4bdfbb4",
+      "station": "USGS-381127105483400",
+      "stationName": "VALLEY VIEW HOT SPRING  46-10-36DAD",
+      "meters": 90,
+      "celsius": 41,
+      "measuredAt": "1974-09-23",
+      "readings": 1
+    },
+    {
+      "id": "whs_65b397d531f2",
+      "station": "USGS-355623106383601",
+      "stationName": "SANTA FE NATIONAL FOREST SAN ANTONIO HOT SPRINGS",
+      "meters": 49,
+      "celsius": 40,
+      "measuredAt": "1973-05-16",
+      "readings": 1
+    },
+    {
+      "id": "whs_7e268cd7c78d",
+      "station": "USGS-355641114435301",
+      "stationName": "213  S23 E65 21BCA 1",
+      "meters": 3,
+      "celsius": 26,
+      "measuredAt": "1976-01-15",
+      "readings": 1
+    },
+    {
+      "id": "whs_1ac93e0b1e98",
+      "station": "USGS-355901114445001",
+      "stationName": "213  S23 E65 05CBD 1",
+      "meters": 83,
+      "celsius": 30,
+      "measuredAt": "1976-01-15",
+      "readings": 1
+    },
+    {
+      "id": "whs_707b68e2442f",
+      "station": "USGS-395737106322701",
+      "stationName": "RADIUM SPRINGS",
+      "meters": 43,
+      "celsius": 38.8,
+      "measuredAt": "2022-10-04",
+      "readings": 1
+    },
+    {
+      "id": "whs_a66866af4ba3",
+      "station": "USGS-393313107243901",
+      "stationName": "SOUTH CANYON HOT SPRING NR GLENWOOD SPRINGS, CO",
+      "meters": 8,
+      "celsius": 37.5,
+      "measuredAt": "2021-08-11",
+      "readings": 1
+    },
+    {
+      "id": "whs_00177ecf7718",
+      "station": "USGS-391350107133600",
+      "stationName": "PENNY GRANGES HOT SPRING",
+      "meters": 148,
+      "celsius": 56,
+      "measuredAt": "1976-01-17",
+      "readings": 1
+    },
+    {
+      "id": "whs_9c010d9f9f0b",
+      "station": "11NPSWRD_WQX-GICL_NURE_0056",
+      "stationName": "L04939",
+      "meters": 175,
+      "celsius": 35,
+      "measuredAt": "1976-05-11",
+      "readings": 1
+    },
+    {
+      "id": "whs_9939af5e623e",
+      "station": "USGS-412149119125901",
+      "stationName": "026  N40 E24 23ABCD1    Thermal Sp 9 Mud Meadow Qd",
+      "meters": 13,
+      "celsius": 35.4,
+      "measuredAt": "1980-04-29",
+      "readings": 1
+    },
+    {
+      "id": "whs_a3528a532cc7",
+      "station": "USGS-371555107003700",
+      "stationName": "PAGOSA COURTHOUSE HOT WATER WELL",
+      "meters": 193,
+      "celsius": 56,
+      "measuredAt": "1975-08-13",
+      "readings": 1
+    },
+    {
+      "id": "whs_e403729f0120",
+      "station": "USGS-363151105424201",
+      "stationName": "27N.12E.31.311 WARM SPRING",
+      "meters": 19,
+      "celsius": 37,
+      "measuredAt": "1976-07-22",
+      "readings": 1
+    },
+    {
+      "id": "whs_62f52a479fc0",
+      "station": "USGS-403207111285801",
+      "stationName": "(D- 3- 4)27baa-S1",
+      "meters": 161,
+      "celsius": 45.5,
+      "measuredAt": "1989-06-13",
+      "readings": 2
+    },
+    {
+      "id": "whs_8d6fbce6f426",
+      "station": "USGS-401929116033101",
+      "stationName": "053  N28 E52 12B   1    Hot Sp, Hot Creek",
+      "meters": 109,
+      "celsius": 26,
+      "measuredAt": "1974-01-01",
+      "readings": 1
+    },
+    {
+      "id": "whs_60e8313f2cbe",
+      "station": "USGS-443123114102501",
+      "stationName": "14N 19E 23DDD1S              BEARDSLEYCHALLIS HS",
+      "meters": 25,
+      "celsius": 50,
+      "measuredAt": "1983-11-02",
+      "readings": 2
+    },
+    {
+      "id": "whs_50dae36e3534",
+      "station": "USGS-410852119011301",
+      "stationName": "026  N38 E26 33C   1    Th Sp 1 Or B Sldr Cr 4NE",
+      "meters": 115,
+      "celsius": 70,
+      "measuredAt": "1980-07-21",
+      "readings": 1
+    },
+    {
+      "id": "whs_205d97b18f59",
+      "station": "USGS-410842119010701",
+      "stationName": "026  N38 E26 17ACC 1    Th Sp 1 Orfc C Soldier Cr",
+      "meters": 2,
+      "celsius": 70.3,
+      "measuredAt": "1980-07-21",
+      "readings": 1
+    },
+    {
+      "id": "whs_6b09c1de1f0c",
+      "station": "USGS-383112116215500",
+      "stationName": "156  N08 E50 29DA  2    Spring",
+      "meters": 133,
+      "celsius": 16.5,
+      "measuredAt": "1968-09-19",
+      "readings": 1
+    },
+    {
+      "id": "whs_1b70293248cd",
+      "station": "USGS-355222116130601",
+      "stationName": "242  021N007E34NS1S     Sp 1 East of Tecopa Hills",
+      "meters": 12,
+      "celsius": 43.8,
+      "measuredAt": "1998-06-10",
+      "readings": 2
+    },
+    {
+      "id": "whs_fc73834f510b",
+      "station": "USGS-440339115411401",
+      "stationName": "08N 06E 01ADB1S              PINE FLAT HOT SPRINGS",
+      "meters": 39,
+      "celsius": 59.5,
+      "measuredAt": "1979-02-27",
+      "readings": 1
+    },
+    {
+      "id": "whs_ac3dc824d98a",
+      "station": "USGS-395423113254901",
+      "stationName": "(C-10-14)33cdc-S1",
+      "meters": 193,
+      "celsius": 55.6,
+      "measuredAt": "1976-08-24",
+      "readings": 1
+    },
+    {
+      "id": "whs_82e4fe9b8f82",
+      "station": "USGS-381107113114901",
+      "stationName": "(C-30-12)21add-S1",
+      "meters": 144,
+      "celsius": 85,
+      "measuredAt": "1939-10-23",
+      "readings": 1
+    },
+    {
+      "id": "whs_23335f49347e",
+      "station": "USGS-434842115063501",
+      "stationName": "06N 11E 35DAD1S              ATLANTA H.S.",
+      "meters": 37,
+      "celsius": 60,
+      "measuredAt": "1981-09-01",
+      "readings": 1
+    },
+    {
+      "id": "whs_f031f37ca3dc",
+      "station": "USGS-405715117292201",
+      "stationName": "070  N36 E40 32    1    Golconda Hot Springs",
+      "meters": 6,
+      "celsius": 43,
+      "measuredAt": "1974-02-20",
+      "readings": 1
+    },
+    {
+      "id": "whs_01bc36fb216d",
+      "station": "USGS-434847115065701",
+      "stationName": "06N 11E 35DBB1S",
+      "meters": 13,
+      "celsius": 53,
+      "measuredAt": "1981-09-01",
+      "readings": 1
+    },
+    {
+      "id": "whs_a6e01e6d43d4",
+      "station": "USGS-395920113255000",
+      "stationName": "(C-10-14)33c  -S",
+      "meters": 178,
+      "celsius": 60.5,
+      "measuredAt": "1967-07-12",
+      "readings": 1
+    },
+    {
+      "id": "whs_26c09e981eb0",
+      "station": "USGS-440530116030201",
+      "stationName": "09N 03E 25BAC1S",
+      "meters": 104,
+      "celsius": 81,
+      "measuredAt": "1982-07-21",
+      "readings": 3
+    },
+    {
+      "id": "whs_b036214c8d7e",
+      "station": "USGS-374010118465301",
+      "stationName": "003S029E21PS01M",
+      "meters": 5,
+      "celsius": 57.1,
+      "measuredAt": "1990-01-10",
+      "readings": 6
+    },
+    {
+      "id": "whs_482be74a8b87",
+      "station": "USGS-383804112063001",
+      "stationName": "(C-25- 3)10dda-S1",
+      "meters": 164,
+      "celsius": 42.2,
+      "measuredAt": "1966-05-17",
+      "readings": 1
+    },
+    {
+      "id": "whs_a2da450a33b6",
+      "station": "USGS-384840106132000",
+      "stationName": "JUMP STEADY HOT SPRING DUP1",
+      "meters": 176,
+      "celsius": 53,
+      "measuredAt": "1976-04-23",
+      "readings": 4
+    },
+    {
+      "id": "whs_64dd6fa84399",
+      "station": "11NPSWRD_WQX-GICL_NURE_0053",
+      "stationName": "L04936",
+      "meters": 92,
+      "celsius": 63,
+      "measuredAt": "1976-05-10",
+      "readings": 1
+    },
+    {
+      "id": "whs_4af05b062b41",
+      "station": "USGS-441946115480801",
+      "stationName": "12N 05E 36DBA1S",
+      "meters": 28,
+      "celsius": 38,
+      "measuredAt": "1979-08-08",
+      "readings": 2
+    },
+    {
+      "id": "whs_a7f52aadf4e8",
+      "station": "USGS-445048115414701",
+      "stationName": "17N 06E 02BAA1S",
+      "meters": 23,
+      "celsius": 47,
+      "measuredAt": "1980-06-04",
+      "readings": 2
+    },
+    {
+      "id": "whs_9471208c4861",
+      "station": "USGS-464213113271301",
+      "stationName": "11N15W14CAC 01",
+      "meters": 188,
+      "celsius": 20.5,
+      "measuredAt": "1987-09-14",
+      "readings": 2
+    },
+    {
+      "id": "whs_08b24ac482b2",
+      "station": "USGS-335908112213401",
+      "stationName": "B-08-01 34CCC",
+      "meters": 33,
+      "celsius": 44.8,
+      "measuredAt": "1979-07-27",
+      "readings": 2
+    },
+    {
+      "id": "whs_de958286da3a",
+      "station": "USGS-442642115141901",
+      "stationName": "BEAR VALLEY CREEK HOT SPRING",
+      "meters": 45,
+      "celsius": 65,
+      "measuredAt": "1979-08-01",
+      "readings": 1
+    },
+    {
+      "id": "whs_ca29ecd5be62",
+      "station": "USGS-445705114421501",
+      "stationName": "19N 14E 26DDD1S              MORMON RANCH HOT SP",
+      "meters": 92,
+      "celsius": 47,
+      "measuredAt": "1980-06-29",
+      "readings": 1
+    },
+    {
+      "id": "whs_630a56248ba9",
+      "station": "USGS-434953115112801",
+      "stationName": "06N 11E 30ADB1S              QUEENS RIVER H.S.",
+      "meters": 32,
+      "celsius": 50.5,
+      "measuredAt": "1981-09-02",
+      "readings": 1
+    },
+    {
+      "id": "whs_3051afe5719b",
+      "station": "USGS-443740115114801",
+      "stationName": "15N 10E 24BBB1S",
+      "meters": 59,
+      "celsius": 49,
+      "measuredAt": "1980-06-25",
+      "readings": 1
+    },
+    {
+      "id": "whs_23d17a9d1715",
+      "station": "USGS-404104116091401",
+      "stationName": "052  N32 E52 05CDBA1    Spring",
+      "meters": 157,
+      "celsius": 22,
+      "measuredAt": "1990-06-13",
+      "readings": 1
+    },
+    {
+      "id": "whs_e4013879b20a",
+      "station": "USGS-404445116411901",
+      "stationName": "061  N33 E47 09CBDC1    Whitehouse Spring",
+      "meters": 54,
+      "celsius": 24,
+      "measuredAt": "1992-09-03",
+      "readings": 1
+    }
+  ],
+  "withheld": [
+    {
+      "id": "whs_f3c3e40e70e8",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_2bca2fb6e0ae",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_d499eb72d43c",
+      "reason": "4 stations within 200 m"
+    },
+    {
+      "id": "whs_228266049c8e",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_b5463baa87fd",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_1dc89e6c94fe",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_46d7f1066399",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_d50cc1c873f0",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_93726ab5c676",
+      "reason": "4 stations within 200 m"
+    },
+    {
+      "id": "whs_f8e561555a30",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_5b0769d5ec55",
+      "reason": "4 stations within 200 m"
+    },
+    {
+      "id": "whs_030c28156a1d",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_5df5194fa21c",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_1225d7beccc9",
+      "reason": "9 stations within 200 m"
+    },
+    {
+      "id": "whs_3145ddbb1516",
+      "reason": "9 stations within 200 m"
+    },
+    {
+      "id": "whs_d7dd74b15442",
+      "reason": "5 stations within 200 m"
+    },
+    {
+      "id": "whs_fde074c9b363",
+      "reason": "5 stations within 200 m"
+    },
+    {
+      "id": "whs_9fb3498b6df4",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_270bceed894b",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_91d26bcc8eeb",
+      "reason": "4 stations within 200 m"
+    },
+    {
+      "id": "whs_a56a1284b71a",
+      "reason": "5 stations within 200 m"
+    },
+    {
+      "id": "whs_cb4fe70269e9",
+      "reason": "5 stations within 200 m"
+    },
+    {
+      "id": "whs_437bc8894184",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_e334084e45b4",
+      "reason": "17 stations within 200 m"
+    },
+    {
+      "id": "whs_b67e4e59d1db",
+      "reason": "17 stations within 200 m"
+    },
+    {
+      "id": "whs_ed2f022f4cd2",
+      "reason": "9 stations within 200 m"
+    },
+    {
+      "id": "whs_9cac877dc41a",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_8b3935c4cd9f",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_1b7452261649",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_3b38f55dd843",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_1562d8e4f13b",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_9db3ca841cca",
+      "reason": "4 stations within 200 m"
+    },
+    {
+      "id": "whs_aa61c9516923",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_d848e4d398b5",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_99910221d2df",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_abd5ab9ae675",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_027d377479fc",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_46ed2e9cdb1a",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_b8aec661aab1",
+      "reason": "6 stations within 200 m"
+    },
+    {
+      "id": "whs_2d4b9679ce33",
+      "reason": "5 stations within 200 m"
+    },
+    {
+      "id": "whs_bd98faa6139d",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_de9942d634c5",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_fc6d30c5283e",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_74b071629049",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_f3b90720bd99",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_76fba56b0b0e",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_262c3fc6af2b",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_e5cc1b0e2a54",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_ef6f89deafc6",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_ba1b35512d76",
+      "reason": "3 stations within 200 m"
+    },
+    {
+      "id": "whs_33f154ae7920",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_a32577eb2749",
+      "reason": "7 stations within 200 m"
+    },
+    {
+      "id": "whs_d80bb0169b56",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_c29f3de9e9b2",
+      "reason": "8 stations within 200 m"
+    },
+    {
+      "id": "whs_5b68e059b46d",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_9b25b61d3957",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_ce3dc7eab35c",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_c7af96468d2b",
+      "reason": "2 stations within 200 m"
+    },
+    {
+      "id": "whs_ef30de366b64",
+      "reason": "4 stations within 200 m"
+    },
+    {
+      "id": "whs_998b5985539c",
+      "reason": "8 stations within 200 m"
+    },
+    {
+      "id": "whs_3ac55d225c46",
+      "reason": "6 stations within 200 m"
+    },
+    {
+      "id": "whs_d10047ec6576",
+      "reason": "21 stations within 200 m"
+    },
+    {
+      "id": "whs_0f87a04711ee",
+      "reason": "21 stations within 200 m"
+    },
+    {
+      "id": "whs_11ac4dd7ff22",
+      "reason": "21 stations within 200 m"
+    },
+    {
+      "id": "whs_08b595e568e8",
+      "reason": "station readings span 8.6 C"
+    },
+    {
+      "id": "whs_c3639c664b83",
+      "reason": "station readings span 13.5 C"
+    },
+    {
+      "id": "whs_1eb5d3437350",
+      "reason": "station USGS-373855118522801 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_9a93cb703780",
+      "reason": "station USGS-373855118522801 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_7d575c3271f1",
+      "reason": "station USGS-391857117324501 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_457fd33fd143",
+      "reason": "station USGS-391857117324501 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_fed794c9eeda",
+      "reason": "station USGS-401128117062001 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_f29fb2b65d58",
+      "reason": "station USGS-401128117062001 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_6225a17a45ef",
+      "reason": "station USGS-401128117062001 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_bc03944367d2",
+      "reason": "station USGS-401128117062001 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_0c95da8ee23d",
+      "reason": "station USGS-401128117062001 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_98a0f2ff7498",
+      "reason": "station USGS-410656119000301 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_2e41a43bc2bc",
+      "reason": "station USGS-410656119000301 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_627c66db8435",
+      "reason": "station USGS-395413116351401 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_1428da10aac5",
+      "reason": "station USGS-395413116351401 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_ee0b6676492d",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_7a8ba4a23a95",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_b77cce08d746",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_e2c5b7797b12",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_ed116946a2c4",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_c1902fdf3427",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_dbfd8ee32018",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_9d9571085bd6",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_e79fc550c8a0",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_e0a33da8db99",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_2f99b8eef4fc",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_4f0103353ae6",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_a59011427db3",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_e6b251d911dd",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_b100b6f7b48f",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_dfec077c8859",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_1639db07fa69",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_98e3fa330757",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_7b6c6a72443d",
+      "reason": "station USGS-401508115242201 is within 200 m of 19 springs"
+    },
+    {
+      "id": "whs_6552c1e39af8",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_67d4ecfbe791",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_c21c5a0311f2",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_7f73f46072fb",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_44c497866e30",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_f0dba8bef4dc",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_2c87a936105c",
+      "reason": "station USGS-402205117193501 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_c3476aaf4562",
+      "reason": "station USGS-404541117293201 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_2c131344b495",
+      "reason": "station USGS-404541117293201 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_d76844e21fa1",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0340 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_3676ef11b736",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_8ffb046ec03b",
+      "reason": "station USGS-444409110430101 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_0c2524a0a958",
+      "reason": "station USGS-444409110430101 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_2867057924b9",
+      "reason": "station USGS-444409110430101 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_1885dc6a4379",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_63426ae7c101",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_5bc4f78fa862",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_d0a67891d7d3",
+      "reason": "station USGS-444320110422801 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_0b6ad600a1c3",
+      "reason": "station readings span 31.5 C"
+    },
+    {
+      "id": "whs_3b3bb15fdf78",
+      "reason": "station readings span 2.9 C"
+    },
+    {
+      "id": "whs_8a9480761040",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_6f404b0984ff",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_222cd1aeae8d",
+      "reason": "station USGS-433349114475501 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_a042544f3eda",
+      "reason": "station USGS-433349114475501 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_9e740bc0d601",
+      "reason": "station USGS-433349114475501 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_59a261937c77",
+      "reason": "station USGS-433349114475501 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_3c33b8520419",
+      "reason": "station USGS-433349114475501 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_58d715ac5cb0",
+      "reason": "station USGS-462747114521901 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_522676706ffc",
+      "reason": "station USGS-462748115020601 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_1a5b9139e7b1",
+      "reason": "station USGS-391857117324501 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_ec7ca1e77280",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_fe2fa277383d",
+      "reason": "station USGS-462747114521901 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_222dc50613d3",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0440 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_fddd8c810f9a",
+      "reason": "station USGS-432605103290901 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_7f6c90e6be8f",
+      "reason": "station USGS-432605103290901 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_2245e2eb8809",
+      "reason": "station USGS-432605103290901 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_33ce66fdeff8",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0449 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_2c80465ba35c",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0340 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_0970f9b18196",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0340 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_ca3513c58d68",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0340 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_bfaff0d850c8",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_87b8dbcb1863",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_160263b4133c",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_d5f007611a50",
+      "reason": "station USGS-444311110430001 is within 200 m of 7 springs"
+    },
+    {
+      "id": "whs_8291c75c0611",
+      "reason": "station USGS-444320110422801 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_9eec97b20c04",
+      "reason": "station USGS-444320110422801 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_940aac8a479c",
+      "reason": "station USGS-444320110422801 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_09703861e930",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_e36b360c17ac",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_af014e21cd38",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_165bd1978932",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_4138e34d3122",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_7c6ba9bfd35d",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_e99263f248e5",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_4f071f232a74",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_aead0c9a63c8",
+      "reason": "station USGS-444340110420201 is within 200 m of 9 springs"
+    },
+    {
+      "id": "whs_43bf2085f4fc",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_96758b2f4850",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_d3eb3c6c05e7",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_26c817a2f3e6",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_0d7e5cc5f623",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_e2082b835a98",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_a498e477411c",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_32497cb57a13",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_b0a5d501fd3d",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_51475ddd474f",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_5b87dc833851",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_42180346ab02",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_821b997408f4",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_c3092924b24f",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_e7f31cb82248",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_ca310cbd5454",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_c0e05717ebe4",
+      "reason": "station USGS-444353110422301 is within 200 m of 21 springs"
+    },
+    {
+      "id": "whs_0ff7fbb6fe36",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0449 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_5ed86257adc0",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0449 is within 200 m of 3 springs"
+    },
+    {
+      "id": "whs_03a640ab5b47",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0440 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_8fd5b8193392",
+      "reason": "station USGS-444323110421401 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_e907e7240ce0",
+      "reason": "station USGS-444323110421401 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_a86e0300818d",
+      "reason": "station 11NPSWRD_WQX-YELL_NURE_0340 is within 200 m of 5 springs"
+    },
+    {
+      "id": "whs_6e092fee4de7",
+      "reason": "station USGS-462748115020601 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_a219b108f6cb",
+      "reason": "station USGS-374004118481210 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_af0f3e007905",
+      "reason": "station USGS-374004118481210 is within 200 m of 2 springs"
+    },
+    {
+      "id": "whs_497550efa779",
+      "reason": "station USGS-444654121583400 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_8a7525ea08b5",
+      "reason": "station USGS-444654121583400 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_9ed4a2a9f8d2",
+      "reason": "station USGS-444654121583400 is within 200 m of 4 springs"
+    },
+    {
+      "id": "whs_8addc19d1a67",
+      "reason": "station USGS-444654121583400 is within 200 m of 4 springs"
+    }
+  ]
+}

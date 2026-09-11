@@ -23,6 +23,8 @@ import { parseNcei } from './lib/ncei.mjs';
 import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs';
 import { mineralTypesOf, classifySenshitsu } from './lib/senshitsu.mjs';
+import { fromTsv as wqpFromTsv, WQP_SOURCE, WQP_PAGE, WQP_PROVIDER } from './lib/wqp.mjs';
+import { matchWqp } from './lib/wqp-match.mjs';
 import { fromTsv, AIST_PROVIDER, AIST_SOURCE, AIST_PAGE } from './lib/aist.mjs';
 import { matchAist, agreedValue, agreedUnit, agreedYear, NUMERIC_FIELDS as AIST_NUMERIC_FIELDS } from './lib/aist-match.mjs';
 
@@ -573,6 +575,65 @@ async function main() {
         `${aistChem} panel(s) filled, ${aistTypes} classification(s), ` +
         `${withheld.length} field(s) withheld, ` +
         `${aistRejected.length} contended -> data/aist-match-report.json`,
+    );
+  }
+
+  // --- Water Quality Portal: US spring temperatures ---
+  // Same slot as the other enrichments: after identity, so ids are final, and
+  // above the curated overlay, so an authored claim still wins. Enrichment
+  // only -- this stage never adds a record, because a WQP station is a
+  // monitoring point rather than somewhere to bathe.
+  const WQP_TSV = path.join('data', 'reference', 'wqp-spring-temps.tsv');
+  if (fs.existsSync(WQP_TSV)) {
+    console.log('Merging Water Quality Portal readings ...');
+    const wqpRows = wqpFromTsv(fs.readFileSync(WQP_TSV, 'utf8'));
+    const { matched: wqpMatched, withheld: wqpWithheld } = matchWqp(wqpRows, records);
+
+    let wqpFilled = 0;
+    let wqpDeferred = 0;
+    const wqpById = new Map(records.map((r) => [r.id, r]));
+    for (const m of wqpMatched) {
+      const rec = wqpById.get(m.id);
+      if (!rec) continue;
+      // An authored claim wins, so do not write a value the overlay is about
+      // to replace -- that would leave `wqp` in the provenance of a record
+      // where nothing from WQP survived.
+      if (hasAuthoredTemperature(overlays.get(m.id))) { wqpDeferred++; continue; }
+      if (rec.temperature.celsius !== null) continue;
+      rec.temperature.celsius = m.celsius;
+      rec.temperature.fahrenheit = Math.round(((m.celsius * 9) / 5 + 32) * 10) / 10;
+      // USGS measures at the monitoring location, which for a spring site is
+      // the spring itself.
+      rec.temperature.kind = 'source';
+      // The reading's own date, which is per-record and real -- unlike NOAA's
+      // uniform 1981.
+      rec.temperature.measuredAt = m.measuredAt ?? null;
+      rec.temperature.source = `${WQP_SOURCE}, station ${m.station}`;
+      rec.sources = [...new Set([...rec.sources, WQP_PAGE])];
+      if (!rec.quality.provenance.includes(WQP_PROVIDER)) {
+        rec.quality.provenance = [...rec.quality.provenance, WQP_PROVIDER].sort();
+      }
+      wqpFilled++;
+    }
+
+    fs.writeFileSync(
+      path.join('data', 'wqp-match-report.json'),
+      `${JSON.stringify({
+        generatedAt: buildTimestamp,
+        counts: {
+          readings: wqpRows.length,
+          matched: wqpMatched.length,
+          filled: wqpFilled,
+          deferredToAuthor: wqpDeferred,
+          withheld: wqpWithheld.length,
+        },
+        matched: wqpMatched,
+        withheld: wqpWithheld,
+      }, null, 2)}\n`,
+    );
+    console.log(
+      `  ${wqpMatched.length} matched, ${wqpFilled} temperature(s) filled, `
+      + `${wqpWithheld.length} withheld -> data/wqp-match-report.json`,
     );
   }
 

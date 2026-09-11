@@ -12,7 +12,7 @@ const SOURCE = fs.readFileSync('scripts/build-dataset.mjs', 'utf8');
  * longer literal so that adding a third does not weaken the check, which
  * exists to catch an invented or misspelled provider.
  */
-const PROVIDERS = new Set(['osm', 'ncei', 'aist']);
+const PROVIDERS = new Set(['osm', 'ncei', 'aist', 'wqp']);
 
 test('the privacy filter is the last stage that can remove or move a record', () => {
   const privacyAt = SOURCE.indexOf('isExcluded(');
