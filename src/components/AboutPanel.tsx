@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
+import { BasemapCredits, LegalPages, PAGE_TITLES, type LegalPage } from './LegalPages.tsx';
 
 interface Summary {
   total: number;
@@ -24,11 +25,38 @@ function Stat({ label, value, of }: { label: string; value: number; of?: number 
   );
 }
 
+/**
+ * Tabs rather than four separate modals.
+ *
+ * Terms, privacy and safety are pages a reputable dataset is expected to have
+ * and that almost nobody opens deliberately. Giving each its own entry point in
+ * the header would spend the top of the screen on documents; burying them in a
+ * footer the map covers would hide them. One panel, four tabs, and each tab
+ * carries its own URL so it can still be linked, cited and crawled.
+ */
+const TABS: { key: 'about' | LegalPage; label: string }[] = [
+  { key: 'about', label: 'About' },
+  { key: 'safety', label: PAGE_TITLES.safety },
+  { key: 'terms', label: PAGE_TITLES.terms },
+  { key: 'privacy', label: PAGE_TITLES.privacy },
+];
+
 export function AboutPanel() {
-  const show = useStore((s) => s.showAbout);
-  const setShow = useStore((s) => s.setShowAbout);
+  const showAbout = useStore((s) => s.showAbout);
+  const page = useStore((s) => s.page);
+  const setShowAbout = useStore((s) => s.setShowAbout);
+  const setPage = useStore((s) => s.setPage);
   const meta = useStore((s) => s.meta);
   const [summary, setSummary] = useState<Summary | null>(null);
+
+  const show = showAbout || page !== null;
+  const active: 'about' | LegalPage = page ?? 'about';
+  const setShow = (v: boolean) => {
+    if (v) setShowAbout(true);
+    else if (page) setPage(null);
+    else setShowAbout(false);
+  };
+  const goto = (key: 'about' | LegalPage) => (key === 'about' ? setShowAbout(true) : setPage(key));
 
   useEffect(() => {
     if (!show || summary) return;
@@ -40,10 +68,13 @@ export function AboutPanel() {
 
   useEffect(() => {
     if (!show) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setShow(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShow(false);
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [show, setShow]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show, page, showAbout]);
 
   if (!show) return null;
 
@@ -60,7 +91,9 @@ export function AboutPanel() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-xl font-semibold text-steam-100">World Hot Springs</h2>
+          <h2 className="text-xl font-semibold text-steam-100">
+            {active === 'about' ? 'World Hot Springs' : PAGE_TITLES[active]}
+          </h2>
           <button
             onClick={() => setShow(false)}
             className="-mr-1 -mt-1 rounded-lg p-1.5 text-steam-400 transition hover:bg-basalt-800 hover:text-steam-100"
@@ -72,7 +105,35 @@ export function AboutPanel() {
           </button>
         </div>
 
-        <p className="mt-3 text-sm leading-relaxed text-steam-300">
+        <nav
+          aria-label="Sections"
+          className="mt-4 flex gap-1 overflow-x-auto border-b border-basalt-800 pb-px"
+        >
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => goto(t.key)}
+              aria-current={active === t.key ? 'page' : undefined}
+              className={`shrink-0 rounded-t-lg border-b-2 px-3 py-2 text-sm transition ${
+                active === t.key
+                  ? 'border-ember text-steam-100'
+                  : 'border-transparent text-steam-400 hover:text-steam-200'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {active !== 'about' && (
+          <div className="mt-5">
+            <LegalPages page={active} meta={meta} />
+          </div>
+        )}
+
+        {active === 'about' && (
+          <>
+        <p className="mt-5 text-sm leading-relaxed text-steam-300">
           An open atlas of the world's public and semi-public hot springs. Temperature,
           price, clothing policy and opening hours are treated as first-class facts —
           and when we don't know one, we say <span className="italic text-steam-400">Unknown</span>{' '}
@@ -167,6 +228,9 @@ export function AboutPanel() {
           </p>
         </section>
 
+          </>
+        )}
+
         {/*
           The dataset line reads from metadata; the basemap line is typed here
           because the basemap is not in the dataset and has no entry to read.
@@ -187,10 +251,8 @@ export function AboutPanel() {
           ) : (
             'ODbL 1.0'
           )}
-          {summary ? `, OpenStreetMap layer as of ${summary.sourceDate.slice(0, 10)}` : ''}.
-          Basemap © CARTO, satellite imagery © Esri, Maxar, Earthstar
-          Geographics, terrain Mapzen Terrain Tiles (AWS Open Data). Live air
-          temperature from Open-Meteo, CC BY 4.0. Code MIT.
+          {summary ? `, OpenStreetMap layer as of ${summary.sourceDate.slice(0, 10)}` : ''}. Code
+          MIT. Basemap © CARTO. <BasemapCredits />
         </footer>
       </div>
     </div>

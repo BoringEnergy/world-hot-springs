@@ -16,6 +16,25 @@ not a backlog: 19% of these springs have a recorded temperature because
 81% of them have never had one published, and the card says so on every
 one. Corrections are welcome; the data campaign is closed.
 
+## Prior art, named
+
+This is not the first global compilation of thermal springs and does not claim
+to be. Gerald Ashley Waring's *Thermal Springs of the United States and Other
+Countries of the World* (USGS Professional Paper 492, 1965) is the ancestor of
+every list since, and it was digitised into a global point dataset published in
+[Nature Communications 13, 6378 (2022)](https://doi.org/10.1038/s41467-022-34115-w)
+— roughly 6,000 spring areas covering some 12,500 individual springs across
+more than 100 countries. NOAA NCEI's Thermal Springs List (1981) is the
+authoritative US compilation and is an upstream here.
+
+Anyone who tells you no global hot springs dataset exists has not looked. What
+does not exist — and what this project is — is a **maintained, machine-readable
+atlas with provenance attached to every field, a stated position on what it
+refuses to publish, and an explicit `null` where the world has no answer.**
+Those prior compilations are static academic snapshots of a 1965 survey; this
+one is rebuilt from live upstreams, says on each card which source placed the
+pin and how precisely, and can be argued with one record at a time.
+
 ## What makes this different
 
 **Unknown is a value.** Temperature, price, clothing policy and opening hours

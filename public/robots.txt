@@ -1,0 +1,13 @@
+# World Hot Springs — an open atlas.
+#
+# The dataset is a single file and it is meant to be taken whole. Crawling
+# 7,490 record pages to reconstruct it is slower for you and more expensive
+# for us than one request to the GeoJSON below, which carries every field,
+# every source and its licence.
+#
+#   /data/hot-springs.geojson
+
+User-agent: *
+Allow: /
+
+Sitemap: https://whs.boring.energy/sitemap.xml

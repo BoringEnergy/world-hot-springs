@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { bandColor, tempBand } from '../lib/types';
 import {
   formatMineralType,
@@ -19,6 +19,7 @@ import {
   distanceKm,
 } from '../lib/format';
 import { useStore } from '../store/useStore';
+import { absoluteHref } from '../lib/router.ts';
 import { Field } from './Field';
 import { SoakScene } from './SoakScene';
 
@@ -29,12 +30,14 @@ export function DetailPanel() {
   const select = useStore((s) => s.select);
   const userLocation = useStore((s) => s.userLocation);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const [copied, setCopied] = useState(false);
 
   // Land keyboard and screen-reader users in the card when it opens.
   // tabindex -1 keeps the title out of the Tab order; outline-none only
   // hides the programmatic-focus ring, interactive elements keep theirs.
   useEffect(() => {
     if (selectedId) headingRef.current?.focus({ preventScroll: true });
+    setCopied(false);
   }, [selectedId]);
 
   if (!selectedId || !spring) return null;
@@ -359,14 +362,52 @@ export function DetailPanel() {
       </dl>
 
       <div className="px-5 pb-6 pt-2">
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${spring.location.lat},${spring.location.lng}`}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="block rounded-xl border border-basalt-700 bg-basalt-850 px-4 py-2.5 text-center text-sm font-medium text-steam-100 transition hover:border-basalt-600 hover:bg-basalt-800"
-        >
-          Directions
-        </a>
+        {/*
+          Directions and the permalink, side by side.
+
+          The permalink is new and it is the more important of the two for this
+          project: every record has had an address since the router landed, and
+          an address nobody can see is an address nobody cites. It is also the
+          fastest way for someone who looks after a spring to send us *this
+          one* -- which is the request this project promises to honour and,
+          until now, gave no easy way to make.
+
+          The anchor is a real href, not a button with an onClick, so
+          middle-click, right-click-copy and drag-to-bookmark all behave. The
+          click handler only short-circuits the plain left-click into a copy.
+        */}
+        <div className="flex gap-2">
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${spring.location.lat},${spring.location.lng}`}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="flex-1 rounded-xl border border-basalt-700 bg-basalt-850 px-4 py-2.5 text-center text-sm font-medium text-steam-100 transition hover:border-basalt-600 hover:bg-basalt-800"
+          >
+            Directions
+          </a>
+          <a
+            href={absoluteHref({ kind: 'spring', id: spring.id })}
+            onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+              e.preventDefault();
+              navigator.clipboard
+                ?.writeText(absoluteHref({ kind: 'spring', id: spring.id }))
+                .then(() => setCopied(true))
+                .catch(() => setCopied(false));
+            }}
+            aria-label={`Copy a permanent link to ${formatName(spring)}`}
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-basalt-700 bg-basalt-850 px-4 py-2.5 text-sm font-medium text-steam-300 transition hover:border-basalt-600 hover:bg-basalt-800 hover:text-steam-100"
+          >
+            <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+              <path d="M8.5 11.5a3 3 0 0 0 4.24 0l2.12-2.12a3 3 0 1 0-4.24-4.24l-1 1" strokeLinecap="round" />
+              <path d="M11.5 8.5a3 3 0 0 0-4.24 0L5.14 10.6a3 3 0 1 0 4.24 4.25l1-1" strokeLinecap="round" />
+            </svg>
+            {copied ? 'Copied' : 'Link'}
+          </a>
+        </div>
+        <span role="status" aria-live="polite" className="sr-only">
+          {copied ? 'Permanent link copied to the clipboard' : ''}
+        </span>
         <p className="mt-3 text-[11px] leading-relaxed text-steam-400">
           Something wrong or missing? Corrections are welcome. Springs that locals
           ask us not to publicise are removed permanently and never re-added.

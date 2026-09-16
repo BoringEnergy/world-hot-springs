@@ -3,6 +3,7 @@ import maplibregl, { type MapGeoJSONFeature } from 'maplibre-gl';
 import type { HotSpring } from '../lib/types';
 import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
 import { useStore } from '../store/useStore';
+import { imagery, STYLE_URL, TERRAIN as TERRAIN_SOURCE } from '../lib/basemap.ts';
 
 const SOURCE = 'springs';
 const HEAT_SOURCE = 'springs-heat';
@@ -11,14 +12,14 @@ const TERRAIN = 'terrain';
 
 /**
  * The basemap ladder: CARTO dark-matter carries the globe and regional views,
- * Esri World Imagery crossfades in for the close descent. Both are keyless,
- * so the atlas keeps its no-token philosophy — attribution is the price, paid
- * in the map control (via the source option) and the About panel.
+ * and satellite imagery crossfades in for the close descent.
+ *
+ * Which imagery, and under what terms, is decided in `lib/basemap.ts` rather
+ * than here. It used to be Esri World Imagery, keyless and unlicensed, which
+ * is the one thing this project cannot be caught doing. `imagery` is null when
+ * the layer is switched off, and every use below is guarded — the descent has
+ * to work with no imagery at all, or turning it off is not a real option.
  */
-const SAT_TILES = [
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-];
-const SAT_ATTRIBUTION = 'Imagery © Esri, Maxar, Earthstar Geographics';
 // Zoom stops for the dark-to-satellite crossfade. Keep in sync with the
 // data-sat threshold on the vignette below.
 const SAT_FADE_NEAR = 8;
@@ -26,16 +27,7 @@ const SAT_FADE_FAR = 10;
 // Terrain wakes up as satellite arrives: 3D relief only matters once you can
 // see the ground, and keeping it off on the globe view saves DEM tiles.
 const TERRAIN_ZOOM = 8.5;
-const TERRAIN_TILES = [
-  'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-];
 
-/**
- * CARTO's dark basemap is keyless and free, so the atlas has no API-token
- * dependency and nothing to leak. Attribution is rendered by MapLibre's own
- * control from the style, and repeated in the About panel.
- */
-const STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
 /**
  * Colour ramp driven by the same bands the legend and filters use, expressed as
@@ -130,7 +122,7 @@ export function MapView() {
 
     const m = new maplibregl.Map({
       container: container.current,
-      style: STYLE,
+      style: STYLE_URL,
       center: [20, 20],
       // Framed so the globe fills the viewport rather than floating in it.
       // minZoom stops it being shrunk to a dot in the middle of black space.
@@ -213,24 +205,28 @@ export function MapView() {
         data: { type: 'FeatureCollection', features: [] },
       });
 
-      m.addSource(SATELLITE, {
-        type: 'raster',
-        tiles: SAT_TILES,
-        tileSize: 256,
-        maxzoom: 19,
-        attribution: SAT_ATTRIBUTION,
-      });
+      if (imagery) {
+        m.addSource(SATELLITE, {
+          type: 'raster',
+          tiles: imagery.tiles,
+          tileSize: 256,
+          // The provider's real ceiling. Overzooming past it is honest blur;
+          // claiming a maxzoom the service does not serve is 404s on descent.
+          maxzoom: imagery.maxzoom,
+          attribution: imagery.attribution,
+        });
+      }
 
       // Keyless elevation: Mapzen terrain tiles on AWS Open Data, terrarium
       // encoding. The source is registered up front; setTerrain switches it
       // on past TERRAIN_ZOOM (see onZoom) so the globe view pays nothing.
       m.addSource(TERRAIN, {
         type: 'raster-dem',
-        tiles: TERRAIN_TILES,
+        tiles: TERRAIN_SOURCE.tiles,
         encoding: 'terrarium',
         tileSize: 256,
         maxzoom: 15,
-        attribution: 'Terrain: Mapzen Terrain Tiles (AWS Open Data)',
+        attribution: TERRAIN_SOURCE.attribution,
       });
 
       // Soft outer glow: reads as heat without drawing a literal steam sprite.
@@ -349,27 +345,29 @@ export function MapView() {
       // zoom-interpolated opacity IS the fade — the built-in fade would lag it.
       // Inserted beneath the springs layers: imagery is the ground, never the
       // subject, so points and labels stay legible over bright terrain.
-      m.addLayer(
-        {
-          id: 'satellite',
-          type: 'raster',
-          source: SATELLITE,
-          minzoom: SAT_FADE_NEAR - 1,
-          paint: {
-            'raster-opacity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              SAT_FADE_NEAR,
-              0,
-              SAT_FADE_FAR,
-              1,
-            ],
-            'raster-fade-duration': 0,
+      if (imagery) {
+        m.addLayer(
+          {
+            id: 'satellite',
+            type: 'raster',
+            source: SATELLITE,
+            minzoom: SAT_FADE_NEAR - 1,
+            paint: {
+              'raster-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                SAT_FADE_NEAR,
+                0,
+                SAT_FADE_FAR,
+                1,
+              ],
+              'raster-fade-duration': 0,
+            },
           },
-        },
-        'springs-glow',
-      );
+          'springs-glow',
+        );
+      }
 
       // Geothermal bloom for the planetary view: unmeasured springs carry no
       // weight, so grey unknowns never masquerade as heat. Fades out as
@@ -436,7 +434,7 @@ export function MapView() {
       const onZoom = () => {
         const z = m.getZoom();
         if (container.current) {
-          container.current.dataset.sat = z >= SAT_FADE_NEAR ? 'on' : '';
+          container.current.dataset.sat = imagery && z >= SAT_FADE_NEAR ? 'on' : '';
         }
         const want = z >= TERRAIN_ZOOM;
         if (want !== terrainOn) {

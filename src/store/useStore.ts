@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import type { ClothingPolicy, DatasetMeta, HotSpring, SpringType } from '../lib/types';
 import type { Units } from '../lib/format';
 import { distanceKm } from '../lib/format.ts';
+import { navigate, parse, type PageName, type Route } from '../lib/router.ts';
+import { applyDefaultMeta, applyPageMeta, applySpringMeta } from '../lib/seo.ts';
 
 export type PriceFilter = 'any' | 'free' | 'paid' | 'unknown';
 
@@ -56,6 +58,13 @@ interface State {
   userLocation: { lat: number; lng: number } | null;
   locating: boolean;
   showAbout: boolean;
+  /**
+   * The standing pages -- terms, privacy, safety, sources. Separate from
+   * `showAbout` rather than folded into it: About is a panel the header has
+   * always owned, and collapsing the two would have rewritten every call site
+   * for no gain. Both push a URL.
+   */
+  page: Exclude<PageName, 'about'> | null;
 
   load: () => Promise<void>;
   setUnits: (u: Units) => void;
@@ -65,6 +74,9 @@ interface State {
   select: (id: string | null) => void;
   locateMe: () => void;
   setShowAbout: (v: boolean) => void;
+  setPage: (p: Exclude<PageName, 'about'> | null) => void;
+  /** Apply a route to state without writing it back to the address bar. */
+  applyRoute: (route: Route) => void;
 }
 
 const UNITS_KEY = 'whs.units';
@@ -90,6 +102,7 @@ export const useStore = create<State>((set, get) => ({
   userLocation: null,
   locating: false,
   showAbout: false,
+  page: null,
 
   load: async () => {
     try {
@@ -103,6 +116,25 @@ export const useStore = create<State>((set, get) => ({
         visible: applyFilters(springs, get().filters),
         loading: false,
       });
+
+      /*
+       * The address bar is authoritative on arrival, and only now can it be
+       * honoured: /s/whs_... has to resolve against records that did not exist
+       * until this moment. Doing it here rather than in a component keeps the
+       * one race that matters -- deep link vs dataset -- in a single place.
+       *
+       * An id that parses but matches nothing is normalised away with
+       * replaceState. A dead permalink that keeps its URL is a permalink that
+       * gets crawled, cached and cited, and the canonical tag would point a
+       * search engine at a card that renders nothing.
+       */
+      const route = parse();
+      if (route.kind === 'spring' && !springs.some((s) => s.id === route.id)) {
+        navigate({ kind: 'map' }, { replace: true });
+        get().applyRoute({ kind: 'map' });
+      } else {
+        get().applyRoute(route);
+      }
     } catch (err) {
       set({
         loading: false,
@@ -128,8 +160,70 @@ export const useStore = create<State>((set, get) => ({
   resetFilters: () =>
     set((s) => ({ filters: DEFAULT_FILTERS, visible: applyFilters(s.springs, DEFAULT_FILTERS) })),
 
-  select: (id) => set({ selectedId: id }),
-  setShowAbout: (v) => set({ showAbout: v }),
+  /*
+   * Selection and navigation are the same act now. `select` is called from the
+   * map, the results list and the card's own close button, so putting the
+   * history write here means every one of those paths produces a shareable URL
+   * and a working Back button without any of them knowing a router exists.
+   */
+  select: (id) => {
+    set({ selectedId: id, showAbout: false, page: null });
+    if (id) {
+      navigate({ kind: 'spring', id });
+      const spring = get().springs.find((s) => s.id === id);
+      if (spring) applySpringMeta(spring);
+    } else {
+      navigate({ kind: 'map' });
+      applyDefaultMeta(get().meta, null);
+    }
+  },
+
+  setShowAbout: (v) => {
+    set({ showAbout: v, ...(v ? { page: null } : {}) });
+    if (v) {
+      navigate({ kind: 'page', page: 'about' });
+      applyPageMeta('about');
+    } else if (get().selectedId === null) {
+      navigate({ kind: 'map' });
+      applyDefaultMeta(get().meta, null);
+    }
+  },
+
+  setPage: (p) => {
+    set({ page: p, ...(p ? { showAbout: false } : {}) });
+    if (p) {
+      navigate({ kind: 'page', page: p });
+      applyPageMeta(p);
+    } else if (get().selectedId === null) {
+      navigate({ kind: 'map' });
+      applyDefaultMeta(get().meta, null);
+    }
+  },
+
+  /*
+   * The read direction: URL -> state. Used on boot and on popstate, and it
+   * must never write history back, or Back would fight itself.
+   */
+  applyRoute: (route) => {
+    if (route.kind === 'spring') {
+      const spring = get().springs.find((s) => s.id === route.id) ?? null;
+      set({ selectedId: spring ? route.id : null, showAbout: false, page: null });
+      if (spring) applySpringMeta(spring);
+      else applyDefaultMeta(get().meta, null);
+      return;
+    }
+    if (route.kind === 'page') {
+      set({
+        selectedId: null,
+        showAbout: route.page === 'about',
+        page: route.page === 'about' ? null : route.page,
+      });
+      applyPageMeta(route.page);
+      return;
+    }
+    set({ selectedId: null, showAbout: false, page: null });
+    applyDefaultMeta(get().meta, null);
+  },
 
   locateMe: () => {
     if (!navigator.geolocation) return;

@@ -6,17 +6,28 @@ import { DetailPanel } from './components/DetailPanel';
 import { ResultsList } from './components/ResultsList';
 import { AboutPanel } from './components/AboutPanel';
 import { useStore } from './store/useStore';
+import { onPopState } from './lib/router.ts';
 
 export default function App() {
   const load = useStore((s) => s.load);
   const loading = useStore((s) => s.loading);
   const error = useStore((s) => s.error);
   const select = useStore((s) => s.select);
+  const applyRoute = useStore((s) => s.applyRoute);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  /*
+   * Back and Forward. The store writes history on every selection, so without
+   * this listener the browser's own buttons would change the URL and leave the
+   * app showing whatever was on screen -- the failure mode that makes people
+   * distrust a single-page app. Registered once, independent of the initial
+   * route, which load() applies after the dataset arrives.
+   */
+  useEffect(() => onPopState(applyRoute), [applyRoute]);
 
   // Escape backs out one layer at a time: filters, then the detail card.
   useEffect(() => {
