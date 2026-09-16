@@ -1,7 +1,7 @@
 {
   "name": "world-hot-springs",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "An open, curated atlas of the world's public hot springs.",
   "license": "MIT",
@@ -14,14 +14,15 @@
     "data:fetch": "node scripts/fetch-osm.mjs",
     "data:verify": "node scripts/fetch-osm.mjs --verify",
     "validate": "node scripts/validate-overlay.mjs",
-    "data:build": "node scripts/build-dataset.mjs",
+    "data:build": "node scripts/build-dataset.mjs && node scripts/build-citation.mjs",
     "data:ncei": "node scripts/fetch-ncei.mjs",
     "data:all": "npm run data:fetch && npm run data:verify && npm run data:build && npm run data:sitemap",
     "enrich": "node scripts/enrich.mjs",
     "enrich:plan": "node scripts/enrich.mjs --dry-run",
     "data:wqp": "node scripts/fetch-wqp.mjs",
     "data:nbmg": "node scripts/fetch-nbmg.mjs",
-    "data:sitemap": "node scripts/build-sitemap.mjs"
+    "data:sitemap": "node scripts/build-sitemap.mjs",
+    "release:meta": "node scripts/build-citation.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^5.6.0",

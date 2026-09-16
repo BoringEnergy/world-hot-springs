@@ -23,9 +23,9 @@
  */
 import type { DatasetMeta, HotSpring } from './types';
 import { absoluteHref, href, type PageName } from './router.ts';
+import { TITLE as SITE_NAME, DESCRIPTION, CREATORS } from './citation.ts';
 
-const SITE_NAME = 'World Hot Springs';
-const DEFAULT_TITLE = 'World Hot Springs — an open atlas';
+const DEFAULT_TITLE = `${SITE_NAME} — an open atlas`;
 const DEFAULT_DESCRIPTION =
   "An open, curated atlas of the world's public hot springs. Temperature, price, " +
   "clothing policy and hours — clearly labelled, including when we don't know.";
@@ -183,11 +183,8 @@ export function applyDefaultMeta(datasetMeta: DatasetMeta | null, facts: Dataset
   jsonLd('dataset', {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
-    name: 'World Hot Springs',
-    description:
-      'An open, curated, provenance-attached atlas of the world’s public and semi-public hot ' +
-      'springs. Temperature, price, clothing policy and opening hours are first-class fields; ' +
-      'unknown values are stored explicitly as null rather than omitted or invented.',
+    name: SITE_NAME,
+    description: DESCRIPTION,
     url: absoluteHref({ kind: 'map' }),
     ...(facts
       ? {
@@ -208,7 +205,8 @@ export function applyDefaultMeta(datasetMeta: DatasetMeta | null, facts: Dataset
           })),
         }
       : {}),
-    creator: { '@type': 'Organization', name: 'World Hot Springs contributors' },
+    // The publisher named in CITATION.cff and the archive, from the same line.
+    creator: CREATORS.map((c) => ({ '@type': 'Organization', name: c.name })),
     distribution: [
       {
         '@type': 'DataDownload',

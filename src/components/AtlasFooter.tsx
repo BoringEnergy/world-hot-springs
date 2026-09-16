@@ -23,8 +23,7 @@ import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
 import { formatTempValue } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { href } from '../lib/router.ts';
-
-const REPO = 'https://github.com/BoringEnergy/world-hot-springs';
+import { REPO_URL } from '../lib/citation.ts';
 
 function Swatch({ color, label, range }: { color: string; label: string; range?: string }) {
   return (
@@ -142,7 +141,7 @@ export function AtlasFooter() {
         <span aria-hidden className="text-basalt-700">
           ·
         </span>
-        <a href={REPO} target="_blank" rel="noreferrer noopener" className={link}>
+        <a href={REPO_URL} target="_blank" rel="noreferrer noopener" className={link}>
           Source
         </a>
       </nav>
