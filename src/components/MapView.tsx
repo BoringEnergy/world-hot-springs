@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import maplibregl, { type MapGeoJSONFeature } from 'maplibre-gl';
 import type { HotSpring } from '../lib/types';
 import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
@@ -107,6 +107,18 @@ export function MapView() {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const ready = useRef(false);
+  /*
+   * The same fact as `ready`, in state rather than a ref, because the descent
+   * effect has to re-run when it flips.
+   *
+   * A cold deep link to /s/whs_... lost its flight entirely: the store applies
+   * the route as soon as the dataset lands, which is usually before the map's
+   * style is up, so the selection effect hit `!ready.current`, returned, and
+   * was never asked again -- selectedId had not changed. You arrived at a card
+   * for a spring in Japan with the camera still over the Atlantic. A ref
+   * cannot fix that, because writing one does not re-run anything.
+   */
+  const [mapReady, setMapReady] = useState(false);
   // Generation counter for camera flights: any user-initiated move bumps it,
   // so a stale chained leg can recognise it lost the race and stand down.
   const flight = useRef(0);
@@ -123,10 +135,20 @@ export function MapView() {
     const m = new maplibregl.Map({
       container: container.current,
       style: STYLE_URL,
-      center: [20, 20],
-      // Framed so the globe fills the viewport rather than floating in it.
-      // minZoom stops it being shrunk to a dot in the middle of black space.
-      zoom: 2.3,
+      center: [30, 16],
+      /*
+       * Framed so the whole sphere is on screen.
+       *
+       * At 2.3 the globe overflowed the bottom of the map area on a laptop --
+       * a planet with its south pole cropped off, which reads as a bug in a
+       * way a small planet does not. The footer's 34 pixels made it worse. The
+       * longitude leans east of Greenwich on purpose: it opens on the
+       * Mediterranean-to-Kamchatka belt, which carries the densest clusters in
+       * the atlas, rather than on the Atlantic.
+       *
+       * minZoom stops the globe being shrunk to a dot in a field of black.
+       */
+      zoom: 2,
       minZoom: 1.6,
       maxZoom: 16,
       attributionControl: { compact: true },
@@ -182,6 +204,36 @@ export function MapView() {
         'sky-horizon-blend': 0.55,
         'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 12, 0],
       });
+
+      /*
+       * The sea, one shade deeper than CARTO ships it.
+       *
+       * dark-matter's water is #2C353C, which on the globe view is the
+       * brightest thing on screen -- brighter than the land, brighter than
+       * most of the springs. The result was a cold grey marble with some
+       * orange on it. Deepening the water at globe zoom costs no bytes and no
+       * requests, and it lets a 40 degree spring be the warmest thing in the
+       * frame, which is the only thing this map is actually about.
+       *
+       * Handed back to CARTO's own value by zoom 8, where the satellite layer
+       * crossfades in and the basemap stops being the ground.
+       *
+       * Guarded: this reaches into a third party's style, so if CARTO ever
+       * renames the layer the globe loses some contrast rather than breaking.
+       */
+      if (m.getLayer('water')) {
+        m.setPaintProperty('water', 'fill-color', [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          0,
+          '#141b21',
+          4,
+          '#1c242a',
+          SAT_FADE_NEAR,
+          '#2C353C',
+        ]);
+      }
 
       m.addSource(SOURCE, {
         type: 'geojson',
@@ -480,6 +532,7 @@ export function MapView() {
 
       ready.current = true;
       map.current = m;
+      setMapReady(true);
       // Dev-only introspection. The data attribute (rather than a window global)
       // is deliberate: automated checks often run in an isolated JS world where
       // page globals are invisible, but the DOM is shared.
@@ -511,6 +564,7 @@ export function MapView() {
       m.remove();
       map.current = null;
       ready.current = false;
+      setMapReady(false);
     };
   }, [select]);
 
@@ -608,7 +662,7 @@ export function MapView() {
   const prevSelected = useRef<string | null>(null);
   useEffect(() => {
     const m = map.current;
-    if (!m || !ready.current) {
+    if (!m || !mapReady) {
       prevSelected.current = selectedId;
       return;
     }
@@ -630,6 +684,12 @@ export function MapView() {
       return;
     }
     const spring = useStore.getState().springs.find((s) => s.id === selectedId);
+    if (import.meta.env.DEV) {
+      // Which branch the descent took, for a browser-driven check. The cold
+      // deep-link case is invisible otherwise: the card is on screen and the
+      // camera simply never moved, and nothing in the DOM says why.
+      document.documentElement.dataset.mapDescent = spring ? `fly:${selectedId}` : `missing:${selectedId}`;
+    }
     if (!spring) return;
     const center: [number, number] = [spring.location.lng, spring.location.lat];
     // Leave room for the detail card on wide screens. The key is omitted
@@ -654,7 +714,7 @@ export function MapView() {
       // Stage 2 — settle top-down onto the water.
       m.easeTo({ center, zoom: 12.5, pitch: 0, duration: 1400 });
     });
-  }, [selectedId]);
+  }, [selectedId, mapReady]);
 
   // --- user location ---
   useEffect(() => {

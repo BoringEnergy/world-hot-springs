@@ -30,10 +30,27 @@ test('the page has a top-level heading', () => {
   // The heading list used to start at the filter rail's "Filters" h2, inside a
   // panel that is closed by default -- so on arrival there were no headings at
   // all.
-  assert.match(HEADER, /<h1\b[^>]*>World Hot Springs<\/h1>/);
-  // Visually hidden, not display:none. `hidden` would take it out of the
-  // accessibility tree too and leave the page exactly as it was.
-  assert.match(HEADER, /<h1 className="sr-only"/);
+  assert.match(HEADER, /<h1\b[^>]*>\s*World Hot Springs\s*<\/h1>/);
+});
+
+test('the heading is a visible wordmark, not a screen-reader-only one', () => {
+  // ISSUE-003's fix was `sr-only`, which was right for an accessibility patch
+  // and wrong as a permanent answer: it left the page showing no name at all,
+  // so a sighted first-time visitor got a dark globe and a filter button and
+  // no statement of what they were looking at. The heading is now rendered.
+  //
+  // Written against the mistake rather than the markup: the guard is that the
+  // h1 is not hidden from everyone, not that any particular class is present.
+  const h1 = HEADER.slice(HEADER.indexOf('<h1'), HEADER.indexOf('</h1>'));
+  assert.ok(!/\bsr-only\b/.test(h1), 'the wordmark must be visible, not sr-only');
+  assert.ok(!/\bhidden\b/.test(h1), 'the wordmark must not be display-gated at every width');
+});
+
+test('the masthead credits the lab that publishes the atlas', () => {
+  // Provenance is the product here, and that includes the atlas's own. A
+  // dataset asking to be cited says who publishes it on the page, not only in
+  // CITATION.cff where nobody looks.
+  assert.match(HEADER, /hudsonrnd\.com/);
 });
 
 test('the spring count is announced, and the announced copy is always rendered', () => {

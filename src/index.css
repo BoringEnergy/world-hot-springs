@@ -26,6 +26,8 @@
   --color-basalt-800: #241f1d;
   --color-basalt-700: #332c29;
   --color-basalt-600: #4a413c;
+  /* One step below steam-400, for the key and the footer: present, never competing with a temperature. */
+  --color-steam-500: #877e74;
   --color-steam-400: #a89f95;
   --color-steam-300: #c8bfb3;
   --color-steam-200: #e4dcd1;

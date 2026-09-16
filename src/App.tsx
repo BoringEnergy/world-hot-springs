@@ -5,6 +5,8 @@ import { FilterRail } from './components/FilterRail';
 import { DetailPanel } from './components/DetailPanel';
 import { ResultsList } from './components/ResultsList';
 import { AboutPanel } from './components/AboutPanel';
+import { AtlasFooter } from './components/AtlasFooter';
+import { WelcomePanel } from './components/WelcomePanel';
 import { useStore } from './store/useStore';
 import { onPopState } from './lib/router.ts';
 
@@ -60,6 +62,12 @@ export default function App() {
         <MapView />
         <FilterRail open={filtersOpen} onClose={() => setFiltersOpen(false)} />
         {!filtersOpen && <ResultsList />}
+        {/*
+          The greeting shares the top-left corner with the results list and the
+          filter rail, and loses to both: opening either is a statement that
+          you already know what you are doing here.
+        */}
+        {!filtersOpen && <WelcomePanel />}
         <DetailPanel />
 
         {loading && (
@@ -80,6 +88,12 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/*
+        In flow, below the map. The key and the links to safety, terms and
+        privacy cannot be things an overlay can cover -- see AtlasFooter.
+      */}
+      <AtlasFooter />
 
       <AboutPanel />
     </div>

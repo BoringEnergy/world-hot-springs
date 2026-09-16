@@ -16,6 +16,11 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+// `file://${process.argv[1]}` is not this module's URL on Windows: argv[1] is a
+// backslashed drive path and import.meta.url is `file:///C:/...`. The guard
+// silently never fired, so `npm run build` skipped this script on Windows and
+// only ever regenerated the output on the Linux build host.
+import { pathToFileURL } from 'node:url';
 
 const DEFAULT_ORIGIN = 'https://whs.boring.energy';
 const PAGES = ['about', 'safety', 'terms', 'privacy'];
@@ -78,7 +83,7 @@ export function buildSitemap(features, origin = DEFAULT_ORIGIN) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const origin = arg('origin', DEFAULT_ORIGIN).replace(/\/+$/, '');
   const geo = JSON.parse(fs.readFileSync(GEOJSON, 'utf8'));
   const xml = buildSitemap(geo.features, origin);

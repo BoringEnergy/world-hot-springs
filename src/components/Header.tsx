@@ -1,4 +1,5 @@
 import { useStore } from '../store/useStore';
+import { href } from '../lib/router.ts';
 
 export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () => void; filtersOpen: boolean }) {
   const units = useStore((s) => s.units);
@@ -10,18 +11,79 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
   const locateMe = useStore((s) => s.locateMe);
   const locating = useStore((s) => s.locating);
   const setShowAbout = useStore((s) => s.setShowAbout);
+  const select = useStore((s) => s.select);
+  const setPage = useStore((s) => s.setPage);
+  // Home is "nothing open": no card, no standing page. `select(null)` already
+  // writes the map route and the meta, so the wordmark needs no route logic.
+  const goHome = () => {
+    setPage(null);
+    setShowAbout(false);
+    select(null);
+  };
 
   return (
     <header className="relative z-40 flex shrink-0 items-center gap-2 border-b border-basalt-800/80 bg-basalt-950/80 px-3 py-2.5 backdrop-blur-xl sm:px-4">
       {/*
-        The page had no h1. The name lives in <title> and in the About panel,
-        and the header shows controls rather than a wordmark, so there was no
-        heading of any level until the filter rail's "Filters" h2 -- which left
-        a screen reader's heading list starting at a panel that is usually
-        closed. Hidden rather than shown, because adding a visible wordmark is
-        a design change and this is not.
+        The masthead.
+
+        This was an `sr-only` h1 -- the heading existed for screen readers and
+        the page showed nothing but controls, so a first-time visitor arrived
+        at a dark globe with a filter button and a search box and no statement
+        anywhere of what they were looking at. A tool with no name reads as
+        somebody's weekend project, which is the opposite of what an atlas
+        asking to be cited needs.
+
+        The mark is the favicon: a spring seen from directly above, ember
+        around a pale core. The byline carries the lab, because the atlas is
+        published by one and saying so is part of being checkable.
       */}
-      <h1 className="sr-only">World Hot Springs</h1>
+      <a
+        href={href({ kind: 'map' })}
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          goHome();
+        }}
+        className="group flex shrink-0 items-center gap-2.5 rounded-xl pr-1 outline-none focus-visible:ring-1 focus-visible:ring-basalt-600"
+        aria-label="World Hot Springs — back to the map"
+      >
+        <svg viewBox="0 0 32 32" className="size-7 shrink-0" aria-hidden>
+          <defs>
+            <radialGradient id="whs-mark" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#f5e6c8" />
+              <stop offset="42%" stopColor="#f08a55" />
+              <stop offset="100%" stopColor="#7e3418" />
+            </radialGradient>
+          </defs>
+          <circle cx="16" cy="18" r="11" fill="url(#whs-mark)" />
+          <circle cx="16" cy="18" r="4.4" fill="#f5efe5" />
+          {/* Two wisps. Enough to read as steam at 28px; more becomes mush. */}
+          <path
+            d="M12 7.5c2.2-1.6 0-3.3 1.3-5M19.6 7c2-1.7-.2-3.2 1-4.8"
+            fill="none"
+            stroke="#c8bfb3"
+            strokeOpacity="0.65"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+        <span className="hidden min-w-0 flex-col leading-none md:flex">
+          <h1 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-steam-100 transition group-hover:text-white">
+            World Hot Springs
+          </h1>
+          <span className="mt-1 text-[10px] tracking-[0.06em] text-steam-500">an open atlas</span>
+        </span>
+      </a>
+
+      <a
+        href="https://hudsonrnd.com"
+        target="_blank"
+        rel="noreferrer noopener"
+        className="hidden shrink-0 self-stretch border-l border-basalt-800 pl-3 pr-1 text-[10px] uppercase leading-[1.15] tracking-[0.14em] text-steam-500 transition hover:text-steam-200 xl:flex xl:flex-col xl:justify-center"
+      >
+        <span className="text-steam-400">Hudson</span>
+        <span>R&amp;D</span>
+      </a>
 
       <button
         onClick={onToggleFilters}
