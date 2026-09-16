@@ -28,6 +28,18 @@ const SAT_FADE_FAR = 10;
 // see the ground, and keeping it off on the globe view saves DEM tiles.
 const TERRAIN_ZOOM = 8.5;
 
+/*
+ * Whether the map exposes itself to a driver: `window.__map` and the
+ * `data-map-*` attributes on <html>.
+ *
+ * The dev server has always had them. The browser harness needs them too, and
+ * it runs against a production build, so they also switch on in the `e2e`
+ * build mode (`npm run build:e2e`). Keyed on the MODE, which only a command
+ * line sets, and not on an environment variable, so nothing leaking from a
+ * shell or a Vercel project can ship the hooks. `scripts/check-bundle.mjs`
+ * proves the deployed bundle carries none of them.
+ */
+const INSTRUMENT = import.meta.env.DEV || import.meta.env.MODE === 'e2e';
 
 /**
  * Colour ramp driven by the same bands the legend and filters use, expressed as
@@ -154,7 +166,7 @@ export function MapView() {
       attributionControl: { compact: true },
     });
 
-    if (import.meta.env.DEV) {
+    if (INSTRUMENT) {
       document.documentElement.dataset.mapPhase = 'constructed';
       m.on('styledata', () => (document.documentElement.dataset.mapPhase = 'styledata'));
       m.on('error', (e) => {
@@ -533,10 +545,11 @@ export function MapView() {
       ready.current = true;
       map.current = m;
       setMapReady(true);
-      // Dev-only introspection. The data attribute (rather than a window global)
-      // is deliberate: automated checks often run in an isolated JS world where
-      // page globals are invisible, but the DOM is shared.
-      if (import.meta.env.DEV) {
+      // Introspection for the dev server and the e2e build. The data attribute
+      // (rather than a window global) is deliberate: automated checks often run
+      // in an isolated JS world where page globals are invisible, but the DOM
+      // is shared.
+      if (INSTRUMENT) {
         (window as unknown as { __map?: maplibregl.Map }).__map = m;
         const report = () => {
           document.documentElement.dataset.mapReady = String(m.loaded());
@@ -653,9 +666,6 @@ export function MapView() {
     const data = toFeatureCollection(visible);
     (m.getSource(SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData(data);
     (m.getSource(HEAT_SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData(data);
-    if (import.meta.env.DEV) {
-      document.documentElement.dataset.mapSourceFeatures = String(data.features.length);
-    }
   }, [visible]);
 
   // --- selection: the descent ---
@@ -684,7 +694,7 @@ export function MapView() {
       return;
     }
     const spring = useStore.getState().springs.find((s) => s.id === selectedId);
-    if (import.meta.env.DEV) {
+    if (INSTRUMENT) {
       // Which branch the descent took, for a browser-driven check. The cold
       // deep-link case is invisible otherwise: the card is on screen and the
       // camera simply never moved, and nothing in the DOM says why.

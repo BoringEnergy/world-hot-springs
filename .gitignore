@@ -30,3 +30,15 @@ data/reference/.wqp-cache/
 # would mean a 7,490-line diff on every rebuild saying nothing the dataset does
 # not already say.
 public/sitemap.xml
+
+# The browser harness (`npm run test:e2e`). The e2e build has its own output
+# directory so the instrumented bundle can never be the one Vercel deploys;
+# the rest is Playwright's reports, traces and browser cache.
+dist-e2e/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Local session output. Never part of the project.
+Claude outputs/
