@@ -1,0 +1,23 @@
+# One line ending in the repository, whatever the editor on this machine does.
+#
+# Why this file exists: an editor rewrote 273 files with CRLF in a single pass,
+# which git reported as every line of every file having changed. A diff that
+# large is a diff nobody reads, and the seven files with real changes in them
+# were invisible inside it. Normalising on `git add` makes that class of churn
+# impossible rather than merely discouraged.
+#
+# `eol=lf` on checkout too: the fetchers mirror upstream CSV and TSV that
+# arrive with CRLF, the parsers strip `\r` deliberately, and the committed
+# mirror is LF. Leaving checkout platform-dependent would make those mirrors
+# diff against themselves on Windows for the rest of the project's life.
+* text=auto eol=lf
+
+# Binary by extension, never touched.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
