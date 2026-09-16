@@ -1,11 +1,13 @@
 /**
  * What the page tells a reader who cannot see it.
  *
- * Source guards, in the style of mapview.test.mjs and for the same reason:
- * `npm test` runs only scripts/ ** /*.test.mjs and there is no React harness
- * here, so these cannot prove the app renders. They can stop three specific
- * defects coming back, and each one is written against the mistake rather than
- * against the markup, so reformatting the JSX does not fail them.
+ * Source guards, in the style of mapview.test.mjs: `npm test` runs only
+ * scripts/ ** /*.test.mjs and never opens a browser, so these cannot prove the
+ * app renders. That is the browser harness's job (e2e/, `npm run test:e2e`,
+ * since 2026-09-16), which checks the rendered page at real widths. These stay
+ * as the fast first line: they stop three specific defects coming back, and
+ * each one is written against the mistake rather than against the markup, so
+ * reformatting the JSX does not fail them.
  *
  * Regression: ISSUE-003 -- no h1, no landmark, and a spring count that changed
  * silently.

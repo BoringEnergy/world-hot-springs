@@ -91,6 +91,46 @@ RELEASING.md. `CONCEPT_DOI` stays `null` until the DOI is wired in on purpose.
   Machine scope. The production `NODE_ENV` a cowork session saw came from its
   host process, not from Windows.
 
+## 2026-09-16 -- browser harness
+
+**Layer C is reversed.** On 2026-09-11 a React render harness was declined
+(see "Layer B" below). Hudson reversed that on 2026-09-16, and the harness
+now exists as a Playwright suite rather than a component renderer: `e2e/`,
+headless Chromium, the production build, no network. Start with
+[e2e/README.md](../../e2e/README.md). It explains how to run the harness, what
+the offline fixture answers, and the measurements every threshold was taken
+from.
+
+- **Three workflows now.** `gate-1` (`validate`, advisory), `gate-2`
+  (`gate-2 claims`, required) and `ui` (job `browser`, advisory). `ui` is the
+  first workflow allowed to run `npm ci`, always with `--ignore-scripts`. It
+  is also the first to run `npm test` at all. The blanket "no workflow
+  installs anything" test in `scripts/workflows.test.mjs` was replaced by the
+  conditions that make one install safe. The reasoning is in
+  [specs/2026-09-16-browser-harness-ci.md](specs/2026-09-16-browser-harness-ci.md);
+  read it before touching `ui.yml`.
+- **The harness drives `vite build --mode e2e`**, served from `dist-e2e/`.
+  MapView's hooks (`window.__map`, `data-map-*`) switch on under
+  `import.meta.env.DEV || MODE === 'e2e'`: the build mode, never an
+  environment variable, so nothing leaking from a shell or Vercel can ship
+  them. `node scripts/check-bundle.mjs dist` proves the deployed bundle has
+  none, and `... dist-e2e --expect-present` proves the harness had all of
+  them. `data-map-source-features` is gone; specs read the source through
+  `__map` instead.
+- **`NODE_ENV` is set only in `playwright.config.ts`'s `webServer.env`.** Set
+  at CI job level, it would make `npm ci` skip devDependencies.
+- **Tailwind scans `src/` only** (`@import 'tailwindcss' source('../src')`).
+  Ten unused utilities left the stylesheet; the list is in e2e/README.md.
+- **The harness is advisory until its flake rate is measured** over real
+  pull requests. `retries: 0` on purpose: a retry hides that number.
+- **What B0 measured and nobody has decided yet.** At 375x812 the arrival
+  globe is 78 px wider than the canvas on each side. The footer's Source link
+  is off-screen at 320 px and cut at the edge at 800 px, although the footer
+  scrolls and Safety is always visible. There is no temperature key below
+  640 px, which is a product question for Hudson, not a defect.
+- **A Playwright trap:** `offline` is a built-in option name, so a fixture
+  called that fails to register. The network fixture is `net`.
+
 ## Read this before touching anything
 
 Three rules the hard way. Each cost a real defect.
@@ -126,8 +166,10 @@ min/month Actions pool while public is unlimited).
 
 **Live at https://whs.boring.energy.** A data defect is a live defect.
 
-Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` (advisory)
-and `gate-2` (the one that counts).
+Platform: Windows 11, Node 24, Git Bash available. CI is three workflows:
+`gate-1` (advisory), `gate-2` (the one that counts) and, since 2026-09-16,
+`ui` (the Node suite and the browser harness, advisory). See "2026-09-16 --
+browser harness" above.
 
 ## Current state, 2026-09-11
 
@@ -950,8 +992,9 @@ dataset.
 
 **No new runner.** Node imports the `.ts` directly by stripping types, so
 `npm test` is unchanged and nothing needs `npm ci` on Gate 2. Layer C (a
-render harness for `Field` and `DetailPanel`, no MapLibre) is deliberately not
-built; it would now be a much smaller job.
+render harness for `Field` and `DetailPanel`, no MapLibre) was deliberately not
+built. **Reversed 2026-09-16:** the browser harness in `e2e/` replaces it; see
+"2026-09-16 -- browser harness" above.
 
 ### All four 2026-09-10 deferments are closed
 
@@ -959,7 +1002,8 @@ built; it would now be a much smaller job.
     AIST admission       stays closed: the 190 m cell is a publisher privacy
                          choice, so a centroid pin is a location AIST refused
                          to give
-    frontend tests       Layer B done, Layer C declined
+    frontend tests       Layer B done, Layer C declined (reversed
+                         2026-09-16: e2e/)
     the 22 prose claims  no model in CI. Gate 2 having no secrets is
                          load-bearing. A focused agentic pass on "needs a
                          reader" is Hudson's to schedule
@@ -1169,8 +1213,9 @@ not claimable:
 
 - `location.accuracyMeters`, per-source licences, `facilities[]`, photo
   rendering -- from the deep-research review, still unbuilt.
-- Frontend tests. There is no React harness; UI invariants are pinned by
-  source-scan guards in `scripts/*.test.mjs`, which is a real gap.
+- ~~Frontend tests. There is no React harness; UI invariants are pinned by
+  source-scan guards in `scripts/*.test.mjs`, which is a real gap.~~ Closed
+  2026-09-16 by the browser harness, `e2e/`.
 - `enforce_admins: false` means the maintainer can bypass every gate with
   `--admin`. Right for a solo project, worth knowing.
 - The 22 prose claims that "need a reader" stay unverified until the model

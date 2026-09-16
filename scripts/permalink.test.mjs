@@ -13,7 +13,9 @@
  *      crawler that starts at the root otherwise discovers exactly one page.
  *
  * Source guards, in the style of mapview.test.mjs: `npm test` runs only
- * scripts/ ** /*.test.mjs and there is no browser here.
+ * scripts/ ** /*.test.mjs and opens no browser. Whether a cold deep link
+ * actually lands on its record is a question for the browser harness (e2e/,
+ * `npm run test:e2e`, since 2026-09-16); these check the pieces cheaply.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
