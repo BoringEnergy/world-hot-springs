@@ -51,16 +51,16 @@ That honesty is the whole product, because the real numbers are humbling:
 | Hours | 6% |
 | Clothing policy | 1% |
 
-Five springs in six have no recorded temperature. Most that carry a
+Four springs in five have no recorded temperature. Most that carry a
 `temperature` tag say `hot`, which is not a temperature — so we store that
 separately and the card says *described as hot, no measurement recorded*. Any
 hot spring site showing you a confident number for every entry is making most
 of them up.
 
 That figure is lopsided, and the lopsidedness matters more than the average.
-A 1981 federal compilation covers the United States, where 1,097 of 2,849
-springs carry a temperature. Everywhere else it is 171 of 4,641 — under 4%,
-about one spring in twenty-seven. The American records say so on their own
+A 1981 federal compilation covers the United States, where 1,137 of 2,849
+springs carry a temperature. Everywhere else it is 258 of 4,641 — under 6%,
+about one spring in eighteen. The American records say so on their own
 cards: unverified, dated 1981, and warned as historical.
 
 **We deliberately leave springs out.** See [PRIVACY.md](PRIVACY.md). Truly

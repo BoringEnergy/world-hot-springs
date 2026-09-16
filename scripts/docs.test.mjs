@@ -47,3 +47,111 @@ test('CONTRIBUTING does not tell contributors to use an OSM id', () => {
   const CONTRIBUTING = fs.readFileSync('CONTRIBUTING.md', 'utf8');
   assert.ok(!CONTRIBUTING.includes('osm-node-'), 'use a whs_ id in examples');
 });
+
+/**
+ * The sentences around the table, which were typed by hand and went stale.
+ *
+ * The README said "five springs in six" and "1,097 of 2,849" long after the
+ * batches that moved both, because nothing recounted them. These tests
+ * rebuild each sentence from the data and compare it whole, with the line
+ * breaks folded away, so the message on failure is the sentence to paste.
+ */
+const PROSE = README.replace(/\s+/g, ' ');
+
+const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+function words(n) {
+  assert.ok(Number.isInteger(n) && n > 0 && n < 100, `no words for ${n}`);
+  return n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? `-${ONES[n % 10]}` : '');
+}
+const capital = (s) => s[0].toUpperCase() + s.slice(1);
+const count = (n) => n.toLocaleString('en-US');
+
+test('the README\'s United States sentence is a recount of the data', () => {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const measured = (s) => s.temperature.celsius !== null;
+  const us = all.filter((s) => s.location.country === 'US');
+  const rest = all.filter((s) => s.location.country !== 'US');
+  const usT = us.filter(measured).length;
+  const restT = rest.filter(measured).length;
+  // "under N%" is the next whole percent above the share, so it stays true
+  // when the share is itself a whole number.
+  const under = Math.floor((restT / rest.length) * 100) + 1;
+  const want =
+    `where ${count(usT)} of ${count(us.length)} springs carry a temperature. ` +
+    `Everywhere else it is ${count(restT)} of ${count(rest.length)} — under ${under}%, ` +
+    `about one spring in ${words(Math.round(rest.length / restT))}.`;
+  assert.ok(PROSE.includes(want), `README should contain: ${want}`);
+});
+
+test('the README\'s unknown share is derived from the summary', () => {
+  // Said as "N springs in N+1", the plainest fraction nearest the true share:
+  // 81% is four in five, not five in six.
+  const unknown = 1 - SUMMARY.coverage.temperature / SUMMARY.total;
+  let best = 2;
+  for (let d = 2; d <= 10; d++) {
+    if (Math.abs((d - 1) / d - unknown) < Math.abs((best - 1) / best - unknown)) best = d;
+  }
+  const want = `${capital(words(best - 1))} springs in ${words(best)} have no recorded temperature.`;
+  assert.ok(PROSE.includes(want), `README should contain: ${want}  (${(unknown * 100).toFixed(1)}% unknown)`);
+
+  const pct = Math.round((SUMMARY.coverage.temperature / SUMMARY.total) * 100);
+  const v1 = `${pct}% of these springs have a recorded temperature because ${100 - pct}% of them have never had one published`;
+  assert.ok(PROSE.includes(v1), `README should contain: ${v1}`);
+});
+
+test('LICENSE defers to DATA.md for the upstreams, and states ODbL', () => {
+  // The note credited OpenStreetMap alone, after four more upstreams and one
+  // licence that makes attribution a condition. It now names no upstream at
+  // all, so it cannot fall behind the list again.
+  const LICENSE = fs.readFileSync('LICENSE', 'utf8');
+  const note = LICENSE.slice(LICENSE.indexOf('NOTE ON THE DATASET'));
+  assert.ok(note.length < LICENSE.length, 'LICENSE has lost its dataset note');
+  assert.match(note, /Open Database License \(ODbL\) v1\.0/);
+  assert.ok(note.includes('https://opendatacommons.org/licenses/odbl/1-0/'));
+  assert.match(note, /DATA\.md/);
+  assert.ok(!/derived from OpenStreetMap/.test(note), 'that sentence was true once and is not now');
+  assert.ok(!note.includes('OpenStreetMap'), 'name upstreams in DATA.md, not here');
+});
+
+test('docs/DATA.md points at the upstream list and its diagram names every enrichment stage', () => {
+  const DOC = fs.readFileSync('docs/DATA.md', 'utf8');
+  const start = DOC.indexOf('## Upstreams');
+  assert.ok(start !== -1, 'docs/DATA.md has lost its upstream section');
+  const section = DOC.slice(start, DOC.indexOf('\n## ', start + 1));
+  assert.ok(section.includes('](../DATA.md)'), 'the section must link the real list');
+  assert.ok(!/^\|/m.test(section), 'a second upstream table is a second copy of the list');
+
+  // Every matcher in scripts/lib is a pipeline stage, and the diagram is the
+  // one place a reader sees the order they run in.
+  const diagram = DOC.slice(DOC.indexOf('## Pipeline'), start);
+  const matchers = fs.readdirSync('scripts/lib').filter((f) => f.endsWith('-match.mjs'));
+  assert.ok(matchers.length >= 4, `expected the four matchers, found ${matchers}`);
+  for (const f of matchers) {
+    assert.ok(diagram.includes(`(scripts/lib/${f})`), `the pipeline diagram does not name scripts/lib/${f}`);
+  }
+});
+
+test('PRIVACY.md says what removal cannot reach', () => {
+  // An archived DOI snapshot is immutable. Promising permanent removal while
+  // archiving versions that removal cannot touch would be a promise this
+  // project knows it cannot keep.
+  const PRIVACY = fs.readFileSync('PRIVACY.md', 'utf8');
+  const start = PRIVACY.indexOf('## Archived versions');
+  assert.ok(start !== -1, 'PRIVACY.md has no "Archived versions" section');
+  const section = PRIVACY.slice(start, PRIVACY.indexOf('\n## ', start + 1));
+  assert.match(section, /Zenodo/);
+  assert.match(section, /immutable/);
+  assert.match(section, /processed before any release/);
+  assert.match(section, /restrict access/);
+  // And the promise it qualifies is still made, unweakened.
+  assert.ok(PRIVACY.includes('Removal is the default answer, it is permanent'));
+});
+
+test('the release archive leaves out the agent tooling', () => {
+  // `git archive` is what GitHub serves as a release's source tarball, and so
+  // what Zenodo archives. `.claude/launch.json` was in it.
+  const ATTR = fs.readFileSync('.gitattributes', 'utf8');
+  assert.match(ATTR, /^\.claude\/ export-ignore$/m);
+});
