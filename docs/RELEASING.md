@@ -1,0 +1,131 @@
+# Releasing a version of the dataset
+
+A release is a git tag, a GitHub release, and -- because Zenodo watches this
+repository -- a permanent archive with a DOI. The first two can be deleted.
+**The third cannot.** Every step below exists because something in the
+archive is for good: its licence, its creator, its files, and any spring that
+was in them.
+
+Only the maintainer makes a release, and every outward step is confirmed in
+chat before it is taken. An agent prepares the pull requests; it never runs
+`gh release create`, never creates a tag, and never pushes one.
+
+What gets archived is generated, not typed: `.zenodo.json` and `CITATION.cff`
+come from `src/lib/citation.ts`, `scripts/lib/sources.mjs`,
+`data/summary.json` and the top dated entry of [CHANGELOG.md](../CHANGELOG.md),
+by `npm run release:meta`. `scripts/citation.test.mjs` rejects a hand edit to
+either.
+
+## 1. One-time setup (maintainer)
+
+- GitHub, Settings, Emails: turn on **Block command line pushes that expose
+  my email**. History was deliberately not rewritten a second time; this is
+  what stops a personal address entering it again.
+- Grant the Zenodo OAuth app access to the **BoringEnergy** organisation.
+- On zenodo.org, GitHub page: **Sync now**, then switch this repository
+  **on** -- before the release is published. Zenodo only archives releases
+  published while the switch is on.
+
+## 2. Dry run on the sandbox (recommended before a first or unusual release)
+
+1. Connect `sandbox.zenodo.org` to the fork `HudsonR-D/world-hot-springs`, and
+   push the release commit there.
+2. Publish a throwaway release on the fork.
+3. Read the sandbox record back and check: licence **ODbL**, resource type
+   **Dataset**, creator **Hudson R&D**, every related identifier from
+   `.zenodo.json`, the notes, the version and the publication date.
+4. **Creator type.** `.zenodo.json` has no way to say that a creator is an
+   organisation, and Zenodo registers "Hudson R&D" as a *person*. Check
+   whether the record's edit screen lets the creator be switched to
+   Organisation. If it does, that switch is a step in section 5 for **every**
+   version, not a one-off.
+5. Delete the fork's release and its tag afterwards.
+
+## 3. Preconditions -- all of them, on the day
+
+- **No pending removal request.** Read the open issues and the private
+  contact channel. A spring that enters an archive cannot be taken back out
+  of it; the most we can do afterwards is ask Zenodo to restrict the files
+  (see [PRIVACY.md](../PRIVACY.md)). A request that is still open means no
+  release today.
+- **The target commit is green**: the required checks (`validate` and
+  `gate-2 claims`) and every other workflow that ran on it.
+- **The CHANGELOG date is today's UTC date.** If the release is happening on
+  a different UTC date from the one in the top CHANGELOG entry, stop: update
+  that date, run `npm run release:meta`, and merge that change first. The
+  date is written into the archive explicitly, so a wrong one is permanent.
+- **The generated files are current** on the target commit:
+
+  ```bash
+  npm run data:build && npm test
+  npm run release:meta && git diff --exit-code CITATION.cff .zenodo.json
+  ```
+
+- **The archive holds what it should.** The tarball GitHub serves, and Zenodo
+  stores, is `git archive` of the tag:
+
+  ```bash
+  git archive --format=tar <sha> | tar -t | grep -E '^(\.claude/|data/private/)'   # prints nothing
+  ```
+
+## 4. Create the release (only after an explicit yes)
+
+Write the notes from the CHANGELOG entry, not from commit titles:
+
+```bash
+node --input-type=module -e "import fs from 'node:fs'; import { latestRelease } from './scripts/build-citation.mjs'; process.stdout.write(latestRelease(fs.readFileSync('CHANGELOG.md', 'utf8')).body + '\n')" > release-notes.md
+gh release create vX.Y.Z --target <sha> --title "World Hot Springs X.Y.Z" --notes-file release-notes.md
+```
+
+- **Never `--generate-notes`.** The archive's description is the dataset's
+  changelog; a list of pull request titles is the site's.
+- **Not a prerelease, not a draft.** A citable version is a published,
+  stable release; anything else is the wrong signal to an archive that
+  cannot be amended.
+- **Never `git push --tags`.** `gh release create` makes the one tag the
+  release needs. Local tags (a backup from the 2026-08-28 rewrite among them)
+  are not for publishing.
+
+## 5. Verify
+
+- Read the new Zenodo record: licence, resource type, creator, related
+  identifiers, notes, version, publication date. Fix what the record's edit
+  screen allows (metadata can be edited after publication; files cannot).
+  Switch the creator to Organisation if section 2 found that possible.
+- The DOI resolves at `https://doi.org/<doi>`.
+- `gh release view vX.Y.Z` and `git ls-remote --tags origin` show exactly the
+  tags that should exist.
+- Optionally, set the repository homepage to `https://whs.boring.energy`
+  (it still says `world-hot-springs.vercel.app`).
+
+## 6. After the first DOI: wire it in
+
+A separate pull request, once the record has been read back:
+
+- Set `CONCEPT_DOI` in `src/lib/citation.ts` and run `npm run release:meta`,
+  so `CITATION.cff` carries the DOI.
+- README: a "How to cite" section and a concept-DOI badge.
+- `src/lib/seo.ts`: the Dataset JSON-LD gains `identifier` and `citation`.
+- The About panel: a "Cite this dataset" link to doi.org (a plain link, no
+  badge image, which would add a third-party host).
+- The Terms page: the archive caveat beside the removal paragraph, and a new
+  `POLICY_UPDATED`.
+
+## If a removal request concerns an archived version
+
+Remove the spring as usual -- live site, repository, every later version.
+Then ask Zenodo to restrict access to the affected files of each archived
+version that contains it, and record the request and Zenodo's answer. Zenodo
+may decline; say so to the person who asked, plainly.
+
+## What has happened so far
+
+**v1.0.0 was released on 2026-09-16**, from `cda3c35`, before this runbook
+and before `.zenodo.json` existed. Zenodo therefore built that record from
+the CITATION.cff of the day: version DOI `10.5281/zenodo.22800997`, concept
+DOI `10.5281/zenodo.22800996`, licence ODbL (correct), but resource type
+**Software** and creator **World Hot Springs contributors** -- neither of
+which is what was decided. Both are metadata, so both can be corrected in
+the record's edit screen, using this repository's `.zenodo.json` as the
+reference; the files and the DOI stay as they are. That correction is the
+maintainer's to make.

@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-09-11.
+Last updated 2026-09-16.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -32,6 +32,64 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
+
+## 2026-09-16 -- release metadata
+
+**What landed.** The dataset can take a DOI with the right terms on it.
+`src/lib/citation.ts` is the one definition of the title, origin, repository,
+publisher, keywords, a count-free description and the creator.
+`scripts/build-citation.mjs` generates `.zenodo.json` and `CITATION.cff` from
+it, from `scripts/lib/sources.mjs`, from `data/summary.json` and from the top
+dated entry of the new `CHANGELOG.md`. It runs at the end of `data:build` and
+as `npm run release:meta`, and `scripts/citation.test.mjs` rejects a hand
+edit. `package.json` is 1.0.0 and must agree with the CHANGELOG. The footer,
+the masthead link and the Dataset JSON-LD read from `citation.ts`.
+
+The README's US/rest-of-world and "N in M" sentences, the LICENSE data note,
+the `docs/DATA.md` upstream table and PRIVACY.md's silence about archives were
+all stale or missing. Each is corrected, and each now has a test that
+recounts or re-reads it. `.claude/` is `export-ignore`d, so it is not in a
+release tarball. 691 tests (674 before).
+
+**How to release: [docs/RELEASING.md](../RELEASING.md).** Pending-removal
+check first, sandbox dry run, the creator-type check, never
+`--generate-notes`, never `git push --tags`, and the DOI wiring afterwards.
+
+**Decisions made by Hudson on 2026-09-16, not to be re-litigated:**
+
+    creator          "Hudson R&D", an entity. No personal name in any
+                     archived record
+    personal email   12 authored commits and 98 committer entries on main
+                     carry it. History is NOT rewritten again; GitHub's
+                     "Block command line pushes that expose my email" is
+                     what stops it recurring
+    archives         PRIVACY.md discloses that an archived version is
+                     immutable, removal requests are cleared before any
+                     release, and a request touching an archived version
+                     means asking Zenodo to restrict the files
+
+**v1.0.0 was released before this landed.** The tag and GitHub release
+`v1.0.0` (target `cda3c35`) were published at 2026-09-16T18:37Z, while no
+`.zenodo.json` existed. Zenodo minted `10.5281/zenodo.22800997` (concept
+`10.5281/zenodo.22800996`) from the old CITATION.cff: licence ODbL, which is
+right, but type **Software** and creator **World Hot Springs contributors**,
+which are not. Both are editable metadata on the record; see the end of
+RELEASING.md. `CONCEPT_DOI` stays `null` until the DOI is wired in on purpose.
+
+**Corrections to earlier notes, each checked on 2026-09-16:**
+
+- **Branch protection requires no reviews.** `required_pull_request_reviews`
+  is `null`; the required checks are `validate` and `gate-2 claims`, strict,
+  with `enforce_admins: false`. A green PR merges normally, no `--admin`.
+  The 2026-08-28 table below said "1 review" and is corrected.
+- **Tags.** When the plan was written the remote had none, and
+  `backup-pre-email-rewrite` is local-only and must never be pushed. The
+  remote now holds exactly `v1.0.0`. Never run `git push --tags`.
+- **`git gc` does not clear `.git/lock-trash/`.** gc ignores files it does not
+  know in `.git/`. Delete that folder by hand.
+- **`NODE_ENV` is unset** in this machine's shells, at process, User and
+  Machine scope. The production `NODE_ENV` a cowork session saw came from its
+  host process, not from Windows.
 
 ## Read this before touching anything
 
@@ -470,7 +528,7 @@ the settings UI, because two of them silently did not apply the first time.
 |---|---|---|
 | Fork PR workflows → require approval for **all** external contributors | `approval_policy: all_external_contributors` | 2026-08-28 |
 | "Allow GitHub Actions reviews to count towards required approval" **off** | `can_approve_pull_request_reviews: false` | 2026-08-28 |
-| Branch protection on `main` | `validate` check required, strict, 1 review, stale reviews dismissed, no force-push, no deletion | 2026-08-28 |
+| Branch protection on `main` | `validate` and `gate-2 claims` required, strict; **no review required** (`reviews: null`, re-read 2026-09-16 -- this row said "1 review" until then); no force-push, no deletion | 2026-09-16 |
 
 Re-verify all three at any time:
 
