@@ -1,4 +1,13 @@
-@import 'tailwindcss';
+/*
+ * Tailwind scans src/ and nothing else.
+ *
+ * Left to itself it scans the whole project, minus .gitignore, so every
+ * class-shaped word in e2e/ specs, docs/ and scripts/ became a utility in
+ * the shipped stylesheet. A test that mentions `md:flex` should not change
+ * what a visitor downloads. index.html carries no class names, so it needs no
+ * @source of its own.
+ */
+@import 'tailwindcss' source('../src');
 
 /*
  * MapLibre's stylesheet MUST be imported into a cascade layer.

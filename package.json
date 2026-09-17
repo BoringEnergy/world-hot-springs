@@ -22,7 +22,12 @@
     "data:wqp": "node scripts/fetch-wqp.mjs",
     "data:nbmg": "node scripts/fetch-nbmg.mjs",
     "data:sitemap": "node scripts/build-sitemap.mjs",
-    "release:meta": "node scripts/build-citation.mjs"
+    "release:meta": "node scripts/build-citation.mjs",
+    "build:e2e": "vite build --mode e2e --outDir dist-e2e --emptyOutDir",
+    "preview:e2e": "vite preview --outDir dist-e2e --host 127.0.0.1 --port 4173 --strictPort",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps --only-shell chromium",
+    "typecheck:e2e": "tsc -p tsconfig.e2e.json"
   },
   "dependencies": {
     "maplibre-gl": "^5.6.0",
@@ -31,6 +36,7 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/node": "^26.3.0",
     "@types/react": "^19.1.8",

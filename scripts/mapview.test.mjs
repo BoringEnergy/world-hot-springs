@@ -1,10 +1,12 @@
 /**
  * Source guards for MapView.
  *
- * There is no React test harness in this repository -- `npm test` runs only
- * scripts/**\/*.test.mjs -- so these are source-text guards in the same style
- * as build.test.mjs and workflows.test.mjs. They cannot prove the component
- * renders; they can stop one specific defect coming back.
+ * `npm test` runs only scripts/**\/*.test.mjs and opens no browser, so these
+ * are source-text guards in the same style as build.test.mjs and
+ * workflows.test.mjs. They cannot prove the component renders; they can stop
+ * one specific defect coming back in a few milliseconds. Driving the real map
+ * -- selection at a narrow width, the deep-link descent -- is the browser
+ * harness's job since 2026-09-16 (e2e/, `npm run test:e2e`).
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';

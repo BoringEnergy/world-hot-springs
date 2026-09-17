@@ -91,6 +91,80 @@ RELEASING.md. `CONCEPT_DOI` stays `null` until the DOI is wired in on purpose.
   Machine scope. The production `NODE_ENV` a cowork session saw came from its
   host process, not from Windows.
 
+## 2026-09-16 -- browser harness
+
+**Layer C is reversed.** On 2026-09-11 a React render harness was declined
+(see "Layer B" below). Hudson reversed that on 2026-09-16, and the harness
+now exists as a Playwright suite rather than a component renderer: `e2e/`,
+headless Chromium, the production build, no network. Start with
+[e2e/README.md](../../e2e/README.md). It explains how to run the harness, what
+the offline fixture answers, and the measurements every threshold was taken
+from.
+
+- **Three workflows now.** `gate-1` (`validate`, advisory), `gate-2`
+  (`gate-2 claims`, required) and `ui` (job `browser`, advisory). `ui` is the
+  first workflow allowed to run `npm ci`, always with `--ignore-scripts`. It
+  is also the first to run `npm test` at all. The blanket "no workflow
+  installs anything" test in `scripts/workflows.test.mjs` was replaced by the
+  conditions that make one install safe. The reasoning is in
+  [specs/2026-09-16-browser-harness-ci.md](specs/2026-09-16-browser-harness-ci.md);
+  read it before touching `ui.yml`.
+- **The harness drives `vite build --mode e2e`**, served from `dist-e2e/`.
+  MapView's hooks (`window.__map`, `data-map-*`) switch on under
+  `import.meta.env.DEV || MODE === 'e2e'`: the build mode, never an
+  environment variable, so nothing leaking from a shell or Vercel can ship
+  them. `node scripts/check-bundle.mjs dist` proves the deployed bundle has
+  none, and `... dist-e2e --expect-present` proves the harness had all of
+  them. `data-map-source-features` is gone; specs read the source through
+  `__map` instead.
+- **`NODE_ENV` is set only in `playwright.config.ts`'s `webServer.env`.** Set
+  at CI job level, it would make `npm ci` skip devDependencies.
+- **Tailwind scans `src/` only** (`@import 'tailwindcss' source('../src')`).
+  Ten unused utilities left the stylesheet; the list is in e2e/README.md.
+- **The harness is advisory until its flake rate is measured** over real
+  pull requests. `retries: 0` on purpose: a retry hides that number.
+- **Counts, 2026-09-16:** `npm test` 705 after rebasing on the release
+  metadata (674 before either; without `data/raw`, which is how CI runs it,
+  one of them skips with its reason stated). `npm run
+  test:e2e` 63 tests in 10 specs, about 3.3 minutes including the e2e build.
+- **Flake, measured locally:** three consecutive full runs at `workers: 2`,
+  63 of 63 each time. At Playwright's local default of 7 workers (14 cores)
+  two runs failed 12 and 13 tests, all timeouts from seven CPU-rendered maps
+  competing, so the config pins 2 workers, which is what a GitHub runner gets
+  anyway. No CI run exists yet to measure against.
+- **Known defects are pinned, not skipped.** Each is an ordinary test named
+  `known defect Dn: ...` that asserts what the app does today, so the fix
+  fails it and has to flip it to the intended assertion. Never `test.fail()`:
+  that also passes when a precondition breaks. Every pin was watched failing
+  under its fix (e2e/README.md). All are open, for track C:
+
+  | Id | Defect | Pinned in |
+  |---|---|---|
+  | D1 | no h1 below 768 px: it is inside the `hidden md:flex` wordmark | a11y |
+  | D2 | the Filters button has no accessible name below 640 px | a11y |
+  | D3 | the welcome panel shows over a cold `/s/...` or `/terms` until the dataset arrives | welcome |
+  | D3b | closing a deep-linked card reveals the welcome panel | welcome |
+  | D4 | the welcome panel covers the search results | welcome |
+  | D5 | the privacy page does not name `whs.welcomed`, and says the unit key is the only thing written | disclosure |
+  | D8 | Escape pressed while the welcome panel is hidden marks it seen | welcome |
+  | D9 | Tab reaches the closed filter rail (`aria-hidden` without `inert`) | a11y |
+  | D10 | the "4 in 5" coverage phrase is a literal in AtlasFooter and WelcomePanel | not pinned: a source fact, not a behaviour. The fix derives it from the summary |
+  | D11 | no temperature key below 640 px. **Hudson decided 2026-09-16: phones get a compact key** | footer |
+  | D12 | the footer's links overflow at 320 px: Source is past the edge in a footer that scrolls sideways | footer |
+  | D12b | the same at 800 px, where Source is cut by the edge. Only its right edge is pinned: where it starts depends on the system font, and no web font loads | footer |
+  | D13 | the arrival globe is wider than a phone: 531.6 px in a 375 px canvas | globe |
+
+  D6 and D7 were never assigned. The page itself never scrolls sideways at
+  320 or 375 (narrow.spec.ts asserts that), and the globe fits at 1440x900
+  and 1280x720 (globe.spec.ts).
+- **A Playwright trap:** `offline` is a built-in option name, so a fixture
+  called that fails to register. The network fixture is `net`.
+- **Module-private facts are read from source text** (`e2e/support/source.ts`):
+  the storage keys, the default title, the page titles and tab labels. If one
+  of those definitions changes shape, the helper throws and names the file.
+  Exporting them is the better fix, and the natural moment is D5's
+  `storage.ts`.
+
 ## Read this before touching anything
 
 Three rules the hard way. Each cost a real defect.
@@ -126,12 +200,15 @@ min/month Actions pool while public is unlimited).
 
 **Live at https://whs.boring.energy.** A data defect is a live defect.
 
-Platform: Windows 11, Node 24, Git Bash available. CI is `gate-1` (advisory)
-and `gate-2` (the one that counts).
+Platform: Windows 11, Node 24, Git Bash available. CI is three workflows:
+`gate-1` (advisory), `gate-2` (the one that counts) and, since 2026-09-16,
+`ui` (the Node suite and the browser harness, advisory). See "2026-09-16 --
+browser harness" above.
 
 ## Current state, 2026-09-11
 
-**646 tests. `main` is green and everything below is merged.**
+**646 tests then (705 Node tests and 63 browser tests on 2026-09-16; see the
+browser harness section). `main` is green and everything below is merged.**
 
 **Coverage: temperature 1,395 of 7,490 (19%), chemistry 174.** It was 95 of 6,471 (1%) when
 the seeding work started on 2026-09-05. Five upstreams now: OSM, NCEI, AIST, the
@@ -187,7 +264,8 @@ edit and checks the value literally appears. Proven on a real fork PR.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **646 tests**, `npm test`. All passing. Worth remembering that 242 of them
+- **705 tests**, `npm test`, all passing on 2026-09-16 (646 on 2026-09-11),
+  plus **63 browser tests**, `npm run test:e2e`. Worth remembering that 242 of them
   passed while the enrichment pipeline could not do its job at all, and 320
   passed over a UI where clicking a search result blanked the page. That
   second one is partly addressed now: the card's display model lives in
@@ -950,8 +1028,9 @@ dataset.
 
 **No new runner.** Node imports the `.ts` directly by stripping types, so
 `npm test` is unchanged and nothing needs `npm ci` on Gate 2. Layer C (a
-render harness for `Field` and `DetailPanel`, no MapLibre) is deliberately not
-built; it would now be a much smaller job.
+render harness for `Field` and `DetailPanel`, no MapLibre) was deliberately not
+built. **Reversed 2026-09-16:** the browser harness in `e2e/` replaces it; see
+"2026-09-16 -- browser harness" above.
 
 ### All four 2026-09-10 deferments are closed
 
@@ -959,7 +1038,8 @@ built; it would now be a much smaller job.
     AIST admission       stays closed: the 190 m cell is a publisher privacy
                          choice, so a centroid pin is a location AIST refused
                          to give
-    frontend tests       Layer B done, Layer C declined
+    frontend tests       Layer B done, Layer C declined (reversed
+                         2026-09-16: e2e/)
     the 22 prose claims  no model in CI. Gate 2 having no secrets is
                          load-bearing. A focused agentic pass on "needs a
                          reader" is Hudson's to schedule
@@ -1169,8 +1249,9 @@ not claimable:
 
 - `location.accuracyMeters`, per-source licences, `facilities[]`, photo
   rendering -- from the deep-research review, still unbuilt.
-- Frontend tests. There is no React harness; UI invariants are pinned by
-  source-scan guards in `scripts/*.test.mjs`, which is a real gap.
+- ~~Frontend tests. There is no React harness; UI invariants are pinned by
+  source-scan guards in `scripts/*.test.mjs`, which is a real gap.~~ Closed
+  2026-09-16 by the browser harness, `e2e/`.
 - `enforce_admins: false` means the maintainer can bypass every gate with
   `--admin`. Right for a solo project, worth knowing.
 - The 22 prose claims that "need a reader" stay unverified until the model

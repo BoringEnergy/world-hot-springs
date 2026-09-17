@@ -1,0 +1,90 @@
+# ui -- the test suite and the browser harness. ADVISORY, and NOT a gate.
+#
+# What it is: the first workflow here that installs the dependency tree. It
+# runs `npm test` (which CI never ran before this file), builds the site,
+# proves the deployed bundle carries no test hooks, then drives the e2e build
+# in headless Chromium against offline fixtures. See e2e/README.md.
+#
+# What it is not: a security boundary, or a required check. On a fork pull
+# request this file comes from the PR head, so a contributor can make it
+# report anything; and until its flake rate has been measured, a red here is
+# a question rather than a verdict. The checks that count are still gate-1's
+# `validate` and gate-2's `gate-2 claims`, and this job's names are chosen
+# never to collide with either.
+#
+# Why installing is allowed here and nowhere else (the full argument is in
+# docs/superpowers/specs/2026-09-16-browser-harness-ci.md):
+#
+#   The trigger is plain pull_request. A fork's run gets no secrets and a
+#   read-only token, and every external contributor's run waits for a
+#   maintainer to approve it (F10). Installing a hostile lockfile here can
+#   burn minutes and print lies; it cannot reach a key, because none exists
+#   in this context. gate.yml and gate-2.yml still install nothing, and
+#   scripts/workflows.test.mjs holds them to it.
+#
+#   `--ignore-scripts` on the install. Only esbuild and fsevents declare
+#   install scripts, and esbuild finds its binary without one.
+#
+#   No cache of any kind. A compromised dependency in a push-to-main run could
+#   write a main-scoped cache that later runs would restore.
+#
+#   Never open a fork pull request's Playwright report from the artifact: it
+#   is HTML the contributor controls.
+name: ui
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      # No `cache:`. See the header.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+
+      - run: npm ci --ignore-scripts
+
+      # data/raw is not in the repository, so the one test that reads it
+      # skips and says so (scripts/countries.test.mjs). Everything else runs.
+      - run: npm test
+
+      - run: npm run build
+
+      # The bundle Vercel would deploy carries no instrumentation.
+      - run: node scripts/check-bundle.mjs dist
+
+      - run: npm run typecheck:e2e
+
+      - run: npm run test:e2e:install
+
+      # Builds dist-e2e/ itself (playwright.config.ts webServer).
+      - run: npm run test:e2e
+
+      # And the bundle the harness drove carried all of it.
+      - run: node scripts/check-bundle.mjs dist-e2e --expect-present
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

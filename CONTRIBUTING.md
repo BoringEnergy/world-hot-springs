@@ -67,6 +67,21 @@ npm run typecheck
 `data/raw/` is gitignored — it is large and refetchable. The curated outputs in
 `data/` are committed, because the dataset is the deliverable.
 
+Before opening a pull request, run the Node suite and the browser harness:
+
+```bash
+npm run data:build        # first, always: some tests read data/summary.json
+npm test                  # scripts/**/*.test.mjs, a few seconds
+npm run test:e2e:install  # once per machine: Chromium's headless shell
+npm run typecheck:e2e
+npm run test:e2e          # builds dist-e2e/ and drives it in Chromium, offline
+```
+
+The harness runs a production build made with `--mode e2e`, which adds the
+map's test hooks, and answers every third-party request from fixtures. How it
+works, and what it measured, is in [e2e/README.md](e2e/README.md). The `ui`
+workflow runs all of this on every pull request. It is advisory for now.
+
 If you change a tag mapping in `scripts/lib/normalize.mjs`, update the
 corresponding table in [docs/DATA.md](docs/DATA.md) in the same commit. The
 reasoning is part of the dataset.
