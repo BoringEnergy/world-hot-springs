@@ -42,8 +42,8 @@ export const DESCRIPTION =
   "An open, curated, provenance-attached atlas of the world's public and semi-public hot springs. " +
   'Temperature, price, clothing policy and opening hours are first-class fields; unknown values are ' +
   'stored explicitly as null and rendered as "Unknown" rather than omitted, blank, or invented. ' +
-  'Springs that local communities ask to have excluded are removed permanently and the exclusion ' +
-  'survives re-import.';
+  'Springs that local communities ask to have excluded are removed from the live atlas and from every ' +
+  'later version, and the exclusion survives re-import.';
 
 export interface Creator {
   name: string;

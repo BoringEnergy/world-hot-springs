@@ -351,6 +351,7 @@ Before writing each fix, decide the intended behaviour. Each fix then flips its 
 | D8 — Escape while hidden marks the welcome seen | Register the Escape handler only while the panel is visible |
 | D9 — closed filter rail reachable by Tab | `inert={!open}` on the rail (`FilterRail.tsx:80`) |
 | D10 — coverage phrase hard-coded | Derive the "4 in 5" text in `AtlasFooter.tsx:97` and `WelcomePanel.tsx:151` from summary data |
+| D11 — no temperature key below 640px (**Hudson decided 2026-09-16: phones get a compact key**) | Always-visible compact key below `sm`: one row of the five band swatches plus "No reading", each with a short range in the current unit (e.g. `<30 · 30–38 · 38–43 · 43–50 · 50+ · —`), bands from `TEMP_BANDS`. The footer becomes a key row plus a links row on phones. Measure at 320 and 375 first: it must fit with no horizontal scroll, and Safety must stay visible and hit-testable. The footer spec's "no key below 640" note becomes the assertion "the key is visible and names every band at 320–1440". |
 
 Footer overflow and globe fit are fixed only if B0 measured a failure.
 
@@ -430,3 +431,17 @@ gh release view v1.0.0 && git ls-remote --tags origin   # only v1.0.0
 **Final checks with Hudson:**
 - Load whs.boring.energy on a real phone once C is deployed; emulation is not a phone.
 - Confirm the Zenodo record resolves at doi.org.
+
+## Addendum, 2026-09-16 (after execution began)
+
+- **The release happened before A1.** Hudson published GitHub release v1.0.0
+  from `cda3c35` at 18:37 UTC. Zenodo archived it as version DOI
+  `10.5281/zenodo.22800997` (concept `10.5281/zenodo.22800996`), built from
+  the old CITATION.cff: licence ODbL, but resource type Software and creator
+  "World Hot Springs contributors". Section R's release step is therefore
+  done; what remains of R is correcting that record's metadata in Zenodo's
+  edit screen. A2 can proceed against the concept DOI.
+- **D11 was added** above: phones get a compact key (Hudson's call).
+- **The browser harness measured three more defects**, pinned in its specs:
+  D12 (footer links overflow at 320px), D13 (the arrival globe is wider than
+  a phone), and D11 as a pinned test rather than a product question.

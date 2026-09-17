@@ -129,3 +129,11 @@ which is what was decided. Both are metadata, so both can be corrected in
 the record's edit screen, using this repository's `.zenodo.json` as the
 reference; the files and the DOI stay as they are. That correction is the
 maintainer's to make.
+
+The files cannot be corrected. v1.0.0's archive holds the README, LICENSE
+note and docs/DATA.md as they were at `cda3c35` -- the stale US coverage
+figures, the OpenStreetMap-only licence note and the three-upstream table
+that the next commit fixed. The data in it is right. Whether that is worth a
+1.0.1 is the maintainer's call: the versioning policy reserves PATCH for
+corrections to records, and these are corrections to the documents that
+travel with them.
