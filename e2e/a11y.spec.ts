@@ -54,7 +54,7 @@ for (const [width, height] of [
     // Below 640 px its visible word is display:none; from 640 up the label
     // and the word are the same, and the name must not read it twice.
     await expect(filtersButton(page)).toBeVisible();
-    await expect(filtersButton(page)).toHaveAccessibleName('Filters', { exact: true });
+    await expect(filtersButton(page)).toHaveAccessibleName(/^Filters$/);
   });
 }
 
