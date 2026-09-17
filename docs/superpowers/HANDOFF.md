@@ -123,8 +123,9 @@ from.
   Ten unused utilities left the stylesheet; the list is in e2e/README.md.
 - **The harness is advisory until its flake rate is measured** over real
   pull requests. `retries: 0` on purpose: a retry hides that number.
-- **Counts, 2026-09-16:** `npm test` 688 of 688 (674 before this work; 673
-  and 1 skipped without `data/raw`, which is how CI runs it). `npm run
+- **Counts, 2026-09-16:** `npm test` 705 after rebasing on the release
+  metadata (674 before either; without `data/raw`, which is how CI runs it,
+  one of them skips with its reason stated). `npm run
   test:e2e` 63 tests in 10 specs, about 3.3 minutes including the e2e build.
 - **Flake, measured locally:** three consecutive full runs at `workers: 2`,
   63 of 63 each time. At Playwright's local default of 7 workers (14 cores)
@@ -150,7 +151,7 @@ from.
   | D10 | the "4 in 5" coverage phrase is a literal in AtlasFooter and WelcomePanel | not pinned: a source fact, not a behaviour. The fix derives it from the summary |
   | D11 | no temperature key below 640 px. **Hudson decided 2026-09-16: phones get a compact key** | footer |
   | D12 | the footer's links overflow at 320 px: Source is past the edge in a footer that scrolls sideways | footer |
-  | D12b | the same at 800 px, where Source is cut by the edge | footer |
+  | D12b | the same at 800 px, where Source is cut by the edge. Only its right edge is pinned: where it starts depends on the system font, and no web font loads | footer |
   | D13 | the arrival globe is wider than a phone: 531.6 px in a 375 px canvas | globe |
 
   D6 and D7 were never assigned. The page itself never scrolls sideways at
@@ -206,7 +207,7 @@ browser harness" above.
 
 ## Current state, 2026-09-11
 
-**646 tests then (688 Node tests and 63 browser tests on 2026-09-16; see the
+**646 tests then (705 Node tests and 63 browser tests on 2026-09-16; see the
 browser harness section). `main` is green and everything below is merged.**
 
 **Coverage: temperature 1,395 of 7,490 (19%), chemistry 174.** It was 95 of 6,471 (1%) when
@@ -263,7 +264,7 @@ edit and checks the value literally appears. Proven on a real fork PR.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **688 tests**, `npm test`, all passing on 2026-09-16 (646 on 2026-09-11),
+- **705 tests**, `npm test`, all passing on 2026-09-16 (646 on 2026-09-11),
   plus **63 browser tests**, `npm run test:e2e`. Worth remembering that 242 of them
   passed while the enrichment pipeline could not do its job at all, and 320
   passed over a UI where clicking a search result blanked the page. That
