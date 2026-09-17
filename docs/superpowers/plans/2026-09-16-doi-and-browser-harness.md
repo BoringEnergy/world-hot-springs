@@ -346,7 +346,7 @@ Before writing each fix, decide the intended behaviour. Each fix then flips its 
 | D1 — no h1 below 768px | Move the h1 out of the `hidden md:flex` span (`Header.tsx:70`). Tighten `a11y.test.mjs:34-45`, which currently passes over this. |
 | D2 — Filters button unnamed below 640px | `aria-label="Filters"` |
 | D3 / D3b — welcome over cold deep links | `useState(() => !seen() && parse().kind === 'map')` in `WelcomePanel.tsx:73` |
-| D4 — welcome covers search results | Hide the welcome while search results are showing, and fix the misleading comment at `App.tsx:65-69`. Confirm the intended behaviour with Hudson. |
+| D4 — welcome covers search results | **Hudson decided: a search or Near me closes the welcome and marks it seen**, like "Open the map". Fix the misleading comment at `App.tsx:65-69`. |
 | D5 — privacy page understates storage | New `src/lib/storage.ts` exporting `STORAGE_KEYS`, used by the store, WelcomePanel and the Privacy page. Bump `POLICY_UPDATED`. |
 | D8 — Escape while hidden marks the welcome seen | Register the Escape handler only while the panel is visible |
 | D9 — closed filter rail reachable by Tab | `inert={!open}` on the rail (`FilterRail.tsx:80`) |
@@ -445,3 +445,29 @@ gh release view v1.0.0 && git ls-remote --tags origin   # only v1.0.0
 - **The browser harness measured three more defects**, pinned in its specs:
   D12 (footer links overflow at 320px), D13 (the arrival globe is wider than
   a phone), and D11 as a pinned test rather than a product question.
+
+## Addendum 2 — after v1.0.0 was released early (Hudson's decisions, 2026-09-16)
+
+- v1.0.0 already exists (concept DOI `10.5281/zenodo.22800996`). Hudson
+  corrects that record's type and creator in Zenodo's edit screen, and the
+  GitHub release is retitled "World Hot Springs 1.0.0".
+- **New final step R2: cut v1.0.1** once A1, B, C and A2 have merged. The
+  data is unchanged; the documents are corrected and CITATION.cff carries the
+  DOI, so the archive is right without hand edits. A small PR adds the
+  `[1.0.1]` CHANGELOG entry, bumps package.json, widens the PATCH rule to
+  "corrections to records or to the documents that travel with them", and
+  regenerates. Then `gh release create v1.0.1` after Hudson's yes.
+- LICENSE code copyright stays "World Hot Springs contributors".
+- D4: a search or Near me closes the welcome and marks it seen.
+
+## Outcome, 2026-09-17
+
+Every track landed through a pull request: A1 #91, B #92, A2 #93, C #94, and
+the 1.0.1 preparation #95. v1.0.1 was released from `bd73272` and archived as
+`10.5281/zenodo.22813285` -- a Dataset by Hudson R&D under ODbL, the first
+record built from `.zenodo.json`. The review rounds added D4's filter-rail
+case (opening the filters also answers the greeting) and a fraction helper
+that can say shares under a half. What is still open: v1.0.0's record
+metadata (a hand edit on Zenodo), making `ui` a required check once its flake
+rate is known, and the separately filed question of whether a fork workflow
+can satisfy `gate-2 claims` by name.

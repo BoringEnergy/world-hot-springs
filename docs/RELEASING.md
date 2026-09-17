@@ -152,8 +152,15 @@ merged, so that its archive is right without any hand edits. Its CHANGELOG
 entry widens PATCH to cover corrections to the documents that travel with the
 records.
 
-**1.0.1 prepared 2026-09-17.** The harness fixes and the DOI wiring merged;
-the `[1.0.1]` entry, `package.json` and the generated metadata are on
-`main`. The release itself waits for the maintainer's yes, and for the
-preconditions in section 3 on the day -- above all, that no removal request is
-pending and that the CHANGELOG date is still the UTC date.
+**1.0.1 released 2026-09-17**, from `bd73272`, on the maintainer's yes, after
+confirming no removal request was pending and with `ui` green on that
+commit. Zenodo archived it as version DOI `10.5281/zenodo.22813285` under
+the concept `10.5281/zenodo.22800996`, and read back: type **Dataset**,
+creator **Hudson R&D**, licence ODbL, published 2026-09-17, all eight related
+identifiers present. So `.zenodo.json` works as intended, and the only hand
+edit left is v1.0.0's type and creator.
+
+| Version | Tag commit | Version DOI | Archived as |
+|---|---|---|---|
+| 1.0.0 | `cda3c35` | `10.5281/zenodo.22800997` | Software, "World Hot Springs contributors" (to be corrected by hand) |
+| 1.0.1 | `bd73272` | `10.5281/zenodo.22813285` | Dataset, Hudson R&D |

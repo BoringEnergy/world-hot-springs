@@ -33,10 +33,19 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
 
-## 2026-09-17 -- 1.0.1 prepared
+## 2026-09-17 -- 1.0.1 released
 
-`CHANGELOG.md` has a `[1.0.1] - 2026-09-17` entry, `package.json` is
-1.0.1, and `.zenodo.json` / `CITATION.cff` are regenerated from them. The
+**Released 2026-09-17 from `bd73272`**: version DOI
+`10.5281/zenodo.22813285`, concept `10.5281/zenodo.22800996`. Zenodo read it
+as a Dataset by Hudson R&D under ODbL, with every related identifier -- the
+first record built from `.zenodo.json`, and it came out as intended. The
+table of versions and DOIs is at the end of docs/RELEASING.md. Still open:
+v1.0.0's record says Software and "World Hot Springs contributors" until the
+maintainer edits it on Zenodo.
+
+How it was prepared: `CHANGELOG.md` has a `[1.0.1] - 2026-09-17` entry,
+`package.json` is 1.0.1, and `.zenodo.json` / `CITATION.cff` are
+regenerated from them. The
 records are byte-identical to 1.0.0 -- nothing under `data/` changed -- so
 this is a PATCH under the widened rule: corrections to the documents that
 travel with the records, and an archive that describes itself correctly
@@ -132,7 +141,7 @@ in the same module is the one citation string the README and the panel print.
 
 - **Counts:** `npm test` 708; `npm run test:e2e` 67 tests in 11 specs.
 
-**Next: v1.0.1** -- prepared; see the section above.
+**v1.0.1** -- released; see the section above.
 
 ## 2026-09-16 -- release metadata
 
