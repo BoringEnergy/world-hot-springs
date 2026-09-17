@@ -15,9 +15,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { render, latestRelease } from './build-citation.mjs';
-import { DEFAULT_ORIGIN } from './build-sitemap.mjs';
+import { DEFAULT_ORIGIN, buildSitemap } from './build-sitemap.mjs';
 import { UPSTREAMS, COLLECTION_LICENCE } from './lib/sources.mjs';
-import { TITLE, SITE_ORIGIN, REPO_URL, CREATORS, KEYWORDS } from '../src/lib/citation.ts';
+import { TITLE, SITE_ORIGIN, REPO_URL, PUBLISHER_URL, CREATORS, KEYWORDS } from '../src/lib/citation.ts';
 
 // Rendered on first use rather than at load: render() throws when
 // package.json and CHANGELOG.md disagree, and a throw at load would fail the
@@ -124,6 +124,10 @@ test('the tagged source tree is linked, because supplying the list drops Zenodo\
     related().some((r) => r.identifier === `${REPO_URL}/blob/v${zenodo().version}/DATA.md` && r.relation === 'isDocumentedBy'),
     'the archived version must point at the DATA.md of its own tag',
   );
+  assert.ok(
+    related().some((r) => r.identifier === SITE_ORIGIN && r.relation === 'isSourceOf'),
+    'the archive must say it is the source of the live atlas',
+  );
 });
 
 test('the archive credits every upstream, and no other', () => {
@@ -163,6 +167,9 @@ test('the archive names a creator, and it is the publisher', () => {
   for (const c of zenodo().creators) assert.ok(c.name.trim(), 'a creator with an empty name');
   const cff = readCff(out().cff);
   assert.deepEqual(cff.authors.map((a) => a.name), CREATORS.map((c) => c.name));
+  // The CFF author is an entity, and its website is what tells a reader which
+  // Hudson R&D this is. .zenodo.json has no field for it; CITATION.cff does.
+  assert.deepEqual(cff.authors.map((a) => a.website), CREATORS.map(() => PUBLISHER_URL));
 });
 
 test('the notes carry both licences and the attribution condition', () => {
@@ -200,8 +207,10 @@ test('the site origin is one fact', () => {
   const robots = fs.readFileSync('public/robots.txt', 'utf8');
   const sitemaps = robots.match(/^Sitemap: .*$/gm) ?? [];
   assert.deepEqual(sitemaps, [`Sitemap: ${SITE_ORIGIN}/sitemap.xml`]);
-  const sitemap = fs.readFileSync('public/sitemap.xml', 'utf8');
-  assert.ok(sitemap.includes(`<loc>${SITE_ORIGIN}/</loc>`), 'sitemap.xml was built for another origin');
+  // Built in memory: public/sitemap.xml is a gitignored build output, and a
+  // test that reads it passes or fails on whatever an earlier build left behind.
+  const sitemap = buildSitemap([]);
+  assert.ok(sitemap.includes(`<loc>${SITE_ORIGIN}/</loc>`), 'the sitemap is built for another origin');
 
   // And the page reads the repository and publisher from the same module.
   const footer = fs.readFileSync('src/components/AtlasFooter.tsx', 'utf8');
