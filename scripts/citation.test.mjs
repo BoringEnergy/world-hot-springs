@@ -276,10 +276,19 @@ test('the DOI is written once, in citation.ts, and the page reads it from there'
   const about = fs.readFileSync('src/components/AboutPanel.tsx', 'utf8');
   assert.match(about, /import \{[^}]*\bDOI_URL\b[^}]*\} from '\.\.\/lib\/citation\.ts'/);
   assert.match(about, /href=\{DOI_URL\}/);
-  // And no other source file writes it out.
-  const restated = fs.readdirSync('src', { recursive: true })
-    .map((f) => String(f).replace(/\\/g, '/'))
-    .filter((f) => /\.(ts|tsx|html|css)$/.test(f))
-    .filter((f) => fs.readFileSync(`src/${f}`, 'utf8').includes('10.5281'));
-  assert.deepEqual(restated, ['lib/citation.ts'], 'a source file other than citation.ts writes the DOI');
+  // And nothing else the site is built from writes it out: not src/, not the
+  // root index.html where static head metadata would naturally go, and not
+  // the hand-written files in public/. public/data/ is the dataset itself,
+  // whose upstream metadata carries NCEI's DOI (a different registrant), and
+  // public/sitemap.xml is generated.
+  const inSrc = fs.readdirSync('src', { recursive: true })
+    .map((f) => `src/${String(f).replace(/\\/g, '/')}`)
+    .filter((f) => /\.(ts|tsx|html|css)$/.test(f));
+  const inPublic = fs.readdirSync('public', { recursive: true })
+    .map((f) => `public/${String(f).replace(/\\/g, '/')}`)
+    .filter((f) => !f.startsWith('public/data/') && f !== 'public/sitemap.xml')
+    .filter((f) => fs.statSync(f).isFile());
+  const restated = ['index.html', ...inSrc, ...inPublic]
+    .filter((f) => fs.readFileSync(f, 'utf8').includes('10.5281'));
+  assert.deepEqual(restated, ['src/lib/citation.ts'], 'a file other than citation.ts writes a Zenodo DOI into the site');
 });

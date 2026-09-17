@@ -234,7 +234,7 @@ export function AboutPanel() {
               href={DOI_URL}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-steam-100 underline decoration-basalt-600 underline-offset-4 hover:decoration-ember"
+              className="text-steam-100 underline decoration-basalt-600 underline-offset-4 wrap-anywhere hover:decoration-ember"
             >
               {DOI_URL}
             </a>{' '}

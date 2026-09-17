@@ -144,7 +144,8 @@ function Terms({ meta }: { meta: DatasetMeta | null }) {
       </P>
       <P>
         Versioned releases of the dataset are archived on Zenodo under a DOI, and an archived
-        version cannot be altered. Removal applies to the live atlas and to every later version.
+        version cannot be altered, any more than the repository's history can. Removal applies to
+        the live atlas, to the repository from that point on, and to every later version.
         If the spring is already in an archived version, we will ask Zenodo to restrict access to
         the affected files; that is Zenodo's decision, and it may or may not be granted. Pending
         requests are handled before any release is made, so a request that reaches us in time
