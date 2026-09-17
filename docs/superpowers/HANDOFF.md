@@ -59,18 +59,31 @@ Also worth knowing: a change to `gate-2.yml` only takes effect once it is on
 `main`. `workflow_run` always runs the default branch's copy, so the pull
 request making the change cannot exercise it.
 
-**Deferred, decided by Hudson 2026-09-17: whether a fork can satisfy
-`gate-2 claims` by name.** Branch protection pins that context to the GitHub
-Actions app (15368), which is also what a fork PR's own workflow jobs report
-as. The test, when it is done: from a throwaway fork, open a PR whose workflow
-has a job named `gate-2 claims` that exits 0, and see whether protection
-accepts it. If it does, move protection to a ruleset that requires the
-workflow file `.github/workflows/gate-2.yml` from the default branch rather
-than a check name. Until then the door is fork-PR approval for all external
-contributors (F10): read the file list before approving a fork's runs, and a
-PR touching `.github/` is refused by the path guard in gate-2.
+**Two decisions closed by Hudson on 2026-09-17. Neither is open work, and
+neither reopens without a new decision from him.**
 
-`ui` is still advisory; Hudson has not made it a required check.
+**1. `ui` stays advisory. Permanently, until Hudson says otherwise.** Not a
+required check, not a settings change, and not a pull request that prepares
+one. Green on every run so far is why it is *allowed* to stay advisory, not an
+argument for promoting it: a required `ui` would be a quality lock on the
+maintainer's own merges, and it would carry the same name-spoof exposure as
+`gate-2 claims` below. Do not propose it again.
+
+**2. The spoof test is deferred, with no go-ahead.** Do not create a fork, a
+pull request, or a ruleset for it. The open question, recorded so nobody has
+to rediscover it: branch protection pins `gate-2 claims` to the GitHub Actions
+app (15368), which is also what a fork PR's own jobs report as, so a job of
+that name might satisfy the context. Testing it means a throwaway fork and a
+PR whose job is named `gate-2 claims` and exits 0; if protection accepts it,
+the fix is a ruleset requiring the workflow file
+`.github/workflows/gate-2.yml` from the default branch rather than a check
+name. **None of that happens without Hudson.**
+
+What holds the door meanwhile: fork-PR approval for all external contributors
+(F10) -- read the file list before approving a fork's runs -- and gate-2,
+which runs on every gate-1 conclusion and refuses any fork PR touching
+anything outside `data/overlay/`, so its failure lands after whatever the
+contributor posted.
 
 ## 2026-09-17 -- 1.0.1 released
 
@@ -270,8 +283,9 @@ from.
   at CI job level, it would make `npm ci` skip devDependencies.
 - **Tailwind scans `src/` only** (`@import 'tailwindcss' source('../src')`).
   Ten unused utilities left the stylesheet; the list is in e2e/README.md.
-- **The harness is advisory until its flake rate is measured** over real
-  pull requests. `retries: 0` on purpose: a retry hides that number.
+- **The harness is advisory, and stays that way** (decided 2026-09-17; see
+  the dated section at the top). `retries: 0` on purpose: a retry would hide
+  a flake rather than show it.
 - **Counts, 2026-09-16:** `npm test` 705 after rebasing on the release
   metadata (674 before either; without `data/raw`, which is how CI runs it,
   one of them skips with its reason stated). `npm run

@@ -467,7 +467,12 @@ the 1.0.1 preparation #95. v1.0.1 was released from `bd73272` and archived as
 `10.5281/zenodo.22813285` -- a Dataset by Hudson R&D under ODbL, the first
 record built from `.zenodo.json`. The review rounds added D4's filter-rail
 case (opening the filters also answers the greeting) and a fraction helper
-that can say shares under a half. What is still open: v1.0.0's record
-metadata (a hand edit on Zenodo), making `ui` a required check once its flake
-rate is known, and the separately filed question of whether a fork workflow
-can satisfy `gate-2 claims` by name.
+that can say shares under a half. v1.0.0's record was corrected by hand the
+same day, and gate-2's handling of a failed gate-1 was corrected in #97.
+
+**Nothing from this plan is open.** Two things it raised were closed by
+Hudson on 2026-09-17 and are not to be reopened without him: `ui` stays
+advisory rather than becoming a required check, and the fork check-name spoof
+test stays deferred, with no fork, no pull request and no ruleset. The
+reasoning for both is in the HANDOFF section "gate-2 runs whatever gate-1
+concluded".
