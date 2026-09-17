@@ -19,18 +19,37 @@
  * In normal flow rather than floating over the map, because an overlay can be
  * covered and this must not be. It costs 34 pixels of globe.
  */
-import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
-import { formatTempValue, shareAsFraction } from '../lib/format';
+import { TEMP_BANDS, UNKNOWN_TEMP_COLOR, UNKNOWN_TEMP_LABEL } from '../lib/types';
+import { formatTempNumber, formatTempValue, shareAsFraction, type Units } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { href } from '../lib/router.ts';
 import { REPO_URL } from '../lib/citation.ts';
 
-function Swatch({ color, label, range }: { color: string; label: string; range?: string }) {
+/*
+ * One band's range, in the current unit. `unit: false` is the phone key's
+ * short form, which states the unit once at the start of the row instead of
+ * on every number.
+ */
+function bandRange(i: number, units: Units, unit: boolean): string {
+  const t = (c: number) => (unit ? formatTempValue(c, units) : formatTempNumber(c, units));
+  const b = TEMP_BANDS[i];
+  if (i === 0) return `<${t(b.maxC)}`;
+  if (b.maxC === Infinity) return `${t(TEMP_BANDS[i - 1].maxC)}+`;
+  return `${t(TEMP_BANDS[i - 1].maxC)}–${t(b.maxC)}`;
+}
+
+/*
+ * Below 640 px only the short range shows, and the band's name is there for
+ * a screen reader. From 640 up the key looks as it always has: the range,
+ * then the name from 1024, then both from 1280.
+ */
+function Swatch({ color, label, range, short }: { color: string; label: string; range?: string; short: string }) {
   return (
-    <span className="flex shrink-0 items-center gap-1.5" title={range ? `${label} — ${range}` : label}>
-      <span className="size-2 rounded-full" style={{ background: color }} aria-hidden />
-      <span className="hidden text-steam-400 lg:inline">{label}</span>
-      <span className="text-steam-500 tabular-nums lg:hidden">{range ?? label}</span>
+    <span className="flex shrink-0 items-center gap-1 sm:gap-1.5" title={range ? `${label} — ${range}` : label}>
+      <span className="size-2 shrink-0 rounded-full" style={{ background: color }} aria-hidden />
+      <span className="sr-only text-steam-400 lg:not-sr-only">{label}</span>
+      <span className="tabular-nums text-steam-500 sm:hidden">{short}</span>
+      <span className="hidden tabular-nums text-steam-500 sm:inline lg:hidden">{range ?? label}</span>
       <span className="hidden tabular-nums text-steam-500 xl:inline">{range}</span>
     </span>
   );
@@ -66,31 +85,37 @@ export function AtlasFooter() {
     'shrink-0 rounded px-1 text-steam-400 transition hover:text-steam-100 focus-visible:text-steam-100';
 
   return (
-    <footer className="relative z-30 flex shrink-0 items-center gap-x-4 gap-y-1 overflow-x-auto border-t border-basalt-800/80 bg-basalt-950 px-3 py-2 text-[11px] scroll-slim sm:px-4">
+    /*
+      Two rows on a phone, the key and then the links; one row from 640 px,
+      wrapping the links under the key where the two do not fit side by side
+      (at 800 px they need 836). Nothing in it is wider than 320 px, so it
+      never scrolls sideways: it used to, and hid Source past the edge.
+    */
+    <footer className="relative z-30 flex shrink-0 flex-col gap-y-1.5 border-t border-basalt-800/80 bg-basalt-950 px-3 py-2 text-[11px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-1 sm:px-4">
       {/*
         The key. Labelled as a group so a screen reader is told what the six
-        colours are for rather than reading six loose words.
+        colours are for rather than reading six loose words. On a phone it is
+        the compact row Hudson asked for on 2026-09-16: every colour, with
+        its range and the unit stated once, because a map whose key is
+        missing on the screen most people hold is a map with no key.
       */}
       <div
-        className="hidden shrink-0 items-center gap-3 sm:flex"
+        className="flex flex-wrap items-center justify-between gap-x-1.5 gap-y-0.5 sm:shrink-0 sm:flex-nowrap sm:justify-start sm:gap-3"
         role="group"
         aria-label="Water temperature key"
       >
-        <span className="hidden shrink-0 font-medium uppercase tracking-[0.12em] text-steam-500 sm:inline">
-          Water
+        <span className="shrink-0 font-medium uppercase tracking-[0.12em] text-steam-500">
+          {/* The word from 375 px; below that the row has room for the unit alone. */}
+          <span className="hidden min-[375px]:inline">Water </span>
+          <span className="normal-case tracking-normal sm:hidden">°{units.toUpperCase()}</span>
         </span>
         {TEMP_BANDS.map((b, i) => (
           <Swatch
             key={b.id}
             color={b.color}
             label={b.label}
-            range={
-              i === 0
-                ? `<${formatTempValue(b.maxC, units)}`
-                : b.maxC === Infinity
-                  ? `${formatTempValue(TEMP_BANDS[i - 1].maxC, units)}+`
-                  : `${formatTempValue(TEMP_BANDS[i - 1].maxC, units)}–${formatTempValue(b.maxC, units)}`
-            }
+            range={bandRange(i, units, true)}
+            short={bandRange(i, units, false)}
           />
         ))}
         {/*
@@ -100,14 +125,15 @@ export function AtlasFooter() {
         */}
         <Swatch
           color={UNKNOWN_TEMP_COLOR}
-          label="No reading"
+          label={UNKNOWN_TEMP_LABEL}
           range={unknown ? `${unknown.part} in ${unknown.whole}` : undefined}
+          short="—"
         />
       </div>
 
       <nav
         aria-label="About this atlas"
-        className="mx-auto flex shrink-0 items-center gap-1 sm:mx-0 sm:ml-auto"
+        className="flex flex-wrap items-center justify-center gap-x-0.5 gap-y-0.5 sm:ml-auto sm:shrink-0 sm:justify-end sm:gap-x-1"
       >
         <a {...page('safety')} className={`${link} font-medium text-ember-bright hover:text-ember-bright`}>
           Safety
@@ -144,8 +170,10 @@ export function AtlasFooter() {
           download
           className={link}
           title="The entire atlas as one GeoJSON file, ODbL 1.0"
+          aria-label="Download the data"
         >
-          Download the data
+          {/* One word on a phone, so the links fit one row at 320 px; the name is whole everywhere. */}
+          Download<span className="hidden sm:inline"> the data</span>
         </a>
         <span aria-hidden className="text-basalt-700">
           ·

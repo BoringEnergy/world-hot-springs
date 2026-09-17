@@ -16,9 +16,12 @@ export function formatTemp(spring: HotSpring, units: Units): string {
 
 export function formatTempValue(celsius: number | null, units: Units): string {
   if (celsius === null) return UNKNOWN;
-  return units === 'c'
-    ? `${Math.round(celsius)}°C`
-    : `${Math.round((celsius * 9) / 5 + 32)}°F`;
+  return `${formatTempNumber(celsius, units)}°${units.toUpperCase()}`;
+}
+
+/** A whole-degree temperature with no unit, for a key that states the unit once. */
+export function formatTempNumber(celsius: number, units: Units): string {
+  return String(Math.round(units === 'c' ? celsius : (celsius * 9) / 5 + 32));
 }
 
 const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',

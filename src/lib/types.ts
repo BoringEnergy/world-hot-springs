@@ -289,6 +289,9 @@ export type TempBandId = (typeof TEMP_BANDS)[number]['id'] | 'unknown';
 
 export const UNKNOWN_TEMP_COLOR = '#8b8478';
 
+/** The key's name for that colour. */
+export const UNKNOWN_TEMP_LABEL = 'No reading';
+
 export function tempBand(celsius: number | null): TempBandId {
   if (celsius === null || Number.isNaN(celsius)) return 'unknown';
   for (const band of TEMP_BANDS) {

@@ -6,20 +6,15 @@
  *   each page opens, by click and by cold load
  *                               mutation: the Terms and Privacy hrefs swapped
  *   Download is the dataset     mutation: the href points at .json
- *   the key from 640 px up      mutation: `sm:flex` -> `md:flex`
+ *   the key at every width      mutations: the key group `hidden sm:flex`
+ *                               again (D11, fails at 320 and 375); the
+ *                               swatch colours read from a copied list
+ *   every link on screen and    mutation: the footer's old single
+ *   clickable, and no sideways  `overflow-x-auto` row, without wrapping
+ *   scroll, 320-1440            (D12 at 320 and 375-F, D12b at 800)
  *
- * Pinned defects (the fix flips each one):
- *
- *   D11  no temperature key below 640 px. Hudson decided on 2026-09-16 that
- *        phones get a compact key; until track C builds it, the key group is
- *        display:none at 320 and 375.
- *   D12  the footer's links overflow at 320 px: Source sits past the right
- *        edge inside a footer that scrolls sideways. The page itself does not
- *        overflow.
- *   D12b the same at 800 px, where Source is cut by the edge.
- *
- * Positions measured in B0 on 2026-09-16 (e2e/README.md, "Footer links"),
- * viewport height 800:
+ * Positions measured in B0 on 2026-09-16, before the fix (e2e/README.md,
+ * "Footer links"), viewport height 800:
  *
  *   width  footer scroll   Safety x         off-screen
  *   320    373 in 320      12.0 - 50.9      Source, 319.9 - 361.1
@@ -33,11 +28,11 @@ import fs from 'node:fs';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from './support/offline.ts';
 import { waitForMap } from './support/map.ts';
-import { pageTitle, tabLabel, type StandingPage } from './support/source.ts';
+import { pageTitle, tabLabel, UNITS_KEY, type StandingPage } from './support/source.ts';
 import { href } from '../src/lib/router.ts';
-import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../src/lib/types.ts';
+import { TEMP_BANDS, UNKNOWN_TEMP_COLOR, UNKNOWN_TEMP_LABEL } from '../src/lib/types.ts';
 
-const WIDTHS = [320, 375, 800, 1100, 1440];
+const WIDTHS = [320, 375, 640, 800, 1100, 1440];
 const HEIGHT = 800;
 
 const footer = (page: Page) => page.getByRole('contentinfo');
@@ -75,34 +70,45 @@ for (const width of WIDTHS) {
   });
 }
 
-test('known defect D12: footer links overflow at 320px', async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: HEIGHT });
-  await page.goto('/');
-  await waitForMap(page);
+/*
+ * After the fix, measured 2026-09-17 on Windows (Segoe UI; no web font
+ * loads, so Linux positions differ and none is pinned here). On a phone the
+ * footer is two rows, key then links, 56 px tall; from 640 to 1023 the links
+ * wrap under the key (54 px); from 1024 it is one row (33.5 px).
+ *
+ *   width  links row           key contents (C / F), gaps included
+ *   320    17.0 - 303.0        256.5 / 290.7 in 296
+ *   375    44.5 - 330.5        302.9 / 337.1 in 351
+ *
+ * The key row may wrap if a wider system font needs it, so the assertions
+ * are containment and hit-testing, which hold for any font.
+ */
+for (const units of ['c', 'f'] as const) {
+  for (const width of WIDTHS) {
+    test(`at ${width} px (°${units.toUpperCase()}) every footer link is on screen and takes a click, and the footer does not scroll sideways`, async ({ page }) => {
+      await page.addInitScript(([k, u]) => localStorage.setItem(k, u), [UNITS_KEY, units]);
+      await page.setViewportSize({ width, height: HEIGHT });
+      await page.goto('/');
+      await waitForMap(page);
 
-  const source = await placement(footerLink(page, 'Source'));
-  // B0: 319.9 to 361.1.
-  expect(source.right, 'Source is past the right edge').toBeGreaterThan(320);
-  const sizes = await page.evaluate(() => {
-    const f = document.querySelector('footer')!;
-    return { footer: f.scrollWidth - f.clientWidth, page: document.documentElement.scrollWidth - window.innerWidth };
-  });
-  expect(sizes.footer, 'the footer scrolls sideways (B0: 373 in 320)').toBeGreaterThan(0);
-  expect(sizes.page, 'the page itself does not overflow').toBe(0);
-});
-
-test('known defect D12b: footer links overflow at 800px', async ({ page }) => {
-  await page.setViewportSize({ width: 800, height: HEIGHT });
-  await page.goto('/');
-  await waitForMap(page);
-
-  const source = await placement(footerLink(page, 'Source'));
-  // B0 on Windows: 778.8 to 820.0, cut by the edge. Where it starts depends on
-  // the system font -- no web font loads -- and with Linux-like metrics it sits
-  // wholly past the edge (Arial 804.0-846.8, Verdana 869.2-915.4). Only the
-  // right edge is common to every font measured, so only it is pinned.
-  expect(source.right, 'Source reaches past the right edge').toBeGreaterThan(800);
-});
+      const links = footer(page).getByRole('link');
+      expect(await links.count(), 'the footer has no links').toBe(Object.keys(LINK_TEXT).length + 2);
+      for (const link of await links.all()) {
+        const name = await link.evaluate((el) => el.getAttribute('aria-label') ?? el.textContent);
+        const at = await placement(link);
+        expect(at.width, `${name} has no size`).toBeGreaterThan(0);
+        expect(at.left, `${name} starts off the left edge`).toBeGreaterThanOrEqual(0);
+        expect(at.right, `${name} runs off the right edge`).toBeLessThanOrEqual(width);
+        expect(at.hit, `a click at the centre of ${name} lands on something else`).toBe(true);
+      }
+      const overflow = await page.evaluate(() => {
+        const f = document.querySelector('footer')!;
+        return { footer: f.scrollWidth - f.clientWidth, page: document.documentElement.scrollWidth - window.innerWidth };
+      });
+      expect(overflow, 'something scrolls sideways').toEqual({ footer: 0, page: 0 });
+    });
+  }
+}
 
 const PAGES: StandingPage[] = ['safety', 'about', 'terms', 'privacy'];
 
@@ -154,28 +160,30 @@ function rgb(hex: string): string {
 
 // Every band, then "No reading": the key and the map read the same list.
 const KEY_COLOURS = [...TEMP_BANDS.map((b) => b.color), UNKNOWN_TEMP_COLOR].map(rgb);
+const KEY_NAMES = [...TEMP_BANDS.map((b) => b.label as string), UNKNOWN_TEMP_LABEL];
 
-for (const width of [640, 800, 1100, 1440]) {
+for (const width of WIDTHS) {
   test(`at ${width} px the key shows a swatch for every band and for no reading`, async ({ page }) => {
     await page.setViewportSize({ width, height: HEIGHT });
     await page.goto('/');
-    const key = keyGroup(page);
-    await expect(key).toBeVisible();
-    const colours = await key.evaluate((el) =>
-      [...el.querySelectorAll<HTMLElement>('span[style]')].map((s) => getComputedStyle(s).backgroundColor),
-    );
-    expect(colours).toEqual(KEY_COLOURS);
-  });
-}
-
-for (const width of [320, 375]) {
-  // Hudson, 2026-09-16: phones get a compact key. Track C builds it; this
-  // test then becomes "the key is visible and names every band".
-  test(`known defect D11: no temperature key below 640px (${width} px)`, async ({ page }) => {
-    await page.setViewportSize({ width, height: HEIGHT });
-    await page.goto('/');
     await waitForMap(page);
-    await expect(keyGroup(page)).toBeAttached();
-    await expect(keyGroup(page), 'a phone gets no key to the map colours').toBeHidden();
+    const key = keyGroup(page);
+    await expect(key, 'the map colours have no key at this width').toBeVisible();
+    const swatches = await key.evaluate((el) =>
+      [...el.querySelectorAll<HTMLElement>('span[style]')].map((s) => ({
+        colour: getComputedStyle(s).backgroundColor,
+        title: s.parentElement?.getAttribute('title') ?? '',
+        shown: s.getBoundingClientRect().width > 0,
+      })),
+    );
+    expect(swatches.map((s) => s.colour)).toEqual(KEY_COLOURS);
+    expect(swatches.every((s) => s.shown), 'a swatch has no size').toBe(true);
+    // Each swatch names its band, whatever its visible text is at this width.
+    expect(swatches.map((s) => s.title.split(' — ')[0])).toEqual(KEY_NAMES);
+    const inside = await key.evaluate((el, w) => {
+      const r = el.getBoundingClientRect();
+      return r.left >= 0 && r.right <= w;
+    }, width);
+    expect(inside, 'the key runs off the screen').toBe(true);
   });
 }
