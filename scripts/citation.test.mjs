@@ -17,7 +17,9 @@ import fs from 'node:fs';
 import { render, latestRelease } from './build-citation.mjs';
 import { DEFAULT_ORIGIN, buildSitemap } from './build-sitemap.mjs';
 import { UPSTREAMS, COLLECTION_LICENCE } from './lib/sources.mjs';
-import { TITLE, SITE_ORIGIN, REPO_URL, PUBLISHER_URL, CREATORS, KEYWORDS } from '../src/lib/citation.ts';
+import {
+  TITLE, SITE_ORIGIN, REPO_URL, PUBLISHER_URL, CREATORS, KEYWORDS, CONCEPT_DOI, DOI_URL, RECOMMENDED_CITATION,
+} from '../src/lib/citation.ts';
 
 // Rendered on first use rather than at load: render() throws when
 // package.json and CHANGELOG.md disagree, and a throw at load would fail the
@@ -220,4 +222,64 @@ test('the site origin is one fact', () => {
   const seo = fs.readFileSync('src/lib/seo.ts', 'utf8');
   assert.match(seo, /from '\.\/citation\.ts'/);
   assert.ok(!seo.includes('World Hot Springs contributors'), 'seo.ts restates a creator');
+});
+
+test('CITATION.cff carries the concept DOI, and only the concept DOI', () => {
+  // The version DOI of the release being cut does not exist until the release
+  // is published, which is after this file is archived. Any other DOI here is
+  // either an older version's or invented.
+  assert.match(CONCEPT_DOI, /^10\.5281\/zenodo\.\d+$/);
+  assert.equal(DOI_URL, `https://doi.org/${CONCEPT_DOI}`);
+  // The generator's output: the first test holds the committed file to it.
+  const text = out().cff;
+  const cff = readCff(text);
+  assert.equal(cff.doi, CONCEPT_DOI, 'CITATION.cff does not name the concept DOI');
+  assert.deepEqual(
+    (cff.identifiers ?? []).map((i) => [i.type, i.value]),
+    [['doi', CONCEPT_DOI]],
+    'CITATION.cff identifiers should list the concept DOI and nothing else',
+  );
+  assert.match(cff.identifiers[0].description, /latest version/);
+  const dois = new Set(text.match(/\b10\.\d{4,}\/[^\s"]+/g));
+  assert.deepEqual([...dois], [CONCEPT_DOI], 'CITATION.cff names a DOI other than the concept DOI');
+  // Zenodo files each new version under the concept by itself, so
+  // .zenodo.json names no Zenodo DOI and has no `doi` field. (It does link
+  // NCEI's upstream DOI, which is a different registrant.)
+  assert.ok(!out().zenodo.includes('10.5281'), '.zenodo.json names a Zenodo DOI');
+  assert.ok(!('doi' in zenodo()), '.zenodo.json has a doi field');
+});
+
+test('the README says how to cite, with the same DOI and the same words', () => {
+  const readme = fs.readFileSync('README.md', 'utf8');
+  assert.match(readme, /^## How to cite$/m);
+  assert.ok(
+    readme.includes(`[![DOI](https://zenodo.org/badge/DOI/${CONCEPT_DOI}.svg)](${DOI_URL})`),
+    `the README has no DOI badge for ${CONCEPT_DOI}`,
+  );
+  assert.ok(readme.includes(RECOMMENDED_CITATION), `README should contain: ${RECOMMENDED_CITATION}`);
+  for (const c of CREATORS) assert.ok(RECOMMENDED_CITATION.includes(c.name), `the citation drops ${c.name}`);
+  const dois = new Set(readme.match(/10\.5281\/zenodo\.\d+/g));
+  assert.deepEqual([...dois], [CONCEPT_DOI], 'the README names a Zenodo DOI other than the concept DOI');
+  // Near the top: after the headline, before the long prose.
+  assert.ok(readme.indexOf('## How to cite') < readme.indexOf('## Prior art, named'), 'How to cite is buried');
+  assert.match(readme, /\[CITATION\.cff\]\(CITATION\.cff\)/);
+  assert.match(readme, /\[DATA\.md\]\(DATA\.md\)/);
+});
+
+test('the DOI is written once, in citation.ts, and the page reads it from there', () => {
+  const seo = fs.readFileSync('src/lib/seo.ts', 'utf8');
+  assert.match(seo, /import \{[^}]*\bDOI_URL\b[^}]*\} from '\.\/citation\.ts'/);
+  assert.match(seo, /identifier: DOI_URL,/);
+  assert.match(seo, /sameAs: DOI_URL,/);
+  // schema.org `citation` lists the works a dataset cites, not how to cite it.
+  assert.ok(!/\bcitation:/.test(seo), 'seo.ts puts the DOI in schema.org citation');
+  const about = fs.readFileSync('src/components/AboutPanel.tsx', 'utf8');
+  assert.match(about, /import \{[^}]*\bDOI_URL\b[^}]*\} from '\.\.\/lib\/citation\.ts'/);
+  assert.match(about, /href=\{DOI_URL\}/);
+  // And no other source file writes it out.
+  const restated = fs.readdirSync('src', { recursive: true })
+    .map((f) => String(f).replace(/\\/g, '/'))
+    .filter((f) => /\.(ts|tsx|html|css)$/.test(f))
+    .filter((f) => fs.readFileSync(`src/${f}`, 'utf8').includes('10.5281'));
+  assert.deepEqual(restated, ['lib/citation.ts'], 'a source file other than citation.ts writes the DOI');
 });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { BasemapCredits, LegalPages, PAGE_TITLES, type LegalPage } from './LegalPages.tsx';
+import { DOI_URL, RECOMMENDED_CITATION } from '../lib/citation.ts';
 
 interface Summary {
   total: number;
@@ -214,6 +215,37 @@ export function AboutPanel() {
             Records are machine-ingested and marked unverified until a human checks them
             against a primary source. The completeness bar on each card tells you how
             much we actually know.
+          </p>
+        </section>
+
+        {/*
+          A plain link, not the DOI badge the README carries: the badge is an
+          image from zenodo.org, a host the privacy page does not list, and it
+          would be fetched by every visitor who opens this panel. A link is
+          only followed by someone who clicks it.
+        */}
+        <section className="mt-6">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-steam-400">
+            Cite this dataset
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-steam-300">
+            Every release is archived on Zenodo under a DOI, and{' '}
+            <a
+              href={DOI_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-steam-100 underline decoration-basalt-600 underline-offset-4 hover:decoration-ember"
+            >
+              {DOI_URL}
+            </a>{' '}
+            always leads to the latest one.
+          </p>
+          <p className="mt-3 select-all rounded-xl border border-basalt-800 bg-basalt-850 px-3 py-2.5 text-[13px] leading-relaxed text-steam-200 wrap-anywhere">
+            {RECOMMENDED_CITATION}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-steam-300">
+            Cite the version you actually used: each one has its own DOI, listed on the Zenodo
+            page, and the records can change from one version to the next.
           </p>
         </section>
 

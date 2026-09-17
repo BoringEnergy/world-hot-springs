@@ -174,7 +174,7 @@ export const useStore = create<State>((set, get) => ({
       if (spring) applySpringMeta(spring);
     } else {
       navigate({ kind: 'map' });
-      applyDefaultMeta(get().meta, null);
+      applyDefaultMeta(get().meta);
     }
   },
 
@@ -185,7 +185,7 @@ export const useStore = create<State>((set, get) => ({
       applyPageMeta('about');
     } else if (get().selectedId === null) {
       navigate({ kind: 'map' });
-      applyDefaultMeta(get().meta, null);
+      applyDefaultMeta(get().meta);
     }
   },
 
@@ -196,7 +196,7 @@ export const useStore = create<State>((set, get) => ({
       applyPageMeta(p);
     } else if (get().selectedId === null) {
       navigate({ kind: 'map' });
-      applyDefaultMeta(get().meta, null);
+      applyDefaultMeta(get().meta);
     }
   },
 
@@ -209,7 +209,7 @@ export const useStore = create<State>((set, get) => ({
       const spring = get().springs.find((s) => s.id === route.id) ?? null;
       set({ selectedId: spring ? route.id : null, showAbout: false, page: null });
       if (spring) applySpringMeta(spring);
-      else applyDefaultMeta(get().meta, null);
+      else applyDefaultMeta(get().meta);
       return;
     }
     if (route.kind === 'page') {
@@ -222,7 +222,7 @@ export const useStore = create<State>((set, get) => ({
       return;
     }
     set({ selectedId: null, showAbout: false, page: null });
-    applyDefaultMeta(get().meta, null);
+    applyDefaultMeta(get().meta);
   },
 
   locateMe: () => {

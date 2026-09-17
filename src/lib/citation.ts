@@ -61,9 +61,26 @@ export interface Creator {
 export const CREATORS: readonly Creator[] = [{ name: 'Hudson R&D' }];
 
 /**
- * The DOI that resolves to every version. `null` until it is wired in on
- * purpose, after the record has been read back from Zenodo (see
- * docs/RELEASING.md), and the generators emit nothing for it while it is: a
+ * The concept DOI: the one that always resolves to the latest version.
+ * Wired on purpose, after the v1.0.0 record had been read back
+ * from Zenodo (see docs/RELEASING.md). It was `null` until then, because a
  * placeholder DOI in a citation file is an invented identifier.
+ *
+ * Only the concept DOI is written anywhere. Each version also gets a DOI of
+ * its own (v1.0.0's is 10.5281/zenodo.22800997), but that one is minted when
+ * the release is published, so the files a release archives cannot know it.
+ * A reader who needs the exact version finds its DOI on the Zenodo page.
  */
-export const CONCEPT_DOI: string | null = null;
+export const CONCEPT_DOI = '10.5281/zenodo.22800996';
+
+/** The concept DOI as a link. Everything that links the DOI builds it from here. */
+export const DOI_URL = `https://doi.org/${CONCEPT_DOI}`;
+
+/**
+ * The plain-text citation the README and the About panel print. No year and
+ * no version: the concept DOI spans every version, and a hand-typed year is
+ * the first thing to go stale. Written from the facts above, so a new creator
+ * or title changes it everywhere at once.
+ */
+export const RECOMMENDED_CITATION =
+  `${CREATORS.map((c) => c.name).join('; ')}. ${TITLE} [Data set]. Zenodo. ${DOI_URL}`;

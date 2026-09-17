@@ -157,7 +157,14 @@ export function buildCff({ summary, release, upstreams = UPSTREAMS }) {
     ...CREATORS.flatMap((c) => [`  - name: ${q(c.name)}`, `    website: ${q(PUBLISHER_URL)}`]),
     `repository-code: ${q(REPO_URL)}`,
     `url: ${q(SITE_ORIGIN)}`,
-    ...(CONCEPT_DOI ? [`doi: ${q(CONCEPT_DOI)}`] : []),
+    // The concept DOI only. The version DOI of the release being cut is
+    // minted when it is published, after this file has been archived, so it
+    // cannot be written here; the Zenodo page lists it.
+    `doi: ${q(CONCEPT_DOI)}`,
+    'identifiers:',
+    `  - type: ${q('doi')}`,
+    `    value: ${q(CONCEPT_DOI)}`,
+    `    description: ${q('The concept DOI. It always resolves to the latest version; each version has its own DOI on the Zenodo page.')}`,
     `abstract: ${q(abstract(summary))}`,
     'keywords:',
     ...KEYWORDS.map((k) => `  - ${q(k)}`),
