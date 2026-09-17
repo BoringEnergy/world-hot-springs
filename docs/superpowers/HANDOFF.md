@@ -91,6 +91,33 @@ RELEASING.md. `CONCEPT_DOI` stays `null` until the DOI is wired in on purpose.
   Machine scope. The production `NODE_ENV` a cowork session saw came from its
   host process, not from Windows.
 
+## 2026-09-17 -- DOI wired
+
+**The atlas says how to cite it.** `CONCEPT_DOI` in `src/lib/citation.ts`
+is `10.5281/zenodo.22800996`, the concept DOI of the record v1.0.0 created;
+it resolves to the latest version. Everything else reads it from there:
+`CITATION.cff` (`doi` and `identifiers`, generated), the README's "How to
+cite" section and badge, the Dataset JSON-LD (`identifier` and `sameAs`),
+and a "Cite this dataset" block in the About panel. `RECOMMENDED_CITATION`
+in the same module is the one citation string the README and the panel print.
+
+- **Only the concept DOI is written anywhere.** A release's version DOI is
+  minted after its files are archived, so no archived file can name its own.
+  v1.0.0's is `10.5281/zenodo.22800997`, recorded in RELEASING.md.
+- **schema.org `citation` is not how to cite a dataset.** It lists the works
+  the dataset cites. The plan said `citation`; the DOI went to `identifier`
+  and `sameAs` instead.
+- **`applyDefaultMeta` lost its `facts` parameter.** Nothing ever passed it,
+  and the branch it guarded dated the atlas by its OpenStreetMap layer, which
+  the About panel is careful not to do.
+- **No badge image on the site.** The About panel links doi.org with a plain
+  anchor; an image from zenodo.org would be a host the privacy page does not
+  list. `e2e/citation.spec.ts` holds that.
+- **The Terms page** now says what removal cannot reach: an archived version.
+
+**Next: v1.0.1**, per the plan's second addendum and RELEASING.md -- once the
+harness fixes have merged too.
+
 ## 2026-09-16 -- browser harness
 
 **Layer C is reversed.** On 2026-09-11 a React render harness was declined
