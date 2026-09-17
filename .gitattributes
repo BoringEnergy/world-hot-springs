@@ -21,3 +21,9 @@
 *.ico binary
 *.woff binary
 *.woff2 binary
+
+# Kept out of `git archive`, and so out of the tarball a release archives
+# under a DOI. `.claude/` is this machine's agent tooling (a launch config),
+# not part of the dataset or the site. `.gstack/` stays in: test comments cite
+# the QA reports it holds.
+.claude/ export-ignore

@@ -16,6 +16,8 @@ Overpass API  ->  data/raw/osm/tile-*.json   (scripts/fetch-osm.mjs)
               ->  durable identity           (scripts/lib/identity.mjs)
               ->  NCEI enrichment            (scripts/lib/ncei-match.mjs)
               ->  AIST enrichment            (scripts/lib/aist-match.mjs)
+              ->  WQP enrichment             (scripts/lib/wqp-match.mjs)
+              ->  NBMG enrichment            (scripts/lib/nbmg-match.mjs)
               ->  curated overlay            (scripts/lib/overlay.mjs)
               ->  temperature warnings       (scripts/lib/normalize.mjs)
               ->  completeness rescore       (scripts/lib/normalize.mjs)
@@ -27,23 +29,12 @@ Overpass API  ->  data/raw/osm/tile-*.json   (scripts/fetch-osm.mjs)
 
 ## Upstreams, and the attribution each one requires
 
-| Upstream | What it supplies | Licence |
-| --- | --- | --- |
-| OpenStreetMap | every pin's position, name and tags | ODbL 1.0, attribution required |
-| NOAA NCEI | US thermal springs: 1,023 pins and 131 enrichments | public domain, doi:10.25921/c8p0-zs06 |
-| AIST / GSJ | Japanese wellhead temperature and chemistry | 政府標準利用規約 2.0 (CC BY 4.0 compatible), attribution required |
-
-**Map data © OpenStreetMap contributors, ODbL 1.0.**
-
-**NOAA National Centers for Environmental Information, *Thermal Springs List
-for the United States* (1981), doi:10.25921/c8p0-zs06.** A federal compilation
-that has not been checked on the ground since; every record derived from it
-says so on its own card.
-
-**産業技術総合研究所 地質調査総合センター『日本の温泉』 (AIST/GSJ, Geochemical
-Map of Hot Spring Waters, GRES-DB ONSEN 2020).** Used under 政府標準利用規約
-第2.0版, which the publisher states is CC BY 4.0 compatible; attribution is
-required and commercial use is permitted.
+**[DATA.md](../DATA.md) is the list**: every upstream, what it gave, its
+licence and the credit it requires. A test holds it to
+`scripts/lib/sources.mjs`, the one definition the GeoJSON's
+`metadata.sources` is also built from. This page used to keep a table of its
+own, and it went on naming three upstreams after the pipeline had more -- so
+it no longer keeps one.
 
 Two things about the AIST data are worth stating here rather than burying in
 code. Its analyses run **1910 to 2005, median 1975**, and 2,692 of 7,203 rows

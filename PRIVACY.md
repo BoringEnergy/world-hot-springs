@@ -55,6 +55,21 @@ Open an issue with the spring's name or coordinates, or contact the maintainers
 privately if the issue itself would draw attention to it. Private contact is
 better and we will not publish the request.
 
+## Archived versions
+
+Versioned releases of the dataset are archived on Zenodo under a DOI, so that
+a citation keeps pointing at the records it cited. An archived version is an
+immutable snapshot, in the same way git history is: removal cannot reach back
+into it. Removal applies to the live site, to the repository from that point
+on, and to every later version.
+
+Pending removal requests are processed before any release is made, so a
+request that reaches us in time never enters an archive. If a request concerns
+a spring that is already in an archived version, we will ask Zenodo to
+restrict access to the affected files. That is Zenodo's decision, not ours,
+and it may or may not be granted -- which is exactly why the check comes
+before a release rather than after it.
+
 ## What we also exclude, automatically
 
 - Springs tagged `access=private` or `access=no` upstream. Those are somebody's

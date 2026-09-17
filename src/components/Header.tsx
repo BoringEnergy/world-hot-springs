@@ -1,5 +1,6 @@
 import { useStore } from '../store/useStore';
 import { href } from '../lib/router.ts';
+import { PUBLISHER_URL } from '../lib/citation.ts';
 
 export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () => void; filtersOpen: boolean }) {
   const units = useStore((s) => s.units);
@@ -76,7 +77,7 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
       </a>
 
       <a
-        href="https://hudsonrnd.com"
+        href={PUBLISHER_URL}
         target="_blank"
         rel="noreferrer noopener"
         className="hidden shrink-0 self-stretch border-l border-basalt-800 pl-3 pr-1 text-[10px] uppercase leading-[1.15] tracking-[0.14em] text-steam-500 transition hover:text-steam-200 xl:flex xl:flex-col xl:justify-center"

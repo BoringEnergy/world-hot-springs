@@ -22,7 +22,11 @@ import path from 'node:path';
 // only ever regenerated the output on the Linux build host.
 import { pathToFileURL } from 'node:url';
 
-const DEFAULT_ORIGIN = 'https://whs.boring.energy';
+// A literal, not an import of SITE_ORIGIN from src/lib/citation.ts: this script
+// runs inside `npm run build` on Vercel, which should not have to strip
+// TypeScript to publish a sitemap. scripts/citation.test.mjs holds the two
+// equal, so the literal is a checked copy rather than a second fact.
+export const DEFAULT_ORIGIN = 'https://whs.boring.energy';
 const PAGES = ['about', 'safety', 'terms', 'privacy'];
 const OUT = path.join('public', 'sitemap.xml');
 const GEOJSON = path.join('data', 'hot-springs.geojson');

@@ -50,7 +50,11 @@ test('the masthead credits the lab that publishes the atlas', () => {
   // Provenance is the product here, and that includes the atlas's own. A
   // dataset asking to be cited says who publishes it on the page, not only in
   // CITATION.cff where nobody looks.
-  assert.match(HEADER, /hudsonrnd\.com/);
+  // The address is read from src/lib/citation.ts, the same line CITATION.cff
+  // names the publisher's site from, so the two cannot disagree.
+  assert.match(HEADER, /href=\{PUBLISHER_URL\}/);
+  assert.match(HEADER, /import \{ PUBLISHER_URL \} from '\.\.\/lib\/citation\.ts'/);
+  assert.match(fs.readFileSync('src/lib/citation.ts', 'utf8'), /PUBLISHER_URL = 'https:\/\/hudsonrnd\.com'/);
 });
 
 test('the spring count is announced, and the announced copy is always rendered', () => {
