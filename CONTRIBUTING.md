@@ -80,7 +80,8 @@ npm run test:e2e          # builds dist-e2e/ and drives it in Chromium, offline
 The harness runs a production build made with `--mode e2e`, which adds the
 map's test hooks, and answers every third-party request from fixtures. How it
 works, and what it measured, is in [e2e/README.md](e2e/README.md). The `ui`
-workflow runs all of this on every pull request. It is advisory for now.
+workflow runs all of this on every pull request, and it is advisory: read it,
+but `validate` and `gate-2 claims` are the checks that gate a merge.
 
 If you change a tag mapping in `scripts/lib/normalize.mjs`, update the
 corresponding table in [docs/DATA.md](docs/DATA.md) in the same commit. The

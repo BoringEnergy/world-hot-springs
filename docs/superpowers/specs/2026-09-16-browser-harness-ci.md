@@ -115,9 +115,11 @@ to `gate.yml`.
 
 ## Status
 
-**Advisory.** `ui` is not a required check and should not become one until
-its flake rate has been measured over real pull requests. `retries: 0` in
-`playwright.config.ts` is deliberate: a retry would hide exactly the number
-that decision needs. The workflow has no path filters, so it runs on every
-pull request, and making it required later will not leave a check pending
-forever.
+**Advisory, and settled.** Hudson decided on 2026-09-17 that `ui` stays
+advisory: not a required check, and not a pull request that prepares one. The
+question was asked after it had been green on every run, and that was the
+answer -- a required `ui` would lock the maintainer's own merges behind a
+browser suite, and a required context is satisfied by NAME, which is the same
+exposure `gate-2 claims` has. `retries: 0` in `playwright.config.ts` stays
+deliberate: a retry would hide a flake rather than show it. The workflow has
+no path filters, so it runs on every pull request either way.
