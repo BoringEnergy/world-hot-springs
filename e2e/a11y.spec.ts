@@ -64,9 +64,14 @@ test('known defect D9: Tab reaches the closed filter rail', async ({ page }) => 
   for (let i = 0; i < 60 && !reached; i++) {
     await page.keyboard.press('Tab');
     reached = await page.evaluate(() => {
+      // The rail specifically: the hidden container whose heading is Filters.
+      // Any other aria-hidden focus trap is a different defect, and must not
+      // keep this pin green after the rail is fixed.
       const el = document.activeElement;
-      return el?.closest('[aria-hidden="true"]') ? el.outerHTML.slice(0, 80) : '';
+      const hidden = el?.closest('[aria-hidden="true"]');
+      const isRail = [...(hidden?.querySelectorAll('h2') ?? [])].some((h) => h.textContent?.trim() === 'Filters');
+      return el && isRail ? el.outerHTML.slice(0, 80) : '';
     });
   }
-  expect(reached, 'keyboard focus landed inside an aria-hidden element').not.toBe('');
+  expect(reached, 'keyboard focus landed inside the closed, aria-hidden filter rail').not.toBe('');
 });

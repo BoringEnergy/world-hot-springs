@@ -97,9 +97,11 @@ test('known defect D12b: footer links overflow at 800px', async ({ page }) => {
   await waitForMap(page);
 
   const source = await placement(footerLink(page, 'Source'));
-  // B0: 778.8 to 820.0 -- cut by the edge, its centre still on screen.
-  expect(source.right, 'Source is cut by the right edge').toBeGreaterThan(800);
-  expect(source.left).toBeLessThan(800);
+  // B0 on Windows: 778.8 to 820.0, cut by the edge. Where it starts depends on
+  // the system font -- no web font loads -- and with Linux-like metrics it sits
+  // wholly past the edge (Arial 804.0-846.8, Verdana 869.2-915.4). Only the
+  // right edge is common to every font measured, so only it is pinned.
+  expect(source.right, 'Source reaches past the right edge').toBeGreaterThan(800);
 });
 
 const PAGES: StandingPage[] = ['safety', 'about', 'terms', 'privacy'];

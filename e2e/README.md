@@ -173,7 +173,7 @@ Pinned defects fail when fixed. Each was checked by applying a plausible fix:
 | D12, D12b | footer `flex-wrap`, nav `flex-wrap` without `shrink-0` | Source's right edge 164.2 at 320 and 784 at 800 |
 | D1 | the wordmark span always `flex` | `the only h1 is display:none on a phone` Expected 0, Received 1 |
 | D2 | `aria-label="Filters"` | Expected `""`, Received `"Filters"` |
-| D9 | `inert={!open}` on the rail | `keyboard focus landed inside an aria-hidden element` |
+| D9 | `inert={!open}` on the rail | `keyboard focus landed inside the closed, aria-hidden filter rail` (the pin now requires the hidden container to be the rail, found by its Filters heading) |
 | D5 | the privacy page names `whs.welcomed` | `the privacy page names the welcome key` |
 | D13 | `zoom: 1.2` below 640 px, `minZoom: 1` | `the globe runs off the left of a phone` Received 20.5 |
 
