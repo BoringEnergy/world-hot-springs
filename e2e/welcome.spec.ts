@@ -8,12 +8,13 @@
  *                               the arrival address (the D3 fix reverted)
  *   a closed deep-linked card   the same mutation (D3b)
  *   does not bring it up
+ *   Escape meant for a page     mutation: the Escape listener keyed on `open`
+ *   leaves it unseen            instead of on-screen (the D8 fix reverted)
  *
  * Pinned defects. Each asserts what the app does TODAY, so it fails when the
  * defect is fixed as surely as when the harness breaks; the fix flips it.
  *
  *   D4   it covers the search results
- *   D8   Escape pressed while it is hidden marks it seen
  *
  * No seeding here: every test starts as a first visit.
  */
@@ -161,20 +162,23 @@ test('known defect D4: the welcome panel covers the search results', async ({ pa
   expect(hitsResult, 'the first search result is under the greeting').toBe(false);
 });
 
-test('known defect D8: Escape pressed while the welcome panel is hidden marks it seen', async ({ page }) => {
-  // A deep link no longer mounts the panel open, so it is hidden the other
-  // way: shown at the map, then covered by a standing page from the footer.
+test('Escape meant for a page covering the welcome panel leaves the panel unseen', async ({ page }) => {
+  // Shown at the map, then covered by a standing page from the footer.
   await page.goto(href({ kind: 'map' }));
   await expect(openTheMap(page)).toBeVisible();
   await page.getByRole('contentinfo').locator(`a[href="${href({ kind: 'page', page: 'terms' })}"]`).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: tabLabel('terms') })).toBeVisible();
   await expect(openTheMap(page)).toBeHidden();
-  expect(await welcomed(page)).toBeNull();
 
-  // Escape is meant for the page. It closes it -- and dismisses the covered panel.
+  // Escape closes the page, and only the page.
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
-  expect(await welcomed(page), 'a panel hidden behind the page was marked seen').toBe('1');
+  expect(await welcomed(page), 'a panel hidden behind the page was marked seen').toBeNull();
+  await expect(openTheMap(page), 'the greeting did not come back once the page closed').toBeVisible();
+
+  // Once it is on screen again, Escape is its own.
+  await page.keyboard.press('Escape');
   await expect(openTheMap(page)).toBeHidden();
+  expect(await welcomed(page)).toBe('1');
 });

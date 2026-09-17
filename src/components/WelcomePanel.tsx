@@ -101,16 +101,24 @@ export function WelcomePanel() {
     setOpen(false);
   };
 
+  // A card or a standing page outranks the greeting, always.
+  const visible = open && !selectedId && !showAbout && !page && !error;
+
+  /*
+   * Escape dismisses the greeting only while it is on screen. Listening for as
+   * long as it was merely open meant that an Escape meant for a card or a page
+   * covering it also marked it seen, and a panel the visitor had not read yet
+   * never came back.
+   */
   useEffect(() => {
-    if (!open) return;
+    if (!visible) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && dismiss();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [visible]);
 
-  // A deep link, a card or a standing page outranks the greeting, always.
-  if (!open || selectedId || showAbout || page || error) return null;
+  if (!visible) return null;
 
   /*
    * A spring worth landing on: one the atlas actually knows something about.
