@@ -25,8 +25,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { href, parse } from '../lib/router.ts';
-
-const SEEN_KEY = 'whs.welcomed';
+import { WELCOMED_KEY } from '../lib/storage.ts';
 
 /*
  * Whether the visitor arrived at the map itself, read once from the address
@@ -51,7 +50,7 @@ interface Summary {
 
 function seen(): boolean {
   try {
-    return localStorage.getItem(SEEN_KEY) === '1';
+    return localStorage.getItem(WELCOMED_KEY) === '1';
   } catch {
     return false;
   }
@@ -59,7 +58,7 @@ function seen(): boolean {
 
 function markSeen(): void {
   try {
-    localStorage.setItem(SEEN_KEY, '1');
+    localStorage.setItem(WELCOMED_KEY, '1');
   } catch {
     /* Private window, blocked storage. The panel simply returns next visit. */
   }

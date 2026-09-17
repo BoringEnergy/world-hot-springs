@@ -1,7 +1,7 @@
 /**
  * Facts the specs need that live in src/ but are not exported.
  *
- * A spec that writes `'whs.welcomed'` or the default page title keeps a
+ * A spec that writes a storage key or the default page title keeps a
  * second copy of a fact, and the copy is what drifts: the component changes,
  * the spec goes on asserting the old string, and the test fails for a reason
  * nobody meant to test -- or, worse, a storage-key rename makes a seeding
@@ -24,11 +24,11 @@ export function stringConst(file: string, name: string): string {
   return m[2];
 }
 
-/** localStorage key the welcome panel marks itself seen under. */
-export const WELCOMED_KEY = stringConst('src/components/WelcomePanel.tsx', 'SEEN_KEY');
-
-/** localStorage key the temperature unit is remembered under. */
-export const UNITS_KEY = stringConst('src/store/useStore.ts', 'UNITS_KEY');
+/**
+ * The localStorage keys, from lib/storage.ts: a leaf module with no imports,
+ * which the privacy page renders and the app writes through.
+ */
+export { UNITS_KEY, WELCOMED_KEY, STORAGE_KEYS } from '../../src/lib/storage.ts';
 
 /**
  * The site name every page title carries. lib/seo.ts imports it from
