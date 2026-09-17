@@ -64,8 +64,11 @@ export default function App() {
         {!filtersOpen && <ResultsList />}
         {/*
           The greeting shares the top-left corner with the results list and the
-          filter rail, and loses to both: opening either is a statement that
-          you already know what you are doing here.
+          filter rail, and gives way to both: opening either is a statement that
+          you already know what you are doing here. The rail hides it for as
+          long as the rail is open. A search or "Near me", which is what brings
+          up the results list, dismisses it for good -- WelcomePanel does that,
+          because the list alone would sit underneath it.
         */}
         {!filtersOpen && <WelcomePanel />}
         <DetailPanel />

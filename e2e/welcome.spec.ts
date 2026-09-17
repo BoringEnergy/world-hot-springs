@@ -8,17 +8,14 @@
  *                               the arrival address (the D3 fix reverted)
  *   a closed deep-linked card   the same mutation (D3b)
  *   does not bring it up
+ *   a search / Near me closes   mutation: the effect that dismisses the
+ *   it, marked seen             panel on a search or Near me removed (D4)
  *   Escape meant for a page     mutation: the Escape listener keyed on `open`
  *   leaves it unseen            instead of on-screen (the D8 fix reverted)
  *
- * Pinned defects. Each asserts what the app does TODAY, so it fails when the
- * defect is fixed as surely as when the harness breaks; the fix flips it.
- *
- *   D4   it covers the search results
- *
  * No seeding here: every test starts as a first visit.
  */
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { test, expect } from './support/offline.ts';
 import { waitForData } from './support/map.ts';
 import { record } from './support/records.ts';
@@ -141,25 +138,45 @@ test('closing a deep-linked card does not bring up the welcome panel, and the pa
   await expect(openTheMap(page)).toBeVisible();
 });
 
-test('known defect D4: the welcome panel covers the search results', async ({ page }) => {
-  await page.goto('/');
-  await waitForData(page);
-  await expect(openTheMap(page)).toBeVisible();
-
-  await page.getByRole('textbox', { name: 'Search hot springs' }).fill(RADIUM.name!);
-  const result = page.getByRole('main').getByRole('button', { name: new RegExp(RADIUM.name!) }).first();
-  await expect(result).toBeAttached();
-
-  // What a click at the centre of the first result would land on.
+/** Whether a click at the centre of `result` would land on it. */
+async function hitTestable(result: Locator) {
   const box = (await result.boundingBox())!;
-  const hitsResult = await result.evaluate(
+  return result.evaluate(
     (el, [x, y]) => {
       const hit = document.elementFromPoint(x, y);
       return !!hit && el.contains(hit);
     },
     [box.x + box.width / 2, box.y + box.height / 2],
   );
-  expect(hitsResult, 'the first search result is under the greeting').toBe(false);
+}
+
+test('a search closes the welcome panel, marks it seen, and leaves the results clickable', async ({ page }) => {
+  await page.goto('/');
+  await waitForData(page);
+  await expect(openTheMap(page)).toBeVisible();
+
+  await page.getByRole('textbox', { name: 'Search hot springs' }).fill(RADIUM.name!);
+  const result = page.getByRole('main').getByRole('button', { name: new RegExp(RADIUM.name!) }).first();
+  await expect(result).toBeVisible();
+  await expect(openTheMap(page), 'the greeting is still up over the search').toBeHidden();
+  expect(await welcomed(page), 'a search closed the greeting without marking it seen').toBe('1');
+  expect(await hitTestable(result), 'the first search result is under the greeting').toBe(true);
+});
+
+test('Near me in the header closes the welcome panel, marks it seen, and leaves the results clickable', async ({ page, context }) => {
+  await context.grantPermissions(['geolocation']);
+  // Radium's own coordinates, so the nearest result is a known record.
+  await context.setGeolocation({ latitude: RADIUM.location.lat, longitude: RADIUM.location.lng });
+  await page.goto('/');
+  await waitForData(page);
+  await expect(openTheMap(page)).toBeVisible();
+
+  await page.getByRole('banner').getByRole('button', { name: 'Find springs near me' }).click();
+  const result = page.getByRole('main').getByRole('button', { name: new RegExp(RADIUM.name!) }).first();
+  await expect(result).toBeVisible();
+  await expect(openTheMap(page), 'the greeting is still up over the nearest springs').toBeHidden();
+  expect(await welcomed(page), 'Near me closed the greeting without marking it seen').toBe('1');
+  expect(await hitTestable(result), 'the nearest result is under the greeting').toBe(true);
 });
 
 test('Escape meant for a page covering the welcome panel leaves the panel unseen', async ({ page }) => {

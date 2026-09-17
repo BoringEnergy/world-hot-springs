@@ -84,6 +84,8 @@ export function WelcomePanel() {
   const select = useStore((s) => s.select);
   const setPage = useStore((s) => s.setPage);
   const locateMe = useStore((s) => s.locateMe);
+  const searching = useStore((s) => s.filters.query.trim().length > 0);
+  const nearMe = useStore((s) => s.locating || s.userLocation !== null);
 
   const [open, setOpen] = useState(() => ARRIVED_AT_MAP && !seen());
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -100,6 +102,17 @@ export function WelcomePanel() {
     markSeen();
     setOpen(false);
   };
+
+  /*
+   * A search or "Near me" from the header is an answer to the greeting, the
+   * same as "Open the map": the visitor knows what they want. Both open the
+   * results list, which sits in this same corner beneath the panel, so the
+   * panel closes and is marked seen rather than covering the answer.
+   */
+  useEffect(() => {
+    if (open && (searching || nearMe)) dismiss();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, searching, nearMe]);
 
   // A card or a standing page outranks the greeting, always.
   const visible = open && !selectedId && !showAbout && !page && !error;
