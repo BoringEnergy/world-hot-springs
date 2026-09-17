@@ -1,7 +1,7 @@
 {
   "name": "world-hot-springs",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "An open, curated atlas of the world's public hot springs.",
   "license": "MIT",

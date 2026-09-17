@@ -12,7 +12,9 @@ records.
     MAJOR   a schema break. A field renamed, removed or retyped, so code that
             read the previous version can misread this one
     MINOR   records or fields added or removed
-    PATCH   corrections to existing records, with no change of shape
+    PATCH   corrections to existing records, with no change of shape, or
+            to the documents that travel with them (the README, LICENSE,
+            DATA.md, CITATION.cff and the archive's own metadata)
 
 Every released version is a git tag `vX.Y.Z` and an archived, immutable
 snapshot with its own DOI. How a release is made is in
@@ -22,6 +24,29 @@ The top dated entry below is read by `scripts/build-citation.mjs`: its
 version and date become `version` and `publication_date` in `.zenodo.json`
 and `version` and `date-released` in `CITATION.cff`, and a test holds
 `package.json` to the same version. Change them here and nowhere else.
+
+## [1.0.1] - 2026-09-17
+
+The same records as 1.0.0, byte for byte -- nothing under `data/` changed.
+This version exists because 1.0.0 was archived before its archive metadata
+and several of its documents were right, and an archived version cannot be
+edited afterwards.
+
+- **The archive describes itself correctly.** `.zenodo.json` now travels
+  with the release, so the record is typed as a dataset, licensed ODbL 1.0,
+  credited to Hudson R&D, and linked to each upstream it derives from.
+  1.0.0 was archived as software credited to "World Hot Springs
+  contributors".
+- **CITATION.cff carries the concept DOI**, which always resolves to the
+  latest version. The README has a "How to cite" section.
+- **Corrected documents.** The README's United States and rest-of-world
+  temperature figures, and its unknown share, are recounted from the data;
+  the LICENSE data note names ODbL and defers to DATA.md instead of crediting
+  OpenStreetMap alone; docs/DATA.md no longer carries a three-upstream table
+  that had gone stale.
+- **What removal cannot reach is stated.** PRIVACY.md and the Terms page say
+  that an archived version, like git history, cannot be altered, and that
+  pending removal requests are cleared before any release.
 
 ## [1.0.0] - 2026-09-16
 
