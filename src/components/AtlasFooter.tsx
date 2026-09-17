@@ -20,7 +20,7 @@
  * covered and this must not be. It costs 34 pixels of globe.
  */
 import { TEMP_BANDS, UNKNOWN_TEMP_COLOR } from '../lib/types';
-import { formatTempValue } from '../lib/format';
+import { formatTempValue, shareAsFraction } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { href } from '../lib/router.ts';
 import { REPO_URL } from '../lib/citation.ts';
@@ -38,6 +38,7 @@ function Swatch({ color, label, range }: { color: string; label: string; range?:
 
 export function AtlasFooter() {
   const units = useStore((s) => s.units);
+  const springs = useStore((s) => s.springs);
   const setPage = useStore((s) => s.setPage);
   const setShowAbout = useStore((s) => s.setShowAbout);
 
@@ -56,6 +57,10 @@ export function AtlasFooter() {
       else setPage(to);
     },
   });
+
+  // Counted from the records the map is drawing, so the key cannot disagree
+  // with the dots. Nothing to say until they have arrived.
+  const unknown = springs.length ? shareAsFraction(springs.filter((s) => s.temperature.celsius === null).length / springs.length) : null;
 
   const link =
     'shrink-0 rounded px-1 text-steam-400 transition hover:text-steam-100 focus-visible:text-steam-100';
@@ -89,11 +94,15 @@ export function AtlasFooter() {
           />
         ))}
         {/*
-          Five springs in six are this colour, so it is not an afterthought at
-          the end of the key -- it is the commonest thing on the map and the
-          one fact about the dataset a visitor most needs to arrive knowing.
+          Most springs are this colour, so it is not an afterthought at the end
+          of the key -- it is the commonest thing on the map and the one fact
+          about the dataset a visitor most needs to arrive knowing.
         */}
-        <Swatch color={UNKNOWN_TEMP_COLOR} label="No reading" range="4 in 5" />
+        <Swatch
+          color={UNKNOWN_TEMP_COLOR}
+          label="No reading"
+          range={unknown ? `${unknown.part} in ${unknown.whole}` : undefined}
+        />
       </div>
 
       <nav

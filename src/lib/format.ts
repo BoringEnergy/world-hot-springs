@@ -21,6 +21,31 @@ export function formatTempValue(celsius: number | null, units: Units): string {
     : `${Math.round((celsius * 9) / 5 + 32)}°F`;
 }
 
+const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+/** 1 to 99 in words, as prose writes them: "four", "twenty-one". */
+export function numberWords(n: number): string {
+  if (!Number.isInteger(n) || n < 1 || n > 99) throw new RangeError(`no words for ${n}`);
+  return n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? `-${ONES[n % 10]}` : '');
+}
+
+/**
+ * A share said as "N in N+1", the plainest fraction nearest to it: 81% is
+ * four in five, not five in six. The footer, the welcome panel and the
+ * README all say the unknown-temperature share this way, and all three used
+ * to type it, which is how the README said "five in six" long after the
+ * data had moved. Now each derives it here from the data it has.
+ */
+export function shareAsFraction(share: number): { part: number; whole: number } {
+  let whole = 2;
+  for (let d = 2; d <= 10; d++) {
+    if (Math.abs((d - 1) / d - share) < Math.abs((whole - 1) / whole - share)) whole = d;
+  }
+  return { part: whole - 1, whole };
+}
+
 /**
  * How a mineral unit is written on a card. The stored value is lowercase
  * because that is how the source prints it; the display capitalises the litre

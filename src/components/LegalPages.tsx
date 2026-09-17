@@ -17,6 +17,8 @@
 import type { DatasetMeta } from '../lib/types';
 import { imagery, TERRAIN, THIRD_PARTIES, WEATHER_TERMS } from '../lib/basemap.ts';
 import { STORAGE_KEYS } from '../lib/storage.ts';
+import { numberWords } from '../lib/format.ts';
+import { useStore } from '../store/useStore';
 
 export type LegalPage = 'terms' | 'privacy' | 'safety';
 
@@ -66,6 +68,16 @@ function Stamp() {
 }
 
 function Terms({ meta }: { meta: DatasetMeta | null }) {
+  // Counted from the loaded records, like the footer's key: this sentence
+  // said "Nineteen percent" as typed text, a figure the next batch moves.
+  const springs = useStore((s) => s.springs);
+  const pct = springs.length
+    ? Math.round((springs.filter((s) => s.temperature.celsius !== null).length / springs.length) * 100)
+    : 0;
+  const coverage =
+    pct >= 1 && pct <= 99
+      ? `${numberWords(pct).replace(/^./, (c) => c.toUpperCase())} percent of these springs have a recorded temperature and the rest have never had one published`
+      : 'Most of these springs have never had a temperature published';
   return (
     <>
       <H>What this is</H>
@@ -104,8 +116,7 @@ function Terms({ meta }: { meta: DatasetMeta | null }) {
 
       <H>What is not promised</H>
       <P>
-        The atlas is provided as it is, with no warranty of any kind. Nineteen percent of these
-        springs have a recorded temperature and the rest have never had one published; that is
+        The atlas is provided as it is, with no warranty of any kind. {coverage}; that is
         stated on every card and it is not a defect being worked on. Prices, hours, access rules
         and clothing policies change without telling us, some records were last checked decades
         ago by their original publisher, and coordinates vary in precision by source.
