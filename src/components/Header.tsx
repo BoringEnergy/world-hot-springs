@@ -68,7 +68,14 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
             strokeLinecap="round"
           />
         </svg>
-        <span className="hidden min-w-0 flex-col leading-none md:flex">
+        {/*
+          The wordmark's words are hidden on a phone, where the mark alone has
+          to share a row with the search box -- but the h1 inside them is not.
+          This span was `hidden md:flex`, and display:none takes a heading out
+          of the accessibility tree with it, so below 768 px the page had no
+          h1 at all. `sr-only` keeps the words out of sight and in the tree.
+        */}
+        <span className="sr-only min-w-0 flex-col leading-none md:not-sr-only md:flex">
           <h1 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-steam-100 transition group-hover:text-white">
             World Hot Springs
           </h1>

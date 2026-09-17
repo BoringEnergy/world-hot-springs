@@ -4,11 +4,12 @@
  * class switch an element off at one width and on at another.
  *
  *   one h1 at 1440                 mutation: the header's h1 -> h2
+ *   one h1 at 375 (was D1)         mutation: the fix reverted, the wordmark
+ *                                  span `hidden md:flex` again
  *   every button named at 1440     mutation: the About button's aria-label removed
  *
  * Pinned defects (the fix flips each one):
  *
- *   D1  no h1 at 375: it sits inside the `hidden md:flex` wordmark
  *   D2  the Filters button has no name at 375: its only text is `hidden sm:inline`
  *   D9  Tab reaches the closed filter rail, which is aria-hidden but not inert
  */
@@ -26,10 +27,17 @@ async function load(page: Page, width: number, height: number) {
 /** The header's filter toggle, found by what it does rather than what it says. */
 const filtersButton = (page: Page) => page.getByRole('banner').locator('button[aria-pressed]');
 
-test('at 1440 px the page has exactly one h1', async ({ page }) => {
-  await load(page, 1440, 900);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
-});
+for (const [width, height] of [
+  [1440, 900],
+  [375, 812],
+]) {
+  // At 375 the wordmark's words are out of sight, and the h1 among them must
+  // still be in the accessibility tree: `sr-only`, never display:none.
+  test(`at ${width} px the page has exactly one h1`, async ({ page }) => {
+    await load(page, width, height);
+    await expect(page.getByRole('heading', { level: 1 }), 'the accessibility tree has no single h1').toHaveCount(1);
+  });
+}
 
 test('at 1440 px every button has an accessible name', async ({ page }) => {
   await load(page, 1440, 900);
@@ -40,12 +48,6 @@ test('at 1440 px every button has an accessible name', async ({ page }) => {
     const b = buttons.nth(i);
     await expect(b, `button ${i}: ${await b.evaluate((el) => el.outerHTML.slice(0, 120))}`).toHaveAccessibleName(/\S/);
   }
-});
-
-test('known defect D1: no h1 at 375px', async ({ page }) => {
-  await load(page, 375, 812);
-  await expect(page.locator('h1')).toHaveCount(1);
-  await expect(page.getByRole('heading', { level: 1 }), 'the only h1 is display:none on a phone').toHaveCount(0);
 });
 
 test('known defect D2: the Filters button has no accessible name at 375px', async ({ page }) => {
