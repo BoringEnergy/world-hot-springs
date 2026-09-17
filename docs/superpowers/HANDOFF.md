@@ -33,15 +33,53 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
 
+## 2026-09-17 -- gate-2 runs whatever gate-1 concluded; the spoof question is deferred
+
+**`workflow_run` fires on every conclusion**, and gate-2 runs on every one of
+them. An older note below said a failed gate-1 meant `workflow_run` never
+fired; it is corrected in place.
+
+**Skipping a failed gate-1 was considered and refused.** It reads as a free
+saving -- the security spec's draft had `conclusion == 'success'`, and
+gate-2.yml's own comment used to claim it -- but it is a hole. A fork PR runs
+its OWN `gate.yml`, so it chooses the job names and the run's conclusion:
+
+    validate            exits 0        a required context, app_id null
+    gate-2 claims       exits 0        a required context, app 15368 -- the
+                                       same app the real gate-2 posts as
+    anything            exits 1        so gate-1 concludes failure
+
+With the clause, gate-2 skips and those two green checks are all the commit
+carries. Without it, gate-2 runs, the path guard refuses a fork PR that
+touches anything outside `data/overlay/`, and a failing `gate-2 claims` lands
+after theirs. `scripts/workflows.test.mjs` now pins the absence of the clause,
+because it will look like an obvious fix again.
+
+Also worth knowing: a change to `gate-2.yml` only takes effect once it is on
+`main`. `workflow_run` always runs the default branch's copy, so the pull
+request making the change cannot exercise it.
+
+**Deferred, decided by Hudson 2026-09-17: whether a fork can satisfy
+`gate-2 claims` by name.** Branch protection pins that context to the GitHub
+Actions app (15368), which is also what a fork PR's own workflow jobs report
+as. The test, when it is done: from a throwaway fork, open a PR whose workflow
+has a job named `gate-2 claims` that exits 0, and see whether protection
+accepts it. If it does, move protection to a ruleset that requires the
+workflow file `.github/workflows/gate-2.yml` from the default branch rather
+than a check name. Until then the door is fork-PR approval for all external
+contributors (F10): read the file list before approving a fork's runs, and a
+PR touching `.github/` is refused by the path guard in gate-2.
+
+`ui` is still advisory; Hudson has not made it a required check.
+
 ## 2026-09-17 -- 1.0.1 released
 
 **Released 2026-09-17 from `bd73272`**: version DOI
 `10.5281/zenodo.22813285`, concept `10.5281/zenodo.22800996`. Zenodo read it
 as a Dataset by Hudson R&D under ODbL, with every related identifier -- the
 first record built from `.zenodo.json`, and it came out as intended. The
-table of versions and DOIs is at the end of docs/RELEASING.md. Still open:
-v1.0.0's record says Software and "World Hot Springs contributors" until the
-maintainer edits it on Zenodo.
+table of versions and DOIs is at the end of docs/RELEASING.md. v1.0.0's
+record was corrected by hand the same day (Dataset, creator "HudsonR&D").
 
 How it was prepared: `CHANGELOG.md` has a `[1.0.1] - 2026-09-17` entry,
 `package.json` is 1.0.1, and `.zenodo.json` / `CITATION.cff` are
@@ -949,8 +987,15 @@ For the record, the original defect: the path guard exists to constrain
 strangers, but it was applied to every pull request, so any maintainer PR
 touching `scripts/`, `src/`, `docs/`, or `package.json` failed a **required**
 check. It was never a security weakness — an overlay-only contribution passed
-normally, and a failed gate-1 means `workflow_run` never fires, so no spend
-occurs.
+normally -- and no spend could occur.
+
+**Corrected 2026-09-17:** this used to say "a failed gate-1 means
+`workflow_run` never fires". That was wrong. `types: [completed]` fires on
+every conclusion, and gate-2's job condition checked only the event, so a
+failed gate-1 still started gate-2. The condition now also requires
+`conclusion == 'success'`, as the security spec's design always had, and
+`scripts/workflows.test.mjs` holds it. Skipping fails closed: a skipped job
+posts no `gate-2 claims`, so the required context never arrives.
 
 
 ---

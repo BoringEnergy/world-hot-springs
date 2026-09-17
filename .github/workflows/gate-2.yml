@@ -66,9 +66,25 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Only pull requests, and only when the untrusted gate itself completed.
-    # Gate 1's *conclusion* is not trusted as a verdict; it is used only to
-    # avoid spending a runner on a run that never produced a diff.
+    # Pull requests only -- and deliberately WHATEVER gate-1 concluded.
+    # `types: [completed]` fires on every conclusion, and this runs on every
+    # one of them. Adding `conclusion == 'success'` here, which the security
+    # spec's draft had and this comment once claimed, would hand a fork the
+    # ability to silence this gate:
+    #
+    #   a fork PR runs its OWN gate.yml, so it chooses the job names and the
+    #   run's conclusion. A `validate` job that exits 0, a job named
+    #   `gate-2 claims` that exits 0, and one job that fails on purpose would
+    #   make gate-1 conclude failure, skip this workflow, and leave only the
+    #   contributor's own green checks on the commit -- both of them named
+    #   after required contexts, reported by the same GitHub Actions app.
+    #
+    # Running regardless is what puts the real verdict on the commit, after
+    # theirs: for a fork PR touching anything outside data/overlay/, the path
+    # guard refuses and `gate-2 claims` is posted as a failure.
+    #
+    # The cost of not skipping is one short job per failed gate-1, on a public
+    # repository with free minutes. scripts/workflows.test.mjs pins this.
     if: github.event.workflow_run.event == 'pull_request'
     steps:
       # The default branch. Never the pull request head.
