@@ -4,6 +4,7 @@ import type { Units } from '../lib/format';
 import { distanceKm } from '../lib/format.ts';
 import { navigate, parse, type PageName, type Route } from '../lib/router.ts';
 import { applyDefaultMeta, applyPageMeta, applySpringMeta } from '../lib/seo.ts';
+import { UNITS_KEY } from '../lib/storage.ts';
 
 export type PriceFilter = 'any' | 'free' | 'paid' | 'unknown';
 
@@ -78,8 +79,6 @@ interface State {
   /** Apply a route to state without writing it back to the address bar. */
   applyRoute: (route: Route) => void;
 }
-
-const UNITS_KEY = 'whs.units';
 
 function initialUnits(): Units {
   if (typeof localStorage === 'undefined') return 'c';

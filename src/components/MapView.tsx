@@ -29,6 +29,66 @@ const SAT_FADE_FAR = 10;
 const TERRAIN_ZOOM = 8.5;
 
 /*
+ * Arrival framing. ARRIVAL_ZOOM is the most the opening globe is ever shown
+ * at, and what a laptop or desktop gets; a narrower map gets whatever zoom
+ * fits the whole sphere inside it with GLOBE_MARGIN to spare. MIN_ZOOM is how
+ * far a visitor may zoom out, lowered only to the fitted zoom when a phone
+ * needs less.
+ */
+const ARRIVAL_ZOOM = 2;
+const MIN_ZOOM = 1.6;
+const GLOBE_MARGIN = 12;
+
+/*
+ * The globe's radius on screen, in CSS pixels: the farthest projected point
+ * up to 90 degrees of arc from the centre, over eight bearings -- the same
+ * measurement e2e/support/map.ts (globeBox) makes. The projected globe does
+ * not scale as 2^zoom this far out and depends on the canvas height (the
+ * camera's perspective), so it is measured rather than computed.
+ */
+function globeRadius(m: maplibregl.Map): number {
+  const c = m.getCenter();
+  const origin = m.project(c);
+  const rad = Math.PI / 180;
+  const lat1 = c.lat * rad;
+  let radius = 0;
+  for (let b = 0; b < 8; b++) {
+    const bearing = b * 45 * rad;
+    for (let d = 0; d <= 90; d += 2) {
+      const arc = d * rad;
+      const lat2 = Math.asin(Math.sin(lat1) * Math.cos(arc) + Math.cos(lat1) * Math.sin(arc) * Math.cos(bearing));
+      const lng2 =
+        c.lng * rad +
+        Math.atan2(Math.sin(bearing) * Math.sin(arc) * Math.cos(lat1), Math.cos(arc) - Math.sin(lat1) * Math.sin(lat2));
+      const p = m.project([((lng2 / rad + 540) % 360) - 180, lat2 / rad]);
+      radius = Math.max(radius, Math.hypot(p.x - origin.x, p.y - origin.y));
+    }
+  }
+  return radius;
+}
+
+/*
+ * Frame the arrival globe: ARRIVAL_ZOOM, or less if the sphere would not fit
+ * the canvas. A few secant steps on log2(radius) converge to the pixel.
+ * Returns the zoom it set.
+ */
+function frameArrival(m: maplibregl.Map): number {
+  const canvas = m.getCanvas();
+  const target = Math.min(canvas.clientWidth, canvas.clientHeight) / 2 - GLOBE_MARGIN;
+  m.setMinZoom(0);
+  let zoom = ARRIVAL_ZOOM;
+  m.jumpTo({ zoom });
+  for (let i = 0; i < 5 && target > 0; i++) {
+    const r = globeRadius(m);
+    if (r <= target && (zoom >= ARRIVAL_ZOOM || target - r < 0.5)) break;
+    zoom = Math.min(ARRIVAL_ZOOM, zoom + Math.log2(target / r));
+    m.jumpTo({ zoom });
+  }
+  m.setMinZoom(Math.min(MIN_ZOOM, zoom));
+  return zoom;
+}
+
+/*
  * Whether the map exposes itself to a driver: `window.__map` and the
  * `data-map-*` attributes on <html>.
  *
@@ -151,17 +211,20 @@ export function MapView() {
       /*
        * Framed so the whole sphere is on screen.
        *
-       * At 2.3 the globe overflowed the bottom of the map area on a laptop --
-       * a planet with its south pole cropped off, which reads as a bug in a
-       * way a small planet does not. The footer's 34 pixels made it worse. The
-       * longitude leans east of Greenwich on purpose: it opens on the
-       * Mediterranean-to-Kamchatka belt, which carries the densest clusters in
-       * the atlas, rather than on the Atlantic.
+       * A planet with its south pole cropped off reads as a bug in a way a
+       * small planet does not. Zoom 2 leaves 132 px above and below the globe
+       * at 1440x900 and 55 px at 1280x720 (measured 2026-09-16; 2.3 still fit
+       * both, by 10 px at 1280x720, and 2.4 did not). On a 375 px phone zoom
+       * 2 was 531.6 px wide, so frameArrival() lowers it until the globe fits
+       * once the globe projection is on. The longitude leans east of
+       * Greenwich on purpose: it opens on the Mediterranean-to-Kamchatka
+       * belt, which carries the densest clusters in the atlas, rather than
+       * on the Atlantic.
        *
        * minZoom stops the globe being shrunk to a dot in a field of black.
        */
-      zoom: 2,
-      minZoom: 1.6,
+      zoom: ARRIVAL_ZOOM,
+      minZoom: MIN_ZOOM,
       maxZoom: 16,
       attributionControl: { compact: true },
     });
@@ -204,6 +267,18 @@ export function MapView() {
       // and Kamchatka and squashes the equatorial belt, so the geothermal
       // pattern reads as "hot springs are a northern thing". They are not.
       m.setProjection({ type: 'globe' });
+
+      /*
+       * Fit the arrival globe to the canvas, now that the projection it is
+       * measured in exists. Refitted when the canvas changes size (a phone
+       * turned sideways) only while the zoom is still the one arrival chose
+       * and no card is open: once the visitor has zoomed, the camera is theirs.
+       */
+      let arrivalZoom = frameArrival(m);
+      m.on('resize', () => {
+        if (useStore.getState().selectedId !== null || Math.abs(m.getZoom() - arrivalZoom) > 1e-6) return;
+        arrivalZoom = frameArrival(m);
+      });
 
       // Ember atmosphere: near-black zenith, scorched horizon. The blend
       // eases off as you descend so satellite close-ups read as daylight.

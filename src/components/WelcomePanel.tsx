@@ -8,7 +8,7 @@
  *
  * So: say what it is, lead with the number that is the whole argument, and
  * offer three ways in rather than a blinking cursor. The honest number goes
- * first on purpose. "One in five has a temperature" reads as a confession and
+ * first on purpose. "Most springs have no temperature" reads as a confession and
  * is in fact the product -- every other hot spring site on the internet shows
  * a confident figure for every entry, which means most of those figures are
  * invented.
@@ -24,9 +24,24 @@
  */
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { href } from '../lib/router.ts';
+import { href, parse } from '../lib/router.ts';
+import { WELCOMED_KEY } from '../lib/storage.ts';
+import { springsInWords } from '../lib/format.ts';
 
-const SEEN_KEY = 'whs.welcomed';
+/*
+ * Whether the visitor arrived at the map itself, read once from the address
+ * they arrived at. Deciding it from the store instead showed the greeting
+ * over a cold /s/whs_... or /terms, because the store only applies the route
+ * once the dataset is in, and until then it says "nothing asked for". It also
+ * put the greeting up when a deep-linked card was closed, in front of someone
+ * already using the atlas. Module scope, not component state: the panel
+ * unmounts while the filter rail is open, and remounting must not re-read an
+ * address the visitor has since moved on from.
+ *
+ * A deep-link visit does not mark the panel seen. The visitor never saw it,
+ * so it is still there for them the next time they arrive at the map.
+ */
+const ARRIVED_AT_MAP = typeof window !== 'undefined' && parse().kind === 'map';
 
 interface Summary {
   total: number;
@@ -36,7 +51,7 @@ interface Summary {
 
 function seen(): boolean {
   try {
-    return localStorage.getItem(SEEN_KEY) === '1';
+    return localStorage.getItem(WELCOMED_KEY) === '1';
   } catch {
     return false;
   }
@@ -44,7 +59,7 @@ function seen(): boolean {
 
 function markSeen(): void {
   try {
-    localStorage.setItem(SEEN_KEY, '1');
+    localStorage.setItem(WELCOMED_KEY, '1');
   } catch {
     /* Private window, blocked storage. The panel simply returns next visit. */
   }
@@ -59,7 +74,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-export function WelcomePanel() {
+export function WelcomePanel({ filtersOpen }: { filtersOpen: boolean }) {
   const springs = useStore((s) => s.springs);
   const loading = useStore((s) => s.loading);
   const error = useStore((s) => s.error);
@@ -69,8 +84,10 @@ export function WelcomePanel() {
   const select = useStore((s) => s.select);
   const setPage = useStore((s) => s.setPage);
   const locateMe = useStore((s) => s.locateMe);
+  const searching = useStore((s) => s.filters.query.trim().length > 0);
+  const nearMe = useStore((s) => s.locating || s.userLocation !== null);
 
-  const [open, setOpen] = useState(() => !seen());
+  const [open, setOpen] = useState(() => ARRIVED_AT_MAP && !seen());
   const [summary, setSummary] = useState<Summary | null>(null);
 
   useEffect(() => {
@@ -86,16 +103,36 @@ export function WelcomePanel() {
     setOpen(false);
   };
 
+  /*
+   * A search, "Near me" or opening the filters is an answer to the greeting,
+   * the same as "Open the map": the visitor knows what they want. The first
+   * two open the results list and the third the filter rail, both in this
+   * same corner, so the panel closes and is marked seen rather than covering
+   * the answer or coming back once the rail shuts.
+   */
   useEffect(() => {
-    if (!open) return;
+    if (open && (searching || nearMe || filtersOpen)) dismiss();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, searching, nearMe, filtersOpen]);
+
+  // A card or a standing page outranks the greeting, always.
+  const visible = open && !selectedId && !showAbout && !page && !error;
+
+  /*
+   * Escape dismisses the greeting only while it is on screen. Listening for as
+   * long as it was merely open meant that an Escape meant for a card or a page
+   * covering it also marked it seen, and a panel the visitor had not read yet
+   * never came back.
+   */
+  useEffect(() => {
+    if (!visible) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && dismiss();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [visible]);
 
-  // A deep link, a card or a standing page outranks the greeting, always.
-  if (!open || selectedId || showAbout || page || error) return null;
+  if (!visible) return null;
 
   /*
    * A spring worth landing on: one the atlas actually knows something about.
@@ -114,6 +151,8 @@ export function WelcomePanel() {
 
   const total = summary?.total ?? springs.length;
   const countries = summary?.countries ?? null;
+  const unknownWords =
+    summary && summary.total ? springsInWords(1 - summary.coverage.temperature / summary.total) : 'Most springs';
   const tempPct =
     summary && summary.total ? Math.round((summary.coverage.temperature / summary.total) * 100) : null;
 
@@ -148,8 +187,8 @@ export function WelcomePanel() {
       </div>
 
       <p className="mt-3 text-[12px] leading-relaxed text-steam-400">
-        That last number is the point. Four springs in five have no published reading anywhere, so
-        this atlas says so instead of inventing one. Some springs are also left off deliberately and
+        That last number is the point. {unknownWords} have no published reading anywhere, so this
+        atlas says so instead of inventing one. Some springs are also left off deliberately and
         permanently, because the people who look after them asked.
       </p>
 

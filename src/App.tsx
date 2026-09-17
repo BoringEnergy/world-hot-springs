@@ -64,10 +64,14 @@ export default function App() {
         {!filtersOpen && <ResultsList />}
         {/*
           The greeting shares the top-left corner with the results list and the
-          filter rail, and loses to both: opening either is a statement that
-          you already know what you are doing here.
+          filter rail, and gives way to both: opening either is a statement that
+          you already know what you are doing here. A search, "Near me" or
+          opening the filters dismisses it for good -- WelcomePanel does that.
+          It stays mounted while the rail is open: unmounting it there meant it
+          re-read "not seen yet" on the way back and reappeared in front of
+          someone who had been using the atlas all along.
         */}
-        {!filtersOpen && <WelcomePanel />}
+        <WelcomePanel filtersOpen={filtersOpen} />
         <DetailPanel />
 
         {loading && (

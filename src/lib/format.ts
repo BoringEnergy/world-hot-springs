@@ -1,4 +1,15 @@
-import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, MineralType, MineralUnit, SpringType } from './types';
+// With the extension: scripts/*.test.mjs import this file in plain Node, which
+// resolves a value import only by its real filename.
+import {
+  TEMP_BANDS,
+  type AccessStatus,
+  type ClothingPolicy,
+  type HotSpring,
+  type HoursStatus,
+  type MineralType,
+  type MineralUnit,
+  type SpringType,
+} from './types.ts';
 
 export type Units = 'c' | 'f';
 
@@ -16,9 +27,66 @@ export function formatTemp(spring: HotSpring, units: Units): string {
 
 export function formatTempValue(celsius: number | null, units: Units): string {
   if (celsius === null) return UNKNOWN;
-  return units === 'c'
-    ? `${Math.round(celsius)}°C`
-    : `${Math.round((celsius * 9) / 5 + 32)}°F`;
+  return `${formatTempNumber(celsius, units)}°${units.toUpperCase()}`;
+}
+
+/** A whole-degree temperature with no unit, for a key that states the unit once. */
+export function formatTempNumber(celsius: number, units: Units): string {
+  return String(Math.round(units === 'c' ? celsius : (celsius * 9) / 5 + 32));
+}
+
+/**
+ * One temperature band's range in the current unit, as the footer key prints
+ * it. `unit: false` is the phone key's short form, which states the unit once
+ * at the start of the row instead of on every number. The e2e footer spec
+ * reads this same function, so the key it checks and the key the page draws
+ * cannot drift apart.
+ */
+export function bandRange(i: number, units: Units, unit: boolean): string {
+  const t = (c: number) => (unit ? formatTempValue(c, units) : formatTempNumber(c, units));
+  const b = TEMP_BANDS[i];
+  if (i === 0) return `<${t(b.maxC)}`;
+  if (b.maxC === Infinity) return `${t(TEMP_BANDS[i - 1].maxC)}+`;
+  return `${t(TEMP_BANDS[i - 1].maxC)}–${t(b.maxC)}`;
+}
+
+const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+/** 1 to 99 in words, as prose writes them: "four", "twenty-one". */
+export function numberWords(n: number): string {
+  if (!Number.isInteger(n) || n < 1 || n > 99) throw new RangeError(`no words for ${n}`);
+  return n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? `-${ONES[n % 10]}` : '');
+}
+
+/**
+ * A share said as a fraction, the plainest one nearest to it: 81% is four in
+ * five, not five in six, and 10% is one in ten. The footer, the welcome panel
+ * and the README all say the unknown-temperature share this way, and all
+ * three used to type it, which is how the README said "five in six" long
+ * after the data had moved. Now each derives it here from the data it has.
+ *
+ * Denominators run to ten and the smallest wins a tie, which is what
+ * "plainest" means. That makes it honest to within five points from 5% to
+ * 95%, and not outside it: 1% is not "one in ten". It used to search only
+ * N in N+1, so any share under a half would have been printed as one in two.
+ */
+export function shareAsFraction(share: number): { part: number; whole: number } {
+  let best = { part: 1, whole: 2 };
+  for (let whole = 2; whole <= 10; whole++) {
+    for (let part = 1; part < whole; part++) {
+      if (Math.abs(part / whole - share) < Math.abs(best.part / best.whole - share)) best = { part, whole };
+    }
+  }
+  return best;
+}
+
+/** "Four springs in five", "One spring in ten": a share as a sentence opens. */
+export function springsInWords(share: number): string {
+  const { part, whole } = shareAsFraction(share);
+  const lead = numberWords(part).replace(/^./, (c) => c.toUpperCase());
+  return `${lead} ${part === 1 ? 'spring' : 'springs'} in ${numberWords(whole)}`;
 }
 
 /**

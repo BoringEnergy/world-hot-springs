@@ -4,13 +4,13 @@
  * class switch an element off at one width and on at another.
  *
  *   one h1 at 1440                 mutation: the header's h1 -> h2
+ *   one h1 at 375 (was D1)         mutation: the fix reverted, the wordmark
+ *                                  span `hidden md:flex` again
  *   every button named at 1440     mutation: the About button's aria-label removed
- *
- * Pinned defects (the fix flips each one):
- *
- *   D1  no h1 at 375: it sits inside the `hidden md:flex` wordmark
- *   D2  the Filters button has no name at 375: its only text is `hidden sm:inline`
- *   D9  Tab reaches the closed filter rail, which is aria-hidden but not inert
+ *   every button named at 375      mutation: the Filters button's aria-label
+ *   (was D2)                       removed; its only text is `hidden sm:inline`
+ *   Tab skips the closed rail and  mutation: `inert` removed from the rail;
+ *   reaches the open one (was D9)  and, for the second half, `inert={true}`
  */
 import type { Page } from '@playwright/test';
 import { test, expect } from './support/offline.ts';
@@ -26,52 +26,80 @@ async function load(page: Page, width: number, height: number) {
 /** The header's filter toggle, found by what it does rather than what it says. */
 const filtersButton = (page: Page) => page.getByRole('banner').locator('button[aria-pressed]');
 
-test('at 1440 px the page has exactly one h1', async ({ page }) => {
-  await load(page, 1440, 900);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
-});
+for (const [width, height] of [
+  [1440, 900],
+  [375, 812],
+]) {
+  // At 375 the wordmark's words are out of sight, and the h1 among them must
+  // still be in the accessibility tree: `sr-only`, never display:none.
+  test(`at ${width} px the page has exactly one h1`, async ({ page }) => {
+    await load(page, width, height);
+    await expect(page.getByRole('heading', { level: 1 }), 'the accessibility tree has no single h1').toHaveCount(1);
+  });
+}
 
-test('at 1440 px every button has an accessible name', async ({ page }) => {
-  await load(page, 1440, 900);
-  const buttons = page.getByRole('button');
-  const n = await buttons.count();
-  expect(n, 'no buttons found: the page did not render').toBeGreaterThan(5);
-  for (let i = 0; i < n; i++) {
-    const b = buttons.nth(i);
-    await expect(b, `button ${i}: ${await b.evaluate((el) => el.outerHTML.slice(0, 120))}`).toHaveAccessibleName(/\S/);
-  }
-});
+for (const [width, height] of [
+  [1440, 900],
+  [375, 812],
+]) {
+  test(`at ${width} px every button has an accessible name`, async ({ page }) => {
+    await load(page, width, height);
+    const buttons = page.getByRole('button');
+    const n = await buttons.count();
+    expect(n, 'no buttons found: the page did not render').toBeGreaterThan(5);
+    for (let i = 0; i < n; i++) {
+      const b = buttons.nth(i);
+      await expect(b, `button ${i}: ${await b.evaluate((el) => el.outerHTML.slice(0, 120))}`).toHaveAccessibleName(/\S/);
+    }
+    // Below 640 px its visible word is display:none; from 640 up the label
+    // and the word are the same, and the name must not read it twice.
+    await expect(filtersButton(page)).toBeVisible();
+    await expect(filtersButton(page)).toHaveAccessibleName(/^Filters$/);
+  });
+}
 
-test('known defect D1: no h1 at 375px', async ({ page }) => {
-  await load(page, 375, 812);
-  await expect(page.locator('h1')).toHaveCount(1);
-  await expect(page.getByRole('heading', { level: 1 }), 'the only h1 is display:none on a phone').toHaveCount(0);
-});
+/**
+ * Where one Tab press put focus: inside the filter rail (found by its Filters
+ * heading, open or closed), and whether it is the footer's last link, which
+ * comes after the rail in document order.
+ */
+async function tab(page: Page): Promise<{ inRail: string; pastRail: boolean }> {
+  await page.keyboard.press('Tab');
+  return page.evaluate(() => {
+    const el = document.activeElement;
+    const heading = [...document.querySelectorAll('h2')].find((h) => h.textContent?.trim() === 'Filters');
+    const rail = heading?.closest('[aria-hidden]');
+    if (!rail) throw new Error('the filter rail was not found by its Filters heading');
+    const links = document.querySelectorAll('footer a');
+    return {
+      inRail: el && rail.contains(el) ? el.outerHTML.slice(0, 80) : '',
+      pastRail: !!el && el === links[links.length - 1],
+    };
+  });
+}
 
-test('known defect D2: the Filters button has no accessible name at 375px', async ({ page }) => {
-  await load(page, 375, 812);
-  await expect(filtersButton(page)).toBeVisible();
-  await expect(filtersButton(page)).toHaveAccessibleName('');
-});
+// Everything focusable in the page is fewer than 60 stops away; the rail
+// follows the header and the map in document order, the footer follows it.
+const STOPS = 60;
 
-test('known defect D9: Tab reaches the closed filter rail', async ({ page }) => {
+test('Tab never lands in the closed filter rail, and reaches it once open', async ({ page }) => {
   await load(page, 1440, 900);
   await expect(filtersButton(page)).toHaveAttribute('aria-pressed', 'false');
 
-  // Everything focusable in the page is fewer than 60 stops away; the rail
-  // follows the header and the map in document order.
-  let reached = '';
-  for (let i = 0; i < 60 && !reached; i++) {
-    await page.keyboard.press('Tab');
-    reached = await page.evaluate(() => {
-      // The rail specifically: the hidden container whose heading is Filters.
-      // Any other aria-hidden focus trap is a different defect, and must not
-      // keep this pin green after the rail is fixed.
-      const el = document.activeElement;
-      const hidden = el?.closest('[aria-hidden="true"]');
-      const isRail = [...(hidden?.querySelectorAll('h2') ?? [])].some((h) => h.textContent?.trim() === 'Filters');
-      return el && isRail ? el.outerHTML.slice(0, 80) : '';
-    });
+  // Closed: every stop up to the end of the footer, and none of them in the rail.
+  let passed = false;
+  for (let i = 0; i < STOPS && !passed; i++) {
+    const at = await tab(page);
+    expect(at.inRail, 'keyboard focus landed inside the closed, aria-hidden filter rail').toBe('');
+    passed = at.pastRail;
   }
-  expect(reached, 'keyboard focus landed inside the closed, aria-hidden filter rail').not.toBe('');
+  expect(passed, `${STOPS} Tab presses never reached the footer, so the rail was never passed`).toBe(true);
+
+  // Open: the same keyboard reaches the rail's controls.
+  await filtersButton(page).click();
+  await expect(filtersButton(page)).toHaveAttribute('aria-pressed', 'true');
+  let reached = '';
+  for (let i = 0; i < STOPS && !reached; i++) reached = (await tab(page)).inRail;
+  expect(reached, 'the open filter rail is not reachable by Tab').not.toBe('');
+  await expect(page.getByRole('button', { name: 'Close filters' })).toBeVisible();
 });

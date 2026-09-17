@@ -16,6 +16,9 @@
  */
 import type { DatasetMeta } from '../lib/types';
 import { imagery, TERRAIN, THIRD_PARTIES, WEATHER_TERMS } from '../lib/basemap.ts';
+import { STORAGE_KEYS } from '../lib/storage.ts';
+import { numberWords } from '../lib/format.ts';
+import { useStore } from '../store/useStore';
 
 export type LegalPage = 'terms' | 'privacy' | 'safety';
 
@@ -40,8 +43,12 @@ function P({ children }: { children: React.ReactNode }) {
   return <p className="mt-2 text-sm leading-relaxed text-steam-300">{children}</p>;
 }
 
-function List({ children }: { children: React.ReactNode }) {
-  return <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-steam-300">{children}</ul>;
+function List({ children, label }: { children: React.ReactNode; label?: string }) {
+  return (
+    <ul aria-label={label} className="mt-2 space-y-1.5 text-sm leading-relaxed text-steam-300">
+      {children}
+    </ul>
+  );
 }
 
 function Item({ children }: { children: React.ReactNode }) {
@@ -61,6 +68,16 @@ function Stamp() {
 }
 
 function Terms({ meta }: { meta: DatasetMeta | null }) {
+  // Counted from the loaded records, like the footer's key: this sentence
+  // said "Nineteen percent" as typed text, a figure the next batch moves.
+  const springs = useStore((s) => s.springs);
+  const pct = springs.length
+    ? Math.round((springs.filter((s) => s.temperature.celsius !== null).length / springs.length) * 100)
+    : 0;
+  const coverage =
+    pct >= 1 && pct <= 99
+      ? `${numberWords(pct).replace(/^./, (c) => c.toUpperCase())} percent of these springs have a recorded temperature and the rest have never had one published`
+      : 'Most of these springs have never had a temperature published';
   return (
     <>
       <H>What this is</H>
@@ -99,8 +116,7 @@ function Terms({ meta }: { meta: DatasetMeta | null }) {
 
       <H>What is not promised</H>
       <P>
-        The atlas is provided as it is, with no warranty of any kind. Nineteen percent of these
-        springs have a recorded temperature and the rest have never had one published; that is
+        The atlas is provided as it is, with no warranty of any kind. {coverage}; that is
         stated on every card and it is not a defect being worked on. Prices, hours, access rules
         and clothing policies change without telling us, some records were last checked decades
         ago by their original publisher, and coordinates vary in precision by source.
@@ -174,13 +190,24 @@ function Privacy() {
       </P>
 
       <H>What stays in your browser</H>
+      {/*
+        Rendered from lib/storage.ts, the one list of keys the code writes.
+        This paragraph used to name one key and call it the only one, while
+        the welcome panel wrote a second.
+      */}
+      <P>
+        These keys in your browser's local storage are everything this site writes to your device.
+        They never leave it, and clearing your site data removes them.
+      </P>
+      <List label="Stored on your device">
+        {STORAGE_KEYS.map((s) => (
+          <Item key={s.key}>
+            <strong className="text-steam-200">{s.title}</strong>{' '}
+            <code className="text-steam-200">{s.key}</code>: {s.purpose}
+          </Item>
+        ))}
+      </List>
       <List>
-        <Item>
-          <strong className="text-steam-200">Your unit preference.</strong> One key in local
-          storage holding the letter <code className="text-steam-200">c</code> or{' '}
-          <code className="text-steam-200">f</code>. That is the only thing this site writes to
-          your device.
-        </Item>
         <Item>
           <strong className="text-steam-200">Your location, if you ask for it.</strong> Pressing
           "near me" asks your browser for a coordinate and sorts the list by distance. The

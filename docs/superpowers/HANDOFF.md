@@ -33,6 +33,64 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
 
+## 2026-09-17 -- harness fixes
+
+Track C of the 2026-09-16 plan: every defect the browser harness pinned is
+fixed, and every `known defect Dn` test is now an ordinary test of the
+intended behaviour in the same spec. Mutations, measurements and the
+observed failures are in [e2e/README.md](../../e2e/README.md), "Track C".
+
+| Id | Status | Fix |
+|---|---|---|
+| D1 | fixed | the h1 is in the tree at every width (`sr-only md:not-sr-only`); `scripts/a11y.test.mjs` now looks at the tags around it |
+| D2 | fixed | `aria-label="Filters"` |
+| D3 | fixed | the welcome panel decides from the arrival address, once, not from the store |
+| D3b | fixed | the same change |
+| D4 | fixed | **Hudson's decision:** a search or Near me closes the panel and marks it seen |
+| D5 | fixed | `src/lib/storage.ts` is the one list of stored keys; the privacy page renders it. `POLICY_UPDATED` is 2026-09-17 |
+| D8 | fixed | the panel's Escape listener exists only while it is on screen |
+| D9 | fixed | `inert` on the closed filter rail |
+| D10 | fixed | `shareAsFraction`/`numberWords` in `lib/format.ts`; the footer, welcome panel, Terms and the README test derive the share |
+| D11 | fixed | **Hudson's decision:** a compact, always-visible key row on phones |
+| D12 | fixed | the footer is two rows on a phone and wraps from 640 to 1023 px; no sideways scroll |
+| D12b | fixed | the same change |
+| D13 | fixed | the arrival globe is fitted to the canvas, never above zoom 2 |
+
+Decisions made while fixing, for the record:
+
+- **A deep-link visit does not mark the welcome panel seen.** The visitor
+  never saw it, so their next arrival at `/` still gets it.
+- **The panel's greeting is decided at module load**, from the address the
+  page was opened at, so remounting it (the filter rail unmounts it) never
+  re-reads an address the visitor has since moved to.
+- **Escape on a page covering the panel closes the page only**, and the
+  panel comes back when the page closes.
+- **The arrival globe is refitted on resize only while untouched:** while
+  the zoom is still the one arrival chose and no card is open. Once the
+  visitor zooms, the camera is theirs. `minZoom` drops below 1.6 only to the
+  fitted zoom (1.07 at 320x640).
+- **"Download the data" reads "Download" on a phone**; its accessible name
+  is the whole phrase at every width, so the footer's links fit one row at
+  320 px.
+- **The Terms page no longer types "Nineteen percent"**; it counts the loaded
+  records, and says "Most of these springs" until they arrive.
+- **The phone key drops the word "Water" below 375 px** and states the unit
+  once ("°F <86 86–100 ..."); it wraps rather than overflows with a wider
+  system font.
+- `e2e/support/source.ts` imports the storage keys instead of reading them
+  from source text, as its own comment asked.
+
+**Counts, 2026-09-17, after the DOI wiring and the review fixes:** `npm test`
+717, `npm run test:e2e` 86 tests in 11 specs, about 3.5 minutes.
+
+**After review:** opening the filters now dismisses the welcome panel for
+good (it used to unmount and come back once the rail shut); the phone key's
+ranges are tested; and the unknown share can be said below a half (one in
+ten, not one in two), honest from 5% to 95%. Left as they are: the phone
+key marks "No reading" with a dash (its name is in the title and for screen
+readers; there is no room for a word at 320 px in °F), and on the smallest
+phones cluster bubbles on the globe's rim reach the canvas edge.
+
 ## 2026-09-17 -- DOI wired
 
 **The atlas says how to cite it.** `CONCEPT_DOI` in `src/lib/citation.ts`
@@ -169,7 +227,8 @@ from.
   `known defect Dn: ...` that asserts what the app does today, so the fix
   fails it and has to flip it to the intended assertion. Never `test.fail()`:
   that also passes when a precondition breaks. Every pin was watched failing
-  under its fix (e2e/README.md). All are open, for track C:
+  under its fix (e2e/README.md). All were open for track C, and all were
+  fixed on 2026-09-17 (see "2026-09-17 -- harness fixes" above):
 
   | Id | Defect | Pinned in |
   |---|---|---|

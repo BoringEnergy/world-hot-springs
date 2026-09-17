@@ -11,11 +11,9 @@
  *                                    from THIRD_PARTIES
  *   every listed host is contacted   mutation: a bogus host added to it
  *   nothing else is stored           mutation: main.tsx writes sessionStorage
- *
- * Pinned defect (the fix flips it):
- *
- *   D5  the privacy page does not name the welcome panel's storage key, and
- *       says the unit preference is the only thing the site stores
+ *   every key written is named,      mutations: the welcome entry deleted from
+ *   every key named is written       STORAGE_KEYS; a key added to it that
+ *                                    nothing writes (D5)
  */
 import type { Page } from '@playwright/test';
 import { test, expect, type Offline } from './support/offline.ts';
@@ -54,12 +52,17 @@ async function listedHosts(page: Page): Promise<string[]> {
   await page.goto(href({ kind: 'page', page: 'privacy' }));
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-  const codes = await dialog.locator('code').allTextContents();
-  // The same page also sets `c` and `f` in code type; a host has a dot.
+  // The storage keys have dots too, and live in their own list.
+  const codes = await dialog
+    .locator('code')
+    .evaluateAll((els, list) => els.filter((e) => !e.closest(`ul[aria-label="${list}"]`)).map((e) => e.textContent ?? ''), STORED_LIST);
   const hosts = codes.map((c) => c.trim()).filter((c) => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(c));
   expect(hosts.length, 'the privacy page lists no hosts at all').toBeGreaterThan(0);
   return hosts;
 }
+
+/** The privacy page's list of what it keeps on the device, by its accessible name. */
+const STORED_LIST = 'Stored on your device';
 
 /** `tiles-a.basemaps.cartocdn.com` is covered by `basemaps.cartocdn.com`, at a dot. */
 const covers = (listed: string, host: string) => host === listed || host.endsWith(`.${listed}`);
@@ -103,16 +106,22 @@ test('the journey leaves nothing in the browser but the two preference keys', as
 test.describe('a first visit', () => {
   test.use({ seedStorage: false });
 
-  test('known defect D5: the privacy page does not name the welcome key the site writes', async ({ page }) => {
+  test('every key the site writes is named on the privacy page, and every key named is one it writes', async ({ page }) => {
+    // Both writes a visitor can cause: dismissing the greeting, switching units.
     await page.goto('/');
     await page.getByRole('button', { name: 'Open the map', exact: true }).click();
-    expect(await page.evaluate((k) => localStorage.getItem(k), WELCOMED_KEY), 'the site wrote the key').not.toBeNull();
+    await page.getByRole('banner').getByRole('button', { name: /^Switch to / }).click();
+    const written = await page.evaluate(() => Object.keys(localStorage).sort());
+    expect(written, 'the visit wrote nothing, so there is nothing to check').not.toEqual([]);
 
     await page.goto(href({ kind: 'page', page: 'privacy' }));
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-    await expect(dialog, 'the privacy page names the welcome key').not.toContainText(WELCOMED_KEY);
-    // And claims the unit letter is all there is.
-    await expect(dialog).toContainText('the only thing this site writes');
+    const list = page.getByRole('dialog').getByRole('list', { name: STORED_LIST });
+    await expect(list).toBeVisible();
+    const named = (await list.locator('code').allTextContents()).map((c) => c.trim()).sort();
+
+    const unnamed = written.filter((k) => !named.includes(k));
+    expect(unnamed, `written ${written.join(', ')}; named ${named.join(', ')}`).toEqual([]);
+    const neverWritten = named.filter((k) => !written.includes(k));
+    expect(neverWritten, `named ${named.join(', ')}; written ${written.join(', ')}`).toEqual([]);
   });
 });

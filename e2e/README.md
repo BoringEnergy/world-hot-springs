@@ -61,8 +61,9 @@ route counts, no unrouted request and no console error, so fulfilled routes
 are unaffected.
 
 An init script seeds `localStorage` as a returning visitor would have it
-(welcome panel seen, Celsius). The keys are read from the source that defines
-them (`support/source.ts`). A spec opts out with
+(welcome panel seen, Celsius). The keys are imported from `src/lib/storage.ts`,
+the one list the app writes through and the privacy page renders
+(`support/source.ts` re-exports them). A spec opts out with
 `test.use({ seedStorage: false })`.
 
 ## Measured before any threshold was written (2026-09-16)
@@ -112,7 +113,8 @@ The canvas starts 59 px down, below the header. The footer takes 33.5 px.
 
 Below 640 px the key is hidden (`sm:flex`), and the page itself never
 overflows: `documentElement.scrollWidth` equals the viewport at all five
-widths. The footer scrolls inside itself.
+widths. The footer scrolls inside itself. (All three were fixed on
+2026-09-17; see "Track C" below.)
 
 **Hosts contacted.** A cold load of `/` at any of the three viewports
 contacts 6 hosts: `basemaps.cartocdn.com`, `tiles.basemaps.cartocdn.com` and
@@ -168,7 +170,8 @@ run, read and reverted.
 | citation: Terms names the archive | the caveat paragraph removed | `the Terms page no longer says /archived on Zenodo under a DOI/` |
 | citation: DOI link wraps | `wrap-anywhere` removed from the link | `the DOI link runs past its paragraph` Expected <= 295.5, Received 326.9 (Verdana forced, 320 px) |
 
-Pinned defects fail when fixed. Each was checked by applying a plausible fix:
+Pinned defects failed when fixed. Each was checked by applying a plausible fix
+(all were fixed for real on 2026-09-17; see "Track C" below):
 
 | Pin | Fix applied | Observed |
 |---|---|---|
@@ -182,6 +185,53 @@ Pinned defects fail when fixed. Each was checked by applying a plausible fix:
 | D9 | `inert={!open}` on the rail | `keyboard focus landed inside the closed, aria-hidden filter rail` (the pin now requires the hidden container to be the rail, found by its Filters heading) |
 | D5 | the privacy page names `whs.welcomed` | `the privacy page names the welcome key` |
 | D13 | `zoom: 1.2` below 640 px, `minZoom: 1` | `the globe runs off the left of a phone` Received 20.5 |
+
+## Track C: the pins flipped (2026-09-17)
+
+Every `known defect Dn` test is now an ordinary test of the intended
+behaviour, in the same spec file. Each flipped test was watched failing with
+its fix reverted (or, where noted, with the closest thing to a revert).
+
+| Defect | Fix | Flipped test | Mutation | Observed |
+|---|---|---|---|---|
+| D1 | wordmark span `sr-only md:not-sr-only` (Header.tsx) | a11y: exactly one h1 at 375 and 1440 | span back to `hidden md:flex` | at 375, `the accessibility tree has no single h1` Expected 1, Received 0 |
+| D1 | `scripts/a11y.test.mjs` walks the tags around the h1 | the h1's wrapper is never `hidden` | the same | `` `hidden` on <span className="hidden min-w-0 … hides the h1 with it `` |
+| D2 | `aria-label="Filters"` | a11y: every button named at 375 and 1440, Filters named once | label removed | at 375, `button 0: <button aria-pressed="false" …` Expected `/\S/`, Received `""` |
+| D9 | `inert={!open}` on the rail | a11y: Tab never lands in the closed rail, and reaches it once open | `inert` removed | `keyboard focus landed inside the closed, aria-hidden filter rail` |
+| D3, D3b | WelcomePanel opens only if the arrival address was the map (`parse()`, read once at module load); a deep-link visit does not mark it seen | welcome: a cold deep link never shows it (MutationObserver from the first byte, dataset held); closing a deep-linked card does not bring it up, and `/` still does | initial state `!seen()` again | `/s/whs_ce8611720825: the greeting was over the deep link while the dataset was held`; `the greeting appeared after the visitor had already used the atlas` |
+| D8 | the Escape listener is registered only while the panel is visible | welcome: Escape meant for a page covering the panel leaves it unseen, and it comes back | listener keyed on `open` again | `a panel hidden behind the page was marked seen` Received `"1"` |
+| D4 | a search or the header's Near me dismisses the panel and marks it seen (Hudson's decision) | welcome: search, and Near me with geolocation granted at Radium: panel gone, `whs.welcomed` set, first result hit-testable | the dismissing effect made a no-op | `the greeting is still up over the search` / `… over the nearest springs`, Received visible |
+| D5 | `src/lib/storage.ts` lists every key; store and panel import from it; the privacy page renders it; `POLICY_UPDATED` 2026-09-17 | disclosure: every key a first visit writes is named on the page, and every named key was written | welcome entry deleted from `STORAGE_KEYS`; a `whs.bogus` entry added | `written whs.units, whs.welcomed; named whs.bogus, whs.units` → `["whs.welcomed"]`; `named whs.bogus, whs.units, whs.welcomed; …` → `["whs.bogus"]` |
+| D5 | `scripts/storage.test.mjs` | no key literal or literal web-storage call outside storage.ts | `localStorage.getItem('whs.welcomed')` in WelcomePanel | `… types the key whs.welcomed; import it from lib/storage.ts` |
+| D10 | `shareAsFraction` and `numberWords` in lib/format.ts, used by the footer (loaded records), the welcome panel (summary.json), the Terms page and docs.test.mjs | `scripts/format.test.mjs` | `shareAsFraction` returns `{4, 5}`; `"4 in 5"` typed back into the footer | `Expected values to be strictly deep-equal` (5/6); `AtlasFooter.tsx types the unknown share` |
+| D11 | compact key row below 640 px, from `TEMP_BANDS` via `bandRange` | footer: the key is visible with all six colours and names at 320, 375, 640, 800, 1100, 1440 | key group `hidden … sm:flex` again | at 320 and 375, `the map colours have no key at this width` Received hidden |
+| D12, D12b | footer two rows on a phone, links wrap under the key from 640 to 1023, no `overflow-x-auto` | footer: in °C and °F at 320-1440, every link inside the viewport and hit at its centre, no sideways scroll | the old single `overflow-x-auto` row, no wrapping | 8 of 12 fail: e.g. `Safety runs off the right edge` 323.4 at 320, `Source runs off the right edge` 820 at 800 |
+| D13 | `frameArrival()` fits the globe with 12 px to spare, never above zoom 2; refit on resize only while untouched | globe: fits at 1440x900, 1280x720, 375x812, 320x640; desktop zoom is 2; a phone turned sideways still fits | `frameArrival` not called; `ARRIVAL_ZOOM` 1.9; the resize listener disconnected | `the globe is cut off on the left` -76.6 and -88.5; `a desktop no longer arrives at zoom 2` Received 1.9; `the globe no longer fits once the phone is sideways` |
+| D11, review | the phone key's ranges are tested, from `bandRange` in lib/format.ts (moved there from the footer so the spec reads the same function) | footer: the phone key prints every band's range, in order, at 320 and 375 in C and F | the phone range span hidden | `the phone key does not show <30, or not in band order` (and `<86` in F) |
+| review: the greeting after the filters | WelcomePanel stays mounted while the rail is open, and opening the filters dismisses it for good, like a search | welcome: opening the filters closes the welcome panel for good | the old `{!filtersOpen && <WelcomePanel />}` with no filters dismissal | `opening the filters closed the greeting without marking it seen` Received null |
+| D10, review | `shareAsFraction` searches every fraction up to tenths, not only N in N+1; `springsInWords` writes the sentence, singular included | format.test: plainest fraction, honest from 5% to 95%; a share opens a sentence | the old N-in-N+1 search | 2 failures: 10% came out as `{ part: 1, whole: 2 }`, and `springsInWords(0.1)` as `One spring in two` |
+
+**Footer, measured after the fix** (Windows, height 800). Positions depend on
+the system font and are not pinned.
+
+| Width | Footer height | Links row | Key contents (°C / °F) |
+|---|---|---|---|
+| 320 | 56 (two rows) | 17.0 to 303.0, one row | 256.5 / 290.7 in 296 |
+| 375 | 56 | 44.5 to 330.5 | 302.9 / 337.1 in 351 |
+| 640, 800 | 54 (links under the key) | 275.0 to 624.0; 435.0 to 784.0 | 439 / 463 |
+| 1024 to 1440 | 33.5 (one row) | ends 16 px from the edge | unchanged from before |
+
+Before the key row gave up the word "Water" below 375 px and its gaps were
+narrowed to 6 px, it needed 314 (°C) and 348 (°F) in 296 at 320; the links
+needed 306 and wrapped until the gaps went to 2 px and "Download the data"
+became "Download" on a phone (its accessible name is still the whole phrase).
+The key row wraps rather than overflows if a wider font needs it.
+
+**Globe, measured after the fix:** 375x812 arrives at zoom 1.291 (radius
+175.5 in a 375x697 canvas), 320x640 at 1.074 (148.0 in 320x525); 1440x900
+and 1280x720 are unchanged at zoom 2.
+
+**Counts:** `npm test` 717; `npm run test:e2e` 86 tests in 11 specs (after rebasing on the DOI wiring, which added `citation.spec.ts`, and the review fixes).
 
 ## Load
 

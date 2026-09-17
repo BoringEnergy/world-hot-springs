@@ -12,6 +12,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { numberWords, springsInWords } from '../src/lib/format.ts';
 
 const README = fs.readFileSync('README.md', 'utf8');
 const SUMMARY = JSON.parse(fs.readFileSync('data/summary.json', 'utf8'));
@@ -58,14 +59,8 @@ test('CONTRIBUTING does not tell contributors to use an OSM id', () => {
  */
 const PROSE = README.replace(/\s+/g, ' ');
 
-const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
-  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-function words(n) {
-  assert.ok(Number.isInteger(n) && n > 0 && n < 100, `no words for ${n}`);
-  return n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? `-${ONES[n % 10]}` : '');
-}
-const capital = (s) => s[0].toUpperCase() + s.slice(1);
+// The same words and fraction the footer and the welcome panel render.
+const words = numberWords;
 const count = (n) => n.toLocaleString('en-US');
 
 test('the README\'s United States sentence is a recount of the data', () => {
@@ -86,14 +81,9 @@ test('the README\'s United States sentence is a recount of the data', () => {
 });
 
 test('the README\'s unknown share is derived from the summary', () => {
-  // Said as "N springs in N+1", the plainest fraction nearest the true share:
-  // 81% is four in five, not five in six.
+  // Said as "N springs in N+1", the plainest fraction nearest the true share.
   const unknown = 1 - SUMMARY.coverage.temperature / SUMMARY.total;
-  let best = 2;
-  for (let d = 2; d <= 10; d++) {
-    if (Math.abs((d - 1) / d - unknown) < Math.abs((best - 1) / best - unknown)) best = d;
-  }
-  const want = `${capital(words(best - 1))} springs in ${words(best)} have no recorded temperature.`;
+  const want = `${springsInWords(unknown)} have no recorded temperature.`;
   assert.ok(PROSE.includes(want), `README should contain: ${want}  (${(unknown * 100).toFixed(1)}% unknown)`);
 
   const pct = Math.round((SUMMARY.coverage.temperature / SUMMARY.total) * 100);

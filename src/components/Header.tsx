@@ -68,7 +68,14 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
             strokeLinecap="round"
           />
         </svg>
-        <span className="hidden min-w-0 flex-col leading-none md:flex">
+        {/*
+          The wordmark's words are hidden on a phone, where the mark alone has
+          to share a row with the search box -- but the h1 inside them is not.
+          This span was `hidden md:flex`, and display:none takes a heading out
+          of the accessibility tree with it, so below 768 px the page had no
+          h1 at all. `sr-only` keeps the words out of sight and in the tree.
+        */}
+        <span className="sr-only min-w-0 flex-col leading-none md:not-sr-only md:flex">
           <h1 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-steam-100 transition group-hover:text-white">
             World Hot Springs
           </h1>
@@ -86,9 +93,16 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
         <span>R&amp;D</span>
       </a>
 
+      {/*
+        Named outright, because below 640 px its only text is display:none
+        and the button would be announced as nothing but "toggle button".
+        The label is the visible word, so from 640 px up it is read once and
+        voice control still finds it by what it says.
+      */}
       <button
         onClick={onToggleFilters}
         aria-pressed={filtersOpen}
+        aria-label="Filters"
         className={`flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
           filtersOpen
             ? 'border-basalt-600 bg-basalt-800 text-steam-100'

@@ -78,6 +78,15 @@ export function FilterRail({ open, onClose }: { open: boolean; onClose: () => vo
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-hidden={!open}
+      /*
+        Closed, the rail is only translated off screen, so without `inert`
+        every chip and slider in it stayed in the Tab order: a keyboard user
+        tabbed into controls they could not see, inside a container a screen
+        reader had been told was not there. `inert` takes it out of both.
+        Opening leaves focus on the Filters toggle, as a pressed button
+        should; the rail's controls are the next stops after the map's.
+      */
+      inert={!open}
     >
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-basalt-800 bg-basalt-900/95 px-5 py-3.5 backdrop-blur-xl">
         <div>
