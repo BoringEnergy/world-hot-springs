@@ -159,17 +159,27 @@ function stepsUsing(code, action) {
   return steps;
 }
 
+// npm answers to more names than the ones people type. Every alias npm lists
+// for `install` and `install-test` resolves a tree; every alias for `ci` and
+// `install-ci-test` installs the committed one. A guard that knew only the
+// canonical spellings would wave `npm clean-install` straight past both the
+// allow-list and the --ignore-scripts check.
+const NPM_INSTALL =
+  /\bnpm (install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|install-test|it)\b/;
+const NPM_CI =
+  /\bnpm (ci|clean-install|ic|install-clean|isntall-clean|install-ci-test|cit|clean-install-test|sit)\b[^\n]*/g;
+
 test('npm install appears in no workflow', () => {
   // `npm install` rewrites the lockfile it was given. Nothing in CI should
   // ever resolve a dependency tree; it installs the committed one or nothing.
   for (const { file, code } of bodies) {
-    assert.ok(!/\bnpm (install|i|add)\b/.test(code), `${file} runs npm install`);
+    assert.ok(!NPM_INSTALL.test(code), `${file} runs npm install`);
   }
 });
 
 test('npm ci appears only in an allowed workflow, and always without install scripts', () => {
   for (const { file, code } of bodies) {
-    const installs = [...code.matchAll(/\bnpm ci\b[^\n]*/g)].map((m) => m[0]);
+    const installs = [...code.matchAll(NPM_CI)].map((m) => m[0]);
     if (installs.length === 0) continue;
     assert.ok(NPM_CI_ALLOWED.includes(file), `${file} runs npm ci but is not in NPM_CI_ALLOWED`);
     for (const line of installs) {
