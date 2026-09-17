@@ -14,6 +14,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { TITLE } from '../../src/lib/citation.ts';
 
 /** `const NAME = '<string>';` in `file`, or a thrown error naming both. */
 export function stringConst(file: string, name: string): string {
@@ -29,11 +30,23 @@ export const WELCOMED_KEY = stringConst('src/components/WelcomePanel.tsx', 'SEEN
 /** localStorage key the temperature unit is remembered under. */
 export const UNITS_KEY = stringConst('src/store/useStore.ts', 'UNITS_KEY');
 
-/** The title of the map view, set by applyDefaultMeta. */
-export const DEFAULT_TITLE = stringConst('src/lib/seo.ts', 'DEFAULT_TITLE');
+/**
+ * The site name every page title carries. lib/seo.ts imports it from
+ * lib/citation.ts, a leaf module with no imports, so the specs import it too.
+ */
+export const SITE_NAME = TITLE;
 
-/** The site name every page title carries, in lib/seo.ts. */
-export const SITE_NAME = stringConst('src/lib/seo.ts', 'SITE_NAME');
+/**
+ * The title of the map view, set by applyDefaultMeta. lib/seo.ts builds it as
+ * a template on SITE_NAME; only the words after the name are read from source.
+ */
+export const DEFAULT_TITLE = (() => {
+  const file = 'src/lib/seo.ts';
+  const text = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+  const m = text.match(/\bconst DEFAULT_TITLE\s*=\s*`\$\{SITE_NAME\}([^`$]*)`\s*;/);
+  if (!m) throw new Error(`${file} no longer builds DEFAULT_TITLE from SITE_NAME; update e2e/support/source.ts`);
+  return SITE_NAME + m[1];
+})();
 
 /**
  * `key: '<string>'` or `key: { <field>: '<string>'` inside the object literal
