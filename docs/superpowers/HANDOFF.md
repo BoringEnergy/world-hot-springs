@@ -80,8 +80,16 @@ Decisions made while fixing, for the record:
 - `e2e/support/source.ts` imports the storage keys instead of reading them
   from source text, as its own comment asked.
 
-**Counts, 2026-09-17, after the DOI wiring:** `npm test` 716, `npm run
-test:e2e` 81 tests in 11 specs, about 3.5 minutes.
+**Counts, 2026-09-17, after the DOI wiring and the review fixes:** `npm test`
+717, `npm run test:e2e` 86 tests in 11 specs, about 3.5 minutes.
+
+**After review:** opening the filters now dismisses the welcome panel for
+good (it used to unmount and come back once the rail shut); the phone key's
+ranges are tested; and the unknown share can be said below a half (one in
+ten, not one in two), honest from 5% to 95%. Left as they are: the phone
+key marks "No reading" with a dash (its name is in the title and for screen
+readers; there is no room for a word at 320 px in °F), and on the smallest
+phones cluster bubbles on the globe's rim reach the canvas edge.
 
 ## 2026-09-17 -- DOI wired
 

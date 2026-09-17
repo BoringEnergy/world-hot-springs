@@ -207,6 +207,9 @@ its fix reverted (or, where noted, with the closest thing to a revert).
 | D11 | compact key row below 640 px, from `TEMP_BANDS` via `bandRange` | footer: the key is visible with all six colours and names at 320, 375, 640, 800, 1100, 1440 | key group `hidden … sm:flex` again | at 320 and 375, `the map colours have no key at this width` Received hidden |
 | D12, D12b | footer two rows on a phone, links wrap under the key from 640 to 1023, no `overflow-x-auto` | footer: in °C and °F at 320-1440, every link inside the viewport and hit at its centre, no sideways scroll | the old single `overflow-x-auto` row, no wrapping | 8 of 12 fail: e.g. `Safety runs off the right edge` 323.4 at 320, `Source runs off the right edge` 820 at 800 |
 | D13 | `frameArrival()` fits the globe with 12 px to spare, never above zoom 2; refit on resize only while untouched | globe: fits at 1440x900, 1280x720, 375x812, 320x640; desktop zoom is 2; a phone turned sideways still fits | `frameArrival` not called; `ARRIVAL_ZOOM` 1.9; the resize listener disconnected | `the globe is cut off on the left` -76.6 and -88.5; `a desktop no longer arrives at zoom 2` Received 1.9; `the globe no longer fits once the phone is sideways` |
+| D11, review | the phone key's ranges are tested, from `bandRange` in lib/format.ts (moved there from the footer so the spec reads the same function) | footer: the phone key prints every band's range, in order, at 320 and 375 in C and F | the phone range span hidden | `the phone key does not show <30, or not in band order` (and `<86` in F) |
+| review: the greeting after the filters | WelcomePanel stays mounted while the rail is open, and opening the filters dismisses it for good, like a search | welcome: opening the filters closes the welcome panel for good | the old `{!filtersOpen && <WelcomePanel />}` with no filters dismissal | `opening the filters closed the greeting without marking it seen` Received null |
+| D10, review | `shareAsFraction` searches every fraction up to tenths, not only N in N+1; `springsInWords` writes the sentence, singular included | format.test: plainest fraction, honest from 5% to 95%; a share opens a sentence | the old N-in-N+1 search | 2 failures: 10% came out as `{ part: 1, whole: 2 }`, and `springsInWords(0.1)` as `One spring in two` |
 
 **Footer, measured after the fix** (Windows, height 800). Positions depend on
 the system font and are not pinned.
@@ -228,7 +231,7 @@ The key row wraps rather than overflows if a wider font needs it.
 175.5 in a 375x697 canvas), 320x640 at 1.074 (148.0 in 320x525); 1440x900
 and 1280x720 are unchanged at zoom 2.
 
-**Counts:** `npm test` 716; `npm run test:e2e` 81 tests in 11 specs (after rebasing on the DOI wiring, which added `citation.spec.ts`).
+**Counts:** `npm test` 717; `npm run test:e2e` 86 tests in 11 specs (after rebasing on the DOI wiring, which added `citation.spec.ts`, and the review fixes).
 
 ## Load
 
