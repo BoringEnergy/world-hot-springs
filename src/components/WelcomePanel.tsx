@@ -74,7 +74,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-export function WelcomePanel() {
+export function WelcomePanel({ filtersOpen }: { filtersOpen: boolean }) {
   const springs = useStore((s) => s.springs);
   const loading = useStore((s) => s.loading);
   const error = useStore((s) => s.error);
@@ -104,15 +104,16 @@ export function WelcomePanel() {
   };
 
   /*
-   * A search or "Near me" from the header is an answer to the greeting, the
-   * same as "Open the map": the visitor knows what they want. Both open the
-   * results list, which sits in this same corner beneath the panel, so the
-   * panel closes and is marked seen rather than covering the answer.
+   * A search, "Near me" or opening the filters is an answer to the greeting,
+   * the same as "Open the map": the visitor knows what they want. The first
+   * two open the results list and the third the filter rail, both in this
+   * same corner, so the panel closes and is marked seen rather than covering
+   * the answer or coming back once the rail shuts.
    */
   useEffect(() => {
-    if (open && (searching || nearMe)) dismiss();
+    if (open && (searching || nearMe || filtersOpen)) dismiss();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, searching, nearMe]);
+  }, [open, searching, nearMe, filtersOpen]);
 
   // A card or a standing page outranks the greeting, always.
   const visible = open && !selectedId && !showAbout && !page && !error;

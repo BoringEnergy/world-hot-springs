@@ -179,6 +179,29 @@ test('Near me in the header closes the welcome panel, marks it seen, and leaves 
   expect(await hitTestable(result), 'the nearest result is under the greeting').toBe(true);
 });
 
+test('opening the filters closes the welcome panel for good', async ({ page }) => {
+  // Review of the harness fixes, 2026-09-17: the panel used to unmount while
+  // the rail was open and re-read "not seen" when the rail shut, so a visitor
+  // who had filtered and picked a spring met the greeting again on the way
+  // back. Opening the filters is now an answer to it, like a search.
+  await watchForGreeting(page);
+  await page.goto('/');
+  await waitForData(page);
+  await expect(openTheMap(page)).toBeVisible();
+
+  const filters = page.getByRole('banner').getByRole('button', { name: 'Filters' });
+  await filters.click();
+  await expect(openTheMap(page), 'the greeting is still up over the filter rail').toBeHidden();
+  expect(await welcomed(page), 'opening the filters closed the greeting without marking it seen').toBe('1');
+
+  // From here on the greeting must not render again, not even for a frame.
+  await page.evaluate(() => { (window as unknown as { __greeted?: boolean }).__greeted = false; });
+  await filters.click();
+  await expect(filters).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('application', { name: 'Map of hot springs' }).click({ position: { x: 5, y: 5 } });
+  expect(await greeted(page), 'the greeting came back once the filter rail shut').toBe(false);
+});
+
 test('Escape meant for a page covering the welcome panel leaves the panel unseen', async ({ page }) => {
   // Shown at the map, then covered by a standing page from the footer.
   await page.goto(href({ kind: 'map' }));
