@@ -4,12 +4,14 @@
  *
  *   shown once                  mutation: markSeen() does nothing
  *   every exit dismisses it     mutation: dismiss() removed from Show me one
+ *   never over a cold deep link mutation: the panel's initial state ignores
+ *                               the arrival address (the D3 fix reverted)
+ *   a closed deep-linked card   the same mutation (D3b)
+ *   does not bring it up
  *
  * Pinned defects. Each asserts what the app does TODAY, so it fails when the
  * defect is fixed as surely as when the harness breaks; the fix flips it.
  *
- *   D3   shown over a cold deep link until the dataset arrives
- *   D3b  closing a deep-linked card reveals it
  *   D4   it covers the search results
  *   D8   Escape pressed while it is hidden marks it seen
  *
@@ -89,27 +91,53 @@ for (const exit of EXITS) {
   });
 }
 
-test('known defect D3: the welcome panel shows over a cold deep link until the dataset arrives', async ({ page, net }) => {
+/*
+ * Records, from the first byte of the document, whether the greeting ever
+ * rendered. "Hidden now" cannot tell a panel that never showed from one that
+ * flashed up while the dataset was on its way.
+ */
+async function watchForGreeting(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __greeted?: boolean };
+    new MutationObserver(() => {
+      for (const b of document.querySelectorAll('button')) {
+        if (b.textContent?.trim() === 'Open the map') w.__greeted = true;
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
+}
+const greeted = (page: Page) => page.evaluate(() => !!(window as unknown as { __greeted?: boolean }).__greeted);
+
+test('a cold deep link never shows the welcome panel, even while the dataset is on its way', async ({ page, net }) => {
+  await watchForGreeting(page);
   for (const path of [href({ kind: 'spring', id: RADIUM.id }), href({ kind: 'page', page: 'terms' })]) {
     const dataset = net.hold('dataset');
     await page.goto(path);
     await dataset.requested;
-    // The route is applied only once the records exist, so until then the
-    // store says "nothing asked for" and the greeting takes the screen.
-    await expect(openTheMap(page), `${path}: the greeting is over the deep link`).toBeVisible();
+    // Held: the store has not applied the route yet and says "nothing asked
+    // for". The panel decides from the address instead, so it stays away.
+    await expect(page.getByRole('main')).toBeVisible();
+    expect(await greeted(page), `${path}: the greeting was over the deep link while the dataset was held`).toBe(false);
     dataset.release();
-    await expect(openTheMap(page), `${path}: and gives way once the route applies`).toBeHidden();
+    await waitForData(page);
+    expect(await greeted(page), `${path}: the greeting appeared once the dataset arrived`).toBe(false);
   }
 });
 
-test('known defect D3b: closing a deep-linked card reveals the welcome panel', async ({ page }) => {
+test('closing a deep-linked card does not bring up the welcome panel, and the panel waits for a visit to the map', async ({ page }) => {
+  await watchForGreeting(page);
   await page.goto(href({ kind: 'spring', id: RADIUM.id }));
   await expect(card(page)).toBeVisible();
-  await expect(openTheMap(page)).toBeHidden();
 
   await page.getByRole('button', { name: 'Close details' }).click();
   await expect(card(page)).toBeHidden();
-  await expect(openTheMap(page), 'the greeting appears after the visitor has already used the atlas').toBeVisible();
+  await expect(page).toHaveURL(href({ kind: 'map' }));
+  expect(await greeted(page), 'the greeting appeared after the visitor had already used the atlas').toBe(false);
+  // Never seen, so never marked seen: the next arrival at the map gets it.
+  expect(await welcomed(page), 'a panel the visitor never saw was marked seen').toBeNull();
+
+  await page.goto(href({ kind: 'map' }));
+  await expect(openTheMap(page)).toBeVisible();
 });
 
 test('known defect D4: the welcome panel covers the search results', async ({ page }) => {
@@ -134,15 +162,19 @@ test('known defect D4: the welcome panel covers the search results', async ({ pa
 });
 
 test('known defect D8: Escape pressed while the welcome panel is hidden marks it seen', async ({ page }) => {
-  await page.goto(href({ kind: 'spring', id: RADIUM.id }));
-  await expect(card(page)).toBeVisible();
-  // Hidden behind the card, never seen.
+  // A deep link no longer mounts the panel open, so it is hidden the other
+  // way: shown at the map, then covered by a standing page from the footer.
+  await page.goto(href({ kind: 'map' }));
+  await expect(openTheMap(page)).toBeVisible();
+  await page.getByRole('contentinfo').locator(`a[href="${href({ kind: 'page', page: 'terms' })}"]`).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: tabLabel('terms') })).toBeVisible();
   await expect(openTheMap(page)).toBeHidden();
   expect(await welcomed(page)).toBeNull();
 
-  // Escape is meant for the card. It closes it -- and dismisses the unseen panel.
+  // Escape is meant for the page. It closes it -- and dismisses the covered panel.
   await page.keyboard.press('Escape');
-  await expect(card(page)).toBeHidden();
-  expect(await welcomed(page), 'a panel the visitor never saw was marked seen').toBe('1');
+  await expect(dialog).toBeHidden();
+  expect(await welcomed(page), 'a panel hidden behind the page was marked seen').toBe('1');
   await expect(openTheMap(page)).toBeHidden();
 });

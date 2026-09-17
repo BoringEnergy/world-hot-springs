@@ -24,9 +24,24 @@
  */
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { href } from '../lib/router.ts';
+import { href, parse } from '../lib/router.ts';
 
 const SEEN_KEY = 'whs.welcomed';
+
+/*
+ * Whether the visitor arrived at the map itself, read once from the address
+ * they arrived at. Deciding it from the store instead showed the greeting
+ * over a cold /s/whs_... or /terms, because the store only applies the route
+ * once the dataset is in, and until then it says "nothing asked for". It also
+ * put the greeting up when a deep-linked card was closed, in front of someone
+ * already using the atlas. Module scope, not component state: the panel
+ * unmounts while the filter rail is open, and remounting must not re-read an
+ * address the visitor has since moved on from.
+ *
+ * A deep-link visit does not mark the panel seen. The visitor never saw it,
+ * so it is still there for them the next time they arrive at the map.
+ */
+const ARRIVED_AT_MAP = typeof window !== 'undefined' && parse().kind === 'map';
 
 interface Summary {
   total: number;
@@ -70,7 +85,7 @@ export function WelcomePanel() {
   const setPage = useStore((s) => s.setPage);
   const locateMe = useStore((s) => s.locateMe);
 
-  const [open, setOpen] = useState(() => !seen());
+  const [open, setOpen] = useState(() => ARRIVED_AT_MAP && !seen());
   const [summary, setSummary] = useState<Summary | null>(null);
 
   useEffect(() => {
