@@ -1,4 +1,15 @@
-import type { AccessStatus, ClothingPolicy, HotSpring, HoursStatus, MineralType, MineralUnit, SpringType } from './types';
+// With the extension: scripts/*.test.mjs import this file in plain Node, which
+// resolves a value import only by its real filename.
+import {
+  TEMP_BANDS,
+  type AccessStatus,
+  type ClothingPolicy,
+  type HotSpring,
+  type HoursStatus,
+  type MineralType,
+  type MineralUnit,
+  type SpringType,
+} from './types.ts';
 
 export type Units = 'c' | 'f';
 
@@ -22,6 +33,21 @@ export function formatTempValue(celsius: number | null, units: Units): string {
 /** A whole-degree temperature with no unit, for a key that states the unit once. */
 export function formatTempNumber(celsius: number, units: Units): string {
   return String(Math.round(units === 'c' ? celsius : (celsius * 9) / 5 + 32));
+}
+
+/**
+ * One temperature band's range in the current unit, as the footer key prints
+ * it. `unit: false` is the phone key's short form, which states the unit once
+ * at the start of the row instead of on every number. The e2e footer spec
+ * reads this same function, so the key it checks and the key the page draws
+ * cannot drift apart.
+ */
+export function bandRange(i: number, units: Units, unit: boolean): string {
+  const t = (c: number) => (unit ? formatTempValue(c, units) : formatTempNumber(c, units));
+  const b = TEMP_BANDS[i];
+  if (i === 0) return `<${t(b.maxC)}`;
+  if (b.maxC === Infinity) return `${t(TEMP_BANDS[i - 1].maxC)}+`;
+  return `${t(TEMP_BANDS[i - 1].maxC)}–${t(b.maxC)}`;
 }
 
 const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',

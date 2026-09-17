@@ -20,23 +20,10 @@
  * covered and this must not be. It costs 34 pixels of globe.
  */
 import { TEMP_BANDS, UNKNOWN_TEMP_COLOR, UNKNOWN_TEMP_LABEL } from '../lib/types';
-import { formatTempNumber, formatTempValue, shareAsFraction, type Units } from '../lib/format';
+import { bandRange, shareAsFraction } from '../lib/format';
 import { useStore } from '../store/useStore';
 import { href } from '../lib/router.ts';
 import { REPO_URL } from '../lib/citation.ts';
-
-/*
- * One band's range, in the current unit. `unit: false` is the phone key's
- * short form, which states the unit once at the start of the row instead of
- * on every number.
- */
-function bandRange(i: number, units: Units, unit: boolean): string {
-  const t = (c: number) => (unit ? formatTempValue(c, units) : formatTempNumber(c, units));
-  const b = TEMP_BANDS[i];
-  if (i === 0) return `<${t(b.maxC)}`;
-  if (b.maxC === Infinity) return `${t(TEMP_BANDS[i - 1].maxC)}+`;
-  return `${t(TEMP_BANDS[i - 1].maxC)}–${t(b.maxC)}`;
-}
 
 /*
  * Below 640 px only the short range shows, and the band's name is there for

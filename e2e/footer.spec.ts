@@ -9,6 +9,8 @@
  *   the key at every width      mutations: the key group `hidden sm:flex`
  *                               again (D11, fails at 320 and 375); the
  *                               swatch colours read from a copied list
+ *   the phone key's ranges,     mutation: the phone range span hidden
+ *   C and F, in band order      (bare dots on a phone)
  *   every link on screen and    mutation: the footer's old single
  *   clickable, and no sideways  `overflow-x-auto` row, without wrapping
  *   scroll, 320-1440            (D12 at 320 and 375-F, D12b at 800)
@@ -31,6 +33,7 @@ import { waitForMap } from './support/map.ts';
 import { pageTitle, tabLabel, UNITS_KEY, type StandingPage } from './support/source.ts';
 import { href } from '../src/lib/router.ts';
 import { TEMP_BANDS, UNKNOWN_TEMP_COLOR, UNKNOWN_TEMP_LABEL } from '../src/lib/types.ts';
+import { bandRange } from '../src/lib/format.ts';
 
 const WIDTHS = [320, 375, 640, 800, 1100, 1440];
 const HEIGHT = 800;
@@ -186,4 +189,28 @@ for (const width of WIDTHS) {
     }, width);
     expect(inside, 'the key runs off the screen').toBe(true);
   });
+}
+
+// Hudson, 2026-09-16: a phone's key gives each colour its range, in the unit
+// the visitor chose. Colours alone would be a legend with no numbers on it.
+for (const units of ['c', 'f'] as const) {
+  for (const width of [320, 375]) {
+    test(`at ${width} px (°${units.toUpperCase()}) the phone key prints every band's range, in order`, async ({ page }) => {
+      await page.addInitScript(([k, u]) => localStorage.setItem(k, u), [UNITS_KEY, units]);
+      await page.setViewportSize({ width, height: HEIGHT });
+      await page.goto('/');
+      await waitForMap(page);
+      // innerText is what is rendered: a range hidden with display:none is
+      // not in it, whatever the markup holds.
+      const text = await keyGroup(page).innerText();
+      expect(text, 'the phone key does not state its unit').toContain(`°${units.toUpperCase()}`);
+      let at = -1;
+      for (let i = 0; i < TEMP_BANDS.length; i++) {
+        const range = bandRange(i, units, false);
+        const next = text.indexOf(range, at + 1);
+        expect(next, `the phone key does not show ${range}, or not in band order`).toBeGreaterThan(at);
+        at = next;
+      }
+    });
+  }
 }
