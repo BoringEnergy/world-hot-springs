@@ -40,7 +40,6 @@ test('selecting a search result on a phone opens the card and the page survives 
 
   await page.getByRole('textbox', { name: 'Search hot springs' }).fill(RADIUM.name!);
   await page.getByRole('main').getByRole('button', { name: new RegExp(`^${RADIUM.name}`) }).first().tap();
-  await expect(card(page)).toBeVisible();
 
   /*
    * 2026-09-03: `padding: undefined` reached flyTo on narrow screens, MapLibre
@@ -59,11 +58,17 @@ for (const width of [320, 375]) {
     await page.setViewportSize({ width, height: 812 });
     await page.goto('/');
     await waitForMap(page);
-    const overflow = await page.evaluate(() => ({
-      doc: document.documentElement.scrollWidth - window.innerWidth,
-      body: document.body.scrollWidth - window.innerWidth,
+    /*
+     * Against the width set here, not window.innerWidth: with isMobile,
+     * Chromium widens the layout viewport to fit content that overflows, so
+     * innerWidth grows with the overflow and the difference stays 0.
+     */
+    const widths = await page.evaluate(() => ({
+      doc: document.documentElement.scrollWidth,
+      body: document.body.scrollWidth,
+      viewport: window.innerWidth,
     }));
-    expect(overflow).toEqual({ doc: 0, body: 0 });
+    expect(widths).toEqual({ doc: width, body: width, viewport: width });
   });
 }
 

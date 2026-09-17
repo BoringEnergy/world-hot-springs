@@ -138,3 +138,49 @@ run, read and reverted.
 | boot: cold load | `Header` throws on render | `getByRole('banner')` element(s) not found |
 | boot: cold load | style answered with a 404 | `MapLibre reported an error` Received `AJAXError: Not Found (404): https://basemaps.cartocdn.com/…/style.json` |
 | boot: every record | `springs.slice(1)` in the store | `the map should hold all 7490 springs` Expected 7490, Received 7489 |
+| welcome: shown once | `markSeen()` writes nothing | after reload, `toBeHidden()` Received `visible` |
+| welcome: every exit | `dismiss()` removed from Show me one | `Show me one closed the panel without marking it seen` Expected `"1"`, Received `null` |
+| footer: Safety on screen | the Safety link moved last in the nav | `the Safety link runs off the right edge` at 320 (Received 361.0) and 800 (820.0) |
+| footer: each page opens | the Terms and Privacy anchors swapped | `toHaveAttribute` Expected `"/terms"`, Received `"/privacy"` (and the reverse) |
+| footer: Download | href `data/hot-springs.json` | `the download is not data/hot-springs.geojson`: sha256 `48f1c718…` against `f402c90e…` |
+| footer: the key from 640 | `sm:flex` -> `md:flex` | at 640, `toBeVisible()` Received `hidden` |
+| deeplink: dataset before style | descent effect guarded on `!ready.current`, deps `[selectedId]` | `the camera never settled on Radium Hot Springs at zoom 12`; the style-first test passed |
+| deeplink: style before dataset | deps `[mapReady]` only | the same message; the dataset-first test passed |
+| deeplink: the flight settles | stage-2 `easeTo` removed | `the camera never settled … at zoom 12.5` |
+| deeplink: unknown id | `replace: false` | `the dead link is still in history, one Back away` Expected 2, Received 3 |
+| deeplink: Back and Forward | the `onPopState` effect removed | `Back changed the address and left the card open` |
+| deeplink: prohibited | SoakScene guard is `true` | `figure[role=img]` Expected count 0, Received 1 |
+| narrow: the page survives | `padding: … : undefined` passed to flyTo | `uncaught exceptions during the flight`: `Cannot read properties of undefined (reading 'top')`, the 2026-09-03 regression exactly |
+| narrow: no sideways scroll | app root `w-full` -> `w-[400px]` | both widths fail `toEqual`. The first version compared against `innerWidth` and passed at 320, because a mobile viewport widens to fit overflow; it now compares against the width it set |
+| narrow: the card fits | card `inset-x-0` -> `left-0 w-[420px]` | Expected `<= 375`, Received 420 |
+| a11y: one h1 | the header's h1 -> h2 | Expected count 1, Received 0 |
+| a11y: every button named | About button's `aria-label` removed | `button 3: <button …>` Expected pattern `/\S/`, Received `""` |
+| disclosure: contacted is listed | open-meteo entry deleted from `THIRD_PARTIES` | `contacted api.open-meteo.com, …; listed basemaps.cartocdn.com, tiles.maps.eox.at, s3.amazonaws.com` |
+| disclosure: listed is contacted | `bogus.example.org` added to `THIRD_PARTIES` | `listed …, bogus.example.org, …` |
+| disclosure: nothing else stored | `main.tsx` writes a sessionStorage key | `toEqual` fails on `session` |
+| globe: fits | `zoom: 2.3` in the constructor (the plan's mutation) | **passed**: at 2.3 the 1280x720 globe still fits, radius 304.0, y 10.0 to 618.0 in 628 |
+| globe: fits | `zoom: 2.4` | `the globe is cut off at the top` at 1280x720, Received -6.4; 1440x900 still fits |
+| screenshots | `<WelcomePanel />` removed from App | both welcome shots: `toBeVisible()` element(s) not found |
+
+Pinned defects fail when fixed. Each was checked by applying a plausible fix:
+
+| Pin | Fix applied | Observed |
+|---|---|---|
+| D3 | `useState(() => !seen() && parse().kind === 'map')` | D3 `the greeting is over the deep link` not found; D3b and D8 failed too, as that fix also removes them |
+| D4 | the panel returns null while a search or "near me" is active | `the first search result is under the greeting` Expected false, Received true |
+| D8 | the Escape listener registered only while the panel is visible | `a panel the visitor never saw was marked seen` Expected `"1"`, Received `null` |
+| D11 | the key group always `flex` | both widths: `a phone gets no key to the map colours` Received `visible` |
+| D12, D12b | footer `flex-wrap`, nav `flex-wrap` without `shrink-0` | Source's right edge 164.2 at 320 and 784 at 800 |
+| D1 | the wordmark span always `flex` | `the only h1 is display:none on a phone` Expected 0, Received 1 |
+| D2 | `aria-label="Filters"` | Expected `""`, Received `"Filters"` |
+| D9 | `inert={!open}` on the rail | `keyboard focus landed inside an aria-hidden element` |
+| D5 | the privacy page names `whs.welcomed` | `the privacy page names the welcome key` |
+| D13 | `zoom: 1.2` below 640 px, `minZoom: 1` | `the globe runs off the left of a phone` Received 20.5 |
+
+## Load
+
+`workers: 2`. At Playwright's local default of half the cores (7 on a
+14-core machine) the full suite failed 12 and then 13 of 63 on 2026-09-16,
+every failure a timeout: a card or an idle map that takes about a second
+alone took more than 5 or 30 seconds with seven SwiftShader renderers
+competing. Two is what a four-core GitHub runner gets by default.

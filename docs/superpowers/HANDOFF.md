@@ -123,13 +123,46 @@ from.
   Ten unused utilities left the stylesheet; the list is in e2e/README.md.
 - **The harness is advisory until its flake rate is measured** over real
   pull requests. `retries: 0` on purpose: a retry hides that number.
-- **What B0 measured and nobody has decided yet.** At 375x812 the arrival
-  globe is 78 px wider than the canvas on each side. The footer's Source link
-  is off-screen at 320 px and cut at the edge at 800 px, although the footer
-  scrolls and Safety is always visible. There is no temperature key below
-  640 px, which is a product question for Hudson, not a defect.
+- **Counts, 2026-09-16:** `npm test` 688 of 688 (674 before this work; 673
+  and 1 skipped without `data/raw`, which is how CI runs it). `npm run
+  test:e2e` 63 tests in 10 specs, about 3.3 minutes including the e2e build.
+- **Flake, measured locally:** three consecutive full runs at `workers: 2`,
+  63 of 63 each time. At Playwright's local default of 7 workers (14 cores)
+  two runs failed 12 and 13 tests, all timeouts from seven CPU-rendered maps
+  competing, so the config pins 2 workers, which is what a GitHub runner gets
+  anyway. No CI run exists yet to measure against.
+- **Known defects are pinned, not skipped.** Each is an ordinary test named
+  `known defect Dn: ...` that asserts what the app does today, so the fix
+  fails it and has to flip it to the intended assertion. Never `test.fail()`:
+  that also passes when a precondition breaks. Every pin was watched failing
+  under its fix (e2e/README.md). All are open, for track C:
+
+  | Id | Defect | Pinned in |
+  |---|---|---|
+  | D1 | no h1 below 768 px: it is inside the `hidden md:flex` wordmark | a11y |
+  | D2 | the Filters button has no accessible name below 640 px | a11y |
+  | D3 | the welcome panel shows over a cold `/s/...` or `/terms` until the dataset arrives | welcome |
+  | D3b | closing a deep-linked card reveals the welcome panel | welcome |
+  | D4 | the welcome panel covers the search results | welcome |
+  | D5 | the privacy page does not name `whs.welcomed`, and says the unit key is the only thing written | disclosure |
+  | D8 | Escape pressed while the welcome panel is hidden marks it seen | welcome |
+  | D9 | Tab reaches the closed filter rail (`aria-hidden` without `inert`) | a11y |
+  | D10 | the "4 in 5" coverage phrase is a literal in AtlasFooter and WelcomePanel | not pinned: a source fact, not a behaviour. The fix derives it from the summary |
+  | D11 | no temperature key below 640 px. **Hudson decided 2026-09-16: phones get a compact key** | footer |
+  | D12 | the footer's links overflow at 320 px: Source is past the edge in a footer that scrolls sideways | footer |
+  | D12b | the same at 800 px, where Source is cut by the edge | footer |
+  | D13 | the arrival globe is wider than a phone: 531.6 px in a 375 px canvas | globe |
+
+  D6 and D7 were never assigned. The page itself never scrolls sideways at
+  320 or 375 (narrow.spec.ts asserts that), and the globe fits at 1440x900
+  and 1280x720 (globe.spec.ts).
 - **A Playwright trap:** `offline` is a built-in option name, so a fixture
   called that fails to register. The network fixture is `net`.
+- **Module-private facts are read from source text** (`e2e/support/source.ts`):
+  the storage keys, the default title, the page titles and tab labels. If one
+  of those definitions changes shape, the helper throws and names the file.
+  Exporting them is the better fix, and the natural moment is D5's
+  `storage.ts`.
 
 ## Read this before touching anything
 
@@ -173,7 +206,8 @@ browser harness" above.
 
 ## Current state, 2026-09-11
 
-**646 tests. `main` is green and everything below is merged.**
+**646 tests then (688 Node tests and 63 browser tests on 2026-09-16; see the
+browser harness section). `main` is green and everything below is merged.**
 
 **Coverage: temperature 1,395 of 7,490 (19%), chemistry 174.** It was 95 of 6,471 (1%) when
 the seeding work started on 2026-09-05. Five upstreams now: OSM, NCEI, AIST, the
@@ -229,7 +263,8 @@ edit and checks the value literally appears. Proven on a real fork PR.
   correctly. **The proposer has no retrieval**, so it is asked to cite a URL it
   has no way to look up and correctly returns nothing. **Task 12** fixes that;
   until it lands, `npm run enrich` costs money and yields zero overlay files.
-- **646 tests**, `npm test`. All passing. Worth remembering that 242 of them
+- **688 tests**, `npm test`, all passing on 2026-09-16 (646 on 2026-09-11),
+  plus **63 browser tests**, `npm run test:e2e`. Worth remembering that 242 of them
   passed while the enrichment pipeline could not do its job at all, and 320
   passed over a UI where clicking a search result blanked the page. That
   second one is partly addressed now: the card's display model lives in

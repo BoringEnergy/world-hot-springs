@@ -19,6 +19,15 @@ export default defineConfig({
   // A retry turns a flaky test into a green one, and the flake rate is the
   // number this harness has not measured yet. Until it has, a flake is a red.
   retries: 0,
+  /*
+   * Every worker renders WebGL on the CPU (SwiftShader), and a cold load
+   * parses a 10 MB dataset. At Playwright's local default -- half the cores,
+   * 7 workers on a 14-core machine -- the full suite failed 13 of 63 on
+   * 2026-09-16, every one a timeout: cards and map idle that normally take
+   * about a second took over 5 and 30. Two is what a GitHub runner's four
+   * cores give by default, so local runs and CI now load the machine alike.
+   */
+  workers: 2,
   forbidOnly: CI,
   reporter: [
     ['list'],

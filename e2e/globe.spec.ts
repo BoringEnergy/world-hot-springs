@@ -1,7 +1,8 @@
 /**
  * On arrival, the whole planet is on screen.
  *
- *   fits at 1440x900 and 1280x720   mutation: the constructor's `zoom: 2.3`
+ *   fits at 1440x900 and 1280x720   mutation: the constructor's `zoom: 2.4`
+ *                                   (2.3 passes; see below)
  *
  * Pinned defect (the fix flips it):
  *
@@ -16,8 +17,13 @@
  *   375x812   375x720    265.8   -78.3 - 453.3   94.2 - 625.8    no, 78 px past each side
  *
  * The test asks for the globe inside the canvas and nothing more: the spare
- * pixels are the margin a regression has to eat before this fails. At 2.3
- * the 1280x720 radius would be 258.6 x 2^0.3 = 318, taller than the canvas.
+ * pixels are the margin a regression has to eat before this fails.
+ *
+ * The globe does not grow as 2^zoom this far out, so zoom 2.3 -- the value
+ * MapView's comment says overflowed a laptop -- still fits both viewports
+ * here, by 10 px at 1280x720 (radius 304.0, y 10.0 to 618.0 in 628). The
+ * mutation watched failing is 2.4: radius 320.4, y -6.4 to 634.4, measured
+ * 2026-09-16.
  */
 import { test, expect } from './support/offline.ts';
 import { globeBox, waitForMap } from './support/map.ts';
