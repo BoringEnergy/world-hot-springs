@@ -162,5 +162,5 @@ edit left is v1.0.0's type and creator.
 
 | Version | Tag commit | Version DOI | Archived as |
 |---|---|---|---|
-| 1.0.0 | `cda3c35` | `10.5281/zenodo.22800997` | Software, "World Hot Springs contributors" (to be corrected by hand) |
+| 1.0.0 | `cda3c35` | `10.5281/zenodo.22800997` | Software, "World Hot Springs contributors"; corrected by hand on 2026-09-17 to Dataset, "HudsonR&D" |
 | 1.0.1 | `bd73272` | `10.5281/zenodo.22813285` | Dataset, Hudson R&D |

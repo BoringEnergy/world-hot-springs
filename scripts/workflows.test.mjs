@@ -246,6 +246,27 @@ test('no workflow downloads an artifact', () => {
   }
 });
 
+test('gate-2 runs whatever gate-1 concluded', () => {
+  // It looks like an obvious saving to skip gate-2 when gate-1 failed, and
+  // the security spec's draft had exactly that clause. It is a hole. A fork
+  // PR runs its own gate.yml, so it picks the job names and the conclusion:
+  // a passing `validate`, a passing job named `gate-2 claims`, and one job
+  // that fails would conclude the run as a failure, skip gate-2, and leave
+  // only the contributor's green checks -- named after both required
+  // contexts, from the same app that reports the real ones. Running anyway
+  // is what lands the real verdict on the commit, after theirs.
+  //
+  // Decided 2026-09-17 with the maintainer, against doing it.
+  const gate2 = bodies.find(({ file }) => file === 'gate-2.yml');
+  assert.ok(gate2, 'gate-2.yml is missing');
+  const conditions = [...gate2.code.matchAll(/^\s*if:\s*(.+)$/gm)].map((m) => m[1].trim());
+  assert.deepEqual(conditions, ["github.event.workflow_run.event == 'pull_request'"]);
+  assert.ok(
+    !/workflow_run\.conclusion/.test(gate2.code),
+    'gate-2 reads gate-1\'s conclusion: a fork chooses that conclusion, and skipping silences this gate',
+  );
+});
+
 test('only gate-2 is triggered by another workflow', () => {
   // workflow_run runs from the default branch WITH secrets. One such file is
   // a design decision (the security spec); a second is an accident.

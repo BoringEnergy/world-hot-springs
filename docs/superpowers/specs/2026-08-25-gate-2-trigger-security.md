@@ -182,9 +182,15 @@ jobs:
   review:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # ERRATUM, 2026-09-17: the second clause was never implemented, and must
+    # not be. A fork PR runs its own gate.yml, so it chooses that conclusion:
+    # failing the run on purpose would skip this workflow and leave the
+    # contributor's own jobs -- which can be named `validate` and
+    # `gate-2 claims` -- as the only checks on the commit. Gate 2 runs on
+    # every conclusion so that its refusal lands after theirs. See the shipped
+    # .github/workflows/gate-2.yml and the test that pins it.
     if: >
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+      github.event.workflow_run.event == 'pull_request'
     steps:
       # Default branch. Never the PR head.
       - uses: actions/checkout@<pinned-sha>
