@@ -93,9 +93,16 @@ export function Header({ onToggleFilters, filtersOpen }: { onToggleFilters: () =
         <span>R&amp;D</span>
       </a>
 
+      {/*
+        Named outright, because below 640 px its only text is display:none
+        and the button would be announced as nothing but "toggle button".
+        The label is the visible word, so from 640 px up it is read once and
+        voice control still finds it by what it says.
+      */}
       <button
         onClick={onToggleFilters}
         aria-pressed={filtersOpen}
+        aria-label="Filters"
         className={`flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
           filtersOpen
             ? 'border-basalt-600 bg-basalt-800 text-steam-100'

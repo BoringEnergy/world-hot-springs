@@ -7,10 +7,11 @@
  *   one h1 at 375 (was D1)         mutation: the fix reverted, the wordmark
  *                                  span `hidden md:flex` again
  *   every button named at 1440     mutation: the About button's aria-label removed
+ *   every button named at 375      mutation: the Filters button's aria-label
+ *   (was D2)                       removed; its only text is `hidden sm:inline`
  *
  * Pinned defects (the fix flips each one):
  *
- *   D2  the Filters button has no name at 375: its only text is `hidden sm:inline`
  *   D9  Tab reaches the closed filter rail, which is aria-hidden but not inert
  */
 import type { Page } from '@playwright/test';
@@ -39,22 +40,25 @@ for (const [width, height] of [
   });
 }
 
-test('at 1440 px every button has an accessible name', async ({ page }) => {
-  await load(page, 1440, 900);
-  const buttons = page.getByRole('button');
-  const n = await buttons.count();
-  expect(n, 'no buttons found: the page did not render').toBeGreaterThan(5);
-  for (let i = 0; i < n; i++) {
-    const b = buttons.nth(i);
-    await expect(b, `button ${i}: ${await b.evaluate((el) => el.outerHTML.slice(0, 120))}`).toHaveAccessibleName(/\S/);
-  }
-});
-
-test('known defect D2: the Filters button has no accessible name at 375px', async ({ page }) => {
-  await load(page, 375, 812);
-  await expect(filtersButton(page)).toBeVisible();
-  await expect(filtersButton(page)).toHaveAccessibleName('');
-});
+for (const [width, height] of [
+  [1440, 900],
+  [375, 812],
+]) {
+  test(`at ${width} px every button has an accessible name`, async ({ page }) => {
+    await load(page, width, height);
+    const buttons = page.getByRole('button');
+    const n = await buttons.count();
+    expect(n, 'no buttons found: the page did not render').toBeGreaterThan(5);
+    for (let i = 0; i < n; i++) {
+      const b = buttons.nth(i);
+      await expect(b, `button ${i}: ${await b.evaluate((el) => el.outerHTML.slice(0, 120))}`).toHaveAccessibleName(/\S/);
+    }
+    // Below 640 px its visible word is display:none; from 640 up the label
+    // and the word are the same, and the name must not read it twice.
+    await expect(filtersButton(page)).toBeVisible();
+    await expect(filtersButton(page)).toHaveAccessibleName('Filters', { exact: true });
+  });
+}
 
 test('known defect D9: Tab reaches the closed filter rail', async ({ page }) => {
   await load(page, 1440, 900);
