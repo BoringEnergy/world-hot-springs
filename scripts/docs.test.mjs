@@ -12,7 +12,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { numberWords, shareAsFraction } from '../src/lib/format.ts';
+import { numberWords, springsInWords } from '../src/lib/format.ts';
 
 const README = fs.readFileSync('README.md', 'utf8');
 const SUMMARY = JSON.parse(fs.readFileSync('data/summary.json', 'utf8'));
@@ -61,7 +61,6 @@ const PROSE = README.replace(/\s+/g, ' ');
 
 // The same words and fraction the footer and the welcome panel render.
 const words = numberWords;
-const capital = (s) => s[0].toUpperCase() + s.slice(1);
 const count = (n) => n.toLocaleString('en-US');
 
 test('the README\'s United States sentence is a recount of the data', () => {
@@ -84,8 +83,7 @@ test('the README\'s United States sentence is a recount of the data', () => {
 test('the README\'s unknown share is derived from the summary', () => {
   // Said as "N springs in N+1", the plainest fraction nearest the true share.
   const unknown = 1 - SUMMARY.coverage.temperature / SUMMARY.total;
-  const { part, whole } = shareAsFraction(unknown);
-  const want = `${capital(words(part))} springs in ${words(whole)} have no recorded temperature.`;
+  const want = `${springsInWords(unknown)} have no recorded temperature.`;
   assert.ok(PROSE.includes(want), `README should contain: ${want}  (${(unknown * 100).toFixed(1)}% unknown)`);
 
   const pct = Math.round((SUMMARY.coverage.temperature / SUMMARY.total) * 100);

@@ -61,18 +61,32 @@ export function numberWords(n: number): string {
 }
 
 /**
- * A share said as "N in N+1", the plainest fraction nearest to it: 81% is
- * four in five, not five in six. The footer, the welcome panel and the
- * README all say the unknown-temperature share this way, and all three used
- * to type it, which is how the README said "five in six" long after the
- * data had moved. Now each derives it here from the data it has.
+ * A share said as a fraction, the plainest one nearest to it: 81% is four in
+ * five, not five in six, and 10% is one in ten. The footer, the welcome panel
+ * and the README all say the unknown-temperature share this way, and all
+ * three used to type it, which is how the README said "five in six" long
+ * after the data had moved. Now each derives it here from the data it has.
+ *
+ * Denominators run to ten and the smallest wins a tie, which is what
+ * "plainest" means. That makes it honest to within five points from 5% to
+ * 95%, and not outside it: 1% is not "one in ten". It used to search only
+ * N in N+1, so any share under a half would have been printed as one in two.
  */
 export function shareAsFraction(share: number): { part: number; whole: number } {
-  let whole = 2;
-  for (let d = 2; d <= 10; d++) {
-    if (Math.abs((d - 1) / d - share) < Math.abs((whole - 1) / whole - share)) whole = d;
+  let best = { part: 1, whole: 2 };
+  for (let whole = 2; whole <= 10; whole++) {
+    for (let part = 1; part < whole; part++) {
+      if (Math.abs(part / whole - share) < Math.abs(best.part / best.whole - share)) best = { part, whole };
+    }
   }
-  return { part: whole - 1, whole };
+  return best;
+}
+
+/** "Four springs in five", "One spring in ten": a share as a sentence opens. */
+export function springsInWords(share: number): string {
+  const { part, whole } = shareAsFraction(share);
+  const lead = numberWords(part).replace(/^./, (c) => c.toUpperCase());
+  return `${lead} ${part === 1 ? 'spring' : 'springs'} in ${numberWords(whole)}`;
 }
 
 /**

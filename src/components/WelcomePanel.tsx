@@ -26,7 +26,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { href, parse } from '../lib/router.ts';
 import { WELCOMED_KEY } from '../lib/storage.ts';
-import { numberWords, shareAsFraction } from '../lib/format.ts';
+import { springsInWords } from '../lib/format.ts';
 
 /*
  * Whether the visitor arrived at the map itself, read once from the address
@@ -150,10 +150,8 @@ export function WelcomePanel() {
 
   const total = summary?.total ?? springs.length;
   const countries = summary?.countries ?? null;
-  const unknown = summary && summary.total ? shareAsFraction(1 - summary.coverage.temperature / summary.total) : null;
-  const unknownWords = unknown
-    ? `${numberWords(unknown.part).replace(/^./, (c) => c.toUpperCase())} springs in ${numberWords(unknown.whole)}`
-    : 'Most springs';
+  const unknownWords =
+    summary && summary.total ? springsInWords(1 - summary.coverage.temperature / summary.total) : 'Most springs';
   const tempPct =
     summary && summary.total ? Math.round((summary.coverage.temperature / summary.total) * 100) : null;
 
