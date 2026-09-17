@@ -151,3 +151,9 @@ wired in -- is released once the harness fixes and the DOI wiring have
 merged, so that its archive is right without any hand edits. Its CHANGELOG
 entry widens PATCH to cover corrections to the documents that travel with the
 records.
+
+**1.0.1 prepared 2026-09-17.** The harness fixes and the DOI wiring merged;
+the `[1.0.1]` entry, `package.json` and the generated metadata are on
+`main`. The release itself waits for the maintainer's yes, and for the
+preconditions in section 3 on the day -- above all, that no removal request is
+pending and that the CHANGELOG date is still the UTC date.

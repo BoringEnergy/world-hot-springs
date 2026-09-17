@@ -33,6 +33,18 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
 
+## 2026-09-17 -- 1.0.1 prepared
+
+`CHANGELOG.md` has a `[1.0.1] - 2026-09-17` entry, `package.json` is
+1.0.1, and `.zenodo.json` / `CITATION.cff` are regenerated from them. The
+records are byte-identical to 1.0.0 -- nothing under `data/` changed -- so
+this is a PATCH under the widened rule: corrections to the documents that
+travel with the records, and an archive that describes itself correctly
+(dataset, ODbL, Hudson R&D, the upstreams, the concept DOI). The release is
+the maintainer's to approve; follow docs/RELEASING.md section 3 on the day.
+If it slips past 2026-09-17 UTC, move the CHANGELOG date and run
+`npm run release:meta` first.
+
 ## 2026-09-17 -- harness fixes
 
 Track C of the 2026-09-16 plan: every defect the browser harness pinned is
@@ -120,8 +132,7 @@ in the same module is the one citation string the README and the panel print.
 
 - **Counts:** `npm test` 708; `npm run test:e2e` 67 tests in 11 specs.
 
-**Next: v1.0.1**, per the plan's second addendum and RELEASING.md -- once the
-harness fixes have merged too.
+**Next: v1.0.1** -- prepared; see the section above.
 
 ## 2026-09-16 -- release metadata
 
