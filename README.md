@@ -16,6 +16,22 @@ not a backlog: 19% of these springs have a recorded temperature because
 81% of them have never had one published, and the card says so on every
 one. Corrections are welcome; the data campaign is closed.
 
+## How to cite
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22800996.svg)](https://doi.org/10.5281/zenodo.22800996)
+
+Every release is archived on Zenodo. The DOI above always resolves to the
+latest version:
+
+```text
+Hudson R&D. World Hot Springs [Data set]. Zenodo. https://doi.org/10.5281/zenodo.22800996
+```
+
+Cite the version you actually used: each version has its own DOI, listed on
+the Zenodo page, and the records can change from one version to the next.
+[CITATION.cff](CITATION.cff) carries the same metadata for citation managers,
+and [DATA.md](DATA.md) sets out the attribution every reuse owes.
+
 ## Prior art, named
 
 This is not the first global compilation of thermal springs and does not claim

@@ -161,6 +161,12 @@ run, read and reverted.
 | globe: fits | `zoom: 2.3` in the constructor (the plan's mutation) | **passed**: at 2.3 the 1280x720 globe still fits, radius 304.0, y 10.0 to 618.0 in 628 |
 | globe: fits | `zoom: 2.4` | `the globe is cut off at the top` at 1280x720, Received -6.4; 1440x900 still fits |
 | screenshots | `<WelcomePanel />` removed from App | both welcome shots: `toBeVisible()` element(s) not found |
+| citation: JSON-LD names the DOI (2026-09-17) | `identifier` removed from seo.ts | `the JSON-LD does not identify the dataset by its DOI` Received `undefined` |
+| citation: JSON-LD names the DOI | `temporalCoverage` put back | `the JSON-LD dates the atlas by its OpenStreetMap layer` |
+| citation: JSON-LD names the DOI | `version: '1.0.0'` added | `the live site claims a dataset version` |
+| citation: About links the DOI | href set to a zenodo.org record | `toHaveAttribute` Expected the doi.org URL |
+| citation: Terms names the archive | the caveat paragraph removed | `the Terms page no longer says /archived on Zenodo under a DOI/` |
+| citation: DOI link wraps | `wrap-anywhere` removed from the link | `the DOI link runs past its paragraph` Expected <= 295.5, Received 326.9 (Verdana forced, 320 px) |
 
 Pinned defects fail when fixed. Each was checked by applying a plausible fix:
 

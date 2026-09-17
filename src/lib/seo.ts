@@ -23,7 +23,7 @@
  */
 import type { DatasetMeta, HotSpring } from './types';
 import { absoluteHref, href, type PageName } from './router.ts';
-import { TITLE as SITE_NAME, DESCRIPTION, CREATORS } from './citation.ts';
+import { TITLE as SITE_NAME, DESCRIPTION, CREATORS, DOI_URL } from './citation.ts';
 
 const DEFAULT_TITLE = `${SITE_NAME} — an open atlas`;
 const DEFAULT_DESCRIPTION =
@@ -164,19 +164,23 @@ export function applySpringMeta(spring: HotSpring): void {
   });
 }
 
-export interface DatasetFacts {
-  total: number;
-  countries: number;
-  sourceDate: string;
-}
-
 /**
  * The root page, and the payload that gets this atlas into Google Dataset
  * Search. Rendered from the dataset's own metadata rather than from constants
  * here, for the reason the About panel is: a hand-typed licence line is a
  * licence line that goes stale, and this one is a public claim about terms.
+ *
+ * The DOI goes in `identifier`, and in `sameAs` because the doi.org page is
+ * the same dataset under its archival name. Not in `citation`: in schema.org
+ * that property lists the works this dataset cites, not how to cite it.
+ *
+ * No `version`, because the site deploys main, which is usually ahead of the
+ * last release. And no `temporalCoverage`: this payload once derived one from
+ * the OpenStreetMap fetch date, which is the age of one layer and not of the
+ * atlas -- the same claim the About panel's footer is careful not to make.
+ * Nothing ever passed the facts it needed, so it was dead as well as wrong.
  */
-export function applyDefaultMeta(datasetMeta: DatasetMeta | null, facts: DatasetFacts | null): void {
+export function applyDefaultMeta(datasetMeta: DatasetMeta | null): void {
   head(DEFAULT_TITLE, DEFAULT_DESCRIPTION, absoluteHref({ kind: 'map' }));
   jsonLd('record', null);
 
@@ -186,13 +190,9 @@ export function applyDefaultMeta(datasetMeta: DatasetMeta | null, facts: Dataset
     name: SITE_NAME,
     description: DESCRIPTION,
     url: absoluteHref({ kind: 'map' }),
-    ...(facts
-      ? {
-          measurementTechnique: 'Normalisation and deduplication of public geospatial and geothermal sources',
-          temporalCoverage: `../${facts.sourceDate.slice(0, 10)}`,
-          variableMeasured: ['location', 'water temperature', 'price', 'clothing policy', 'opening hours'],
-        }
-      : {}),
+    identifier: DOI_URL,
+    sameAs: DOI_URL,
+    variableMeasured: ['location', 'water temperature', 'price', 'clothing policy', 'opening hours'],
     ...(datasetMeta
       ? {
           license: datasetMeta.licenseUrl,

@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-09-16.
+Last updated 2026-09-17.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -32,6 +32,38 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
+
+## 2026-09-17 -- DOI wired
+
+**The atlas says how to cite it.** `CONCEPT_DOI` in `src/lib/citation.ts`
+is `10.5281/zenodo.22800996`, the concept DOI of the record v1.0.0 created;
+it resolves to the latest version. Everything else reads it from there:
+`CITATION.cff` (`doi` and `identifiers`, generated), the README's "How to
+cite" section and badge, the Dataset JSON-LD (`identifier` and `sameAs`),
+and a "Cite this dataset" block in the About panel. `RECOMMENDED_CITATION`
+in the same module is the one citation string the README and the panel print.
+
+- **Only the concept DOI is written into what the site shows and what a
+  release archives as metadata.** A release's version DOI is minted after its
+  files are archived, so no archived file can name its own. v1.0.0's is
+  `10.5281/zenodo.22800997`, recorded for people in RELEASING.md and in a
+  comment in `citation.ts`; a test holds the site and CITATION.cff to the
+  concept DOI alone.
+- **schema.org `citation` is not how to cite a dataset.** It lists the works
+  the dataset cites. The plan said `citation`; the DOI went to `identifier`
+  and `sameAs` instead.
+- **`applyDefaultMeta` lost its `facts` parameter.** Nothing ever passed it,
+  and the branch it guarded dated the atlas by its OpenStreetMap layer, which
+  the About panel is careful not to do.
+- **No badge image on the site.** The About panel links doi.org with a plain
+  anchor; an image from zenodo.org would be a host the privacy page does not
+  list. `e2e/citation.spec.ts` holds that.
+- **The Terms page** now says what removal cannot reach: an archived version.
+
+- **Counts:** `npm test` 708; `npm run test:e2e` 67 tests in 11 specs.
+
+**Next: v1.0.1**, per the plan's second addendum and RELEASING.md -- once the
+harness fixes have merged too.
 
 ## 2026-09-16 -- release metadata
 
@@ -74,7 +106,8 @@ check first, sandbox dry run, the creator-type check, never
 `10.5281/zenodo.22800996`) from the old CITATION.cff: licence ODbL, which is
 right, but type **Software** and creator **World Hot Springs contributors**,
 which are not. Both are editable metadata on the record; see the end of
-RELEASING.md. `CONCEPT_DOI` stays `null` until the DOI is wired in on purpose.
+RELEASING.md. `CONCEPT_DOI` was `null` until the DOI was wired in on purpose,
+which happened on 2026-09-17 (next section up).
 
 **Corrections to earlier notes, each checked on 2026-09-16:**
 

@@ -98,18 +98,25 @@ gh release create vX.Y.Z --target <sha> --title "World Hot Springs X.Y.Z" --note
 - Optionally, set the repository homepage to `https://whs.boring.energy`
   (it still says `world-hot-springs.vercel.app`).
 
-## 6. After the first DOI: wire it in
+## 6. After the first DOI: wire it in -- done 2026-09-17
 
-A separate pull request, once the record has been read back:
+This happens once, after the first record has been read back, and it has
+happened. What it did, so the shape is recognisable:
 
-- Set `CONCEPT_DOI` in `src/lib/citation.ts` and run `npm run release:meta`,
-  so `CITATION.cff` carries the DOI.
+- `CONCEPT_DOI` in `src/lib/citation.ts`, and `npm run release:meta`, so
+  `CITATION.cff` carries the concept DOI as `doi` and in `identifiers`.
+  Only the concept DOI: a release's own version DOI is minted after its files
+  are archived, so no file can name it.
 - README: a "How to cite" section and a concept-DOI badge.
-- `src/lib/seo.ts`: the Dataset JSON-LD gains `identifier` and `citation`.
-- The About panel: a "Cite this dataset" link to doi.org (a plain link, no
+- `src/lib/seo.ts`: the Dataset JSON-LD gained `identifier` and `sameAs`.
+  Not `citation`, which in schema.org lists the works a dataset cites.
+- The About panel: a "Cite this dataset" block with a plain doi.org link (no
   badge image, which would add a third-party host).
 - The Terms page: the archive caveat beside the removal paragraph, and a new
   `POLICY_UPDATED`.
+
+Later releases need none of this. The concept DOI spans every version, and
+Zenodo files each new GitHub release under it by itself.
 
 ## If a removal request concerns an archived version
 
@@ -137,3 +144,10 @@ that the next commit fixed. The data in it is right. Whether that is worth a
 1.0.1 is the maintainer's call: the versioning policy reserves PATCH for
 corrections to records, and these are corrections to the documents that
 travel with them.
+
+**Decided 2026-09-16: cut 1.0.1.** The maintainer corrects v1.0.0's type and
+creator by hand, and 1.0.1 -- data unchanged, documents corrected, the DOI
+wired in -- is released once the harness fixes and the DOI wiring have
+merged, so that its archive is right without any hand edits. Its CHANGELOG
+entry widens PATCH to cover corrections to the documents that travel with the
+records.

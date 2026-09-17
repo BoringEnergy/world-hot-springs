@@ -26,7 +26,7 @@ export const PAGE_TITLES: Record<LegalPage, string> = {
 };
 
 /** Last substantive revision. Shown on the page, because an undated policy is a claim about nothing. */
-export const POLICY_UPDATED = '2026-09-16';
+export const POLICY_UPDATED = '2026-09-17';
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -141,6 +141,15 @@ function Terms({ meta }: { meta: DatasetMeta | null }) {
         justify it. Removal is permanent and survives future data imports, because exclusions are
         stored by geographic radius rather than by upstream id. Contact us privately if a public
         request would itself draw attention to the place.
+      </P>
+      <P>
+        Versioned releases of the dataset are archived on Zenodo under a DOI, and an archived
+        version cannot be altered, any more than the repository's history can. Removal applies to
+        the live atlas, to the repository from that point on, and to every later version.
+        If the spring is already in an archived version, we will ask Zenodo to restrict access to
+        the affected files; that is Zenodo's decision, and it may or may not be granted. Pending
+        requests are handled before any release is made, so a request that reaches us in time
+        never enters an archive.
       </P>
 
       <H>Changes and governing law</H>
