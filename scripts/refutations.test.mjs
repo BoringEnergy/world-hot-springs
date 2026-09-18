@@ -34,6 +34,10 @@ test('the outcome set is closed', () => {
       // value -- it states it, and the proposer typed it. Kept apart from
       // value-absent-from-source so the log can say which.
       'value-not-numeric',
+      // The list-field counterpart: a bare "chloride" where the record holds
+      // a list. Refused per claim so one wrong shape cannot discard the
+      // verified claims beside it.
+      'value-wrong-shape',
       // "The verifier refused" and "the verifier did not answer" are different
       // facts about a provider. Collapsing them writes a reason arguing FOR a
       // claim under a line that says it was refuted.

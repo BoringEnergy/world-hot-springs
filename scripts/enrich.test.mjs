@@ -6,7 +6,7 @@ import path from 'node:path';
 import {
   attempt, runPlan, flagValue, sourceExcerpt, searchQuery,
   SOURCE_EXCERPT_CHARS, PROPOSER_SYSTEM, VERIFIER_SYSTEM, MAX_URLS_PER_SPRING,
-  NUMERIC_FIELDS, LITERAL_FIELDS,
+  NUMERIC_FIELDS, LITERAL_FIELDS, LIST_FIELDS,
 } from './enrich.mjs';
 import { validateOverlay, FIELD_TYPES } from './lib/overlay.mjs';
 import { valueAppears } from './lib/verify-source.mjs';
@@ -802,6 +802,46 @@ test('the proposal schema demands a number for each numeric field', async () => 
   // has silently narrowed the whole claim set to numbers.
   assert.equal(schema.properties.claims.properties['access.notes'], undefined);
   assert.equal(schema.properties.claims.additionalProperties.properties.value.type, undefined);
+
+  // A list field is asked for as a list from its own vocabulary.
+  assert.deepEqual(LIST_FIELDS, ['minerals.types']);
+  for (const field of LIST_FIELDS) {
+    const value = schema?.properties?.claims?.properties?.[field]?.properties?.value;
+    assert.equal(value?.type, 'array', `${field} must be typed as a list in the proposal schema`);
+    assert.deepEqual(value?.items?.enum, FIELD_TYPES[field].arrayOf);
+  }
+});
+
+// --- A list field arrives as a list, or is refused alone -------------------
+
+test('a classification proposed as a bare string is refused on its own, and the verified claim beside it survives', async () => {
+  // Found in review: a proposer that answered "chloride" beside a correct,
+  // verified temperature lost BOTH, because the whole overlay was rejected at
+  // the end -- and the resume-skip then meant the spring was never retried.
+  const paths = tmp();
+  const proposer = { complete: async () => ({
+    claims: {
+      'temperature.celsius': { value: 40 },
+      'minerals.types': { value: 'chloride' },
+    },
+  }) };
+  const verifier = { complete: async () => ({ refuted: false, reason: 'the page states it' }) };
+  await runPlan({
+    plan: [{ country: 'CL', candidates: ['whs_00000000000a'] }],
+    byId, knownIds, roles,
+    providers: { proposer, verifier }, ...paths, now: NOW,
+    searchImpl: oneResult,
+    lookupImpl: publicLookup,
+    fetchImpl: serving('<html><body>The water at A stays at 38-40 Celsius; a chloride spring.</body></html>'),
+  });
+  const written = JSON.parse(fs.readFileSync(path.join(paths.overlayDir, 'whs_00000000000a.json'), 'utf8'));
+  assert.equal(written.claims['temperature.celsius'].value, 40, 'the verified temperature was lost');
+  assert.equal(written.claims['minerals.types'], undefined);
+  const log = refutations(paths.refutationsFile);
+  assert.deepEqual(log.map((r) => r.outcome), ['value-wrong-shape']);
+  assert.equal(log[0].field, 'minerals.types');
+  assert.equal(log[0].proposed, 'chloride');
+  assert.match(log[0].note, /non-empty array/);
 });
 
 // --- Step 2: a range endpoint is claimable, and the verifier is told so ----

@@ -98,6 +98,11 @@ test('isLiterallyVerifiable follows FIELD_TYPES, not a second list', async () =>
   // Driven off the type table so a new numeric field is covered the day it is
   // added. A hand-kept duplicate would silently miss it.
   assert.equal(isLiterallyVerifiable('temperature.celsius'), true);
+  // A number, so checked literally like Celsius. HANDOFF said otherwise until
+  // 2026-09-18.
+  assert.equal(isLiterallyVerifiable('temperature.fahrenheit'), true);
+  // A classification is our vocabulary, not a token the page prints.
+  assert.equal(isLiterallyVerifiable('minerals.types'), false);
   assert.equal(isLiterallyVerifiable('location.elevation'), true);
   assert.equal(isLiterallyVerifiable('access.price'), false);
   assert.equal(isLiterallyVerifiable('clothing.policy'), false);

@@ -22,7 +22,7 @@ import { loadLandManagers, applyLandManagers } from './lib/land-manager.mjs';
 import { parseNcei } from './lib/ncei.mjs';
 import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs';
-import { mineralTypesOf, classifySenshitsu } from './lib/senshitsu.mjs';
+import { aistClassification } from './lib/senshitsu.mjs';
 import { fromTsv as wqpFromTsv, WQP_SOURCE, WQP_PAGE, WQP_PROVIDER } from './lib/wqp.mjs';
 import { matchWqp } from './lib/wqp-match.mjs';
 import { fromTsv as nbmgFromTsv, NBMG_PAGE, NBMG_PROVIDER } from './lib/nbmg.mjs';
@@ -299,6 +299,10 @@ async function main() {
   }
   const appeared = identityEvents.filter((e) => e.type === 'spring.appeared').length;
   const vanished = identityEvents.filter((e) => e.type === 'spring.disappeared').length;
+  // Disagreements a source stage saw while stepping aside for a claim. The
+  // stage writes nothing for a claimed field, so the overlay finds nothing
+  // upstream to disagree with; these are the contests it cannot see.
+  const sourceEvents = [];
   console.log(`  ${Object.keys(registry).length} springs in the registry`);
   if (appeared) console.log(`  ${appeared} new since the last build`);
   if (vanished) console.log(`  ${vanished} no longer present upstream (flagged, not deleted)`);
@@ -512,31 +516,19 @@ async function main() {
         touched = true; written.push(field);
       }
 
-      // 泉質 -> minerals.types, fail-closed.
-      //
-      // The wells must agree on the RAW string before anything is read from
-      // it. Two different classifications under one onsen name are two facts,
-      // and reconciling them would publish a name nobody wrote.
-      //
-      // mineralTypesOf returns null when it could not account for every token.
-      // That is not the same as [], and the difference is the whole rule: an
-      // incomplete types array is indistinguishable from a complete one on the
-      // card, so a value we only half understand publishes nothing.
-      const senshitsu = [...new Set(m.rows.map((r) => r.senshitsu).filter(Boolean))];
-      if (senshitsu.length > 1) {
-        withheld.push({ id: m.id, field: 'types', reason: 'wells disagree on 泉質' });
-      } else if (senshitsu.length === 1 && !rec.minerals.types.length && !claimed('minerals.types')) {
-        const types = mineralTypesOf(senshitsu[0]);
-        if (types === null) {
-          withheld.push({
-            id: m.id,
-            field: 'types',
-            reason: `泉質 not fully understood: ${JSON.stringify(classifySenshitsu(senshitsu[0]).residue)}`,
-          });
-        } else if (types.length) {
-          rec.minerals.types = types;
-          aistTypes++; touched = true; written.push('types');
-        }
+      // 泉質 -> minerals.types, fail-closed. The rules, and why a claim that
+      // wins is still recorded as a contest, are on aistClassification.
+      const types = aistClassification({
+        springId: rec.id,
+        senshitsu: [...new Set(m.rows.map((r) => r.senshitsu).filter(Boolean))],
+        upstream: rec.minerals.types,
+        claim: claimed('minerals.types') ? overlay.claims['minerals.types'] : null,
+      });
+      if (types.withheld) withheld.push({ id: m.id, field: 'types', reason: types.withheld });
+      if (types.contest) sourceEvents.push(types.contest);
+      if (types.write) {
+        rec.minerals.types = types.write;
+        aistTypes++; touched = true; written.push('types');
       }
       // Written only when something numeric that NEEDS a unit actually landed.
       // A unit beside no figures is decoration, and pH alone needs none.
@@ -711,7 +703,7 @@ async function main() {
   console.log('Applying curated claims ...');
   const { applied, orphaned, events: overlayEvents } = applyOverlays(records, overlays);
   console.log(`  ${applied} claim(s) applied from ${overlays.size} overlay file(s)`);
-  const contested = overlayEvents.filter((e) => e.type === 'claim.contested').length;
+  const contested = [...sourceEvents, ...overlayEvents].filter((e) => e.type === 'claim.contested').length;
   if (contested) console.log(`  ${contested} claim(s) now disagree with upstream`);
 
   if (orphaned.length) {
@@ -898,7 +890,7 @@ async function main() {
   };
   fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
   fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');
-  const written = appendEvents(EVENTS, [...identityEvents, ...overlayEvents], generatedAt);
+  const written = appendEvents(EVENTS, [...identityEvents, ...sourceEvents, ...overlayEvents], generatedAt);
   if (written) console.log(`  ${written} new event(s) recorded in ${EVENTS}`);
 
   console.log(`\n${records.length} springs across ${summary.countries} countries`);

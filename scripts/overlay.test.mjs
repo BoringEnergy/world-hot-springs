@@ -127,10 +127,15 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     'minerals.potassium': 'number',
     'minerals.silica': 'number',
     'minerals.iron': 'number',
-    'minerals.types': [
-      'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
-      'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
-    ],
+    // `MineralType[]`: a list, drawn from the Hot Spring Law vocabulary. It
+    // was declared as a bare enum until 2026-09-18, which made every correct
+    // claim invalid and the one "valid" claim -- a string -- corrupt the record.
+    'minerals.types': {
+      arrayOf: [
+        'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
+        'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
+      ],
+    },
     'minerals.notes': 'string',
     'minerals.measuredAt': 'string',
     // Carried, never converted: mg/kg is the ordinary unit in Japanese and
@@ -294,10 +299,15 @@ test('ARRAY_FIELDS and FIELD_TYPES cannot disagree about which fields are arrays
   // Divergence, not mechanism: a hand-written ARRAY_FIELDS that happens to
   // match passes this, and should -- what broke enrich.mjs last time was two
   // copies that had drifted apart, not the existence of two copies.
+  // ARRAY_FIELDS is the merge-only set. minerals.types is a list too, but a
+  // claim replaces it (the senshitsu spec: a claimed value always wins), so
+  // it is declared as `arrayOf` and deliberately left out of this set.
   assert.deepEqual(ARRAY_FIELDS, ['tags', 'warnings']);
   for (const field of ARRAY_FIELDS) {
     assert.equal(FIELD_TYPES[field], 'string[]', `${field} must declare its element type`);
   }
+  assert.ok(Array.isArray(FIELD_TYPES['minerals.types'].arrayOf));
+  assert.ok(!ARRAY_FIELDS.includes('minerals.types'), 'a classification claim is not merged');
 });
 
 function overlayDir(files) {
@@ -544,6 +554,7 @@ test('an agent may claim every permitted field', () => {
   const shaped = (f) => {
     const t = FIELD_TYPES[f];
     if (Array.isArray(t)) return t[0];
+    if (t?.arrayOf) return [t.arrayOf[0]];
     if (t === 'string[]') return [];
     return t === 'number' ? 40 : 'x';
   };

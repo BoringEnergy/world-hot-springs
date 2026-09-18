@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { classifySenshitsu, mineralTypesOf, TOKENS } from './lib/senshitsu.mjs';
+import { classifySenshitsu, mineralTypesOf, aistClassification, TOKENS } from './lib/senshitsu.mjs';
 import { FIELD_TYPES } from './lib/overlay.mjs';
 
 test('単純 is a category only when it is the only one', () => {
@@ -83,7 +83,7 @@ test('the residue names what was not understood', () => {
 
 test('every published classification is in the declared vocabulary', () => {
   const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
-  const allowed = new Set(FIELD_TYPES['minerals.types']);
+  const allowed = new Set(FIELD_TYPES['minerals.types'].arrayOf);
   const bad = [];
   for (const s of all) for (const t of s.minerals.types) if (!allowed.has(t)) bad.push([s.id, t]);
   assert.deepEqual(bad, [], 'a type outside MineralType reached the dataset');
@@ -97,4 +97,42 @@ test('no shipped record carries simple alongside another category', () => {
   // Not vacuous: the field really is populated now, having been empty on all
   // 7,490 records before this.
   assert.ok(all.filter((s) => s.minerals.types.length > 0).length > 30);
+});
+
+// --- The AIST stage's decision, and the contest it must not swallow ---------
+
+const claimOf = (value) => ({ value, source: 'https://example.org/analysis', contributor: 't', state: 'active' });
+const decide = (senshitsu, claim = null, upstream = []) =>
+  aistClassification({ springId: 'whs_f75f5fa85d68', senshitsu, upstream, claim });
+
+test('with no claim, AIST writes the classification it fully understood', () => {
+  assert.deepEqual(decide(['単純硫化水素放射能泉']), { write: ['sulfur', 'radioactive'], contest: null, withheld: null });
+  // Wells that disagree, or a value with residue, publish nothing and say why.
+  assert.match(decide(['硫黄泉', '食塩泉']).withheld, /wells disagree/);
+  assert.equal(decide(['硫黄泉', '食塩泉']).write, null);
+  assert.match(decide(['硫黄泉 謎の成分']).withheld, /not fully understood/);
+  // A record that already holds a classification is left alone.
+  assert.deepEqual(decide(['硫黄泉'], null, ['chloride']), { write: null, contest: null, withheld: null });
+});
+
+test('a claim that drops a classification AIST states is a contest, not a silent change', () => {
+  // The review's case, on this very spring: AIST says sulfur and radioactive,
+  // a claim of sulfur alone would publish without a trace. The claim still
+  // wins -- nothing is written here -- but the disagreement is returned.
+  const d = decide(['単純硫化水素放射能泉'], claimOf(['sulfur']));
+  assert.equal(d.write, null, 'the claim wins; AIST writes nothing');
+  assert.deepEqual(d.contest, {
+    type: 'claim.contested', springId: 'whs_f75f5fa85d68', claimPath: 'minerals.types',
+    from: ['sulfur', 'radioactive'], to: ['sulfur'], actor: 'build',
+  });
+});
+
+test('a claim that agrees with AIST, in any order, contests nothing', () => {
+  assert.deepEqual(decide(['単純硫化水素放射能泉'], claimOf(['radioactive', 'sulfur'])), { write: null, contest: null, withheld: null });
+});
+
+test('a claim beside a classification AIST could not read is not a contest', () => {
+  // Only a value this stage fully understood can be said to disagree, and a
+  // claimed field records no "not understood" noise either.
+  assert.deepEqual(decide(['硫黄泉 謎の成分'], claimOf(['chloride'])), { write: null, contest: null, withheld: null });
 });

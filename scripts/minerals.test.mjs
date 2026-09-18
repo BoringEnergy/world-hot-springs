@@ -16,8 +16,10 @@ import {
   RISK,
   validateOverlay,
   mineralsNeedUnit,
+  applyOverlays,
 } from './lib/overlay.mjs';
 import { NUMERIC_FIELDS, LITERAL_FIELDS } from './enrich.mjs';
+import { meaningOf } from './lib/verify-semantic.mjs';
 
 const PANEL = fs.readFileSync('src/components/DetailPanel.tsx', 'utf8');
 const FORMAT = fs.readFileSync('src/lib/format.ts', 'utf8');
@@ -64,11 +66,22 @@ test('the classification vocabulary is the Hot Spring Law one', () => {
   // Adopted, not invented: an invented vocabulary would have no sources
   // behind it. Legally required to be posted in Japan, where 778 of these
   // springs are.
-  assert.deepEqual(FIELD_TYPES['minerals.types'], [
+  assert.deepEqual(FIELD_TYPES['minerals.types'].arrayOf, [
     'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
     'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
   ]);
   assert.ok(TYPES.includes('export type MineralType'));
+});
+
+test('the reader is told a classification claim is the whole classification', () => {
+  // A page naming ONE of a spring's categories does not support a claim of
+  // just that one, because the claim replaces the list. And "simple" has a
+  // legal meaning a model would not guess.
+  const gloss = meaningOf('minerals.types', ['sulfur']);
+  assert.match(gloss, /complete/);
+  assert.match(gloss, /replaces/);
+  assert.match(gloss, /simple.*none of the other categories/);
+  for (const t of FIELD_TYPES['minerals.types'].arrayOf) assert.ok(gloss.includes(t), `${t} is not named`);
 });
 
 test('a claim outside the vocabulary is rejected', () => {
@@ -87,6 +100,93 @@ test('a claim outside the vocabulary is rejected', () => {
     { knownIds: new Set(['whs_000000000001']) },
   );
   assert.ok(errors.length > 0, 'an invented category must not validate');
+  // Refused for the RIGHT reason. Before 2026-09-18 every list was refused,
+  // invented or not, and a bare length check could not tell the difference.
+  assert.match(errors.join(), /\["definitely-not-a-category"\] is not one of/);
+});
+
+/*
+ * The counterpart the test above never had. Until 2026-09-18 the field was
+ * declared as a bare enum, so EVERY list was refused -- including correct
+ * ones -- and the test above passed for a reason that had nothing to do with
+ * the invented category. The one shape that did validate, a single string,
+ * replaced the record's array with a string when it was applied.
+ */
+const typesClaim = (value) => ({
+  id: 'whs_000000000001',
+  claims: {
+    'minerals.types': { value, source: 'https://example.com/analysis', contributor: 'agent', state: 'active' },
+  },
+});
+const typesErrors = (value) =>
+  validateOverlay(typesClaim(value), { knownIds: new Set(['whs_000000000001']) });
+
+test('a classification claim is a list, and a correct one validates', () => {
+  assert.deepEqual(typesErrors(['sulfate']), []);
+  assert.deepEqual(typesErrors(['chloride', 'bicarbonate']), []);
+  assert.deepEqual(typesErrors(['simple']), []);
+  assert.deepEqual(typesErrors(['acidic', 'sulfur', 'radioactive']), []);
+});
+
+test('a classification claim that is not a clean list is refused, and says why', () => {
+  assert.match(typesErrors('sulfate').join(), /non-empty array/, 'a bare string is the shape that corrupted the record');
+  assert.match(typesErrors([]).join(), /non-empty array/);
+  assert.match(typesErrors(['sulfate', 'sulfate']).join(), /repeated/);
+  assert.match(typesErrors(['sulfate', 'not-a-type']).join(), /"not-a-type"/);
+  assert.match(typesErrors([null]).join(), /not one of/);
+  // 単純 beside another category is a modifier, not a classification, and the
+  // message says what to claim instead.
+  assert.match(typesErrors(['simple', 'radioactive']).join(), /Claim \["radioactive"\]/);
+});
+
+/** A published record carrying a classification, so the record shape is real. */
+function classifiedRecord() {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  return structuredClone(all.find((s) => s.minerals.types.length === 1));
+}
+
+const apply = (rec, value) =>
+  applyOverlays([rec], new Map([[rec.id, { ...typesClaim(value), id: rec.id }]])).events;
+
+test('an applied classification claim is the list the source states, in canonical order', () => {
+  // "A claimed minerals.types always wins" (the senshitsu spec): the AIST
+  // value is our inference from 泉質 text, a claim cites a page, and merging
+  // the two would publish a combination nobody stated.
+  const rec = classifiedRecord();
+  apply(rec, ['bicarbonate', 'chloride']);
+  assert.ok(Array.isArray(rec.minerals.types), 'the claim turned the list into something else');
+  assert.deepEqual(rec.minerals.types, ['chloride', 'bicarbonate'], 'claimed, and in vocabulary order');
+
+  const bare = classifiedRecord();
+  bare.minerals.types = [];
+  assert.deepEqual(apply(bare, ['simple']), [], 'filling an empty list contests nothing');
+  assert.deepEqual(bare.minerals.types, ['simple'], 'simple on its own is a classification');
+});
+
+test('a classification claim that disagrees is logged, and one that agrees is not', () => {
+  // Replacing can drop `acidic`. That is allowed only as a visible review
+  // item: the build records the disagreement rather than making it silently.
+  const rec = classifiedRecord();
+  rec.minerals.types = ['acidic', 'sulfur'];
+  const events = apply(rec, ['sulfur']);
+  assert.equal(events.length, 1, 'dropping acidic went unrecorded');
+  assert.equal(events[0].type, 'claim.contested');
+  assert.deepEqual(events[0].from, ['acidic', 'sulfur']);
+  assert.deepEqual(events[0].to, ['sulfur']);
+
+  // The same set in another order is agreement, not a contest.
+  const same = classifiedRecord();
+  same.minerals.types = ['chloride', 'bicarbonate'];
+  assert.deepEqual(apply(same, ['bicarbonate', 'chloride']), []);
+
+  // Adding a classification is a disagreement too: the claim states more
+  // than the source did. So is swapping one for another of the same size.
+  const adds = classifiedRecord();
+  adds.minerals.types = ['sulfur'];
+  assert.equal(apply(adds, ['sulfur', 'radioactive']).length, 1, 'a claim that adds a type went unrecorded');
+  const swaps = classifiedRecord();
+  swaps.minerals.types = ['sulfur', 'radioactive'];
+  assert.equal(apply(swaps, ['sulfur', 'acidic']).length, 1, 'a claim that swaps a type went unrecorded');
 });
 
 test('a non-numeric concentration is rejected', () => {

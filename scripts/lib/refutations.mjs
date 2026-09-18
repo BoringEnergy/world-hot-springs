@@ -40,6 +40,10 @@ export const OUTCOMES = new Set([
   // because the page may state the value perfectly well -- what failed is the
   // proposer's typing, and only this outcome can tell a reader which.
   'value-not-numeric',
+  // A value of the wrong shape for a list field: a bare string where the
+  // record holds a list of classifications. Refused on its own, like a string
+  // for a number, so it cannot take the rest of the proposal down with it.
+  'value-wrong-shape',
   // The verifier answered with something that is not a verdict. Recording it
   // as a refusal writes a false fact into a permanent log: the run that found
   // this produced `refuted-by-verifier` under a reason arguing the claim was
