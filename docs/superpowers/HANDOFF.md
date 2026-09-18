@@ -69,11 +69,33 @@ Now:
   form, and the AIST importer (`senshitsu.mjs`) now calls the same function
   instead of keeping its own copy of the vocabulary. `data:build` is
   byte-identical.
+- **The contest had to come from the importer, and review caught that.** The
+  AIST stage steps aside for every claimed field and writes nothing, so by the
+  time the overlay applies there is no upstream list to disagree with: a
+  claim of `["sulfur"]` on 湯野温泉 dropped AIST's `radioactive` with no event
+  at all, measured on a real build. `aistClassification()` in `senshitsu.mjs`
+  is now the stage's whole decision -- pure, so it is tested without a build
+  -- and when a claim disagrees with a classification it fully understood it
+  returns the contest, which the build appends to `data/events.jsonl`.
+  `contestFor()` in `overlay.mjs` builds that event for both paths, with the
+  published (canonical) list as `to`. Worth knowing: the same skip pattern
+  applies to AIST, NBMG and WQP numeric fields, so a claim that overrides one
+  of THOSE values is still silent. Not changed here; a follow-up if it
+  matters.
+- **Enrichment asks for the list, and refuses a wrong shape on its own.** The
+  proposal schema now types `minerals.types` as a list from its vocabulary,
+  and a wrong shape is refused per claim (`value-wrong-shape`, a new
+  refutation outcome) before anything is paid for -- previously one bare
+  "chloride" discarded the whole overlay, verified temperature included, and
+  the resume-skip meant the spring was never retried.
 - **Tests that watch it:** a correct list validates; a bare string, an empty
-  list, a repeat, an unknown value and `simple` beside another are refused;
-  an applied claim is exactly the stated list, in canonical order; a claim
-  that drops `acidic` is logged and one that agrees in another order is not.
-  Each was watched failing against the matching mutation.
+  list, a repeat, an unknown value and `simple` beside another are refused
+  (and refused for the right reason); an applied claim is exactly the stated
+  list, in canonical order; a claim that drops, adds or swaps a type is
+  logged, one that agrees in another order is not; the importer returns the
+  contest for the review's exact case; enrichment keeps the verified claim
+  beside a wrongly shaped one; the reader's gloss says a classification claim
+  is the whole classification. Each was watched failing against a mutation.
 
 **Two passages in this file were stale, and are corrected in place:** the
 `valueAppears` range notes (fixed by `3c5e392` on 2026-09-09 -- the top of a
@@ -1305,7 +1327,8 @@ picture.
       ...citing only OSM or wikidata                       1,667
     those 85, fetched                                         80 ok
       ...printing a Fahrenheit figure anywhere on the page     1
-      ...whose figure verifies                                 0
+      ...whose figure verifies                                 0   (as measured 2026-09-09;
+                                                                   it verifies now -- see below)
 
 **The blocker was never the unit. It is that 1,667 of them have nothing to
 read.** Fahrenheit is now claimable — it is the right schema, and a source

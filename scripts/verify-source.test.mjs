@@ -414,6 +414,9 @@ test('a unit between the digit and the dash leaves it a range', () => {
   assert.equal(valueAppears(108, '89°F-108°F'), true, 'degree and letter before the dash');
   assert.equal(valueAppears(108, '89°–108°F'), true, 'en dash, same cause');
   assert.equal(valueAppears(40, '38°-40°C'), true, 'the same shape in Celsius');
+  // Školská česma, verbatim. HANDOFF called it the one range shape the
+  // upper-bound convention could not rescue for a week after this fix landed.
+  assert.equal(valueAppears(19, '17°-19 °C'), true, 'a space between the digit and the unit');
   assert.equal(valueAppears(40, '38-40'), true, 'the bare range still verifies');
   assert.equal(valueAppears(40, '-40'), false, 'a leading dash is still a sign');
   assert.equal(valueAppears(40, 'sub-40'), false, 'a word before the dash is still a sign');
