@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-09-17.
+Last updated 2026-09-18.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -32,6 +32,54 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
+
+## 2026-09-18 -- minerals.types can be claimed; two stale passages corrected
+
+**`minerals.types` was claimable and could not be claimed correctly.** Found
+while reviewing the source-campaign repo. The record holds `MineralType[]`,
+but `FIELD_TYPES` declared the field as a bare enum:
+
+    a correct list, ["chloride","bicarbonate"]   refused by validateOverlay
+    a single string, "sulfate"                   ACCEPTED -- and applyOverlays
+                                                 then replaced the record's
+                                                 array with the string
+
+The test that should have caught it, "a claim outside the vocabulary is
+rejected", passed because every list was rejected, invented or not. No overlay
+had ever claimed the field, so nothing shipped wrong.
+
+Now:
+
+- **A claim is a non-empty list** drawn from the Hot Spring Law vocabulary
+  (`FIELD_TYPES['minerals.types']` is `{ arrayOf: MINERAL_TYPES }`), with no
+  repeats, and with `simple` only on its own -- 単純 beside another category
+  is a modifier, and the validator says what to claim instead.
+- **A claim replaces the list**, as the senshitsu spec already decided ("a
+  claimed `minerals.types` always wins"; "never reconcile two
+  classifications"). The AIST value is our inference from 泉質 text and a
+  claim cites a page; merging the two would publish a combination nobody
+  stated. Merging was drafted first and dropped for exactly that reason.
+- **A disagreement is recorded, not silent.** A claim that differs from a
+  non-empty upstream list emits `claim.contested`, so a claim that drops
+  `acidic` becomes a review item. `disagrees()` now compares lists as sets:
+  `!==` on two arrays is always true, and would have logged every
+  classification claim as contested, including ones that agree.
+- **One rule for the field.** `canonicalMineralTypes()` in `overlay.mjs` owns
+  the canonical order and the 単純 rule; a claimed list is written in that
+  form, and the AIST importer (`senshitsu.mjs`) now calls the same function
+  instead of keeping its own copy of the vocabulary. `data:build` is
+  byte-identical.
+- **Tests that watch it:** a correct list validates; a bare string, an empty
+  list, a repeat, an unknown value and `simple` beside another are refused;
+  an applied claim is exactly the stated list, in canonical order; a claim
+  that drops `acidic` is logged and one that agrees in another order is not.
+  Each was watched failing against the matching mutation.
+
+**Two passages in this file were stale, and are corrected in place:** the
+`valueAppears` range notes (fixed by `3c5e392` on 2026-09-09 -- the top of a
+range, `89°-108°F` and Školská česma's `17°-19 °C` all verify now, and the
+`-40` sign guard still holds), and the claim that `temperature.fahrenheit`
+"needs a reader" (it is a number and is verified literally).
 
 ## 2026-09-17 -- gate-2 runs whatever gate-1 concluded; the spoof question is deferred
 
@@ -681,12 +729,11 @@ A different SOURCE stating an unhedged figure would qualify.
   were reasoning. Any cost estimate built on visible output length is wrong and
   low. Across 492 candidates that is a 3.7x spread between the same vendor's
   reasoning and non-reasoning models: $7.26 versus $1.96.
-- **`valueAppears` rejects the top of a range.** `valueAppears(40, "38-40
-  Celsius")` is `false`, because `-` was added to the lookbehind so a page
-  reading `-40 °C` could not certify `40`. The trade was made deliberately on
-  the assumption that ranges were rare; hot spring temperatures are published
-  as ranges more often than not, so half of every range is unverifiable.
-  Task 12 fixes it. The `-40` case must keep passing.
+- ~~**`valueAppears` rejects the top of a range.**~~ **FIXED, and this note
+  was stale until 2026-09-18.** `valueAppears(40, "38-40 Celsius")` is `true`
+  and `valueAppears(40, "-40 °C")` is still `false`; both are pinned in
+  `scripts/verify-source.test.mjs`. The top of a range -- the value rule 2
+  says to claim -- verifies.
 - **The Vercel free tier restricts which models you may call, and the API will
   not tell you which.** `/v1/models` lists 364 models with no tier or access
   field; `anthropic/*` returns 403 `no_providers_available` and `google/*`
@@ -1227,9 +1274,11 @@ built. **Reversed 2026-09-16:** the browser harness in `e2e/` replaces it; see
   shape and would reuse `minerals.unit`. A second import with its own
   contention questions.
 - **`isLiterallyVerifiable` treats every enum as our vocabulary**, so
-  `minerals.unit` and `temperature.fahrenheit` are reported as "needs a reader"
-  even though their values are the source's own printed tokens. Noted, not
-  changed; the gates are settled.
+  `minerals.unit` is reported as "needs a reader" even though its values are
+  the source's own printed tokens. Noted, not changed; the gates are settled.
+  (This used to name `temperature.fahrenheit` too. That was wrong: it is a
+  number, and a Fahrenheit claim is verified literally like a Celsius one.
+  Corrected 2026-09-18.)
 - **`temperature.fahrenheit` is claimable and unused.** Deliberately: measured
   at one American page in eighty. Leave it until a Fahrenheit source appears.
 
@@ -1263,26 +1312,26 @@ read.** Fahrenheit is now claimable — it is the right schema, and a source
 that prints only °F should be claimable in °F — but it is not what was
 standing between this project and the United States.
 
-**And the one page that does publish a figure is blocked by something else.**
-Iron Mountain Hot Springs prints `89°-108°F`, and `valueAppears` reads the
-dash as a SIGN because the character before it is `°` rather than a digit.
-This is the Skolska cesma shape, already recorded below, and it is not rare
-typography — a degree sign before the range dash is the ordinary American
-house style.
+**~~And the one page that does publish a figure is blocked by something
+else.~~ It is not blocked any more -- this passage was stale until
+2026-09-18.** Iron Mountain Hot Springs prints `89°-108°F`, and when this was
+written `valueAppears` read the dash as a SIGN because the character before it
+is `°` rather than a digit. The narrow fix this paragraph asked for -- a unit
+symbol between a digit and a dash still leaves it a range -- landed the same
+day in `3c5e392` (`UNIT_BEFORE_DASH` in `verify-source.mjs`), and nobody
+updated this. Measured 2026-09-18:
 
     "89-108°F"              verifies
     "89 - 108°F"            verifies
-    "between 89 and 108°F"  verifies
-    "up to 108°F"           verifies
-    "89°-108°F"             BLOCKED   <- the common American form
-    "89°F-108°F"            BLOCKED
-    "89°–108°F"             BLOCKED   (en dash, same cause)
+    "89°-108°F"             verifies   <- the common American form
+    "89°F-108°F"            verifies
+    "89°–108°F"             verifies   (en dash)
+    "water is -40 °C"       refused    <- the sign guard still holds
 
-Left alone deliberately: that rule is in `verify-source.mjs`, the sign half of
-it is what stops a negative reading certifying a positive claim, and the gates
-are settled. If it is ever revisited, the narrow question is whether a unit
-symbol between a digit and a dash should count as "a digit precedes this
-dash". Nothing else about the rule needs to move.
+So Iron Mountain's page, as it read on 2026-09-09, would support 108 °F, and
+Školská česma's (below) 19 °C. Neither page has been re-fetched since; both are
+leads for the source campaign, to be checked with `verify-claims.mjs` before
+anyone claims them.
 
 **What would actually unlock the US is a bulk upstream**, which is what NCEI
 stage two was, and it is why NCEI has filled more American temperatures than
@@ -1399,11 +1448,12 @@ not claimable:
                        pools. Same depth, two numbers.
   Hagymatikum          41C is the 1956 well, under "A furdo hoskora", with
                        no stated link to today's supply
-  Skolska cesma        "17°-19 °C". The dash before 19 has a non-digit
-                       before it, so valueAppears reads it as a SIGN and the
-                       upper bound cannot verify. The lower bound is not
-                       ours to take. This is the one range shape the
-                       upper-bound convention cannot rescue.
+  Skolska cesma        "17°-19 °C". NO LONGER BLOCKED (corrected 2026-09-18):
+                       3c5e392 taught valueAppears that a unit between the
+                       digit and the dash still makes a range, and
+                       valueAppears(19, "17°-19 °C") is true. The upper bound,
+                       19, is claimable; the lower bound still is not ours
+                       to take.
   Eurotherme Bad
   Schallerbach         34C is one hotel wellness pool, not the baths
   Kristalltherme
