@@ -77,6 +77,20 @@ export const ENUM_MEANINGS = {
   },
 };
 
+/**
+ * What a list claim asserts, for the reader. A classification claim is the
+ * WHOLE classification -- it replaces what the atlas held -- so a page that
+ * names one of a spring's categories does not support a claim of just that
+ * one. And `simple` has a legal meaning a reader would not guess.
+ */
+export const LIST_MEANINGS = {
+  'minerals.types':
+    "the spring's complete Hot Spring Law classification, which replaces any already recorded: "
+    + 'the page must support every item and omit none it states. Each item is one of '
+    + `${FIELD_TYPES['minerals.types'].arrayOf.join(', ')}. "simple" (単純温泉) means dilute and `
+    + 'none of the other categories applies, so it is never listed beside them',
+};
+
 /** A one-line gloss for the value under test, when the field is an enum. */
 export function meaningOf(field, value) {
   const byField = ENUM_MEANINGS[field];
@@ -85,7 +99,7 @@ export function meaningOf(field, value) {
   // verifier does not treat an unfamiliar token as free text.
   const type = FIELD_TYPES[field];
   if (Array.isArray(type)) return `one of: ${type.join(', ')}`;
-  if (type?.arrayOf) return `a list, each item one of: ${type.arrayOf.join(', ')}`;
+  if (type?.arrayOf) return LIST_MEANINGS[field] ?? `a list, each item one of: ${type.arrayOf.join(', ')}`;
   return null;
 }
 

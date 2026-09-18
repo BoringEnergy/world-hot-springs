@@ -75,6 +75,10 @@ export const LITERAL_FIELDS = [
 export const NUMERIC_FIELDS = Object.keys(FIELD_TYPES)
   .filter((field) => FIELD_TYPES[field] === 'number');
 
+/** Fields whose value is a list drawn from a closed vocabulary. Derived, like the above. */
+export const LIST_FIELDS = Object.keys(FIELD_TYPES)
+  .filter((field) => Boolean(FIELD_TYPES[field]?.arrayOf));
+
 function loadJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -263,11 +267,26 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
       properties: {
         claims: {
           type: 'object',
-          properties: Object.fromEntries(NUMERIC_FIELDS.map((field) => [field, {
-            type: 'object',
-            required: ['value'],
-            properties: { value: { type: 'number' } },
-          }])),
+          properties: Object.fromEntries([
+            ...NUMERIC_FIELDS.map((field) => [field, {
+              type: 'object',
+              required: ['value'],
+              properties: { value: { type: 'number' } },
+            }]),
+            // A list field is asked for as a list, drawn from its vocabulary.
+            // Left to `value: {}` a proposer answered "chloride", and that one
+            // claim discarded the whole overlay, verified temperature and all.
+            ...LIST_FIELDS.map((field) => [field, {
+              type: 'object',
+              required: ['value'],
+              properties: {
+                value: {
+                  type: 'array', minItems: 1, uniqueItems: true,
+                  items: { type: 'string', enum: FIELD_TYPES[field].arrayOf },
+                },
+              },
+            }]),
+          ]),
           additionalProperties: {
             type: 'object',
             required: ['value'],
@@ -318,6 +337,26 @@ export async function attempt(spring, roles, providers, refutationsFile, now, {
         note: `${field} must be a number; the proposer returned ${typeof claim?.value}`,
       }, now());
       continue;
+    }
+
+    // The same refusal for a list field, and for the same reason: judged on
+    // its own, before anything is paid for, so a wrong shape costs this one
+    // claim rather than every verified claim in the overlay. The judgement is
+    // validateOverlay's, applied to the single claim, so the rule stays in
+    // one place.
+    if (LIST_FIELDS.includes(field)) {
+      const shape = validateOverlay(
+        { id: spring.id, claims: { [field]: { value: claim?.value, source: page.url, contributor: roles.proposer } } },
+        { agentAuthored: true },
+      );
+      if (shape.length) {
+        appendRefutation(refutationsFile, {
+          springId: spring.id, field, proposed: claim?.value, source: page.url,
+          proposer: roles.proposer, stage: 'proposal', outcome: 'value-wrong-shape',
+          note: shape.join('; '),
+        }, now());
+        continue;
+      }
     }
 
     // A literal fetch-check only makes sense for a value a page states

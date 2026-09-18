@@ -19,6 +19,7 @@ import {
   applyOverlays,
 } from './lib/overlay.mjs';
 import { NUMERIC_FIELDS, LITERAL_FIELDS } from './enrich.mjs';
+import { meaningOf } from './lib/verify-semantic.mjs';
 
 const PANEL = fs.readFileSync('src/components/DetailPanel.tsx', 'utf8');
 const FORMAT = fs.readFileSync('src/lib/format.ts', 'utf8');
@@ -72,6 +73,17 @@ test('the classification vocabulary is the Hot Spring Law one', () => {
   assert.ok(TYPES.includes('export type MineralType'));
 });
 
+test('the reader is told a classification claim is the whole classification', () => {
+  // A page naming ONE of a spring's categories does not support a claim of
+  // just that one, because the claim replaces the list. And "simple" has a
+  // legal meaning a model would not guess.
+  const gloss = meaningOf('minerals.types', ['sulfur']);
+  assert.match(gloss, /complete/);
+  assert.match(gloss, /replaces/);
+  assert.match(gloss, /simple.*none of the other categories/);
+  for (const t of FIELD_TYPES['minerals.types'].arrayOf) assert.ok(gloss.includes(t), `${t} is not named`);
+});
+
 test('a claim outside the vocabulary is rejected', () => {
   const errors = validateOverlay(
     {
@@ -88,10 +100,13 @@ test('a claim outside the vocabulary is rejected', () => {
     { knownIds: new Set(['whs_000000000001']) },
   );
   assert.ok(errors.length > 0, 'an invented category must not validate');
+  // Refused for the RIGHT reason. Before 2026-09-18 every list was refused,
+  // invented or not, and a bare length check could not tell the difference.
+  assert.match(errors.join(), /\["definitely-not-a-category"\] is not one of/);
 });
 
 /*
- * The counterpart the test above never had. Until 2026-09-17 the field was
+ * The counterpart the test above never had. Until 2026-09-18 the field was
  * declared as a bare enum, so EVERY list was refused -- including correct
  * ones -- and the test above passed for a reason that had nothing to do with
  * the invented category. The one shape that did validate, a single string,
@@ -163,6 +178,15 @@ test('a classification claim that disagrees is logged, and one that agrees is no
   const same = classifiedRecord();
   same.minerals.types = ['chloride', 'bicarbonate'];
   assert.deepEqual(apply(same, ['bicarbonate', 'chloride']), []);
+
+  // Adding a classification is a disagreement too: the claim states more
+  // than the source did. So is swapping one for another of the same size.
+  const adds = classifiedRecord();
+  adds.minerals.types = ['sulfur'];
+  assert.equal(apply(adds, ['sulfur', 'radioactive']).length, 1, 'a claim that adds a type went unrecorded');
+  const swaps = classifiedRecord();
+  swaps.minerals.types = ['sulfur', 'radioactive'];
+  assert.equal(apply(swaps, ['sulfur', 'acidic']).length, 1, 'a claim that swaps a type went unrecorded');
 });
 
 test('a non-numeric concentration is rejected', () => {
