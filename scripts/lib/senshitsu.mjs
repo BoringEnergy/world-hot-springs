@@ -16,7 +16,7 @@
  * A wrong potassium misinforms by a few mg/kg. A wrong `acidic` tells someone
  * with the wrong skin that water is safe.
  */
-import { canonicalMineralTypes } from './overlay.mjs';
+import { canonicalMineralTypes, contestFor } from './overlay.mjs';
 
 /**
  * Token -> classification, LONGEST MATCH FIRST WITHIN EACH GROUP.
@@ -110,4 +110,48 @@ export function mineralTypesOf(value) {
   const { types, residue } = classifySenshitsu(value);
   if (residue.length > 0) return null;
   return types;
+}
+
+/**
+ * What the AIST stage does with one spring's 泉質. Pure, so the decision --
+ * including the contest a claim would otherwise make silently -- can be tested
+ * without running a build.
+ *
+ * The wells must agree on the RAW string before anything is read from it. Two
+ * different classifications under one onsen name are two facts, and
+ * reconciling them would publish a name nobody wrote.
+ *
+ * mineralTypesOf returns null when it could not account for every token. That
+ * is not the same as [], and the difference is the whole rule: an incomplete
+ * types array is indistinguishable from a complete one on the card, so a value
+ * only half understood publishes nothing.
+ *
+ * An active claim on the field wins (the senshitsu spec, rule 5) -- but not
+ * silently. This stage writes nothing for a claimed field, so the overlay
+ * would then replace an empty list, and a claim that dropped `acidic` or
+ * `radioactive` would leave no trace. So when a value this stage fully
+ * understood disagrees with the claim, it returns the contest the overlay
+ * cannot see.
+ *
+ * @param {{springId: string, senshitsu: string[], upstream: string[], claim: {value: string[]}|null}} input
+ *   `senshitsu` is the distinct 泉質 strings across the spring's wells, and
+ *   `claim` the active claim on minerals.types, if any.
+ * @returns {{write: string[]|null, contest: object|null, withheld: string|null}}
+ */
+export function aistClassification({ springId, senshitsu, upstream, claim }) {
+  const none = { write: null, contest: null, withheld: null };
+  if (senshitsu.length > 1) return { ...none, withheld: 'wells disagree on 泉質' };
+  if (senshitsu.length !== 1 || upstream.length) return none;
+
+  const types = mineralTypesOf(senshitsu[0]);
+  if (claim) {
+    const contest = types?.length
+      ? contestFor(springId, 'minerals.types', types, canonicalMineralTypes(claim.value))
+      : null;
+    return { ...none, contest };
+  }
+  if (types === null) {
+    return { ...none, withheld: `泉質 not fully understood: ${JSON.stringify(classifySenshitsu(senshitsu[0]).residue)}` };
+  }
+  return { ...none, write: types.length ? types : null };
 }

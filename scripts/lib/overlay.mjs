@@ -521,6 +521,23 @@ function getPath(obj, dotted) {
   return dotted.split('.').reduce((acc, part) => (acc == null ? acc : acc[part]), obj);
 }
 
+/**
+ * The `claim.contested` event for a claim that disagrees with what a source
+ * states, or null when it agrees or the source says nothing.
+ *
+ * Exported because applyOverlays is not the only place a disagreement can be
+ * seen. A source stage that steps aside for a claim -- the AIST importer does,
+ * for every field a claim covers -- never writes its value, so by the time the
+ * overlay applies there is nothing upstream to disagree with and the claim
+ * wins silently. That stage calls this with the value it would have written.
+ * `to` is the value as it will be published, so a re-claim of the same set in
+ * another order is the same event, not a new one.
+ */
+export function contestFor(springId, field, upstream, claimed) {
+  if (!disagrees(field, upstream, claimed)) return null;
+  return { type: 'claim.contested', springId, claimPath: field, from: upstream, to: claimed, actor: 'build' };
+}
+
 function disagrees(field, upstream, claimed) {
   // Absence is not disagreement. A null upstream value means nobody has
   // recorded one, which is the ordinary case a claim exists to fill.
@@ -568,19 +585,12 @@ export function applyOverlays(records, overlays) {
         // notice. Merging also means there is nothing to contest.
         setPath(record, field, [...new Set([...(upstream || []), ...claim.value])]);
       } else {
-        if (disagrees(field, upstream, claim.value)) {
-          // The curated value keeps rendering, so the site never regresses.
-          // The disagreement becomes a review item instead.
-          events.push({
-            type: 'claim.contested',
-            springId,
-            claimPath: field,
-            from: upstream,
-            to: claim.value,
-            actor: 'build',
-          });
-        }
-        setPath(record, field, CANONICAL[field] ? CANONICAL[field](claim.value) : claim.value);
+        // The curated value keeps rendering, so the site never regresses.
+        // The disagreement becomes a review item instead.
+        const value = CANONICAL[field] ? CANONICAL[field](claim.value) : claim.value;
+        const contest = contestFor(springId, field, upstream, value);
+        if (contest) events.push(contest);
+        setPath(record, field, value);
       }
 
       if (TEMPERATURE_RANGE[field]) {

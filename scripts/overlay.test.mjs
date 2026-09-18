@@ -128,7 +128,7 @@ test('FIELD_TYPES declares what src/lib/types.ts declares', () => {
     'minerals.silica': 'number',
     'minerals.iron': 'number',
     // `MineralType[]`: a list, drawn from the Hot Spring Law vocabulary. It
-    // was declared as a bare enum until 2026-09-17, which made every correct
+    // was declared as a bare enum until 2026-09-18, which made every correct
     // claim invalid and the one "valid" claim -- a string -- corrupt the record.
     'minerals.types': {
       arrayOf: [
