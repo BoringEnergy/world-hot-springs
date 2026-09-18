@@ -83,7 +83,7 @@ test('the residue names what was not understood', () => {
 
 test('every published classification is in the declared vocabulary', () => {
   const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
-  const allowed = new Set(FIELD_TYPES['minerals.types']);
+  const allowed = new Set(FIELD_TYPES['minerals.types'].arrayOf);
   const bad = [];
   for (const s of all) for (const t of s.minerals.types) if (!allowed.has(t)) bad.push([s.id, t]);
   assert.deepEqual(bad, [], 'a type outside MineralType reached the dataset');

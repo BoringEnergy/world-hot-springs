@@ -16,6 +16,7 @@
  * A wrong potassium misinforms by a few mg/kg. A wrong `acidic` tells someone
  * with the wrong skin that water is safe.
  */
+import { canonicalMineralTypes } from './overlay.mjs';
 
 /**
  * Token -> classification, LONGEST MATCH FIRST WITHIN EACH GROUP.
@@ -63,12 +64,6 @@ export const NOISE = [
   '・', '-', '−', '‐', '―', '(', ')', '（', '）', '、', ',', ' ', '　',
 ];
 
-/** Canonical order, so a record's types do not depend on token order. */
-const ORDER = [
-  'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
-  'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
-];
-
 /**
  * Read one 泉質 value.
  *
@@ -99,9 +94,10 @@ export function classifySenshitsu(value) {
   // sulfur" -- it is a sulfur spring that is otherwise dilute, and its 泉質名
   // is 硫黄泉. Emitting both states one category more than the law does, on a
   // high-risk field, in 16% of what this rule publishes.
-  if (found.size > 1) found.delete('simple');
-
-  return { types: ORDER.filter((t) => found.has(t)), residue: rest };
+  //
+  // The rule, and the canonical order, live in overlay.mjs, because an
+  // overlay claim writes this same field and must apply the same rule.
+  return { types: canonicalMineralTypes(found), residue: rest };
 }
 
 /**

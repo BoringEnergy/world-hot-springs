@@ -162,12 +162,40 @@ export const RISK = {
 };
 
 /**
+ * Japan's Hot Spring Law classification, in canonical order. Adopted rather
+ * than invented: it is the only widely published standard, composition is
+ * legally required to be posted under it, and 778 springs here are already
+ * tagged onsen. An invented vocabulary would have no sources behind it.
+ */
+export const MINERAL_TYPES = [
+  'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
+  'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
+];
+
+/**
+ * A set of classifications as the atlas publishes it: no repeats, in the
+ * order of MINERAL_TYPES, and `simple` only when it is the only one.
+ *
+ * 単純 is a modifier, not a category, whenever anything else is present:
+ * 単純硫黄泉 is a sulfur spring that is otherwise dilute, not "simple and
+ * also sulfur" (docs/superpowers/specs/2026-09-10-senshitsu-mineral-types.md).
+ * One function, because the AIST importer and an overlay claim both write
+ * this field, and two copies of the rule could disagree about a high-risk one.
+ */
+export function canonicalMineralTypes(types) {
+  const found = new Set(types);
+  if (found.size > 1) found.delete('simple');
+  return MINERAL_TYPES.filter((t) => found.has(t));
+}
+
+/**
  * The constraint a claim's value must satisfy, for the fields where
  * `src/lib/types.ts` declares one. A value here is either
  *
  *   'number' | 'string'   a scalar type,
- *   'string[]'            an array whose every element is a string, or
- *   [...]                 an array literal: the exact permitted values.
+ *   'string[]'            an array whose every element is a string,
+ *   [...]                 an array literal: the exact permitted values, or
+ *   { arrayOf: [...] }    a non-empty array drawn from those values.
  *
  * `access.price` is a string, not a number: the type is `string | null`, the
  * built dataset holds 878 of them including "Free", and `src/lib/format.ts`
@@ -215,14 +243,19 @@ export const FIELD_TYPES = {
   'minerals.silica': 'number',
   'minerals.iron': 'number',
 
-  // Japan's Hot Spring Law classification. Adopted rather than invented: it
-  // is the only widely published standard, composition is legally required to
-  // be posted under it, and 778 springs here are already tagged onsen. An
-  // invented vocabulary would have no sources behind it.
-  'minerals.types': [
-    'simple', 'chloride', 'bicarbonate', 'sulfate', 'carbon-dioxide',
-    'iron', 'acidic', 'iodine', 'sulfur', 'radioactive', 'aluminium',
-  ],
+  // A LIST of classifications, because the record holds one: a spring can be
+  // chloride and bicarbonate at once. Until 2026-09-18 this was declared as a
+  // bare enum, so the validator refused every list, and the one shape it did
+  // accept -- a single string -- replaced the record's array with a string
+  // when applied. The field was claimable and could not be claimed correctly.
+  //
+  // A claim REPLACES the list rather than merging into it, as the senshitsu
+  // spec decided ("a claimed minerals.types always wins"; "never reconcile two
+  // classifications"). The AIST value is our inference from 泉質 text; a claim
+  // cites a page. Merging would publish a combination no source states. A
+  // claim that differs from the upstream list is logged as claim.contested,
+  // so a claim that drops `acidic` is a review item, not a silent change.
+  'minerals.types': { arrayOf: MINERAL_TYPES },
   'minerals.notes': 'string',
   // ISO date the source states the water was analysed. Absent means the
   // source published a composition without saying when it was measured, and
@@ -280,7 +313,15 @@ export const TEMPERATURE_RANGE = {
   'temperature.fahrenheit': [23, 266, 'F'],
 };
 
+/**
+ * The MERGE-ONLY fields: a claim adds to them and can never remove. Only the
+ * free-text lists. `minerals.types` is also a list, but a claim replaces it
+ * -- see its FIELD_TYPES entry for why.
+ */
 export const ARRAY_FIELDS = Object.keys(FIELD_TYPES).filter((f) => FIELD_TYPES[f] === 'string[]');
+
+/** How a claimed value is written, for a field that has a canonical form. */
+const CANONICAL = { 'minerals.types': canonicalMineralTypes };
 
 /** Matches a durable spring id. 12 hex characters; see identity.mjs on why. */
 export const SPRING_ID = /^whs_[0-9a-f]{12}$/;
@@ -380,6 +421,34 @@ export function validateOverlay(overlay, opts = {}) {
           );
         }
       }
+    } else if (expected?.arrayOf) {
+      // A list drawn from a closed vocabulary. Empty is refused: a claim that
+      // a spring has no classification is not what an empty list means here,
+      // and merging it would change nothing anyway.
+      const v = claim?.value;
+      if (!Array.isArray(v) || v.length === 0) {
+        errors.push(
+          `${field}: value must be a non-empty array of ${expected.arrayOf.join(', ')}, `
+          + `got ${JSON.stringify(v)}`,
+        );
+      } else {
+        const unknown = v.filter((t) => !expected.arrayOf.includes(t));
+        if (unknown.length) {
+          errors.push(
+            `${field}: ${JSON.stringify(unknown)} ${unknown.length === 1 ? 'is' : 'are'} not one of `
+            + `${expected.arrayOf.join(', ')}`,
+          );
+        } else if (new Set(v).size !== v.length) {
+          errors.push(`${field}: a value is repeated in ${JSON.stringify(v)}`);
+        } else if (CANONICAL[field] && CANONICAL[field](v).length !== v.length) {
+          // Only the simple rule can shorten a list that passed the checks
+          // above. Say what to write instead rather than just "no".
+          errors.push(
+            `${field}: "simple" is a classification only on its own; beside another it is `
+            + `a modifier (単純硫黄泉 is a sulfur spring). Claim ${JSON.stringify(CANONICAL[field](v))}`,
+          );
+        }
+      }
     } else if (expected && !HAS_TYPE[expected](claim?.value)) {
       errors.push(`${field}: value must be a ${expected}, got ${JSON.stringify(claim?.value)}`);
     }
@@ -460,6 +529,15 @@ function disagrees(field, upstream, claimed) {
   if (slack !== undefined && typeof upstream === 'number' && typeof claimed === 'number') {
     return Math.abs(upstream - claimed) > slack;
   }
+  // A list is compared as a set. `!==` on two arrays is always true, which
+  // would log every classification claim as contested, including one that
+  // agrees; and an empty list is absence, like null.
+  if (Array.isArray(upstream)) {
+    if (upstream.length === 0) return false;
+    const a = new Set(upstream);
+    const b = new Set(Array.isArray(claimed) ? claimed : [claimed]);
+    return a.size !== b.size || [...a].some((v) => !b.has(v));
+  }
   return upstream !== claimed;
 }
 
@@ -502,7 +580,7 @@ export function applyOverlays(records, overlays) {
             actor: 'build',
           });
         }
-        setPath(record, field, claim.value);
+        setPath(record, field, CANONICAL[field] ? CANONICAL[field](claim.value) : claim.value);
       }
 
       if (TEMPERATURE_RANGE[field]) {

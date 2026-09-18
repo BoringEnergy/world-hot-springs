@@ -85,6 +85,7 @@ export function meaningOf(field, value) {
   // verifier does not treat an unfamiliar token as free text.
   const type = FIELD_TYPES[field];
   if (Array.isArray(type)) return `one of: ${type.join(', ')}`;
+  if (type?.arrayOf) return `a list, each item one of: ${type.arrayOf.join(', ')}`;
   return null;
 }
 
