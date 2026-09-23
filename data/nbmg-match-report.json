@@ -1,11 +1,11 @@
 {
   "counts": {
     "rows": 6319,
-    "matched": 109,
-    "panelsWritten": 109,
-    "fieldsWritten": 649,
+    "matched": 108,
+    "panelsWritten": 108,
+    "fieldsWritten": 648,
     "deferredToAuthor": 0,
-    "withheld": 197
+    "withheld": 196
   },
   "matched": [
     {
@@ -547,26 +547,6 @@
       },
       "withheldFields": [],
       "measuredAt": "1975"
-    },
-    {
-      "id": "whs_9096c1f77024",
-      "site": "39.22583,-107.22472",
-      "siteName": "Pitkin County Penny Hot Springs",
-      "meters": 144,
-      "values": {
-        "ph": 6.3
-      },
-      "withheldFields": [
-        "calcium",
-        "magnesium",
-        "sodium",
-        "potassium",
-        "silica",
-        "chloride",
-        "sulfate",
-        "bicarbonate"
-      ],
-      "measuredAt": "1976"
     },
     {
       "id": "whs_d31014a17ed8",
@@ -2893,10 +2873,6 @@
     },
     {
       "id": "whs_d643b30e8f02",
-      "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
-    },
-    {
-      "id": "whs_a3414091de00",
       "reason": "every field disagrees across analyses: calcium, magnesium, sodium, potassium, silica, chloride, sulfate, bicarbonate, ph"
     },
     {

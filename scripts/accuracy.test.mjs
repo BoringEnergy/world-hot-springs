@@ -19,12 +19,14 @@ test('an OSM pin states nothing, and no figure is invented for it', () => {
   assert.equal(accuracyMetersOf(rec()), null, 'no refs at all is still not a figure');
 });
 
-test('an NCEI-minted pin states 110 m', () => {
+test('an NCEI-minted pin states its measured 500 m, not its printed 110', () => {
   assert.equal(
     accuracyMetersOf(rec({ sourceRefs: [{ provider: 'ncei', externalId: 'NV/39.5/-118.8' }] })),
     NCEI_ACCURACY_M,
   );
-  assert.equal(NCEI_ACCURACY_M, 110, "ncei-admit's own floor is 3 dp, which it calls ~110 m");
+  // The 90th percentile of NOAA-to-OSM distance over 88 named pairs. Three
+  // decimal places print to ~110 m, which was the old figure and held for half.
+  assert.equal(NCEI_ACCURACY_M, 500);
 });
 
 test('a record NOAA merely confirmed keeps its OSM silence', () => {
@@ -67,7 +69,7 @@ test('reconciling reports whether it changed anything', () => {
   // be noise rather than a report of what it set.
   const fresh = rec({ sourceRefs: [{ provider: 'ncei', externalId: 'x' }] });
   assert.equal(reconcileAccuracy(fresh), true);
-  assert.equal(fresh.location.accuracyMeters, 110);
+  assert.equal(fresh.location.accuracyMeters, NCEI_ACCURACY_M);
   assert.equal(reconcileAccuracy(fresh), false, 'idempotent');
   // And it CLEARS a stale value, which is what makes late derivation safe.
   const stale = rec({ osmRefs: ['node/1'], location: { accuracyMeters: 110 } });
@@ -82,7 +84,7 @@ test('the shipped dataset agrees with the rule', () => {
 
   const stated = all.filter((s) => s.location.accuracyMeters !== null);
   assert.ok(stated.length > 500, 'not vacuous: pins really were minted');
-  assert.deepEqual([...new Set(stated.map((s) => s.location.accuracyMeters))], [110]);
+  assert.deepEqual([...new Set(stated.map((s) => s.location.accuracyMeters))], [NCEI_ACCURACY_M]);
   // Not one of them is an OSM point.
   assert.deepEqual(stated.filter((s) => (s.osmRefs ?? []).length).map((s) => s.id), []);
 

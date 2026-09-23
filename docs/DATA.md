@@ -282,7 +282,10 @@ OSM ref first and by the same-spring predicate second. That fallback is what
 keeps a claim attached when OSM deletes a node and redraws the spring as a way.
 Registry entries that match nothing are flagged `missingSince` and emit
 `spring.disappeared` — never deleted, because one plausible cause of an upstream
-disappearance is a privacy removal we should honour.
+disappearance is a privacy removal we should honour. An entry whose record was
+found to duplicate another spring says so instead: it carries `mergedInto` with
+the surviving id and emits `spring.merged`, so a citation of the old id leads
+somewhere.
 
 Ids are 12 hex characters of a SHA-256 of the first OSM ref. Six was tried first
 and measured: it produced **two real collisions** across the dataset's 7,638 OSM
@@ -332,6 +335,28 @@ tags are folded in so no provenance is lost.
 
 Comparison uses a ~1 km spatial hash, so each record is checked against a handful
 of neighbours rather than the whole dataset.
+
+### NOAA pins beside the spring they name
+
+NOAA's 1981 list prints coordinates to three decimal places, which looks like
+~110 m and is not what it means. Measured against OpenStreetMap over the 88 NOAA
+rows whose distinctive name matches exactly one OSM record within 5 km, the
+distance is median 129 m, 90th percentile 495 m, 95th 602 m, maximum 1,340 m,
+with nothing between 1.4 and 5 km. So a NOAA pin and the OSM pin for the same
+spring can sit well past dedupe's reach.
+
+After dedupe, a NOAA-only pin is bound to an OSM record when their names are
+**equal** once *hot, warm, spring, springs* and *the* are dropped, within
+**1,500 m**, and when neither side has another candidate. Equality, not
+containment: "Blue Joint Hot Springs 2" is another spring. The pin is dropped and
+its NOAA row reaches the OSM record through the ordinary NOAA matching stage, so
+an authored claim still wins and an existing temperature is never overwritten.
+17 pins were bound when this was added (Umpqua, Olympic, Sharkey, Drakesbad…).
+The rule is `scripts/lib/coarse-pins.mjs`.
+
+The same measurement sets `location.accuracyMeters` on the pins NOAA placed:
+**500 m**, the 90th percentile, not the 110 m the decimals suggest. The sample is
+springs OSM also maps, which leans toward well-known ones.
 
 ## Known limitations
 

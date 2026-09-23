@@ -130675,7 +130675,8 @@
     "name": "BUCKEYE HOT SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_57e8c4ec3cfe"
   },
   "whs_59f51f440fbc": {
     "osmRefs": [],
@@ -131049,7 +131050,8 @@
     "name": "DRAKESBAD",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_93ab8c02a67f"
   },
   "whs_db1774b14edd": {
     "osmRefs": [],
@@ -131712,7 +131714,8 @@
     "name": "LITTLE CALIENTE SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_417d714e435f"
   },
   "whs_4faeec58756b": {
     "osmRefs": [],
@@ -131729,7 +131732,8 @@
     "name": "LITTLE HOT CREEK SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_3b3bb15fdf78"
   },
   "whs_584e5377089e": {
     "osmRefs": [],
@@ -131950,7 +131954,8 @@
     "name": "MONTECITO HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_88140ca63d88"
   },
   "whs_e121f23017f5": {
     "osmRefs": [],
@@ -133803,7 +133808,8 @@
     "name": "COTTONWOOD HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_d499eb72d43c"
   },
   "whs_981ca33f35dd": {
     "osmRefs": [],
@@ -134041,7 +134047,8 @@
     "name": "PENNY HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_00177ecf7718"
   },
   "whs_50ece4616ab1": {
     "osmRefs": [],
@@ -134449,7 +134456,8 @@
     "name": "ATLANTA HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_23335f49347e"
   },
   "whs_f4bca1b22765": {
     "osmRefs": [],
@@ -136404,7 +136412,8 @@
     "name": "SHARKEY HOT SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_7ff88b5a8d01"
   },
   "whs_afda6ce3d38d": {
     "osmRefs": [],
@@ -137696,7 +137705,8 @@
     "name": "NIMROD SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_9471208c4861"
   },
   "whs_72f3c8ab03f0": {
     "osmRefs": [],
@@ -138393,7 +138403,8 @@
     "name": "SAN ANTONIO HOT SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_65b397d531f2"
   },
   "whs_057c59bf36c8": {
     "osmRefs": [],
@@ -142235,7 +142246,8 @@
     "name": "BIGELOW HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_31ff31159256"
   },
   "whs_e45518dedfcf": {
     "osmRefs": [],
@@ -143000,7 +143012,8 @@
     "name": "MICKEY SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_8607e291c950"
   },
   "whs_daabd1ef7593": {
     "osmRefs": [],
@@ -143136,7 +143149,8 @@
     "name": "PAULINA SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_539a7f1595c2"
   },
   "whs_fac63aed3083": {
     "osmRefs": [],
@@ -143306,7 +143320,8 @@
     "name": "UMPQUA HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_80e9dbba482a"
   },
   "whs_0075051a95dd": {
     "osmRefs": [],
@@ -145431,7 +145446,8 @@
     "name": "BAKER HOT SPRING",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_2d2cef66972f"
   },
   "whs_e406c7fee2ee": {
     "osmRefs": [],
@@ -145635,7 +145651,8 @@
     "name": "OLYMPIC HOT SPRINGS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null
+    "missingSince": "2026-08-25",
+    "mergedInto": "whs_b4ecf77af669"
   },
   "whs_e2f47171277c": {
     "osmRefs": [],

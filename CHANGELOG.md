@@ -44,6 +44,22 @@ and `version` and `date-released` in `CITATION.cff`, and a test holds
   individual elements, and may except a reviewed genuine spring. A
   country-wide rule was only right where no genuine attribute-free spring
   exists; Thailand, Morocco and Ukraine all have some.
+- **17 springs counted twice are counted once.** 7,147 become 7,130. Each was
+  a NOAA 1981 pin a few hundred metres from the OpenStreetMap pin for the same
+  spring -- Umpqua, Olympic, Sharkey, Drakesbad, Mickey -- too far apart for
+  dedupe. The NOAA row now reaches the OSM record through the ordinary NOAA
+  stage, and 12 of those springs gain its temperature. The old ids are kept in
+  the registry with `mergedInto` pointing at the survivor.
+- **Temperature coverage is 1,390, down 5.** Five of the duplicates carried a
+  temperature for a spring whose OSM record already had one, so the same
+  spring was counted with a temperature twice.
+- **Two published temperatures change**, because NOAA's stage runs before the
+  Water Quality Portal's and now reaches these springs first: San Antonio Hot
+  Spring 40 -> 54 C and Nimrod Warm Springs 20.5 -> 21 C. This is the order
+  every other spring both sources describe already follows.
+- **NOAA pins say they are located to about 500 m, not 110 m.** 110 m was the
+  precision the coordinates are printed to. Measured against OSM, half the
+  pins are within 129 m and one in ten is more than 495 m out.
 
 ## [1.0.1] - 2026-09-17
 
