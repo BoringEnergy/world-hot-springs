@@ -5649,7 +5649,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5668,7 +5668,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5687,7 +5687,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5706,7 +5706,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5725,7 +5725,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5744,7 +5744,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5763,7 +5763,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5782,7 +5782,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5801,7 +5801,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5820,7 +5820,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -5839,7 +5839,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13089,7 +13089,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13108,7 +13108,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13165,7 +13165,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13184,7 +13184,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13203,7 +13203,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13222,7 +13222,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13241,7 +13241,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -13260,7 +13260,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17244,7 +17244,7 @@
     "name": "d2",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17263,7 +17263,7 @@
     "name": "a1",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17282,7 +17282,7 @@
     "name": "a2",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17301,7 +17301,7 @@
     "name": "p107-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17320,7 +17320,7 @@
     "name": "p108-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17339,7 +17339,7 @@
     "name": "p115-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17358,7 +17358,7 @@
     "name": "p116-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17377,7 +17377,7 @@
     "name": "p105-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17396,7 +17396,7 @@
     "name": "p106-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17415,7 +17415,7 @@
     "name": "p114-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17434,7 +17434,7 @@
     "name": "p104-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17453,7 +17453,7 @@
     "name": "p113-9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17667,7 +17667,7 @@
     "name": "DiveDao",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -17686,7 +17686,7 @@
     "name": "Divebeat",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20039,7 +20039,7 @@
     "name": "المنزل",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20058,7 +20058,7 @@
     "name": "شاحك",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20077,7 +20077,7 @@
     "name": "الغبره",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20115,7 +20115,7 @@
     "name": "منزل حسن عبدالودود",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20134,7 +20134,7 @@
     "name": "مؤسسة واقع تاني",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20153,7 +20153,7 @@
     "name": "منزل حسن عبالودود",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20172,7 +20172,7 @@
     "name": "بيت الانجيلية باسوان",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20191,7 +20191,7 @@
     "name": "مؤسسة واقع تاني",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20248,7 +20248,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20267,7 +20267,7 @@
     "name": "Shaap",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20286,7 +20286,7 @@
     "name": "شقة سعد بيه",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20305,7 +20305,7 @@
     "name": "الجرداء",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20324,7 +20324,7 @@
     "name": "العوامه منفلوط",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20343,7 +20343,7 @@
     "name": "تجربة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20400,7 +20400,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20419,7 +20419,7 @@
     "name": "بلوك 63",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20438,7 +20438,7 @@
     "name": "بلوك 64",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20457,7 +20457,7 @@
     "name": "اميرلاد القديمه",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20476,7 +20476,7 @@
     "name": "بلوك 67",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20495,7 +20495,7 @@
     "name": "اميرالد الجديده",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20514,7 +20514,7 @@
     "name": "بلوك 63شنن",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20533,7 +20533,7 @@
     "name": "بلوك 65 65",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20552,7 +20552,7 @@
     "name": "2د",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20628,7 +20628,7 @@
     "name": "بلوك 37",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20647,7 +20647,7 @@
     "name": "بلوك 36",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20666,7 +20666,7 @@
     "name": "بلوك 35",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20685,7 +20685,7 @@
     "name": "بلوك 38",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20704,7 +20704,7 @@
     "name": "بلوك 39",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20723,7 +20723,7 @@
     "name": "موقع مزرعة الامبا",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20742,7 +20742,7 @@
     "name": "حجر مرتفعات المطار مسقط",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20761,7 +20761,7 @@
     "name": "cnc المعبيلة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20780,7 +20780,7 @@
     "name": "روي هوندا رود",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20799,7 +20799,7 @@
     "name": "سجتواس معدات الورش المعبيله",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -20937,7 +20937,7 @@
     "name": "حلسلس",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21094,7 +21094,7 @@
     "name": "تلعدان",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21113,7 +21113,7 @@
     "name": "سوق البهائم - الدبة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21132,7 +21132,7 @@
     "name": "الكماديب",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21151,7 +21151,7 @@
     "name": "سكه حديد واحد عمر",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21170,7 +21170,7 @@
     "name": "مر امسح",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21227,7 +21227,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -21265,7 +21265,7 @@
     "name": "Jacuzzi pool",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23385,7 +23385,7 @@
     "name": "ODP",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23594,7 +23594,7 @@
     "name": "บ้าน สมเดช ข่าทิพย์พาที",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23708,7 +23708,7 @@
     "name": "228/1ม.4starfood",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23746,7 +23746,7 @@
     "name": "TCC-L2-PSN04X 21HRY-21HRO",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23765,7 +23765,7 @@
     "name": "TCC-L1-PSN04X 21HR7-21HPS",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23803,7 +23803,7 @@
     "name": "บ้านน้าเอ็ม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23841,7 +23841,7 @@
     "name": "ไต๋ติ๊ก0388",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23860,7 +23860,7 @@
     "name": "Wpt0052",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23879,7 +23879,7 @@
     "name": "Wpt0543",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23898,7 +23898,7 @@
     "name": "7.422817, 98.195317",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23912,8 +23912,8 @@
       "node/8523785317"
     ],
     "centroid": [
-      97.922384,
-      7.436559
+      97.922369,
+      7.436553
     ],
     "name": "Wpt0819",
     "firstSeen": "2026-08-25",
@@ -23941,7 +23941,7 @@
     "name": "ดอนตีน1",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23960,7 +23960,7 @@
     "name": "ดอนตีน2",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -23981,7 +23981,7 @@
     "name": "ดอนตีน3",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24008,7 +24008,7 @@
     "name": "ไต๋น้อย1",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24027,7 +24027,7 @@
     "name": "ไต๋น้อย1",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24132,7 +24132,7 @@
     "name": "บ้านสหราษฎร์",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24151,7 +24151,7 @@
     "name": "บ้านสวนอ้อย",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24170,7 +24170,7 @@
     "name": "บ้านเหล่า",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24189,7 +24189,7 @@
     "name": "บ้านโนนสะอาด",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24208,7 +24208,7 @@
     "name": "บ้านธาตุพัฒนา",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24227,7 +24227,7 @@
     "name": "บ้านสีสุก",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24246,7 +24246,7 @@
     "name": "บ้านวารีเกษม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24265,7 +24265,7 @@
     "name": "บ้านทุ่งแสน",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24284,7 +24284,7 @@
     "name": "บ้านคำสูง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24303,7 +24303,7 @@
     "name": "บ้านหนองแห้ว",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24322,7 +24322,7 @@
     "name": "บ้านหนองผือ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24341,7 +24341,7 @@
     "name": "บ้านคำแดง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24360,7 +24360,7 @@
     "name": "บ้านหนองสมบูรณ์",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24379,7 +24379,7 @@
     "name": "ม.4",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24398,7 +24398,7 @@
     "name": "ม.11",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24417,7 +24417,7 @@
     "name": "บ้านหนองคู",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24436,7 +24436,7 @@
     "name": "บ้านสีสวาด",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24455,7 +24455,7 @@
     "name": "บ้านเล็บขาว",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24493,7 +24493,7 @@
     "name": "บ้านฟ้าเลื่อม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24512,7 +24512,7 @@
     "name": "บ้านหนองกู่",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24531,7 +24531,7 @@
     "name": "โนนคูเมือง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24550,7 +24550,7 @@
     "name": "บ้านบัวเงิน",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24569,7 +24569,7 @@
     "name": "บ้านหนองพุก",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24588,7 +24588,7 @@
     "name": "บ้านหัวหนอง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24607,7 +24607,7 @@
     "name": "บ้านดอนดู่",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24626,7 +24626,7 @@
     "name": "บ้านหนองยาง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24645,7 +24645,7 @@
     "name": "บ้านหนองเรือ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24664,7 +24664,7 @@
     "name": "บ้านดงเค็ง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24683,7 +24683,7 @@
     "name": "หนองเป็ดก่า",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24702,7 +24702,7 @@
     "name": "บ้านหนองผือ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24721,7 +24721,7 @@
     "name": "ม.13 บ้านหนองบัวทอง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24740,7 +24740,7 @@
     "name": "บ้านบาก",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24759,7 +24759,7 @@
     "name": "บ้านสามัคคี",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24778,7 +24778,7 @@
     "name": "บ้านกุดเขียว",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24797,7 +24797,7 @@
     "name": "บ้านแมด",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24816,7 +24816,7 @@
     "name": "จ้อก้อ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24835,7 +24835,7 @@
     "name": "กุงน้อย",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24854,7 +24854,7 @@
     "name": "หนองกุงใหญ่",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24873,7 +24873,7 @@
     "name": "ท่าไฮ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24892,7 +24892,7 @@
     "name": "ท่าโพธ์",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24911,7 +24911,7 @@
     "name": "บ้านหนองเเวง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24930,7 +24930,7 @@
     "name": "บ้านทานตะวัน",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24949,7 +24949,7 @@
     "name": "บ้านโพธิ์ชัย",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -24968,7 +24968,7 @@
     "name": "คำสุข",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25006,7 +25006,7 @@
     "name": "บ้านขยอม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25025,7 +25025,7 @@
     "name": "บ้านสนามชัย",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25044,7 +25044,7 @@
     "name": "ม.3",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25063,7 +25063,7 @@
     "name": "บ้านดอนก่อ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25082,7 +25082,7 @@
     "name": "โนนสว่าง",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25101,7 +25101,7 @@
     "name": "บ้านขี่กา",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25139,7 +25139,7 @@
     "name": "บ้านส่อง ม.17",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25158,7 +25158,7 @@
     "name": "บ้านส่อง ม.9",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25177,7 +25177,7 @@
     "name": "บ้านหนองเต่า หมู่.8",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25196,7 +25196,7 @@
     "name": "ม.16",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25215,7 +25215,7 @@
     "name": "บ้านโนนขาม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25234,7 +25234,7 @@
     "name": "บ้านโนนสมบูรณ์",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25348,7 +25348,7 @@
     "name": "BKK1067-075",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25424,7 +25424,7 @@
     "name": "华人工厂",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25443,7 +25443,7 @@
     "name": "H",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25462,7 +25462,7 @@
     "name": "B",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25482,7 +25482,7 @@
     "name": "โพนพะเนา-นางC F00156",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25505,7 +25505,7 @@
     "name": "โพนพะเนา-นางเอ F0012",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25524,7 +25524,7 @@
     "name": "ล้งมะม่วงโอโป้",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25543,7 +25543,7 @@
     "name": "Selling Cricket",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25562,7 +25562,7 @@
     "name": "273 ม.6 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25581,7 +25581,7 @@
     "name": "280 ม.6 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25600,7 +25600,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25619,7 +25619,7 @@
     "name": "193 ม.5 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25638,7 +25638,7 @@
     "name": "52 ม.5 บ้านรถเกี่ยว",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25657,7 +25657,7 @@
     "name": "130 ม.10 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25676,7 +25676,7 @@
     "name": "65 ม.4 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25695,7 +25695,7 @@
     "name": "72 ม.4 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25714,7 +25714,7 @@
     "name": "74 ม.3 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25733,7 +25733,7 @@
     "name": "104 ม.3 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25752,7 +25752,7 @@
     "name": "503 ม.3 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25771,7 +25771,7 @@
     "name": "499 ม.3 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25790,7 +25790,7 @@
     "name": "666 ม.3 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25809,7 +25809,7 @@
     "name": "140 ม.7 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25828,7 +25828,7 @@
     "name": "182 ม.7 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -25847,7 +25847,7 @@
     "name": "67 ม.2 สระยายโสม",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -67236,7 +67236,7 @@
     "name": "C3004638 Société Sogefam Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -67949,7 +67949,7 @@
     "name": "Ghjfd",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68460,7 +68460,7 @@
     "name": "c3005378 manar adam",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68483,7 +68483,7 @@
     "name": "c3005726 moly omar el yacooubi",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68503,7 +68503,7 @@
     "name": "c3002426 ste greenalim",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68526,7 +68526,7 @@
     "name": "c3005699 hasan azandco",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68545,7 +68545,7 @@
     "name": "C3005921 Ilham Tounsi",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68564,7 +68564,7 @@
     "name": "c3005924 mustapha idaline",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68583,7 +68583,7 @@
     "name": "c3005533 ait bouyoussef",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68602,7 +68602,7 @@
     "name": "c3002296 Mohamed Redouane",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68621,7 +68621,7 @@
     "name": "c3004245 nait wanmid",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68640,7 +68640,7 @@
     "name": "C3003274 Zahra El Khal",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68659,7 +68659,7 @@
     "name": "C3002287 Essmoum Ebderrahim",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68678,7 +68678,7 @@
     "name": "C3005333 Ait Bouyoussef Said",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68697,7 +68697,7 @@
     "name": "C3002304 Bahloul B.Tahar",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68716,7 +68716,7 @@
     "name": "C3005529 Rafai Abdeljalil",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68735,7 +68735,7 @@
     "name": "C3004376 Teraoui Hassan",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68754,7 +68754,7 @@
     "name": "C3002296 Radouan Mohamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68774,7 +68774,7 @@
     "name": "EZROUKI JILALI",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68797,7 +68797,7 @@
     "name": "C3005492 Amaiz Hassan",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68816,7 +68816,7 @@
     "name": "c3001537 Ziti Lahoussine",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68835,7 +68835,7 @@
     "name": "C3000326 Jador othman",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68854,7 +68854,7 @@
     "name": "c3005772 Addarif Abdeslam",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68873,7 +68873,7 @@
     "name": "c3005780 Mekaoui Abdelmoula",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68892,7 +68892,7 @@
     "name": "c3004639 Iqor Mohamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68911,7 +68911,7 @@
     "name": "c3001556 Addarif Abdelouafi",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68930,7 +68930,7 @@
     "name": "c3001553 En-nouary Hakima",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68949,7 +68949,7 @@
     "name": "C3005758 Hmam Mina",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68968,7 +68968,7 @@
     "name": "C3005620 Mansour Mbarek",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -68987,7 +68987,7 @@
     "name": "C3005726 Mly Omar Elyaccoubi",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69006,7 +69006,7 @@
     "name": "C3001591 SOCIETE NOUR SALAM",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69144,7 +69144,7 @@
     "name": "C3005589 Talal Mohamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69163,7 +69163,7 @@
     "name": "C3005597 Boukssimi Said",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69182,7 +69182,7 @@
     "name": "C3000335 Snader Ahmed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69201,7 +69201,7 @@
     "name": "C3005886 Noreddine El Kalloufy",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69220,7 +69220,7 @@
     "name": "C3000350 Markoum Mohamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69239,7 +69239,7 @@
     "name": "C3000361 Alouani Med",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69258,7 +69258,7 @@
     "name": "C3000332 Bouhachoum Mohamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69334,7 +69334,7 @@
     "name": "قهوى",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69372,7 +69372,7 @@
     "name": "C3005960 Brahim Bourouay",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69415,7 +69415,7 @@
     "name": "C3000548 Hassoun Mohamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69434,7 +69434,7 @@
     "name": "C3003008 Douch Fatima",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69453,7 +69453,7 @@
     "name": "C3003014 Housni Lahcen",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69472,7 +69472,7 @@
     "name": "C3003025 Moussaddeq Hassan",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69491,7 +69491,7 @@
     "name": "C3003049 El Wasmine Radouane",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69510,7 +69510,7 @@
     "name": "C3006429 Mall Lahri Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69529,7 +69529,7 @@
     "name": "C3005838 Abderrahim Bouleghrass",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69548,7 +69548,7 @@
     "name": "C3005610 Bouskoura Market Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69567,7 +69567,7 @@
     "name": "C3004343 Station Services Lagoussem Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69586,7 +69586,7 @@
     "name": "C3004316 Essalhi Lahcen",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69605,7 +69605,7 @@
     "name": "C3005340 Oublq El Khalil",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69624,7 +69624,7 @@
     "name": "C3005655 Imaquen Food Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69643,7 +69643,7 @@
     "name": "C3005714 Lemjahed Mhamed",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69662,7 +69662,7 @@
     "name": "C3005883 Benaziz Abdenbi",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69681,7 +69681,7 @@
     "name": "C3005750 Abderrahman Lachhab",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69719,7 +69719,7 @@
     "name": "k",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69738,7 +69738,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69757,7 +69757,7 @@
     "name": "C3003976 El mouden Fatima",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69776,7 +69776,7 @@
     "name": "C3005999 mehdi Bekhaled",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69795,7 +69795,7 @@
     "name": "C3006063 Ali Ajdaa",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69814,7 +69814,7 @@
     "name": "منزلي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69833,7 +69833,7 @@
     "name": "C3006147 Abdallah Aklam",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69852,7 +69852,7 @@
     "name": "C3006354 Lamrabet Ali",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69909,7 +69909,7 @@
     "name": "C3006488 Katfy Abdelkader",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69928,7 +69928,7 @@
     "name": "C3006315 Azmay Bouskoura Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69947,7 +69947,7 @@
     "name": "C3006160 Mcls Service Sarl",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69966,7 +69966,7 @@
     "name": "KC0016 Istiraha Station Bouskoura Petrom",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -69985,7 +69985,7 @@
     "name": "C3006009 Aziz Badaoui",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -75361,7 +75361,7 @@
     "name": "Amal;العمل",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -75380,7 +75380,7 @@
     "name": "المنزل",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -75399,7 +75399,7 @@
     "name": "Darna;دارنا",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -75418,7 +75418,7 @@
     "name": "Dar Mema Ghenia;دار ممى غنية",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -75494,7 +75494,7 @@
     "name": "Калуш граніт",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -75974,7 +75974,7 @@
     "name": "Будівля",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -76468,7 +76468,7 @@
     "name": "Федьковича",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -76506,7 +76506,7 @@
     "name": "Санепідемстанція",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -77671,7 +77671,7 @@
     "name": "Роь",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -77690,7 +77690,7 @@
     "name": "Рьд",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -77785,7 +77785,7 @@
     "name": "Базова точка",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -77952,7 +77952,7 @@
     "name": "Гриби парахоняк, ковальчук, басалига",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -77971,7 +77971,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -77990,7 +77990,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -78009,7 +78009,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -78028,7 +78028,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -78503,7 +78503,7 @@
     "name": "Демковіч І.Б",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -78580,7 +78580,7 @@
     "name": "بيتي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -78603,7 +78603,7 @@
     "name": "سنوسي حمدي تلمسان",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -78969,7 +78969,7 @@
     "name": "wandelroute Grebbelinie 15km",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -93708,7 +93708,7 @@
     "name": "산청요",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -94293,7 +94293,7 @@
     "name": "이스트힐스골프",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -110378,7 +110378,7 @@
     "name": "искуственная фумарола, труба с газом, сильно шумит",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -111273,7 +111273,7 @@
     "name": "Університет",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112334,7 +112334,7 @@
     "name": "(مفترق) دوار العباس",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112391,7 +112391,7 @@
     "name": "مطعم بونه",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112468,7 +112468,7 @@
     "name": "النصارية",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112487,7 +112487,7 @@
     "name": "عجينه",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112563,7 +112563,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112639,7 +112639,7 @@
     "name": "محمد نجيب",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112658,7 +112658,7 @@
     "name": "بيت الوادي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112677,7 +112677,7 @@
     "name": "شايش الجودة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112696,7 +112696,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112715,7 +112715,7 @@
     "name": "مفترق الاتصالات",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112734,7 +112734,7 @@
     "name": "شارع البرديني",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112777,7 +112777,7 @@
     "name": "شهدای رضویه",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112853,7 +112853,7 @@
     "name": "منزل السيد رياض علي حمد أبو علي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112872,7 +112872,7 @@
     "name": "مطعم اولاد ناصر الترعة البولاقية",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112910,7 +112910,7 @@
     "name": "الشارع الثالث الشيخ رضوان",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -112929,7 +112929,7 @@
     "name": "منزل المرحوم رياض علي حمد أبو علي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113043,7 +113043,7 @@
     "name": "H&M",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113062,7 +113062,7 @@
     "name": "محمص النخبه",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113081,7 +113081,7 @@
     "name": "Морг",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113138,7 +113138,7 @@
     "name": "ТАН",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113157,7 +113157,7 @@
     "name": "شارع العمدان",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113214,7 +113214,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113233,7 +113233,7 @@
     "name": "إستراحة جواكر",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113271,7 +113271,7 @@
     "name": "بيت اخي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113290,7 +113290,7 @@
     "name": "عمارة دلول",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113309,7 +113309,7 @@
     "name": "صالة القصر الملكي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113328,7 +113328,7 @@
     "name": "Ттт",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113347,7 +113347,7 @@
     "name": "Ттт2",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113423,7 +113423,7 @@
     "name": "ريترلةلزورؤازةىؤىوىى",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113442,7 +113442,7 @@
     "name": "غالبتلبلتةبانتات",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113461,7 +113461,7 @@
     "name": "٧ااوىبتظالنظااع",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113537,7 +113537,7 @@
     "name": "عمتو لفراس",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113556,7 +113556,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113955,7 +113955,7 @@
     "name": "فندق اسيا",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113974,7 +113974,7 @@
     "name": "مقهى دايح",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -113993,7 +113993,7 @@
     "name": "ازيده",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114107,7 +114107,7 @@
     "name": "المعارفة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114202,7 +114202,7 @@
     "name": "محمد عادل",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114221,7 +114221,7 @@
     "name": "Международный Аэропорт Курумоч",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114299,7 +114299,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114326,7 +114326,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114346,7 +114346,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114370,7 +114370,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114488,7 +114488,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114526,7 +114526,7 @@
     "name": "شقه ام الينابيع",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114754,7 +114754,7 @@
     "name": "شقتي مرادي اباد",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114774,7 +114774,7 @@
     "name": "طباخة١",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114797,7 +114797,7 @@
     "name": "الحسبة السوق",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114816,7 +114816,7 @@
     "name": "طباخة ١ ام خلف",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114835,7 +114835,7 @@
     "name": "طباخة٢ ام جمال",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114854,7 +114854,7 @@
     "name": "طباخة٣ ام علي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114873,7 +114873,7 @@
     "name": "طباخة ٤ ام يزن",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114892,7 +114892,7 @@
     "name": "طباخة٥ شهيرة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114911,7 +114911,7 @@
     "name": "طباخة٦ وفاء ام محمد",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114949,7 +114949,7 @@
     "name": "مديرية الاستخبارات",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114968,7 +114968,7 @@
     "name": "السمرا",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -114987,7 +114987,7 @@
     "name": "E",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115006,7 +115006,7 @@
     "name": "تامر الخراط",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115025,7 +115025,7 @@
     "name": "دراي كلين هيئة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115044,7 +115044,7 @@
     "name": "اياد فرح",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115082,7 +115082,7 @@
     "name": "اللجنة العلمية",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115120,7 +115120,7 @@
     "name": "t 90",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115139,7 +115139,7 @@
     "name": "ميكانيكي فحص",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115158,7 +115158,7 @@
     "name": "شرطة اريحا الصحة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115177,7 +115177,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115196,7 +115196,7 @@
     "name": "حجازي اشعة",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115215,7 +115215,7 @@
     "name": "حجازي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115234,7 +115234,7 @@
     "name": "حجازي",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115310,7 +115310,7 @@
     "name": "1 دخول",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115329,7 +115329,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115386,7 +115386,7 @@
     "name": "polat yol yapi",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115481,7 +115481,7 @@
     "name": "پکیج و رادیاتور و کولر گازی دهقان",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115519,7 +115519,7 @@
     "name": "الهبيرية",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115633,7 +115633,7 @@
     "name": "Хутір",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -115938,7 +115938,7 @@
     "name": null,
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -116926,7 +116926,7 @@
     "name": "УГОЛЬНЫЙ ЦЕХ",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -119712,7 +119712,7 @@
     "name": "Канал Р. Дусти джамоати Чиликул дехаи Чаманистон",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -119731,7 +119731,7 @@
     "name": "Канал р. Джайхун махаллаи 6",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -119750,7 +119750,7 @@
     "name": "Место купания хавз р. Джайхун джамоати Панч дехаи Вахдат",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -119769,7 +119769,7 @@
     "name": "Река Вахш",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -119788,7 +119788,7 @@
     "name": "12 точка канал р. Фархар джамоати Ватан дехаи Сурхоб",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",
@@ -119807,7 +119807,7 @@
     "name": "Арык н. Дусти дехаи Шуро чамоати Дехконобод",
     "firstSeen": "2026-08-25",
     "lastSeen": "2026-08-25",
-    "missingSince": null,
+    "missingSince": "2026-08-25",
     "sourceRefs": [
       {
         "provider": "osm",

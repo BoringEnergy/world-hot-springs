@@ -14,7 +14,7 @@ identifiers:
   - type: "doi"
     value: "10.5281/zenodo.22800996"
     description: "The concept DOI. It always resolves to the latest version; each version has its own DOI on the Zenodo page."
-abstract: "An open, curated, provenance-attached atlas of the world's public and semi-public hot springs. Temperature, price, clothing policy and opening hours are first-class fields; unknown values are stored explicitly as null and rendered as \"Unknown\" rather than omitted, blank, or invented. Springs that local communities ask to have excluded are removed from the live atlas and from every later version, and the exclusion survives re-import. This version holds 7,490 records across 131 countries; 19% carry a recorded temperature, which is a description of what public data exists rather than a backlog."
+abstract: "An open, curated, provenance-attached atlas of the world's public and semi-public hot springs. Temperature, price, clothing policy and opening hours are first-class fields; unknown values are stored explicitly as null and rendered as \"Unknown\" rather than omitted, blank, or invented. Springs that local communities ask to have excluded are removed from the live atlas and from every later version, and the exclusion survives re-import. This version holds 7,147 records across 126 countries; 20% carry a recorded temperature, which is a description of what public data exists rather than a backlog."
 keywords:
   - "hot springs"
   - "thermal springs"

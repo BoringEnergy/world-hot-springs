@@ -244,9 +244,14 @@ Those are real. A geyser basin and a bulk import have the same statistical
 shape, and no threshold separates them.
 
 So the decision is a judgement call, and it is written down as one, in
-[`data/known-bad-imports.json`](../data/known-bad-imports.json): four named
-imports, each with the evidence, the date it was reviewed, and instructions for
-disputing it. Matched records are **quarantined to `data/suspect.json`**, never
+[`data/known-bad-imports.json`](../data/known-bad-imports.json): named
+imports and single features, each with the evidence, the date it was reviewed,
+what it deliberately leaves alone, and instructions for disputing it. An entry
+can apply to a whole country, to a bounding box inside one, to names matching a
+pattern (a customer-register code is not what anyone calls a spring), or to a
+list of individual elements, and it can except a reviewed genuine spring inside
+its reach. The rules are defined in
+[`scripts/lib/bad-imports.mjs`](../scripts/lib/bad-imports.mjs). Matched records are **quarantined to `data/suspect.json`**, never
 deleted, so reinstating one is a one-line edit rather than a re-ingest.
 
 That file is public, unlike the privacy exclusion list. The distinction is
