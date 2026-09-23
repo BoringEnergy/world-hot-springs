@@ -46,8 +46,8 @@ method, written down. The count had three kinds of error, measured on the
 2026-09-18 build (7,490):
 
     not a spring        records of wells, houses, shops and survey points   343 fixed here
-    counted twice       one spring in two records, mostly NOAA 1981 pins    ~20, next
-                        a few hundred metres from the OSM pin
+    counted twice       one spring in two records, mostly NOAA 1981 pins    17 fixed
+                        a few hundred metres from the OSM pin               2026-09-22
     counting unit       numbered pools and vents at one site each count     not decided
                         as a spring ("Termita 3" / "Termita 4")
 
@@ -65,6 +65,25 @@ Left alone on purpose, not yet reviewed enough to call: Uzbekistan's
 Karakalpakstan pins ('Nikium M'), a quarry in Kerch, Japanese port and
 town-hall pins that may be foot baths, and 1,400 unnamed attribute-free US
 records, which are Yellowstone and real.
+
+**Counted twice, the second PR: 7,147 -> 7,130.** NOAA's three decimals read
+as ~110 m and are not: measured against OSM over 88 named pairs, median 129 m,
+p90 495 m, p95 602 m, max 1,340 m, nothing from 1.4 to 5 km. So
+`scripts/lib/coarse-pins.mjs` binds a NOAA-only pin to the one OSM record with
+the same name (qualifiers dropped, equality not containment) within 1,500 m,
+refusing any ambiguity, and the build hands the row to the NCEI stage as a
+match rather than merging records. `mergeInto` was the obvious tool and is
+wrong here: it unions warnings, and Umpqua would have inherited "the existence
+of this spring is historical". The absorbed ids stay in the registry with
+`mergedInto` and a `spring.merged` event. `accuracyMeters` on NOAA pins is now
+500 (p90), not 110.
+
+**Open, found on the way, not decided:** NOAA's 1981 stage runs before WQP,
+and WQP steps aside silently when a temperature is present. So a dated modern
+WQP reading loses to a 1981 figure on every spring both describe, and the
+disagreement is reported nowhere. San Antonio Hot Spring is 54 C from NOAA; WQP
+measured 40. Whether a dated reading should win is a precedence decision for
+the whole dataset, not a fix to slip into a dedupe PR.
 
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
 an agent. It is a separate question from the count.

@@ -16,6 +16,7 @@ import { normalizeElement, reconcileTemperatureWarnings, completeness } from './
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { compileBadImports, matchBadImport, unmatchedIds } from './lib/bad-imports.mjs';
+import { findCoarseDuplicates, nceiRefOf } from './lib/coarse-pins.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
@@ -278,6 +279,21 @@ async function main() {
   records = deduped;
   console.log(`  merged ${dropped} duplicate record(s) -> ${records.length} springs`);
 
+  // --- Coarse NOAA pins beside the spring they name ---
+  // A NOAA pin can sit up to ~1.3 km from the OSM pin for the same spring,
+  // past dedupe's reach (see coarse-pins.mjs for the measurement). The pin is
+  // dropped here and its row is bound to the OSM record in the NCEI stage
+  // below, so what NOAA knows arrives through that stage's rules instead of a
+  // second, looser merge.
+  const { bound: coarseBound, refused: coarseRefused } = findCoarseDuplicates(records);
+  const absorbedPins = new Set(coarseBound.map((b) => b.pin));
+  const coarseBindings = new Map(coarseBound.map((b) => [nceiRefOf(b.pin), b]));
+  records = records.filter((r) => !absorbedPins.has(r));
+  console.log(
+    `  ${coarseBound.length} NOAA pin(s) bound to the spring they name -> ${records.length} springs` +
+      (coarseRefused.length ? `, ${coarseRefused.length} left alone as ambiguous` : ''),
+  );
+
   // --- Durable identity ---
   // Assign each record an id of ours so a claim survives OSM redrawing the
   // spring under a new element id. Runs after dedupe so ids attach to final
@@ -298,6 +314,22 @@ async function main() {
     // Keeping only the winner's ref would lose the others' matches next build.
     record.osmRefs = registry[whsId].osmRefs;
     record.id = whsId;
+  }
+  // Where an absorbed pin's id went. Its entry is flagged missing like any
+  // other, and says which spring it became, so a citation of the old id can
+  // be followed rather than dead-ending. Cleared when an id comes back.
+  for (const entry of Object.values(registry)) {
+    if (!entry.missingSince) delete entry.mergedInto;
+  }
+  for (const b of coarseBound) {
+    const ref = nceiRefOf(b.pin);
+    const from = Object.keys(registry).find((id) =>
+      registry[id].sourceRefs.some((r) => r.provider === NCEI_PROVIDER && r.externalId === ref),
+    );
+    if (!from || from === b.into.id) continue;
+    registry[from].mergedInto = b.into.id;
+    const i = identityEvents.findIndex((e) => e.type === 'spring.disappeared' && e.springId === from);
+    if (i >= 0) identityEvents[i] = { type: 'spring.merged', springId: from, to: b.into.id, actor: 'build' };
   }
   const appeared = identityEvents.filter((e) => e.type === 'spring.appeared').length;
   const vanished = identityEvents.filter((e) => e.type === 'spring.disappeared').length;
@@ -349,7 +381,44 @@ async function main() {
     const preexisting = records.filter(
       (r) => !(r.quality.provenance.length === 1 && r.quality.provenance[0] === NCEI_PROVIDER),
     );
-    const { matched, unmatched: unmatchedAll, rejected } = matchNcei(nceiRows, preexisting);
+    const { matched, unmatched: nearestMissed, rejected } = matchNcei(nceiRows, preexisting);
+
+    // Rows whose pin was bound to its spring above. They missed the 200 m
+    // radius by construction, so they arrive here unmatched; they join the
+    // matches under the same one-row-per-spring rule matchNcei applies.
+    const unmatchedAll = [];
+    let coarseUsed = 0;
+    for (const u of nearestMissed) {
+      const b = coarseBindings.get(refKey(u.row));
+      if (!b) {
+        unmatchedAll.push(u);
+        continue;
+      }
+      coarseUsed++;
+      const clash = matched.findIndex((m) => m.id === b.into.id);
+      if (clash >= 0) {
+        const [other] = matched.splice(clash, 1);
+        const reason = 'ambiguous: two NCEI rows contend for one spring';
+        rejected.push({ row: u.row, id: b.into.id, meters: b.meters, reason });
+        rejected.push({ row: { name: other.name, state: other.state }, id: other.id, meters: other.meters, reason });
+        continue;
+      }
+      matched.push({
+        id: b.into.id,
+        meters: b.meters,
+        name: u.row.name,
+        state: u.row.state,
+        celsius: u.row.celsius,
+        qualitative: u.row.qualitative,
+        via: 'coarse pin',
+      });
+    }
+    if (coarseUsed !== coarseBound.length) {
+      // A bound row the nearest-record matcher took elsewhere. Its pin is gone
+      // and its row went to another spring, so say so rather than let the
+      // count of bound pins overstate what happened.
+      console.log(`  ${coarseBound.length - coarseUsed} bound NOAA row(s) were matched or refused at 200 m instead`);
+    }
 
     // A row that became a pin is not "unmatched" in any sense a reader wants
     // counted as a miss. Naming the two apart is the whole point of the change.

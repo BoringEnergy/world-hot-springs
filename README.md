@@ -8,12 +8,12 @@ survey, forum posts, and OpenStreetMap tags that nobody has ever normalised.
 This repository is an attempt to fix that, in public, with the provenance
 attached.
 
-**7,147 springs across 126 countries** in the current build.
+**7,130 springs across 126 countries** in the current build.
 
 **v1 — 2026-09-11.** The atlas meets every success criterion in
 [SPEC.md](SPEC.md) §9. Coverage is a description of what public data exists,
-not a backlog: 20% of these springs have a recorded temperature because
-80% of them have never had one published, and the card says so on every
+not a backlog: 19% of these springs have a recorded temperature because
+81% of them have never had one published, and the card says so on every
 one. Corrections are welcome; the data campaign is closed.
 
 ## How to cite
@@ -62,7 +62,7 @@ That honesty is the whole product, because the real numbers are humbling:
 
 | Field | Known |
 | --- | --- |
-| Temperature | **20%** |
+| Temperature | **19%** |
 | Price | 12% |
 | Hours | 7% |
 | Clothing policy | 1% |
@@ -74,7 +74,7 @@ hot spring site showing you a confident number for every entry is making most
 of them up.
 
 That figure is lopsided, and the lopsidedness matters more than the average.
-A 1981 federal compilation covers the United States, where 1,137 of 2,849
+A 1981 federal compilation covers the United States, where 1,132 of 2,832
 springs carry a temperature. Everywhere else it is 258 of 4,298 — under 7%,
 about one spring in seventeen. The American records say so on their own
 cards: unverified, dated 1981, and warned as historical.

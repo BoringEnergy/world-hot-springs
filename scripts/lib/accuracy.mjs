@@ -7,7 +7,7 @@
  * ever minted a coordinate.
  *
  *   OSM node or way   somebody stood at the spring -- null, render nothing
- *   NCEI-admitted     three decimal places, about 110 m
+ *   NCEI-admitted     about 500 m -- measured, not read off the decimals
  *   AIST              NEVER a pin. Its 190 m cell is a match key and is
  *                     documented as one; stamping 190 on a Japanese OSM
  *                     record it merely enriched would attribute the
@@ -23,12 +23,24 @@
 import { NCEI_PROVIDER } from './ncei-admit.mjs';
 
 /**
- * NCEI's own admission floor is three decimal places, and ncei-admit.mjs puts
- * the number on it: "~110 m". Every one of the 1,023 minted pins is at
- * exactly 3 dp, so a per-record derivation would return the same value 1,023
- * times and imply a precision the uniformity does not support.
+ * How far a NOAA pin sits from the spring, measured -- not the precision it
+ * is printed to.
+ *
+ * This was 110 m until 2026-09-22, read off NOAA's three decimal places. That
+ * is print precision. Measured against OSM over the 88 rows whose distinctive
+ * name matches exactly one OSM record within 5 km (the measurement is in
+ * coarse-pins.mjs): median 129 m, p90 495 m, p95 602 m, max 1,340 m. "Located
+ * to about 110 m" was true of half the pins and told a reader to trust the
+ * other half five times too much.
+ *
+ * 500 m is the 90th percentile: nine pins in ten are nearer than that. The
+ * sample is springs OpenStreetMap also maps, which leans toward well-known
+ * ones; an obscure spring's pin is no better and may be worse.
+ *
+ * One figure for every pin, still, because nothing in a row says which pins
+ * are the good ones; a per-record value would imply knowledge nobody has.
  */
-export const NCEI_ACCURACY_M = 110;
+export const NCEI_ACCURACY_M = 500;
 
 /**
  * Never invent a figure for OpenStreetMap. "A node is about 5-10 m" is a

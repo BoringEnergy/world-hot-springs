@@ -1,10 +1,10 @@
 {
   "counts": {
     "readings": 48707,
-    "matched": 40,
-    "filled": 40,
+    "matched": 36,
+    "filled": 36,
     "deferredToAuthor": 0,
-    "withheld": 184
+    "withheld": 182
   },
   "matched": [
     {
@@ -14,15 +14,6 @@
       "meters": 90,
       "celsius": 41,
       "measuredAt": "1974-09-23",
-      "readings": 1
-    },
-    {
-      "id": "whs_65b397d531f2",
-      "station": "USGS-355623106383601",
-      "stationName": "SANTA FE NATIONAL FOREST SAN ANTONIO HOT SPRINGS",
-      "meters": 49,
-      "celsius": 40,
-      "measuredAt": "1973-05-16",
       "readings": 1
     },
     {
@@ -59,15 +50,6 @@
       "meters": 8,
       "celsius": 37.5,
       "measuredAt": "2021-08-11",
-      "readings": 1
-    },
-    {
-      "id": "whs_00177ecf7718",
-      "station": "USGS-391350107133600",
-      "stationName": "PENNY GRANGES HOT SPRING",
-      "meters": 148,
-      "celsius": 56,
-      "measuredAt": "1976-01-17",
       "readings": 1
     },
     {
@@ -197,15 +179,6 @@
       "readings": 1
     },
     {
-      "id": "whs_23335f49347e",
-      "station": "USGS-434842115063501",
-      "stationName": "06N 11E 35DAD1S              ATLANTA H.S.",
-      "meters": 37,
-      "celsius": 60,
-      "measuredAt": "1981-09-01",
-      "readings": 1
-    },
-    {
       "id": "whs_f031f37ca3dc",
       "station": "USGS-405715117292201",
       "stationName": "070  N36 E40 32    1    Golconda Hot Springs",
@@ -296,15 +269,6 @@
       "readings": 2
     },
     {
-      "id": "whs_9471208c4861",
-      "station": "USGS-464213113271301",
-      "stationName": "11N15W14CAC 01",
-      "meters": 188,
-      "celsius": 20.5,
-      "measuredAt": "1987-09-14",
-      "readings": 2
-    },
-    {
       "id": "whs_08b24ac482b2",
       "station": "USGS-335908112213401",
       "stationName": "B-08-01 34CCC",
@@ -376,10 +340,6 @@
     {
       "id": "whs_2bca2fb6e0ae",
       "reason": "3 stations within 200 m"
-    },
-    {
-      "id": "whs_d499eb72d43c",
-      "reason": "4 stations within 200 m"
     },
     {
       "id": "whs_228266049c8e",
@@ -836,10 +796,6 @@
     {
       "id": "whs_0b6ad600a1c3",
       "reason": "station readings span 31.5 C"
-    },
-    {
-      "id": "whs_3b3bb15fdf78",
-      "reason": "station readings span 2.9 C"
     },
     {
       "id": "whs_8a9480761040",
