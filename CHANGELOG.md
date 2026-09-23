@@ -25,6 +25,26 @@ version and date become `version` and `publication_date` in `.zenodo.json`
 and `version` and `date-released` in `CITATION.cff`, and a test holds
 `package.json` to the same version. Change them here and nowhere else.
 
+## [Unreleased]
+
+- **343 records that are not hot springs are quarantined.** 7,490 springs
+  across 131 countries become 7,147 across 126. A review of every
+  attribute-free record whose name says nothing thermal found the same
+  failure the list already caught in Iraq, Syria, Yemen and Libya, in more
+  places: a Casablanca supplier's customer register (`C3005333 …`), village
+  and household water surveys in Thailand, irrigation points in Tajikistan,
+  every record in Palestine, Lebanon, Sudan and Mauritania, most of Egypt,
+  Oman and Ukraine, and 43 single features, from an airport to a radiator
+  shop. Each entry in
+  `data/known-bad-imports.json` gives its evidence and what it keeps.
+  Quarantined records stay in `data/suspect.json` and each one is logged
+  as `spring.disappeared`; nothing is deleted.
+- **The reviewed list can now say where and what, not only which country.**
+  An entry may be confined to a bounding box, match a name pattern, or list
+  individual elements, and may except a reviewed genuine spring. A
+  country-wide rule was only right where no genuine attribute-free spring
+  exists; Thailand, Morocco and Ukraine all have some.
+
 ## [1.0.1] - 2026-09-17
 
 The same records as 1.0.0, byte for byte -- nothing under `data/` changed.

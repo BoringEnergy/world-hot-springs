@@ -1,12 +1,18 @@
 {
-  "note": "Bulk OSM imports that applied natural=hot_spring to features that are not hot springs. Unlike data/private/exclusions.json (which is secret by design), this list is public: it is a claim about upstream data quality and it should be arguable. Records matched here are quarantined to data/suspect.json, never deleted.",
+  "note": "Things OpenStreetMap tags as hot springs that are not: bulk imports that applied natural=hot_spring to a whole survey, and single features reviewed one at a time. Unlike data/private/exclusions.json (which is secret by design), this list is public: it is a claim about upstream data quality and it should be arguable. Records matched here are quarantined to data/suspect.json, never deleted. Every entry is a judgement written down with its reason; the rules it may use are documented in scripts/lib/bad-imports.mjs.",
   "rule_definitions": {
-    "attribute-free": "The element carries no tag other than `natural=hot_spring` and a name (in any language). No temperature, operator, website, wikidata, elevation, source, address, or any other attribute. A genuine spring that anyone has actually visited nearly always picks up at least one of these."
+    "attribute-free": "The element carries no tag other than `natural=hot_spring` and a name (in any language). No temperature, operator, website, wikidata, elevation, source, address, or any other attribute. A genuine spring that anyone has actually visited nearly always picks up at least one of these.",
+    "name-pattern": "The name matches the entry's `namePattern` (case-insensitive), whatever else the element carries. Used where the name itself proves the source: a customer-register code or a survey point label is not what anyone calls a spring.",
+    "listed": "The element is one of the entry's `ids`, each reviewed individually. For single features, and for stragglers of an import that a box or a pattern cannot reach without catching a real spring.",
+    "bbox": "Optional on any rule: [minLng, minLat, maxLng, maxLat]. The entry applies only inside it. Needed wherever the country also holds genuine springs nobody has attributed yet.",
+    "except": "Optional on any rule: ids the entry would match and must not, because the review found a plausible spring there."
   },
   "imports": [
     {
       "id": "iq-water-points",
-      "countries": ["IQ"],
+      "countries": [
+        "IQ"
+      ],
       "rule": "attribute-free",
       "reviewed": "2026-08-24",
       "reason": "A water-point dataset imported with the wrong tag. The Baghdad cluster (33.0-33.6N, 44.0-44.7E) alone holds 263 nodes named after city districts, checkpoints and villages -- 'قرية الزجالبة' (Zajalba village), 'سيطرة محسن' (Muhsin checkpoint), 'مدخل جديد تبليط' (new paved entrance). Central Baghdad has no geothermal field. Elsewhere the names are bare well registry numbers ('0061', '0126').",
@@ -14,24 +20,288 @@
     },
     {
       "id": "sy-water-points",
-      "countries": ["SY"],
+      "countries": [
+        "SY"
+      ],
       "rule": "attribute-free",
       "reviewed": "2026-08-24",
       "reason": "Same failure mode. 424 attribute-free nodes spread across the whole country with personal and settlement names ('jaboreen', 'OMAR', 'ابراهيم البولهيس'), which is the signature of a humanitarian water-point survey, not a geothermal one."
     },
     {
       "id": "ye-water-points",
-      "countries": ["YE"],
+      "countries": [
+        "YE"
+      ],
       "rule": "attribute-free",
       "reviewed": "2026-08-24",
       "reason": "Same failure mode. 158 attribute-free nodes named after families and villages ('آل ميقان', 'ال مرضي')."
     },
     {
       "id": "ly-kufra-wells",
-      "countries": ["LY"],
+      "countries": [
+        "LY"
+      ],
       "rule": "attribute-free",
       "reviewed": "2026-08-24",
       "reason": "Irrigation boreholes in the Kufra basin (28.5-29.5N, 19.0-20.5E), named with well identifiers ('6J659', '-193c', '291-287-283-281-282'). These sit on the centre-pivot fields of the Great Man-Made River scheme and are groundwater abstraction points."
+    },
+    {
+      "id": "ps-non-springs",
+      "countries": [
+        "PS"
+      ],
+      "rule": "attribute-free",
+      "reviewed": "2026-09-22",
+      "reason": "All 36 records in Palestine are attribute-free and none is a spring: a roundabout ('دوار العباس'), a clothes shop ('H&M'), a dry cleaner, the Jericho police health office, the Intelligence Directorate, a mechanic, a wedding hall and private houses ('منزل السيد رياض…', Mr Riyad's house). Seven in Jericho are numbered kitchens named for their owners ('طباخة ١ ام خلف', kitchen 1, Umm Khalaf), the signature of a household survey.",
+      "keeps": "Nothing in Palestine carries attributes today. A properly tagged spring would survive."
+    },
+    {
+      "id": "ma-customer-register",
+      "countries": [
+        "MA"
+      ],
+      "rule": "name-pattern",
+      "namePattern": "^K?C\\d{4,7}\\b",
+      "reviewed": "2026-09-22",
+      "reason": "About sixty nodes around Bouskoura, south of Casablanca (33.3-33.55N, 7.6-8.15W), named with an account code and a customer: 'C3005333 Ait Bouyoussef Said', 'C3004343 Station Services Lagoussem Sarl', 'C3005610 Bouskoura Market Sarl', 'KC0016 Istiraha Station Bouskoura Petrom'. A supplier's customer register, several entries twice ('C3005726 Mly Omar Elyaccoubi' / 'c3005726 moly omar el yacooubi'). There is no geothermal field under Casablanca. Matched on the name rather than the missing attributes because one entry ('C3004638 Société Sogefam Sarl') had other tags added and is no more a spring for it.",
+      "keeps": "Morocco's hammams are untouched: Hammam Najd, Hammam Zerrouqi, Bahbouha, حمام السوسي, حمام الشعابي and the Abaynou pools ('Piscine eau chaude, femmes/hommes')."
+    },
+    {
+      "id": "eg-non-springs",
+      "countries": [
+        "EG"
+      ],
+      "rule": "attribute-free",
+      "except": [
+        "osm-node-8455670517"
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "34 of Egypt's 35 records are attribute-free and are apartment blocks, houses and businesses: 'بلوك 35' to 'بلوك 67' (Block 35 to Block 67) in a Cairo compound, 'شقة سعد بيه' (Saad Bey's flat), 'بيتي' (my house), a restaurant, a hotel jacuzzi in Dahab. Cairo and the Nile valley towns named here have no thermal springs.",
+      "keeps": "Ayun Musa (عيون موسى), which carries attributes, survives. The unnamed pin at 27.056N 27.931E is excepted: it sits by Bir Sitta, the Farafra hot well people bathe in, and nothing about it says it is not that."
+    },
+    {
+      "id": "lb-non-springs",
+      "countries": [
+        "LB"
+      ],
+      "rule": "attribute-free",
+      "reviewed": "2026-09-22",
+      "reason": "All five records in Lebanon are attribute-free near Tripoli and Akkar; four are keyboard runs ('ريترلةلزورؤازةىؤىوىى', 'غالبتلبلتةبانتات') and one is a personal note ('عمتو لفراس', Firas's aunt).",
+      "keeps": "A properly tagged Lebanese spring would survive."
+    },
+    {
+      "id": "sd-non-springs",
+      "countries": [
+        "SD"
+      ],
+      "rule": "attribute-free",
+      "reviewed": "2026-09-22",
+      "reason": "All seven records in Sudan are attribute-free. The named ones are a railway ('سكه حديد واحد عمر') and a livestock market ('سوق البهائم - الدبة', al-Dabbah cattle market). Two are unnamed in the Red Sea Hills; nothing distinguishes them from the rest of the batch, and quarantine keeps them one line from reinstatement.",
+      "keeps": "A properly tagged Sudanese spring would survive."
+    },
+    {
+      "id": "om-non-springs",
+      "countries": [
+        "OM"
+      ],
+      "rule": "attribute-free",
+      "reviewed": "2026-09-22",
+      "reason": "Oman's attribute-free records are a CNC workshop and a workshop-equipment dealer in Al Mabelah ('cnc المعبيلة', 'سجتواس معدات الورش المعبيله'), a road ('روي هوندا رود', Ruwi Honda Road), a stone on the Muscat airport heights and a farm, alongside three village names east of Ibra. The one unnamed pin sits on Al Kasfah, which already has its own attributed record.",
+      "keeps": "The three attributed springs survive: Al Kasfah, Al Khadhra and Saighi."
+    },
+    {
+      "id": "mr-non-springs",
+      "countries": [
+        "MR"
+      ],
+      "rule": "attribute-free",
+      "reviewed": "2026-09-22",
+      "reason": "Eight unnamed attribute-free nodes scattered across the Mauritanian Sahel between Nouakchott and the Senegal valley, no two in a known geothermal setting. The pattern of a water-point import, not of springs.",
+      "keeps": "A properly tagged Mauritanian spring would survive."
+    },
+    {
+      "id": "th-isan-village-survey",
+      "countries": [
+        "TH"
+      ],
+      "rule": "attribute-free",
+      "bbox": [
+        103.6,
+        15.4,
+        104.2,
+        16.1
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "56 attribute-free nodes across Roi Et and Yasothon named after villages and village numbers: 'บ้านหนองผือ' (Ban Nong Phue), 'ม.16' (Moo 16), 'บ้านส่อง ม.9'. A village water-supply survey on the Khorat Plateau, which has no hot springs.",
+      "keeps": "Applies only inside the box. The attributed 'บ้านยางกลาง' inside it is left alone, as is every spring elsewhere in Thailand."
+    },
+    {
+      "id": "th-suphanburi-addresses",
+      "countries": [
+        "TH"
+      ],
+      "rule": "attribute-free",
+      "bbox": [
+        99.8,
+        14.2,
+        99.95,
+        14.35
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "Sixteen attribute-free nodes in Sa Yai Som, Suphan Buri, named as postal addresses: '104 ม.3 สระยายโสม' (house 104, Moo 3, Sa Yai Som). Households, not springs.",
+      "keeps": "Applies only inside the box."
+    },
+    {
+      "id": "th-phangnga-waypoints",
+      "countries": [
+        "TH"
+      ],
+      "rule": "attribute-free",
+      "bbox": [
+        97.95,
+        7.35,
+        98.25,
+        7.85
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "Nine attribute-free GPS waypoints off the Phang Nga coast: 'Wpt0052', 'Wpt0543', '7.422817, 98.195317', 'ดอนตีน1-3', 'ไต๋ติ๊ก0388'. Their positions are at sea or on reefs; the names are a dive or fishing log.",
+      "keeps": "Applies only inside the box."
+    },
+    {
+      "id": "th-bangkok-survey-codes",
+      "countries": [
+        "TH"
+      ],
+      "rule": "attribute-free",
+      "bbox": [
+        100.3,
+        13.5,
+        100.95,
+        14.1
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "Five attribute-free survey labels in Bangkok: 'B', 'H', 'BKK1067-075', 'โพนพะเนา-นางC F00156'. Bangkok sits on the Chao Phraya delta and has no hot springs.",
+      "keeps": "Yunomori Onsen (ยูโนะโมริ), an attributed spa, survives."
+    },
+    {
+      "id": "tj-irrigation-points",
+      "countries": [
+        "TJ"
+      ],
+      "rule": "name-pattern",
+      "namePattern": "канал|арык|точка|река|хавз",
+      "reviewed": "2026-09-22",
+      "reason": "Six nodes in Khatlon named as irrigation canals, ditches and river points with their jamoat and village: 'Канал р. Джайхун махаллаи 6', 'Арык н. Дусти…', 'Река Вахш' (the Vakhsh River), and one river bathing pond. A water survey of the lowland canals, not the Pamir springs.",
+      "keeps": "Garm-Chashma, Jelondy, Jarty Gumbez, Madiyan and the other Pamir springs do not match the pattern."
+    },
+    {
+      "id": "ph-survey-points",
+      "countries": [
+        "PH"
+      ],
+      "rule": "name-pattern",
+      "namePattern": "^(?:[ad]\\d+|p\\d+-\\d+)$",
+      "reviewed": "2026-09-22",
+      "reason": "Twelve survey labels in Zambales and Pampanga: 'a1', 'a2', 'd2', 'p104-9' to 'p116-9', laid out as a grid.",
+      "keeps": "Only whole names of that exact shape match. Puning Hot Spring and every named Philippine spring survive."
+    },
+    {
+      "id": "ua-non-springs",
+      "countries": [
+        "UA"
+      ],
+      "rule": "attribute-free",
+      "except": [
+        "osm-node-3660354470"
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "Ukraine's attribute-free records are a morgue ('Морг'), a sanitary-epidemiological station, a building, a granite company ('Калуш граніт'), a street ('Федьковича'), a farmstead, people's names and mushroom pickers ('Гриби парахоняк, ковальчук, басалига'), test labels ('Ттт', 'Ттт2') and unnamed pins in Zhytomyr and Cherkasy, where there is no geothermal activity.",
+      "keeps": "The attributed records survive: the Kherson thermal well and geyser, Bukovel's chany, and the unnamed Zakarpattia spring. The Crimean 'Геотермальне джерело' (geothermal spring) is excepted: its name says what it is."
+    },
+    {
+      "id": "ao-luanda-cluster",
+      "countries": [
+        "AO"
+      ],
+      "rule": "attribute-free",
+      "bbox": [
+        13.15,
+        -9.05,
+        13.6,
+        -8.8
+      ],
+      "reviewed": "2026-09-22",
+      "reason": "Eleven unnamed attribute-free nodes spread across Luanda, a sedimentary coastal city with no thermal springs. A water-point pattern.",
+      "keeps": "Applies only inside the box. Mutipa, in Namibe, is not affected."
+    },
+    {
+      "id": "reviewed-non-springs",
+      "countries": [
+        "DZ",
+        "AZ",
+        "KH",
+        "IR",
+        "JO",
+        "KW",
+        "MA",
+        "MM",
+        "NL",
+        "PH",
+        "RU",
+        "KR",
+        "TH",
+        "UA",
+        "XX"
+      ],
+      "rule": "listed",
+      "reviewed": "2026-09-22",
+      "ids": [
+        "osm-node-6932970388",
+        "osm-node-6933014285",
+        "osm-node-6932972591",
+        "osm-node-6932970389",
+        "osm-node-11054661605",
+        "osm-node-11266857674",
+        "osm-node-11162291005",
+        "osm-node-11130271715",
+        "osm-node-9731026517",
+        "osm-node-10763431906",
+        "osm-node-9731026417",
+        "osm-node-11586801663",
+        "osm-node-7301012885",
+        "osm-node-9727644117",
+        "osm-node-6889423185",
+        "osm-node-9943293917",
+        "osm-node-10082800617",
+        "osm-node-11170574037",
+        "osm-node-10659622505",
+        "osm-node-9816628517",
+        "osm-node-7182038985",
+        "osm-node-11076990905",
+        "osm-node-11076991005",
+        "osm-node-10965312805",
+        "osm-node-11094492905",
+        "osm-node-10877259206",
+        "osm-node-11582091570",
+        "osm-node-8533610217",
+        "osm-node-8533565718",
+        "osm-node-9949988117",
+        "osm-way-1122281811",
+        "osm-node-9087902368",
+        "osm-node-8340956417",
+        "osm-node-7729945985",
+        "osm-node-8127709117",
+        "osm-node-6947314985",
+        "osm-node-8332702617",
+        "osm-node-8332702417",
+        "osm-node-7524787285",
+        "osm-node-8440218520",
+        "osm-node-628210795",
+        "osm-node-8523713517",
+        "osm-node-7990922785"
+      ],
+      "reason": "Single features reviewed one at a time, each plainly not a spring. Algeria: four houses in Setif ('Darna', 'المنزل', 'Dar Mema Ghenia', 'Amal') and a person's name. Azerbaijan: a road contractor ('polat yol yapi'). Cambodia: a cricket seller in Phnom Penh and a mango warehouse. Iran: in Tehran a radiator shop, a café, 'my flat' ('شقتي مرادي اباد'), a street and a neighbouring pin; a hotel in Qom; a restaurant in Mashhad. Jordan: a person and a flat. Kuwait: two keyboard runs. Morocco: stragglers of the Bouskoura register without a code ('EZROUKI JILALI'), 'منزلي' (my house), 'قهوى' (coffee), and two test pins in Marrakech ('k', 'Ghjfd'). Myanmar: a Chinese factory. Netherlands: a 15 km walking route. Philippines: two dive shops at Anilao. Russia: Kurumoch International Airport, a coal workshop in Dagestan, and a gas pipe on Kamchatka its own mapper describes as an artificial fumarole. South Korea: a golf club and a pottery kiln. Thailand: a food shop, 'ODP', two telecom cable labels ('TCC-L1-PSN04X…'), a private house and 'Aunt Em's house'. Ukraine: Kharkiv University. Offshore, with no country: another Phang Nga waypoint ('Wpt0819') and 'تجربة' (test) in the Gulf.",
+      "keeps": "Only the listed elements. The build reports any id the upstream has deleted or renumbered."
     }
   ],
   "how_to_dispute": "If you know one of these clusters is real, open an issue with a source. The quarantined records are kept in data/suspect.json with full provenance, so reinstating them is a one-line change to this file rather than a re-ingest."

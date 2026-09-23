@@ -15,6 +15,7 @@ import { countryLookup } from './lib/countries.mjs';
 import { normalizeElement, reconcileTemperatureWarnings, completeness } from './lib/normalize.mjs';
 import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
+import { compileBadImports, matchBadImport, unmatchedIds } from './lib/bad-imports.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
@@ -194,15 +195,16 @@ async function main() {
   // Yellowstone's 1,959 attribute-free springs. Those are real. There is no
   // statistical signal separating a bulk import from a genuine geyser basin,
   // so this is a judgement call and it is written down as one.
-  const badImports = JSON.parse(fs.readFileSync(path.join('data', 'known-bad-imports.json'), 'utf8'));
+  const badImports = compileBadImports(
+    JSON.parse(fs.readFileSync(path.join('data', 'known-bad-imports.json'), 'utf8')),
+  );
   for (const r of records) {
     if (r.quality.suspect) continue;
-    const rule = badImports.imports.find(
-      (imp) => imp.countries.includes(r.location.country) && imp.rule === 'attribute-free',
-    );
-    if (rule && r.quality.attributeFree) {
-      r.quality.suspect = `matched reviewed bad import "${rule.id}": ${rule.rule}`;
-    }
+    const rule = matchBadImport(badImports, r);
+    if (rule) r.quality.suspect = `matched reviewed bad import "${rule.id}": ${rule.rule}`;
+  }
+  for (const stale of unmatchedIds(badImports, records)) {
+    console.log(`  known-bad-imports names a record the upstream no longer has -- ${stale}`);
   }
 
   // --- Quarantine suspected mis-tags ---

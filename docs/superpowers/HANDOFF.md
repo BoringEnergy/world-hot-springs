@@ -1,6 +1,6 @@
 # Handoff — start here
 
-Last updated 2026-09-18.
+Last updated 2026-09-22.
 
 Read this first in a new session. It is the shortest path to being useful.
 
@@ -32,6 +32,42 @@ All five criteria in [SPEC.md](../../SPEC.md) §9 are met. The data campaign is
 
 If you are an agent picking this up and looking for the next task: **there
 isn't one by default.** Ask.
+
+## 2026-09-22 -- the count is the mission; 343 non-springs quarantined
+
+**Hudson reopened data work on 2026-09-22.** The project exists because there
+is no accurate modern log of the world's hot springs: count, composition,
+rules and the other fields. The first mission is making the count as accurate
+and defensible as possible. This supersedes "there isn't one by default" in
+the v1 section above, for count accuracy only.
+
+There is no authoritative world total to match, so "accurate" means a measured
+method, written down. The count had three kinds of error, measured on the
+2026-09-18 build (7,490):
+
+    not a spring        records of wells, houses, shops and survey points   343 fixed here
+    counted twice       one spring in two records, mostly NOAA 1981 pins    ~20, next
+                        a few hundred metres from the OSM pin
+    counting unit       numbered pools and vents at one site each count     not decided
+                        as a spring ("Termita 3" / "Termita 4")
+
+**This PR: 7,490 -> 7,147 springs, 131 -> 126 countries.** Found by reading
+every attribute-free record whose name has no thermal word in any script, then
+reviewing each cluster by hand. `data/known-bad-imports.json` gained a
+bounding box, a name pattern, a listed-element rule and `except`, because a
+country-wide rule was only right where the country has no genuine
+attribute-free spring. The matcher is `scripts/lib/bad-imports.mjs`, pure and
+tested; each condition was watched failing against a mutation. The detector
+itself stays out of the build, for the Yellowstone reason recorded above the
+stage in build-dataset.mjs.
+
+Left alone on purpose, not yet reviewed enough to call: Uzbekistan's
+Karakalpakstan pins ('Nikium M'), a quarry in Kerch, Japanese port and
+town-hall pins that may be foot baths, and 1,400 unnamed attribute-free US
+records, which are Yellowstone and real.
+
+Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
+an agent. It is a separate question from the count.
 
 ## 2026-09-18 -- minerals.types can be claimed; two stale passages corrected
 
