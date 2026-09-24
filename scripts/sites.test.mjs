@@ -167,3 +167,11 @@ test('DATA.md names every country checked without a comparable count', () => {
     assert.ok(data.includes(`**${names[c.country] ?? c.country}**`), `DATA.md does not name ${c.country}`);
   }
 });
+
+test('the shipped comparison was built from the reference file as it stands', () => {
+  const ref = JSON.parse(fs.readFileSync('data/reference/official-inventories.json', 'utf8'));
+  const want = ref.inventories.flatMap((i) => i.counts.map((c) => [i.id, c.unit, c.count, c.caveat]));
+  const have = COMPLETENESS.rows.map((r) => [r.inventory, r.unit, r.official, r.caveat]);
+  assert.deepEqual(have, want, 'data/completeness.json is stale: run npm run data:build');
+  assert.deepEqual(COMPLETENESS.withoutComparableCount, ref.withoutComparableCount ?? []);
+});

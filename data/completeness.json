@@ -45,7 +45,7 @@
       "atlas": 167,
       "ratio": 0.12,
       "countedByAtlas": false,
-      "caveat": "Report p.5: 'Á jarðhitakortinu eru merktir 1388 reitir og 2274 þyrpingar.' A cell is a circle of about 500 m radius holding one or more clusters, close to the atlas's site. It maps natural geothermal activity before drilling, including heated ground, mineral springs and some unsurveyed places that may prove cold; the atlas holds only places a person might enter. The same report (p.25) finds continuous surface geothermal activity rarely spreads beyond a 500 m radius outside the high-temperature areas."
+      "caveat": "Report, PDF page 5: 'Á jarðhitakortinu eru merktir 1388 reitir og 2274 þyrpingar.' A cell is a circle of about 500 m radius holding one or more clusters, close to the atlas's site. It maps natural geothermal activity before drilling, including heated ground, mineral springs and some unsurveyed places that may prove cold; the atlas holds only places a person might enter. The same report (PDF page 25) finds continuous surface geothermal activity rarely spreads beyond a 500 m radius outside the high-temperature areas."
     },
     {
       "inventory": "is-orkustofnun-jardhitakort-2024",
@@ -75,7 +75,7 @@
       "atlas": 33,
       "ratio": 0.07,
       "countedByAtlas": false,
-      "caveat": "Report p.3: '온천발견 지역은 17개 시도, 143개 시군구, 446개 지역'. Legal designations, not physical springs: 121 hot-spring districts of 30,000 m2 or more, 260 well-protection zones below that, and 65 still in the approval process after a discovery report."
+      "caveat": "Report, printed page 3: '온천발견 지역은 17개 시도, 143개 시군구, 446개 지역'. Legal designations, not physical springs: 121 hot-spring districts of 30,000 m2 or more, 260 well-protection zones below that, and 65 still in the approval process after a discovery report."
     },
     {
       "inventory": "kr-mois-onsen-2025",
@@ -90,7 +90,7 @@
       "atlas": 38,
       "ratio": 0.03,
       "countedByAtlas": false,
-      "caveat": "Report p.19 table total '합계 446 1,117 548 569': 548 wells in use, 569 not. Almost all are drilled boreholes (69.7% of wells in use are 500 m deep or more), and the legal floor is 25 C: 48.5% of wells in use are below 30 C."
+      "caveat": "Report, printed page 19, table total '합계 446 1,117 548 569': 548 wells in use, 569 not. Almost all are drilled boreholes (69.7% of wells in use are 500 m deep or more), and the legal floor is 25 C: 48.5% of wells in use are below 30 C."
     },
     {
       "inventory": "tw-gsmma-outcrops-2025",
