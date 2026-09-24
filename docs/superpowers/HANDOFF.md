@@ -101,10 +101,14 @@ counts" and `specs/2026-09-23-counting-unit.md`. Japan is the only official
 count so far, read from the ministry's FY2024 PDF: the atlas's 812 sites are
 0.29 of its 2,839 localities, and those count only places with lodging.
 
-**Next for the count:** find and read the other national inventories the spec
-names (Iceland, New Zealand, Taiwan, Korea, Hungary, Turkey), each entered in
-`data/reference/official-inventories.json` only with its source and caveats. The
-per-record site is built (`location.site`, 2026-09-23): the card lists a
+**National counts read 2026-09-23:** Iceland (Orkustofnun 2024, 1,388 cells
+of ~500 m: atlas 0.12), South Korea (MOIS 2025, 446 areas: 0.07), Taiwan (GSMMA
+list of 150 outcrops, counted by us: 0.61), Japan (0.29). New Zealand, Hungary
+and Turkey have no comparable count, recorded under `withoutComparableCount`
+with what was read. Iceland's report independently finds surface geothermal
+activity rarely spreads past a 500 m radius -- support for the site rule. The
+thinnest coverage the atlas can now prove is Korea and Iceland.
+The per-record site is built (`location.site`, 2026-09-23): the card lists a
 spring's neighbours at its place.
 
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not

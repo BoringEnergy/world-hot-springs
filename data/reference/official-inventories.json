@@ -24,6 +24,99 @@
           "caveat": "Every registered source, including 4,074 below 25 C (Japanese law counts mineral water as 温泉 at any temperature), 11,032 not in use, and drilled wells. Many are not places anyone could visit."
         }
       ]
+    },
+    {
+      "id": "is-orkustofnun-jardhitakort-2024",
+      "country": "IS",
+      "publisher": "Orkustofnun, National Energy Authority of Iceland",
+      "title": "Stafrænt jarðhitakort af Íslandi og gagnasafn um jarðhita (Digital geothermal map of Iceland and geothermal database), report OS-2024-18",
+      "url": "https://gogn.orkustofnun.is/Skyrslur/OS-2024/OS-2024-18-2.pdf",
+      "page": "https://orkustofnun.is/news/straumhvorf-i-upplysingum-um-natturulegan-jardhita-a-yfirbordi",
+      "asOf": "2024-11-19",
+      "reviewed": "2026-09-23",
+      "counts": [
+        {
+          "unit": "reitir (geothermal cells, about 500 m radius)",
+          "count": 1388,
+          "comparesWith": "sites",
+          "caveat": "Report, PDF page 5: 'Á jarðhitakortinu eru merktir 1388 reitir og 2274 þyrpingar.' A cell is a circle of about 500 m radius holding one or more clusters, close to the atlas's site. It maps natural geothermal activity before drilling, including heated ground, mineral springs and some unsurveyed places that may prove cold; the atlas holds only places a person might enter. The same report (PDF page 25) finds continuous surface geothermal activity rarely spreads beyond a 500 m radius outside the high-temperature areas."
+        },
+        {
+          "unit": "þyrpingar (clusters of vents, about 50 m radius)",
+          "count": 2274,
+          "comparesWith": "features",
+          "caveat": "Clusters are counted in the low-temperature areas only; the high-temperature areas are mapped as cells, so this undercounts them. A cluster groups the individual vents (augu) within about 50 m, which the report does not count."
+        }
+      ]
+    },
+    {
+      "id": "kr-mois-onsen-2025",
+      "country": "KR",
+      "publisher": "Ministry of the Interior and Safety, Republic of Korea (행정안전부)",
+      "title": "2025 전국 온천 현황 (National hot spring status, 2025)",
+      "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000015&nttId=117691",
+      "asOf": "2024-12-31",
+      "reviewed": "2026-09-23",
+      "counts": [
+        {
+          "unit": "온천발견 지역 (hot-spring discovery areas)",
+          "count": 446,
+          "comparesWith": "sites",
+          "caveat": "Report, printed page 3: '온천발견 지역은 17개 시도, 143개 시군구, 446개 지역'. Legal designations, not physical springs: 121 hot-spring districts of 30,000 m2 or more, 260 well-protection zones below that, and 65 still in the approval process after a discovery report."
+        },
+        {
+          "unit": "온천공 (hot-spring wells)",
+          "count": 1117,
+          "comparesWith": "features",
+          "caveat": "Report, printed page 19, table total '합계 446 1,117 548 569': 548 wells in use, 569 not. Almost all are drilled boreholes (69.7% of wells in use are 500 m deep or more), and the legal floor is 25 C: 48.5% of wells in use are below 30 C."
+        }
+      ]
+    },
+    {
+      "id": "tw-gsmma-outcrops-2025",
+      "country": "TW",
+      "publisher": "Geological Survey and Mining Management Agency, Ministry of Economic Affairs (經濟部地質調查及礦業管理中心)",
+      "title": "溫泉露頭調查資料 (Hot spring outcrop survey data)",
+      "url": "https://www.gsmma.gov.tw/uploads/1750395404824aoNp6rM8.csv",
+      "page": "https://data.gov.tw/dataset/32504",
+      "asOf": "2025-06-20",
+      "reviewed": "2026-09-23",
+      "counts": [
+        {
+          "unit": "溫泉露頭 (natural hot-spring outcrops)",
+          "count": 150,
+          "comparesWith": "sites",
+          "countedByAtlas": true,
+          "caveat": "The agency publishes the list, not a total: the atlas counted its 150 rows (150 distinct names). Natural outcrops only, not wells, each a named hot-spring locality with its county and water type. The list is updated irregularly."
+        }
+      ]
+    }
+  ],
+  "withoutComparableCount": [
+    {
+      "country": "NZ",
+      "reviewed": "2026-09-23",
+      "finding": "No national total is published. GNS Science (now Earth Sciences New Zealand) keeps a Geothermal Surface Features Database in two parts, Bay of Plenty and the rest of the country, and publishes no count of it. Regional councils give round figures for their own region and every feature type, fumaroles and mud pools included.",
+      "checked": [
+        "https://www.gns.cri.nz/data-and-resources/geothermal-surface-features-database/",
+        "https://catalogue.data.govt.nz/dataset/geothermal-and-groundwater-database-ggw"
+      ]
+    },
+    {
+      "country": "HU",
+      "reviewed": "2026-09-23",
+      "finding": "The official registry counts certified medicinal waters, not springs: 270 rows, almost all drilled wells, some cold drinking waters, with no stated total or date and certifications up to about 2017. A different unit, so not compared.",
+      "checked": [
+        "https://nngyk.gov.hu/hu/hatosagi-nyilvantartasok/termeszetes-gyogytenyezokkel-osszefuggo-nyilvantartasok/oth-altal-elismert-gyogyvizek-jegyzeke.html"
+      ]
+    },
+    {
+      "country": "TR",
+      "reviewed": "2026-09-23",
+      "finding": "MTA gives 'around 1,000' natural geothermal outflows ('1000 adet civarında doğal çıkış'), an approximation with no inventory cited, and 246 discovered geothermal fields, which are drilling targets rather than springs. Neither is a count comparable with ours.",
+      "checked": [
+        "https://www.mta.gov.tr/v3.0/arastirmalar/jeotermal-enerji-arastirmalari"
+      ]
     }
   ]
 }

@@ -37,9 +37,31 @@ export function compileInventories(file) {
       if (!COMPARABLE.has(c.comparesWith)) fail(where, `compares with "${c.comparesWith}"; use features or sites.`);
       if (!c.unit) fail(where, 'has a count with no unit.');
       if (!c.caveat) fail(where, `gives no caveat for "${c.unit}". Every official unit differs from ours somehow; say how.`);
+      if (c.countedByAtlas !== undefined && c.countedByAtlas !== true) fail(where, '"countedByAtlas" is true or absent.');
+      if (c.countedByAtlas && !/count/i.test(c.caveat)) {
+        fail(where, `counts "${c.unit}" itself but its caveat does not say so. A number the publisher never stated must read as ours.`);
+      }
     }
   }
   return file.inventories;
+}
+
+/**
+ * Countries whose published sources were read and hold no count comparable
+ * with ours. Recorded as data so an absence is a finding with its evidence,
+ * not a silence a reader could mistake for "not looked at".
+ */
+export function compileChecked(file) {
+  const list = file.withoutComparableCount ?? [];
+  for (const [i, c] of list.entries()) {
+    const where = `withoutComparableCount[${i}]`;
+    if (!/^[A-Z]{2}$/.test(c?.country ?? '')) fail(where, '"country" must be an ISO 3166-1 alpha-2 code.');
+    if (!c.reviewed || !c.finding) fail(where, 'needs "reviewed" and "finding".');
+    if (!Array.isArray(c.checked) || c.checked.length === 0 || c.checked.some((u) => !/^https:\/\//.test(u))) {
+      fail(where, '"checked" must list the https sources that were read.');
+    }
+  }
+  return list;
 }
 
 /**
@@ -63,6 +85,7 @@ export function compareWithInventories(inventories, atlas) {
         comparesWith: c.comparesWith,
         atlas: mine,
         ratio: Math.round((mine / c.count) * 100) / 100,
+        countedByAtlas: c.countedByAtlas === true,
         caveat: c.caveat,
       });
     }

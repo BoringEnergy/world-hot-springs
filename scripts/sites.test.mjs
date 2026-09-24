@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { groupSites, siteLabels, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
 import { placeMates, formatShortDistance } from '../src/lib/format.ts';
-import { compileInventories, compareWithInventories } from './lib/completeness.mjs';
+import { compileInventories, compileChecked, compareWithInventories } from './lib/completeness.mjs';
 
 const M_PER_DEG_LAT = 111_195;
 const rec = (id, lat, lng, country = 'XX', countryName = 'X') => ({ id, location: { lat, lng, country, countryName } });
@@ -150,4 +150,28 @@ test('every shipped record says which place it is part of, and the places add up
   for (const r of all) assert.equal(r.location.site.springs, members.get(r.location.site.id), r.id);
   const ids = new Set(all.map((r) => r.id));
   for (const id of members.keys()) assert.ok(ids.has(id), `site ${id} is not the id of a published spring`);
+});
+
+test('a count the atlas made itself must say so, and a checked absence must cite what was read', () => {
+  const ours = (caveat) => inv({}, { countedByAtlas: true, caveat });
+  assert.throws(() => compileInventories(ours('natural outcrops only')), /does not say so/);
+  assert.doesNotThrow(() => compileInventories(ours('the atlas counted the rows')));
+  assert.throws(() => compileChecked({ withoutComparableCount: [{ country: 'NZ', reviewed: 'x', finding: 'y', checked: [] }] }), /https/);
+  assert.throws(() => compileChecked({ withoutComparableCount: [{ country: 'NZ', reviewed: 'x', checked: ['https://a'] }] }), /finding/);
+});
+
+test('DATA.md names every country checked without a comparable count', () => {
+  const data = fs.readFileSync('docs/DATA.md', 'utf8');
+  const names = { NZ: 'New Zealand', HU: 'Hungary', TR: 'Turkey' };
+  for (const c of COMPLETENESS.withoutComparableCount) {
+    assert.ok(data.includes(`**${names[c.country] ?? c.country}**`), `DATA.md does not name ${c.country}`);
+  }
+});
+
+test('the shipped comparison was built from the reference file as it stands', () => {
+  const ref = JSON.parse(fs.readFileSync('data/reference/official-inventories.json', 'utf8'));
+  const want = ref.inventories.flatMap((i) => i.counts.map((c) => [i.id, c.unit, c.count, c.caveat]));
+  const have = COMPLETENESS.rows.map((r) => [r.inventory, r.unit, r.official, r.caveat]);
+  assert.deepEqual(have, want, 'data/completeness.json is stale: run npm run data:build');
+  assert.deepEqual(COMPLETENESS.withoutComparableCount, ref.withoutComparableCount ?? []);
 });
