@@ -19,6 +19,10 @@ import { compileBadImports, matchBadImport, unmatchedIds } from './lib/bad-impor
 import { findCoarseDuplicates, nceiRefOf } from './lib/coarse-pins.mjs';
 import { groupSites, siteLabels, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
 import { compileInventories, compileChecked, compareWithInventories } from './lib/completeness.mjs';
+import {
+  fromTsv as icelandFromTsv, findGaps, GAP_METERS, LOOK_AT, ATTRIBUTION as IS_ATTRIBUTION,
+  SOURCE_TITLE as IS_SOURCE,
+} from './lib/iceland-geothermal.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
@@ -1010,6 +1014,30 @@ async function main() {
     withoutComparableCount: checkedWithoutCount,
   }, null, 2)}\n`);
   fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');
+  // --- Iceland: where the atlas has nothing near a warm or hot spring ---
+  // A worklist, never records (decision I1, specs/2026-09-23-korea-iceland-
+  // coverage-findings.md). The 2003 map classes temperature, not bathing, and
+  // places each point to 500 m. Each candidate becomes a record only when a
+  // separate source shows people bathe there.
+  const IS_MIRROR = path.join('data', 'reference', 'iceland-geothermal-2003.tsv');
+  if (fs.existsSync(IS_MIRROR)) {
+    const points = icelandFromTsv(fs.readFileSync(IS_MIRROR, 'utf8'));
+    const gaps = findGaps(points, records.filter((r) => r.location.country === 'IS'));
+    const byType = Object.fromEntries(LOOK_AT.map((t) => [t, gaps.filter((g) => g.type === t).length]));
+    fs.writeFileSync(path.join('data', 'iceland-candidates.json'), `${JSON.stringify({
+      note: "Warm and hot springs on Iceland's 2003 geothermal map with no atlas record within " +
+        `${GAP_METERS} m. A worklist, not springs: the map classes temperature, not bathing, and places ` +
+        'each point to about 500 m. A candidate becomes a record only when a separate source shows people bathe there.',
+      source: IS_SOURCE,
+      attribution: IS_ATTRIBUTION,
+      gapMeters: GAP_METERS,
+      counts: byType,
+      candidates: gaps,
+    }, null, 2)}
+`);
+    console.log(`Iceland worklist: ${gaps.length} warm or hot springs with no atlas record within ${GAP_METERS} m -> data/iceland-candidates.json`);
+  }
+
   const written = appendEvents(EVENTS, [...identityEvents, ...sourceEvents, ...overlayEvents], generatedAt);
   if (written) console.log(`  ${written} new event(s) recorded in ${EVENTS}`);
 
