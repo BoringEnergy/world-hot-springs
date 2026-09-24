@@ -383,6 +383,44 @@ surface cannot be hotter; the 8 such readings in the mirror (up to 1,152 C) are
 entry or unit errors. This bounds a water sample, not the atlas: a curated claim
 may state a superheated well.
 
+## How the atlas counts
+
+Two counts, always together (decided 2026-09-23;
+[spec](superpowers/specs/2026-09-23-counting-unit.md)):
+
+- **Features** (`summary.total`): every record. What a mapper drew, whether a
+  vent, a pool or a whole spring. Numbered pools at one site count once each.
+- **Sites** (`summary.sites`, per country in `summary.sitesByCountry`): features
+  linked by a chain of neighbours each within **500 m**
+  (`summary.siteLinkMeters`), by position alone. What a visitor means by "a hot
+  spring". The rule is `scripts/lib/sites.mjs`.
+
+500 m is a convention, not a discovery. Measured, there is no natural break:
+5,229 groups at 100 m, 4,735 at 250 m, 4,462 at 500 m, 4,256 at 1 km. Below
+250 m the parts of one spring are still being split; past 500 m chains start
+to join separate places along a valley. A site that straddles a border counts
+in each country's figure and once in the total.
+
+**Both are a floor of what is publicly mapped, not a census.** Where a
+government publishes a national count, the build sets the atlas beside it in
+`data/completeness.json`, from the reviewed figures in
+[`data/reference/official-inventories.json`](../data/reference/official-inventories.json):
+
+| Country | Official count | As of | Atlas | Ratio |
+|---|---|---|---|---|
+| Japan | 2,839 温泉地 (localities) | 2025-03-31 | 812 sites | 0.29 |
+| Japan | 27,899 源泉 (sources) | 2025-03-31 | 1,023 features | 0.04 |
+
+The units are the publisher's and never match ours exactly, so the ratio is
+indicative, not a percentage complete. Japan's localities count only places
+with lodging, so a wild spring is not one and the official figure is itself a
+floor; its sources include 4,074 below 25 C (Japanese law counts mineral water
+as 温泉 at any temperature), 11,032 not in use, and drilled wells. Source: the
+Ministry of the Environment's 令和6年度 温泉利用状況.
+
+A country appears here only once its published inventory has been read and
+its caveats written down. None is estimated.
+
 ## Known limitations
 
 - **Coverage follows OSM's coverage**, which is excellent in Japan, Iceland, and

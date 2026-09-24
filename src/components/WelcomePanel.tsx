@@ -45,6 +45,7 @@ const ARRIVED_AT_MAP = typeof window !== 'undefined' && parse().kind === 'map';
 
 interface Summary {
   total: number;
+  sites: number;
   countries: number;
   coverage: { temperature: number };
 }
@@ -151,6 +152,7 @@ export function WelcomePanel({ filtersOpen }: { filtersOpen: boolean }) {
 
   const total = summary?.total ?? springs.length;
   const countries = summary?.countries ?? null;
+  const places = summary?.sites ?? null;
   const unknownWords =
     summary && summary.total ? springsInWords(1 - summary.coverage.temperature / summary.total) : 'Most springs';
   const tempPct =
@@ -180,8 +182,9 @@ export function WelcomePanel({ filtersOpen }: { filtersOpen: boolean }) {
         world has never written one down.
       </p>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-2 gap-2">
         <Stat value={total.toLocaleString()} label="Springs" />
+        <Stat value={places ? places.toLocaleString() : '—'} label="Places" />
         <Stat value={countries ? String(countries) : '—'} label="Countries" />
         <Stat value={tempPct !== null ? `${tempPct}%` : '—'} label="With a reading" />
       </div>

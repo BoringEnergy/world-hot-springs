@@ -5,6 +5,8 @@ import { DOI_URL, RECOMMENDED_CITATION } from '../lib/citation.ts';
 
 interface Summary {
   total: number;
+  sites: number;
+  siteLinkMeters: number;
   countries: number;
   coverage: { temperature: number; price: number; hours: number; clothing: number };
   sourceDate: string;
@@ -142,12 +144,23 @@ export function AboutPanel() {
         </p>
 
         {summary && (
-          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Stat label="Springs" value={summary.total} />
-            <Stat label="Countries" value={summary.countries} />
-            <Stat label="With temp" value={summary.coverage.temperature} of={summary.total} />
-            <Stat label="With price" value={summary.coverage.price} of={summary.total} />
-          </div>
+          <>
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <Stat label="Springs" value={summary.total} />
+              <Stat label="Places" value={summary.sites} />
+              <Stat label="Countries" value={summary.countries} />
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Stat label="With temp" value={summary.coverage.temperature} of={summary.total} />
+              <Stat label="With price" value={summary.coverage.price} of={summary.total} />
+            </div>
+            <p className="mt-3 text-[12px] leading-relaxed text-steam-400">
+              Two counts, because a spring is whatever someone mapped — a vent, a pool, a whole
+              spring — and a place is every spring within {summary.siteLinkMeters} m of another,
+              which is what most people mean by &ldquo;a hot spring&rdquo;. Both are a floor of what
+              is publicly mapped, not a census of the world.
+            </p>
+          </>
         )}
 
         <section className="mt-6">

@@ -27,6 +27,16 @@ and `version` and `date-released` in `CITATION.cff`, and a test holds
 
 ## [Unreleased]
 
+- **Two counts, always together.** `summary.json` gains `sites` (4,462),
+  `sitesByCountry` and `siteLinkMeters` (500) beside `total` (7,130
+  features). A site is the features within 500 m of one another, the place a
+  visitor means by "a hot spring"; a feature is what a mapper drew. The README,
+  the archive description and the site's About and welcome panels state both.
+- **The atlas beside the official count.** `data/completeness.json` compares
+  the atlas with national counts published by a government, starting with
+  Japan's Ministry of the Environment (FY2024): 812 sites beside 2,839
+  localities, 1,023 features beside 27,899 sources. The units differ and each
+  row says how; the ratio is indicative, never a percentage complete.
 - **343 records that are not hot springs are quarantined.** 7,490 springs
   across 131 countries become 7,147 across 126. A review of every
   attribute-free record whose name says nothing thermal found the same

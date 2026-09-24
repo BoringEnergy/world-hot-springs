@@ -1,6 +1,10 @@
 # How the atlas counts — features, sites, and what the number is
 
-Drafted 2026-09-23. Status: **proposed, awaiting Hudson.** Not implemented.
+Drafted 2026-09-23. **Accepted by Hudson on 2026-09-23, all three decisions as
+proposed** (two counts; 500 m; completeness where an official count exists).
+Implemented the same day. Japan's figures were then read from the primary
+source, which is newer than the draft below: FY2024, 2,839 localities and
+27,899 sources, and localities count only places with lodging.
 
 The mission set on 2026-09-22 is an accurate count of the world's hot springs.
 Two PRs removed what was wrong with the number (#100: 343 records that were not

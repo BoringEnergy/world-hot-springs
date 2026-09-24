@@ -1,0 +1,29 @@
+{
+  "note": "National hot-spring counts published by a government body, each reviewed against its primary source. The build compares the atlas with them and writes data/completeness.json. The units are the publisher's, not ours, and they do not match exactly, so a comparison is an indicative ratio between differently defined counts, never a percentage complete. Every count carries the caveats that make it differ. A country with no published inventory is absent from this file rather than estimated.",
+  "inventories": [
+    {
+      "id": "jp-moe-onsen-riyou-fy2024",
+      "country": "JP",
+      "publisher": "Ministry of the Environment, Japan (環境省)",
+      "title": "令和6年度 温泉利用状況 (Hot spring use, FY2024)",
+      "url": "https://www.env.go.jp/nature/onsen/pdf/6-7_p_1.pdf",
+      "page": "https://www.env.go.jp/nature/onsen/data/",
+      "asOf": "2025-03-31",
+      "reviewed": "2026-09-23",
+      "counts": [
+        {
+          "unit": "温泉地 (hot-spring localities)",
+          "count": 2839,
+          "comparesWith": "sites",
+          "caveat": "Counts only localities with lodging: note 1 of the table reads 温泉地数は宿泊施設のある場所を計上. A wild spring with no inn is not a 温泉地, so this is itself a floor."
+        },
+        {
+          "unit": "源泉 (sources)",
+          "count": 27899,
+          "comparesWith": "features",
+          "caveat": "Every registered source, including 4,074 below 25 C (Japanese law counts mineral water as 温泉 at any temperature), 11,032 not in use, and drilled wells. Many are not places anyone could visit."
+        }
+      ]
+    }
+  ]
+}

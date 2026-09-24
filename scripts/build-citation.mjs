@@ -70,8 +70,9 @@ function plain(markdown) {
 export function abstract(summary) {
   const pct = Math.round((summary.coverage.temperature / summary.total) * 100);
   return (
-    `${DESCRIPTION} This version holds ${summary.total.toLocaleString('en-US')} records across ` +
-    `${summary.countries} countries; ${pct}% carry a recorded temperature, which is a description of ` +
+    `${DESCRIPTION} This version holds ${summary.total.toLocaleString('en-US')} hot-spring features at ` +
+    `${summary.sites.toLocaleString('en-US')} sites (features within ${summary.siteLinkMeters} m of one another) ` +
+    `across ${summary.countries} countries; ${pct}% carry a recorded temperature, which is a description of ` +
     'what public data exists rather than a backlog.'
   );
 }
