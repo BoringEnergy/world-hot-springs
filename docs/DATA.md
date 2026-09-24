@@ -446,6 +446,24 @@ mostly wells), **Turkey** (MTA gives "around 1,000" natural outflows, an
 approximation, and 246 drilled fields). The sources read are listed under
 `withoutComparableCount`.
 
+### Where the atlas is thin: Iceland's worklist
+
+Iceland's national geothermal map is not open, and the open one does not say
+where anyone bathes (findings: `superpowers/specs/2026-09-23-korea-iceland-coverage-findings.md`).
+So `data/iceland-candidates.json` is a **worklist, not springs**: the warm (*laug*,
+25-70 C), hot (*hver*, above 70 C) and carbonated springs on the 2003 map with
+no atlas record within 1,000 m, twice the map's stated 500 m accuracy. At the
+first build, 389: 275 *laug*, 46 carbonated, 68 *hver*. Warm seeps, steam and
+volcanic heat are left out. A candidate becomes a record only when a separate
+source shows people bathe there, the method already used for Turkey.
+
+The points come from "Jarðhiti (N500V)" by Náttúrufræðistofnun, licensed under
+CC BY 4.0, after Helgi Torfason's 2003 *Jarðhitakort af Íslandi* (NI-03016). The
+mirror is `data/reference/iceland-geothermal-2003.tsv`, rebuilt only by
+`node scripts/fetch-iceland-geothermal.mjs`. A web feature service has no fixed
+bytes to pin, so the mirror pins the hash of its own rows, and the build refuses
+a mirror that no longer matches.
+
 ## Known limitations
 
 - **Coverage follows OSM's coverage**, which is excellent in Japan, Iceland, and

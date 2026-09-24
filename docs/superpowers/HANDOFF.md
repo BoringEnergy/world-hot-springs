@@ -111,6 +111,12 @@ thinnest coverage the atlas can now prove is Korea and Iceland.
 The per-record site is built (`location.site`, 2026-09-23): the card lists a
 spring's neighbours at its place.
 
+**Coverage, 2026-09-23 (findings spec `2026-09-23-korea-iceland-coverage-findings.md`).**
+Iceland: decision I1 built -- `data/iceland-candidates.json`, 389 warm/hot springs
+on the CC BY 4.0 2003 map with nothing in the atlas within 1 km. A worklist to
+verify one at a time, never an import. Korea: decision K (geocode the 524
+licensed hot-spring businesses via Nominatim) is Hudson's; not started.
+
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
 an agent. It is a separate question from the count.
 

@@ -1,0 +1,3125 @@
+{
+  "note": "Warm and hot springs on Iceland's 2003 geothermal map with no atlas record within 1000 m. A worklist, not springs: the map classes temperature, not bathing, and places each point to about 500 m. A candidate becomes a record only when a separate source shows people bathe there.",
+  "source": "Jarðhiti (N500V), Náttúrufræðistofnun, after Helgi Torfason 2003, Jarðhitakort af Íslandi (NI-03016)",
+  "attribution": "\"Jarðhiti (N500V)\" by Náttúrufræðistofnun is licensed under CC BY 4.0",
+  "gapMeters": 1000,
+  "counts": {
+    "laug": 275,
+    "kolsýrulaugar": 46,
+    "hver": 68
+  },
+  "candidates": [
+    {
+      "id": 14,
+      "type": "laug",
+      "lat": 64.681,
+      "lng": -21.0957,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9384
+    },
+    {
+      "id": 23,
+      "type": "kolsýrulaugar",
+      "lat": 64.8597,
+      "lng": -22.311,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3078
+    },
+    {
+      "id": 82,
+      "type": "laug",
+      "lat": 65.1015,
+      "lng": -15.5107,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15829
+    },
+    {
+      "id": 86,
+      "type": "laug",
+      "lat": 64.9993,
+      "lng": -15.5722,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8859
+    },
+    {
+      "id": 156,
+      "type": "kolsýrulaugar",
+      "lat": 64.8993,
+      "lng": -22.1029,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12531
+    },
+    {
+      "id": 157,
+      "type": "kolsýrulaugar",
+      "lat": 64.9159,
+      "lng": -22.7789,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 17612
+    },
+    {
+      "id": 158,
+      "type": "kolsýrulaugar",
+      "lat": 64.841,
+      "lng": -22.9648,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11801
+    },
+    {
+      "id": 255,
+      "type": "kolsýrulaugar",
+      "lat": 64.8956,
+      "lng": -15.4924,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6709
+    },
+    {
+      "id": 301,
+      "type": "kolsýrulaugar",
+      "lat": 64.7506,
+      "lng": -22.127,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12732
+    },
+    {
+      "id": 302,
+      "type": "kolsýrulaugar",
+      "lat": 64.8881,
+      "lng": -22.1417,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10319
+    },
+    {
+      "id": 303,
+      "type": "kolsýrulaugar",
+      "lat": 64.911,
+      "lng": -22.1113,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 13050
+    },
+    {
+      "id": 304,
+      "type": "kolsýrulaugar",
+      "lat": 64.9141,
+      "lng": -22.2253,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10073
+    },
+    {
+      "id": 305,
+      "type": "kolsýrulaugar",
+      "lat": 64.8543,
+      "lng": -22.3153,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2462
+    },
+    {
+      "id": 306,
+      "type": "kolsýrulaugar",
+      "lat": 64.897,
+      "lng": -22.3473,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7332
+    },
+    {
+      "id": 307,
+      "type": "kolsýrulaugar",
+      "lat": 64.8521,
+      "lng": -22.4075,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4752
+    },
+    {
+      "id": 308,
+      "type": "kolsýrulaugar",
+      "lat": 64.8783,
+      "lng": -22.534,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11398
+    },
+    {
+      "id": 309,
+      "type": "kolsýrulaugar",
+      "lat": 64.7889,
+      "lng": -22.6302,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15516
+    },
+    {
+      "id": 310,
+      "type": "kolsýrulaugar",
+      "lat": 64.8384,
+      "lng": -22.9945,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10402
+    },
+    {
+      "id": 311,
+      "type": "kolsýrulaugar",
+      "lat": 64.9375,
+      "lng": -22.9889,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15083
+    },
+    {
+      "id": 312,
+      "type": "kolsýrulaugar",
+      "lat": 64.9187,
+      "lng": -23.2571,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8826
+    },
+    {
+      "id": 313,
+      "type": "kolsýrulaugar",
+      "lat": 64.8661,
+      "lng": -23.2921,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4573
+    },
+    {
+      "id": 314,
+      "type": "kolsýrulaugar",
+      "lat": 64.8515,
+      "lng": -23.3682,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7340
+    },
+    {
+      "id": 315,
+      "type": "kolsýrulaugar",
+      "lat": 64.8317,
+      "lng": -23.3493,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6452
+    },
+    {
+      "id": 316,
+      "type": "kolsýrulaugar",
+      "lat": 64.8469,
+      "lng": -23.3924,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8420
+    },
+    {
+      "id": 317,
+      "type": "kolsýrulaugar",
+      "lat": 64.843,
+      "lng": -23.4312,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10234
+    },
+    {
+      "id": 318,
+      "type": "kolsýrulaugar",
+      "lat": 64.9108,
+      "lng": -23.4336,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12897
+    },
+    {
+      "id": 319,
+      "type": "kolsýrulaugar",
+      "lat": 64.8912,
+      "lng": -23.4907,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14161
+    },
+    {
+      "id": 320,
+      "type": "kolsýrulaugar",
+      "lat": 64.9065,
+      "lng": -23.5312,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16603
+    },
+    {
+      "id": 321,
+      "type": "kolsýrulaugar",
+      "lat": 64.9145,
+      "lng": -23.5394,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 17349
+    },
+    {
+      "id": 322,
+      "type": "kolsýrulaugar",
+      "lat": 64.8536,
+      "lng": -23.5967,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18103
+    },
+    {
+      "id": 323,
+      "type": "kolsýrulaugar",
+      "lat": 64.8883,
+      "lng": -23.6887,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 22985
+    },
+    {
+      "id": 325,
+      "type": "kolsýrulaugar",
+      "lat": 64.3402,
+      "lng": -15.2344,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7853
+    },
+    {
+      "id": 326,
+      "type": "kolsýrulaugar",
+      "lat": 64.2443,
+      "lng": -15.4602,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12200
+    },
+    {
+      "id": 327,
+      "type": "kolsýrulaugar",
+      "lat": 64.2012,
+      "lng": -17.433,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5271
+    },
+    {
+      "id": 328,
+      "type": "laug",
+      "lat": 63.8612,
+      "lng": -18.9338,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1619
+    },
+    {
+      "id": 330,
+      "type": "laug",
+      "lat": 64.1145,
+      "lng": -21.8384,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2099
+    },
+    {
+      "id": 332,
+      "type": "laug",
+      "lat": 64.6938,
+      "lng": -20.9253,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2633
+    },
+    {
+      "id": 333,
+      "type": "laug",
+      "lat": 64.511,
+      "lng": -21.0996,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5075
+    },
+    {
+      "id": 334,
+      "type": "laug",
+      "lat": 64.5353,
+      "lng": -21.1608,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3982
+    },
+    {
+      "id": 335,
+      "type": "laug",
+      "lat": 64.663,
+      "lng": -21.2478,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1980
+    },
+    {
+      "id": 336,
+      "type": "laug",
+      "lat": 64.7537,
+      "lng": -21.3042,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9929
+    },
+    {
+      "id": 337,
+      "type": "laug",
+      "lat": 64.9508,
+      "lng": -21.7443,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10777
+    },
+    {
+      "id": 338,
+      "type": "laug",
+      "lat": 65.5902,
+      "lng": -23.1172,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2425
+    },
+    {
+      "id": 340,
+      "type": "laug",
+      "lat": 65.5097,
+      "lng": -23.3829,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1497
+    },
+    {
+      "id": 342,
+      "type": "laug",
+      "lat": 65.5503,
+      "lng": -23.4289,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3597
+    },
+    {
+      "id": 343,
+      "type": "laug",
+      "lat": 65.6075,
+      "lng": -23.462,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1722
+    },
+    {
+      "id": 344,
+      "type": "laug",
+      "lat": 65.6181,
+      "lng": -23.627,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7317
+    },
+    {
+      "id": 345,
+      "type": "laug",
+      "lat": 66.0542,
+      "lng": -22.7588,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 19180
+    },
+    {
+      "id": 346,
+      "type": "laug",
+      "lat": 65.9957,
+      "lng": -22.8193,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18038
+    },
+    {
+      "id": 347,
+      "type": "laug",
+      "lat": 65.8996,
+      "lng": -23.0037,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16168
+    },
+    {
+      "id": 348,
+      "type": "laug",
+      "lat": 65.956,
+      "lng": -22.5311,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5667
+    },
+    {
+      "id": 349,
+      "type": "laug",
+      "lat": 65.9177,
+      "lng": -22.5914,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6774
+    },
+    {
+      "id": 350,
+      "type": "laug",
+      "lat": 65.8385,
+      "lng": -22.6417,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1674
+    },
+    {
+      "id": 351,
+      "type": "laug",
+      "lat": 65.8244,
+      "lng": -22.6423,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2473
+    },
+    {
+      "id": 352,
+      "type": "laug",
+      "lat": 65.8241,
+      "lng": -22.6608,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2053
+    },
+    {
+      "id": 353,
+      "type": "laug",
+      "lat": 65.7907,
+      "lng": -22.7022,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5718
+    },
+    {
+      "id": 354,
+      "type": "laug",
+      "lat": 65.8045,
+      "lng": -22.7193,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4490
+    },
+    {
+      "id": 355,
+      "type": "laug",
+      "lat": 65.7936,
+      "lng": -22.7338,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5868
+    },
+    {
+      "id": 356,
+      "type": "laug",
+      "lat": 65.931,
+      "lng": -22.3542,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3334
+    },
+    {
+      "id": 357,
+      "type": "laug",
+      "lat": 65.9012,
+      "lng": -22.3573,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4326
+    },
+    {
+      "id": 358,
+      "type": "laug",
+      "lat": 65.8984,
+      "lng": -22.2974,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6730
+    },
+    {
+      "id": 359,
+      "type": "laug",
+      "lat": 65.8569,
+      "lng": -22.3519,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8577
+    },
+    {
+      "id": 360,
+      "type": "laug",
+      "lat": 65.835,
+      "lng": -22.4403,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6732
+    },
+    {
+      "id": 361,
+      "type": "laug",
+      "lat": 65.8226,
+      "lng": -22.4525,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6880
+    },
+    {
+      "id": 362,
+      "type": "laug",
+      "lat": 65.8031,
+      "lng": -22.5038,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6885
+    },
+    {
+      "id": 363,
+      "type": "laug",
+      "lat": 65.7905,
+      "lng": -22.5733,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7381
+    },
+    {
+      "id": 364,
+      "type": "laug",
+      "lat": 65.8686,
+      "lng": -21.3622,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12048
+    },
+    {
+      "id": 365,
+      "type": "laug",
+      "lat": 65.7664,
+      "lng": -21.4066,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5446
+    },
+    {
+      "id": 366,
+      "type": "laug",
+      "lat": 65.7728,
+      "lng": -21.4614,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2848
+    },
+    {
+      "id": 369,
+      "type": "laug",
+      "lat": 65.7976,
+      "lng": -21.6107,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4486
+    },
+    {
+      "id": 370,
+      "type": "laug",
+      "lat": 65.5624,
+      "lng": -21.4974,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14169
+    },
+    {
+      "id": 371,
+      "type": "laug",
+      "lat": 65.5585,
+      "lng": -21.5235,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14830
+    },
+    {
+      "id": 372,
+      "type": "laug",
+      "lat": 65.2126,
+      "lng": -21.1088,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4997
+    },
+    {
+      "id": 373,
+      "type": "laug",
+      "lat": 65.271,
+      "lng": -21.0996,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1527
+    },
+    {
+      "id": 374,
+      "type": "laug",
+      "lat": 65.8259,
+      "lng": -19.8708,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8748
+    },
+    {
+      "id": 375,
+      "type": "laug",
+      "lat": 65.6227,
+      "lng": -19.5843,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9852
+    },
+    {
+      "id": 376,
+      "type": "laug",
+      "lat": 65.5212,
+      "lng": -19.3164,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4311
+    },
+    {
+      "id": 377,
+      "type": "laug",
+      "lat": 65.5036,
+      "lng": -19.4018,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1338
+    },
+    {
+      "id": 378,
+      "type": "laug",
+      "lat": 65.4532,
+      "lng": -19.3924,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2423
+    },
+    {
+      "id": 379,
+      "type": "laug",
+      "lat": 65.4287,
+      "lng": -19.3183,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4685
+    },
+    {
+      "id": 380,
+      "type": "laug",
+      "lat": 65.4401,
+      "lng": -19.2394,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6149
+    },
+    {
+      "id": 381,
+      "type": "laug",
+      "lat": 65.3752,
+      "lng": -19.0979,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15723
+    },
+    {
+      "id": 382,
+      "type": "laug",
+      "lat": 65.359,
+      "lng": -19.1086,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16621
+    },
+    {
+      "id": 383,
+      "type": "laug",
+      "lat": 66.0203,
+      "lng": -19.0298,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11464
+    },
+    {
+      "id": 384,
+      "type": "laug",
+      "lat": 66.1166,
+      "lng": -18.8802,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4625
+    },
+    {
+      "id": 385,
+      "type": "laug",
+      "lat": 66.0822,
+      "lng": -18.6656,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1476
+    },
+    {
+      "id": 386,
+      "type": "laug",
+      "lat": 66.0675,
+      "lng": -18.682,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1517
+    },
+    {
+      "id": 388,
+      "type": "laug",
+      "lat": 66.0281,
+      "lng": -18.5088,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7915
+    },
+    {
+      "id": 389,
+      "type": "laug",
+      "lat": 65.9608,
+      "lng": -18.452,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4096
+    },
+    {
+      "id": 391,
+      "type": "laug",
+      "lat": 65.5553,
+      "lng": -18.0769,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2071
+    },
+    {
+      "id": 392,
+      "type": "laug",
+      "lat": 64.8633,
+      "lng": -17.6507,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11024
+    },
+    {
+      "id": 393,
+      "type": "laug",
+      "lat": 65.5638,
+      "lng": -17.2291,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18484
+    },
+    {
+      "id": 395,
+      "type": "laug",
+      "lat": 65.1279,
+      "lng": -15.6636,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14332
+    },
+    {
+      "id": 396,
+      "type": "laug",
+      "lat": 65.0868,
+      "lng": -15.5845,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12223
+    },
+    {
+      "id": 397,
+      "type": "laug",
+      "lat": 64.9469,
+      "lng": -15.6413,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8594
+    },
+    {
+      "id": 398,
+      "type": "laug",
+      "lat": 64.8935,
+      "lng": -15.8409,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 13033
+    },
+    {
+      "id": 399,
+      "type": "laug",
+      "lat": 64.8994,
+      "lng": -15.9572,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14976
+    },
+    {
+      "id": 400,
+      "type": "laug",
+      "lat": 64.6916,
+      "lng": -16.509,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 40797
+    },
+    {
+      "id": 401,
+      "type": "laug",
+      "lat": 64.1566,
+      "lng": -17.5285,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1919
+    },
+    {
+      "id": 402,
+      "type": "laug",
+      "lat": 64.1517,
+      "lng": -17.5714,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4069
+    },
+    {
+      "id": 403,
+      "type": "laug",
+      "lat": 64.0533,
+      "lng": -17.7239,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16489
+    },
+    {
+      "id": 404,
+      "type": "laug",
+      "lat": 63.5461,
+      "lng": -19.3611,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12408
+    },
+    {
+      "id": 405,
+      "type": "laug",
+      "lat": 64.3741,
+      "lng": -21.2545,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14736
+    },
+    {
+      "id": 406,
+      "type": "laug",
+      "lat": 64.3645,
+      "lng": -21.2873,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 13343
+    },
+    {
+      "id": 407,
+      "type": "laug",
+      "lat": 64.1713,
+      "lng": -21.5433,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7107
+    },
+    {
+      "id": 409,
+      "type": "laug",
+      "lat": 64.2349,
+      "lng": -20.2448,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8830
+    },
+    {
+      "id": 410,
+      "type": "laug",
+      "lat": 64.21,
+      "lng": -20.2187,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8762
+    },
+    {
+      "id": 411,
+      "type": "laug",
+      "lat": 64.2056,
+      "lng": -20.3629,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5264
+    },
+    {
+      "id": 412,
+      "type": "laug",
+      "lat": 64.1231,
+      "lng": -20.262,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1131
+    },
+    {
+      "id": 413,
+      "type": "laug",
+      "lat": 64.1862,
+      "lng": -20.4217,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1713
+    },
+    {
+      "id": 414,
+      "type": "laug",
+      "lat": 64.1891,
+      "lng": -20.5871,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7047
+    },
+    {
+      "id": 416,
+      "type": "laug",
+      "lat": 63.9669,
+      "lng": -19.9894,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15339
+    },
+    {
+      "id": 417,
+      "type": "laug",
+      "lat": 64.0222,
+      "lng": -20.1638,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4870
+    },
+    {
+      "id": 418,
+      "type": "laug",
+      "lat": 64.0051,
+      "lng": -20.2402,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4287
+    },
+    {
+      "id": 419,
+      "type": "laug",
+      "lat": 63.9318,
+      "lng": -20.5411,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6324
+    },
+    {
+      "id": 420,
+      "type": "laug",
+      "lat": 63.9231,
+      "lng": -20.6274,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10326
+    },
+    {
+      "id": 421,
+      "type": "laug",
+      "lat": 63.9797,
+      "lng": -20.5397,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4788
+    },
+    {
+      "id": 422,
+      "type": "laug",
+      "lat": 63.8902,
+      "lng": -20.8049,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10698
+    },
+    {
+      "id": 423,
+      "type": "laug",
+      "lat": 63.9652,
+      "lng": -20.8127,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7518
+    },
+    {
+      "id": 424,
+      "type": "laug",
+      "lat": 64.0066,
+      "lng": -20.8523,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3424
+    },
+    {
+      "id": 425,
+      "type": "laug",
+      "lat": 64.0137,
+      "lng": -20.927,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5827
+    },
+    {
+      "id": 426,
+      "type": "laug",
+      "lat": 63.947,
+      "lng": -21.0379,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2319
+    },
+    {
+      "id": 427,
+      "type": "laug",
+      "lat": 63.9784,
+      "lng": -21.1902,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2108
+    },
+    {
+      "id": 429,
+      "type": "laug",
+      "lat": 63.9223,
+      "lng": -21.2934,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8896
+    },
+    {
+      "id": 430,
+      "type": "laug",
+      "lat": 64.1023,
+      "lng": -21.843,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1322
+    },
+    {
+      "id": 431,
+      "type": "laug",
+      "lat": 64.4904,
+      "lng": -21.1502,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3064
+    },
+    {
+      "id": 432,
+      "type": "laug",
+      "lat": 64.5168,
+      "lng": -21.4092,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9876
+    },
+    {
+      "id": 434,
+      "type": "laug",
+      "lat": 64.52,
+      "lng": -21.1598,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2728
+    },
+    {
+      "id": 437,
+      "type": "laug",
+      "lat": 64.6896,
+      "lng": -20.9441,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3618
+    },
+    {
+      "id": 438,
+      "type": "laug",
+      "lat": 64.695,
+      "lng": -21.0218,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7165
+    },
+    {
+      "id": 439,
+      "type": "laug",
+      "lat": 64.6855,
+      "lng": -21.0396,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8141
+    },
+    {
+      "id": 440,
+      "type": "laug",
+      "lat": 64.6819,
+      "lng": -21.0672,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9506
+    },
+    {
+      "id": 441,
+      "type": "laug",
+      "lat": 64.6697,
+      "lng": -21.2442,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2216
+    },
+    {
+      "id": 442,
+      "type": "laug",
+      "lat": 64.8619,
+      "lng": -21.149,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 20523
+    },
+    {
+      "id": 443,
+      "type": "laug",
+      "lat": 64.8791,
+      "lng": -21.1117,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 21133
+    },
+    {
+      "id": 444,
+      "type": "laug",
+      "lat": 64.7906,
+      "lng": -22.3429,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4767
+    },
+    {
+      "id": 445,
+      "type": "laug",
+      "lat": 65.5088,
+      "lng": -22.3407,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8582
+    },
+    {
+      "id": 446,
+      "type": "laug",
+      "lat": 65.6373,
+      "lng": -22.535,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 13317
+    },
+    {
+      "id": 448,
+      "type": "laug",
+      "lat": 65.7254,
+      "lng": -23.4192,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9594
+    },
+    {
+      "id": 449,
+      "type": "laug",
+      "lat": 66.1124,
+      "lng": -23.4629,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3222
+    },
+    {
+      "id": 450,
+      "type": "laug",
+      "lat": 65.9688,
+      "lng": -22.6706,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11940
+    },
+    {
+      "id": 451,
+      "type": "laug",
+      "lat": 65.8863,
+      "lng": -22.5844,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3268
+    },
+    {
+      "id": 452,
+      "type": "laug",
+      "lat": 65.8482,
+      "lng": -22.6061,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1607
+    },
+    {
+      "id": 453,
+      "type": "laug",
+      "lat": 65.8287,
+      "lng": -22.6581,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1656
+    },
+    {
+      "id": 455,
+      "type": "laug",
+      "lat": 65.7936,
+      "lng": -22.5142,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7629
+    },
+    {
+      "id": 456,
+      "type": "laug",
+      "lat": 65.8191,
+      "lng": -22.505,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5372
+    },
+    {
+      "id": 457,
+      "type": "laug",
+      "lat": 65.9162,
+      "lng": -22.3446,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3959
+    },
+    {
+      "id": 460,
+      "type": "laug",
+      "lat": 65.8265,
+      "lng": -21.5763,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5596
+    },
+    {
+      "id": 461,
+      "type": "laug",
+      "lat": 65.7935,
+      "lng": -21.5489,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1850
+    },
+    {
+      "id": 462,
+      "type": "laug",
+      "lat": 65.779,
+      "lng": -21.5453,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1154
+    },
+    {
+      "id": 463,
+      "type": "laug",
+      "lat": 65.5589,
+      "lng": -21.5404,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14987
+    },
+    {
+      "id": 465,
+      "type": "laug",
+      "lat": 65.4447,
+      "lng": -19.2545,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5288
+    },
+    {
+      "id": 466,
+      "type": "laug",
+      "lat": 65.5048,
+      "lng": -19.3903,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1215
+    },
+    {
+      "id": 467,
+      "type": "laug",
+      "lat": 65.5327,
+      "lng": -19.4074,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3046
+    },
+    {
+      "id": 468,
+      "type": "laug",
+      "lat": 65.733,
+      "lng": -19.619,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 17436
+    },
+    {
+      "id": 469,
+      "type": "laug",
+      "lat": 65.3062,
+      "lng": -18.2505,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 30563
+    },
+    {
+      "id": 470,
+      "type": "laug",
+      "lat": 65.5862,
+      "lng": -18.0868,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1485
+    },
+    {
+      "id": 471,
+      "type": "laug",
+      "lat": 65.62,
+      "lng": -18.0912,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5230
+    },
+    {
+      "id": 473,
+      "type": "laug",
+      "lat": 65.815,
+      "lng": -17.9117,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10596
+    },
+    {
+      "id": 474,
+      "type": "laug",
+      "lat": 65.9436,
+      "lng": -18.5106,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7354
+    },
+    {
+      "id": 476,
+      "type": "laug",
+      "lat": 66.0309,
+      "lng": -18.6895,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4782
+    },
+    {
+      "id": 478,
+      "type": "laug",
+      "lat": 64.9714,
+      "lng": -17.6641,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1292
+    },
+    {
+      "id": 479,
+      "type": "laug",
+      "lat": 65.5584,
+      "lng": -17.1349,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15446
+    },
+    {
+      "id": 480,
+      "type": "laug",
+      "lat": 66.1046,
+      "lng": -16.7104,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 29340
+    },
+    {
+      "id": 482,
+      "type": "laug",
+      "lat": 64.9828,
+      "lng": -15.5963,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8108
+    },
+    {
+      "id": 483,
+      "type": "laug",
+      "lat": 64.8342,
+      "lng": -15.4166,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6414
+    },
+    {
+      "id": 484,
+      "type": "laug",
+      "lat": 64.6855,
+      "lng": -16.5285,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 41236
+    },
+    {
+      "id": 486,
+      "type": "laug",
+      "lat": 64.6214,
+      "lng": -18.7919,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 23752
+    },
+    {
+      "id": 487,
+      "type": "laug",
+      "lat": 63.7544,
+      "lng": -19.5144,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 21434
+    },
+    {
+      "id": 488,
+      "type": "laug",
+      "lat": 64.0067,
+      "lng": -20.0723,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9626
+    },
+    {
+      "id": 489,
+      "type": "laug",
+      "lat": 63.9084,
+      "lng": -20.4868,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3529
+    },
+    {
+      "id": 490,
+      "type": "laug",
+      "lat": 63.9882,
+      "lng": -20.4514,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5048
+    },
+    {
+      "id": 492,
+      "type": "laug",
+      "lat": 64.2062,
+      "lng": -20.392,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4348
+    },
+    {
+      "id": 493,
+      "type": "laug",
+      "lat": 64.2038,
+      "lng": -20.6165,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5595
+    },
+    {
+      "id": 496,
+      "type": "laug",
+      "lat": 64.0475,
+      "lng": -20.6575,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6139
+    },
+    {
+      "id": 497,
+      "type": "laug",
+      "lat": 64.0377,
+      "lng": -20.6616,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6586
+    },
+    {
+      "id": 498,
+      "type": "laug",
+      "lat": 63.9061,
+      "lng": -20.7844,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10941
+    },
+    {
+      "id": 499,
+      "type": "laug",
+      "lat": 63.9262,
+      "lng": -20.9446,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2805
+    },
+    {
+      "id": 500,
+      "type": "laug",
+      "lat": 63.9421,
+      "lng": -20.9541,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2263
+    },
+    {
+      "id": 501,
+      "type": "laug",
+      "lat": 63.9468,
+      "lng": -20.9655,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2015
+    },
+    {
+      "id": 502,
+      "type": "laug",
+      "lat": 63.9384,
+      "lng": -21.2802,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7808
+    },
+    {
+      "id": 503,
+      "type": "laug",
+      "lat": 64.2071,
+      "lng": -21.6993,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4116
+    },
+    {
+      "id": 506,
+      "type": "laug",
+      "lat": 64.821,
+      "lng": -22.4267,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5266
+    },
+    {
+      "id": 507,
+      "type": "kolsýrulaugar",
+      "lat": 64.8674,
+      "lng": -22.2541,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4893
+    },
+    {
+      "id": 509,
+      "type": "laug",
+      "lat": 64.9704,
+      "lng": -23.0825,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15638
+    },
+    {
+      "id": 512,
+      "type": "laug",
+      "lat": 65.9554,
+      "lng": -22.6695,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11407
+    },
+    {
+      "id": 513,
+      "type": "laug",
+      "lat": 65.8023,
+      "lng": -22.5376,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6358
+    },
+    {
+      "id": 514,
+      "type": "laug",
+      "lat": 65.7982,
+      "lng": -22.5581,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6604
+    },
+    {
+      "id": 515,
+      "type": "laug",
+      "lat": 65.8744,
+      "lng": -22.2343,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10573
+    },
+    {
+      "id": 516,
+      "type": "laug",
+      "lat": 66.0202,
+      "lng": -22.3845,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10474
+    },
+    {
+      "id": 517,
+      "type": "laug",
+      "lat": 66.2496,
+      "lng": -22.0881,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11769
+    },
+    {
+      "id": 518,
+      "type": "laug",
+      "lat": 65.8315,
+      "lng": -21.5819,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6207
+    },
+    {
+      "id": 519,
+      "type": "laug",
+      "lat": 65.8235,
+      "lng": -21.5808,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5403
+    },
+    {
+      "id": 520,
+      "type": "laug",
+      "lat": 65.819,
+      "lng": -21.5826,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5026
+    },
+    {
+      "id": 521,
+      "type": "laug",
+      "lat": 64.5336,
+      "lng": -21.1282,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4857
+    },
+    {
+      "id": 522,
+      "type": "laug",
+      "lat": 64.5373,
+      "lng": -21.6993,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10642
+    },
+    {
+      "id": 523,
+      "type": "laug",
+      "lat": 64.4244,
+      "lng": -21.8622,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12262
+    },
+    {
+      "id": 524,
+      "type": "laug",
+      "lat": 65.5521,
+      "lng": -20.6106,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 19201
+    },
+    {
+      "id": 525,
+      "type": "laug",
+      "lat": 65.5379,
+      "lng": -19.3881,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3364
+    },
+    {
+      "id": 526,
+      "type": "laug",
+      "lat": 65.4845,
+      "lng": -19.3619,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1376
+    },
+    {
+      "id": 527,
+      "type": "laug",
+      "lat": 65.3463,
+      "lng": -19.0975,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18015
+    },
+    {
+      "id": 528,
+      "type": "laug",
+      "lat": 65.6615,
+      "lng": -19.0724,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8232
+    },
+    {
+      "id": 529,
+      "type": "laug",
+      "lat": 66.0719,
+      "lng": -19.217,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16872
+    },
+    {
+      "id": 530,
+      "type": "laug",
+      "lat": 66.0342,
+      "lng": -19.1321,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16318
+    },
+    {
+      "id": 531,
+      "type": "laug",
+      "lat": 66.0763,
+      "lng": -19.069,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11563
+    },
+    {
+      "id": 532,
+      "type": "laug",
+      "lat": 66.0614,
+      "lng": -18.7284,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3715
+    },
+    {
+      "id": 533,
+      "type": "laug",
+      "lat": 65.6682,
+      "lng": -18.1549,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2600
+    },
+    {
+      "id": 534,
+      "type": "laug",
+      "lat": 65.5981,
+      "lng": -18.0846,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2811
+    },
+    {
+      "id": 535,
+      "type": "laug",
+      "lat": 65.5757,
+      "lng": -18.0415,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2305
+    },
+    {
+      "id": 536,
+      "type": "laug",
+      "lat": 65.5639,
+      "lng": -18.1024,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1132
+    },
+    {
+      "id": 538,
+      "type": "laug",
+      "lat": 65.5718,
+      "lng": -18.7154,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 25593
+    },
+    {
+      "id": 539,
+      "type": "laug",
+      "lat": 65.6261,
+      "lng": -16.8871,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1883
+    },
+    {
+      "id": 541,
+      "type": "laug",
+      "lat": 64.6834,
+      "lng": -16.5441,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 41304
+    },
+    {
+      "id": 542,
+      "type": "laug",
+      "lat": 64.3459,
+      "lng": -15.8147,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 23220
+    },
+    {
+      "id": 543,
+      "type": "laug",
+      "lat": 64.0558,
+      "lng": -17.0572,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 24048
+    },
+    {
+      "id": 545,
+      "type": "laug",
+      "lat": 65.7102,
+      "lng": -17.7244,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10869
+    },
+    {
+      "id": 547,
+      "type": "laug",
+      "lat": 64.6403,
+      "lng": -18.7869,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 23852
+    },
+    {
+      "id": 548,
+      "type": "laug",
+      "lat": 64.4003,
+      "lng": -19.9918,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16176
+    },
+    {
+      "id": 550,
+      "type": "laug",
+      "lat": 64.2737,
+      "lng": -20.3323,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4312
+    },
+    {
+      "id": 551,
+      "type": "laug",
+      "lat": 64.1841,
+      "lng": -20.6015,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7032
+    },
+    {
+      "id": 552,
+      "type": "laug",
+      "lat": 64.1432,
+      "lng": -20.5654,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4381
+    },
+    {
+      "id": 553,
+      "type": "laug",
+      "lat": 64.1131,
+      "lng": -20.4628,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2169
+    },
+    {
+      "id": 554,
+      "type": "laug",
+      "lat": 64.0092,
+      "lng": -20.2652,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3856
+    },
+    {
+      "id": 555,
+      "type": "laug",
+      "lat": 64.001,
+      "lng": -20.325,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5918
+    },
+    {
+      "id": 556,
+      "type": "laug",
+      "lat": 63.9596,
+      "lng": -20.3252,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6583
+    },
+    {
+      "id": 557,
+      "type": "laug",
+      "lat": 64.033,
+      "lng": -20.7286,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4226
+    },
+    {
+      "id": 558,
+      "type": "laug",
+      "lat": 64.0833,
+      "lng": -20.8278,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3089
+    },
+    {
+      "id": 559,
+      "type": "laug",
+      "lat": 64.0066,
+      "lng": -20.926,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6118
+    },
+    {
+      "id": 560,
+      "type": "laug",
+      "lat": 63.9803,
+      "lng": -20.85,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6077
+    },
+    {
+      "id": 561,
+      "type": "laug",
+      "lat": 63.9586,
+      "lng": -20.8069,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8262
+    },
+    {
+      "id": 562,
+      "type": "laug",
+      "lat": 63.9672,
+      "lng": -20.9766,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3660
+    },
+    {
+      "id": 564,
+      "type": "laug",
+      "lat": 63.9523,
+      "lng": -21.2664,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6150
+    },
+    {
+      "id": 565,
+      "type": "laug",
+      "lat": 64.1654,
+      "lng": -21.6582,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1634
+    },
+    {
+      "id": 567,
+      "type": "laug",
+      "lat": 64.5437,
+      "lng": -21.368,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8925
+    },
+    {
+      "id": 569,
+      "type": "laug",
+      "lat": 64.6499,
+      "lng": -21.4914,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4145
+    },
+    {
+      "id": 570,
+      "type": "laug",
+      "lat": 64.6802,
+      "lng": -21.4088,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1737
+    },
+    {
+      "id": 571,
+      "type": "laug",
+      "lat": 64.7334,
+      "lng": -21.4314,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6822
+    },
+    {
+      "id": 572,
+      "type": "laug",
+      "lat": 64.7239,
+      "lng": -21.5772,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4951
+    },
+    {
+      "id": 573,
+      "type": "laug",
+      "lat": 65.4522,
+      "lng": -22.2445,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2125
+    },
+    {
+      "id": 574,
+      "type": "laug",
+      "lat": 65.5111,
+      "lng": -22.313,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7993
+    },
+    {
+      "id": 575,
+      "type": "laug",
+      "lat": 65.4488,
+      "lng": -22.646,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 20562
+    },
+    {
+      "id": 576,
+      "type": "laug",
+      "lat": 65.4533,
+      "lng": -23.0305,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15005
+    },
+    {
+      "id": 577,
+      "type": "laug",
+      "lat": 65.889,
+      "lng": -22.2697,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8342
+    },
+    {
+      "id": 578,
+      "type": "laug",
+      "lat": 66.2446,
+      "lng": -22.0881,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11450
+    },
+    {
+      "id": 580,
+      "type": "laug",
+      "lat": 65.996,
+      "lng": -21.3184,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10704
+    },
+    {
+      "id": 582,
+      "type": "laug",
+      "lat": 65.4817,
+      "lng": -19.3799,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1296
+    },
+    {
+      "id": 585,
+      "type": "laug",
+      "lat": 66.0589,
+      "lng": -19.1269,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14734
+    },
+    {
+      "id": 586,
+      "type": "laug",
+      "lat": 66.0525,
+      "lng": -19.125,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15213
+    },
+    {
+      "id": 587,
+      "type": "laug",
+      "lat": 66.0524,
+      "lng": -19.1028,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14595
+    },
+    {
+      "id": 588,
+      "type": "laug",
+      "lat": 66.021,
+      "lng": -19.0063,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10544
+    },
+    {
+      "id": 589,
+      "type": "laug",
+      "lat": 66.0077,
+      "lng": -19.0119,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10187
+    },
+    {
+      "id": 590,
+      "type": "laug",
+      "lat": 66.0284,
+      "lng": -18.4059,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5748
+    },
+    {
+      "id": 591,
+      "type": "laug",
+      "lat": 65.3086,
+      "lng": -14.4413,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 39359
+    },
+    {
+      "id": 592,
+      "type": "laug",
+      "lat": 64.4174,
+      "lng": -15.5415,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9869
+    },
+    {
+      "id": 593,
+      "type": "laug",
+      "lat": 64.0858,
+      "lng": -17.4465,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8609
+    },
+    {
+      "id": 594,
+      "type": "laug",
+      "lat": 64.712,
+      "lng": -17.7981,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5173
+    },
+    {
+      "id": 595,
+      "type": "laug",
+      "lat": 64.7049,
+      "lng": -17.7807,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5686
+    },
+    {
+      "id": 597,
+      "type": "laug",
+      "lat": 64.6401,
+      "lng": -18.7709,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 24614
+    },
+    {
+      "id": 598,
+      "type": "laug",
+      "lat": 64.6488,
+      "lng": -18.8398,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 21330
+    },
+    {
+      "id": 599,
+      "type": "laug",
+      "lat": 63.5781,
+      "lng": -19.5488,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3200
+    },
+    {
+      "id": 601,
+      "type": "laug",
+      "lat": 64.0183,
+      "lng": -20.0741,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9070
+    },
+    {
+      "id": 602,
+      "type": "laug",
+      "lat": 64.0266,
+      "lng": -20.2228,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2325
+    },
+    {
+      "id": 603,
+      "type": "laug",
+      "lat": 63.9993,
+      "lng": -20.4838,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3094
+    },
+    {
+      "id": 604,
+      "type": "laug",
+      "lat": 64.0411,
+      "lng": -20.4517,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3977
+    },
+    {
+      "id": 605,
+      "type": "laug",
+      "lat": 64.0115,
+      "lng": -20.5563,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2088
+    },
+    {
+      "id": 606,
+      "type": "laug",
+      "lat": 63.98,
+      "lng": -21.2238,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2437
+    },
+    {
+      "id": 607,
+      "type": "hver",
+      "lat": 64.1536,
+      "lng": -21.6771,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1960
+    },
+    {
+      "id": 608,
+      "type": "hver",
+      "lat": 64.1754,
+      "lng": -21.6247,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3213
+    },
+    {
+      "id": 609,
+      "type": "hver",
+      "lat": 64.4981,
+      "lng": -21.1692,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1858
+    },
+    {
+      "id": 610,
+      "type": "hver",
+      "lat": 64.6438,
+      "lng": -21.4857,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4205
+    },
+    {
+      "id": 611,
+      "type": "hver",
+      "lat": 64.6579,
+      "lng": -21.4299,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1152
+    },
+    {
+      "id": 612,
+      "type": "hver",
+      "lat": 64.6905,
+      "lng": -21.0331,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7748
+    },
+    {
+      "id": 613,
+      "type": "hver",
+      "lat": 64.7013,
+      "lng": -21.3141,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4245
+    },
+    {
+      "id": 614,
+      "type": "hver",
+      "lat": 64.7642,
+      "lng": -21.3435,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9872
+    },
+    {
+      "id": 615,
+      "type": "hver",
+      "lat": 64.7186,
+      "lng": -21.5858,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5628
+    },
+    {
+      "id": 616,
+      "type": "hver",
+      "lat": 65.3465,
+      "lng": -23.1609,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 22306
+    },
+    {
+      "id": 617,
+      "type": "hver",
+      "lat": 66.0005,
+      "lng": -21.3188,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10390
+    },
+    {
+      "id": 618,
+      "type": "hver",
+      "lat": 65.878,
+      "lng": -21.4307,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11457
+    },
+    {
+      "id": 620,
+      "type": "hver",
+      "lat": 65.4879,
+      "lng": -20.9947,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10132
+    },
+    {
+      "id": 621,
+      "type": "hver",
+      "lat": 65.5455,
+      "lng": -20.2002,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 13228
+    },
+    {
+      "id": 622,
+      "type": "hver",
+      "lat": 65.2927,
+      "lng": -19.0465,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 24157
+    },
+    {
+      "id": 623,
+      "type": "hver",
+      "lat": 66.0746,
+      "lng": -19.2442,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 17743
+    },
+    {
+      "id": 624,
+      "type": "hver",
+      "lat": 65.608,
+      "lng": -18.0843,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3909
+    },
+    {
+      "id": 626,
+      "type": "hver",
+      "lat": 64.1585,
+      "lng": -19.8202,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 21279
+    },
+    {
+      "id": 627,
+      "type": "hver",
+      "lat": 64.1661,
+      "lng": -20.4821,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2023
+    },
+    {
+      "id": 628,
+      "type": "hver",
+      "lat": 64.2161,
+      "lng": -20.704,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1265
+    },
+    {
+      "id": 631,
+      "type": "hver",
+      "lat": 64.1501,
+      "lng": -21.6664,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2521
+    },
+    {
+      "id": 632,
+      "type": "hver",
+      "lat": 64.1576,
+      "lng": -21.6618,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1965
+    },
+    {
+      "id": 633,
+      "type": "hver",
+      "lat": 64.1604,
+      "lng": -21.6731,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1372
+    },
+    {
+      "id": 634,
+      "type": "hver",
+      "lat": 64.1739,
+      "lng": -21.6108,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3857
+    },
+    {
+      "id": 635,
+      "type": "hver",
+      "lat": 64.4945,
+      "lng": -21.1769,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1760
+    },
+    {
+      "id": 636,
+      "type": "hver",
+      "lat": 64.6407,
+      "lng": -21.4691,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3600
+    },
+    {
+      "id": 637,
+      "type": "hver",
+      "lat": 64.6229,
+      "lng": -21.5482,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7856
+    },
+    {
+      "id": 638,
+      "type": "hver",
+      "lat": 64.6311,
+      "lng": -21.5535,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7719
+    },
+    {
+      "id": 639,
+      "type": "hver",
+      "lat": 64.6867,
+      "lng": -21.4738,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3862
+    },
+    {
+      "id": 640,
+      "type": "hver",
+      "lat": 64.6999,
+      "lng": -21.4991,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5736
+    },
+    {
+      "id": 641,
+      "type": "hver",
+      "lat": 64.7095,
+      "lng": -21.3801,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5202
+    },
+    {
+      "id": 642,
+      "type": "hver",
+      "lat": 64.9874,
+      "lng": -20.9209,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 28175
+    },
+    {
+      "id": 645,
+      "type": "hver",
+      "lat": 65.4734,
+      "lng": -23.0499,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12598
+    },
+    {
+      "id": 649,
+      "type": "hver",
+      "lat": 66.1087,
+      "lng": -16.9374,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 19597
+    },
+    {
+      "id": 650,
+      "type": "hver",
+      "lat": 66.0957,
+      "lng": -16.6064,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 33780
+    },
+    {
+      "id": 651,
+      "type": "hver",
+      "lat": 64.6322,
+      "lng": -16.6423,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 46264
+    },
+    {
+      "id": 652,
+      "type": "hver",
+      "lat": 64.043,
+      "lng": -17.0855,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 23619
+    },
+    {
+      "id": 653,
+      "type": "hver",
+      "lat": 63.5709,
+      "lng": -19.5513,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2837
+    },
+    {
+      "id": 655,
+      "type": "hver",
+      "lat": 64.1095,
+      "lng": -20.542,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1720
+    },
+    {
+      "id": 656,
+      "type": "hver",
+      "lat": 64.109,
+      "lng": -20.5802,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3558
+    },
+    {
+      "id": 657,
+      "type": "hver",
+      "lat": 64.0629,
+      "lng": -20.6536,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5686
+    },
+    {
+      "id": 658,
+      "type": "hver",
+      "lat": 63.9474,
+      "lng": -21.2728,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6775
+    },
+    {
+      "id": 659,
+      "type": "hver",
+      "lat": 64.5316,
+      "lng": -21.3242,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6444
+    },
+    {
+      "id": 660,
+      "type": "hver",
+      "lat": 64.7072,
+      "lng": -21.2359,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5370
+    },
+    {
+      "id": 661,
+      "type": "hver",
+      "lat": 64.7021,
+      "lng": -21.2417,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4740
+    },
+    {
+      "id": 664,
+      "type": "hver",
+      "lat": 64.6574,
+      "lng": -21.3229,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1792
+    },
+    {
+      "id": 666,
+      "type": "hver",
+      "lat": 64.6691,
+      "lng": -21.3773,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1346
+    },
+    {
+      "id": 670,
+      "type": "hver",
+      "lat": 64.616,
+      "lng": -21.5429,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8022
+    },
+    {
+      "id": 671,
+      "type": "hver",
+      "lat": 64.6348,
+      "lng": -21.4831,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4499
+    },
+    {
+      "id": 672,
+      "type": "hver",
+      "lat": 64.6928,
+      "lng": -21.4042,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3151
+    },
+    {
+      "id": 673,
+      "type": "hver",
+      "lat": 64.6881,
+      "lng": -21.5918,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8976
+    },
+    {
+      "id": 675,
+      "type": "hver",
+      "lat": 65.3939,
+      "lng": -23.1477,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18343
+    },
+    {
+      "id": 678,
+      "type": "hver",
+      "lat": 65.5774,
+      "lng": -17.7587,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5424
+    },
+    {
+      "id": 680,
+      "type": "hver",
+      "lat": 66.1763,
+      "lng": -16.5541,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 38377
+    },
+    {
+      "id": 681,
+      "type": "hver",
+      "lat": 66.1561,
+      "lng": -16.5837,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 36360
+    },
+    {
+      "id": 682,
+      "type": "laug",
+      "lat": 64.1727,
+      "lng": -20.1528,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6651
+    },
+    {
+      "id": 683,
+      "type": "hver",
+      "lat": 64.1819,
+      "lng": -20.2363,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5533
+    },
+    {
+      "id": 684,
+      "type": "hver",
+      "lat": 64.1874,
+      "lng": -20.2776,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5763
+    },
+    {
+      "id": 688,
+      "type": "hver",
+      "lat": 64.2367,
+      "lng": -20.5194,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5979
+    },
+    {
+      "id": 691,
+      "type": "hver",
+      "lat": 64.2056,
+      "lng": -20.5621,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6611
+    },
+    {
+      "id": 692,
+      "type": "hver",
+      "lat": 64.1991,
+      "lng": -20.6133,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5870
+    },
+    {
+      "id": 693,
+      "type": "hver",
+      "lat": 64.2035,
+      "lng": -20.6974,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1939
+    },
+    {
+      "id": 696,
+      "type": "hver",
+      "lat": 64.1108,
+      "lng": -20.559,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2513
+    },
+    {
+      "id": 697,
+      "type": "hver",
+      "lat": 64.1163,
+      "lng": -20.5775,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3419
+    },
+    {
+      "id": 698,
+      "type": "hver",
+      "lat": 63.9482,
+      "lng": -21.2634,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6448
+    },
+    {
+      "id": 699,
+      "type": "hver",
+      "lat": 64.2141,
+      "lng": -20.5333,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 6104
+    },
+    {
+      "id": 700,
+      "type": "laug",
+      "lat": 65.585,
+      "lng": -20.1801,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9531
+    },
+    {
+      "id": 806,
+      "type": "laug",
+      "lat": 63.9816,
+      "lng": -18.9996,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2371
+    },
+    {
+      "id": 875,
+      "type": "laug",
+      "lat": 65.6681,
+      "lng": -23.9478,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2138
+    },
+    {
+      "id": 876,
+      "type": "laug",
+      "lat": 65.6633,
+      "lng": -23.9354,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1366
+    },
+    {
+      "id": 882,
+      "type": "laug",
+      "lat": 65.6327,
+      "lng": -23.4656,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1108
+    },
+    {
+      "id": 883,
+      "type": "laug",
+      "lat": 66.1093,
+      "lng": -23.4278,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4771
+    },
+    {
+      "id": 886,
+      "type": "laug",
+      "lat": 65.8309,
+      "lng": -22.6279,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2550
+    },
+    {
+      "id": 887,
+      "type": "laug",
+      "lat": 65.9488,
+      "lng": -21.388,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 12947
+    },
+    {
+      "id": 891,
+      "type": "laug",
+      "lat": 64.0952,
+      "lng": -22.0386,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1384
+    },
+    {
+      "id": 896,
+      "type": "laug",
+      "lat": 65.9859,
+      "lng": -18.3988,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1440
+    },
+    {
+      "id": 898,
+      "type": "hver",
+      "lat": 64.6659,
+      "lng": -22.3684,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18643
+    },
+    {
+      "id": 899,
+      "type": "kolsýrulaugar",
+      "lat": 64.5145,
+      "lng": -15.0746,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18722
+    },
+    {
+      "id": 900,
+      "type": "kolsýrulaugar",
+      "lat": 64.085,
+      "lng": -21.2989,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2276
+    },
+    {
+      "id": 913,
+      "type": "kolsýrulaugar",
+      "lat": 64.8436,
+      "lng": -21.9775,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 16049
+    },
+    {
+      "id": 914,
+      "type": "kolsýrulaugar",
+      "lat": 64.8757,
+      "lng": -22.2695,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5322
+    },
+    {
+      "id": 915,
+      "type": "kolsýrulaugar",
+      "lat": 64.903,
+      "lng": -22.1314,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11750
+    },
+    {
+      "id": 916,
+      "type": "kolsýrulaugar",
+      "lat": 64.9186,
+      "lng": -22.0937,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 14233
+    },
+    {
+      "id": 917,
+      "type": "kolsýrulaugar",
+      "lat": 64.9047,
+      "lng": -22.7442,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 18716
+    },
+    {
+      "id": 918,
+      "type": "kolsýrulaugar",
+      "lat": 64.8871,
+      "lng": -23.6188,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 19750
+    },
+    {
+      "id": 919,
+      "type": "kolsýrulaugar",
+      "lat": 64.9458,
+      "lng": -23.1666,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11829
+    },
+    {
+      "id": 920,
+      "type": "laug",
+      "lat": 64.9883,
+      "lng": -20.8969,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 29307
+    },
+    {
+      "id": 921,
+      "type": "laug",
+      "lat": 65.4041,
+      "lng": -22.9735,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 21073
+    },
+    {
+      "id": 924,
+      "type": "laug",
+      "lat": 65.495,
+      "lng": -19.3435,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1827
+    },
+    {
+      "id": 925,
+      "type": "laug",
+      "lat": 65.5643,
+      "lng": -18.0693,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1394
+    },
+    {
+      "id": 926,
+      "type": "laug",
+      "lat": 65.4796,
+      "lng": -18.0702,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10427
+    },
+    {
+      "id": 928,
+      "type": "hver",
+      "lat": 65.821,
+      "lng": -18.0787,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7954
+    },
+    {
+      "id": 940,
+      "type": "laug",
+      "lat": 65.4361,
+      "lng": -19.3126,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 4045
+    },
+    {
+      "id": 949,
+      "type": "laug",
+      "lat": 64.8786,
+      "lng": -19.5701,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1531
+    },
+    {
+      "id": 954,
+      "type": "laug",
+      "lat": 64.0217,
+      "lng": -19.0947,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3437
+    },
+    {
+      "id": 957,
+      "type": "laug",
+      "lat": 63.9577,
+      "lng": -19.0148,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3283
+    },
+    {
+      "id": 961,
+      "type": "kolsýrulaugar",
+      "lat": 63.8602,
+      "lng": -18.9734,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2163
+    },
+    {
+      "id": 962,
+      "type": "kolsýrulaugar",
+      "lat": 63.8452,
+      "lng": -18.9766,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3661
+    },
+    {
+      "id": 963,
+      "type": "laug",
+      "lat": 63.8787,
+      "lng": -19.1558,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8429
+    },
+    {
+      "id": 964,
+      "type": "laug",
+      "lat": 63.8625,
+      "lng": -19.193,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10501
+    },
+    {
+      "id": 973,
+      "type": "hver",
+      "lat": 63.3058,
+      "lng": -20.6147,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 53315
+    },
+    {
+      "id": 974,
+      "type": "laug",
+      "lat": 65.6362,
+      "lng": -16.9133,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3090
+    },
+    {
+      "id": 976,
+      "type": "laug",
+      "lat": 64.6761,
+      "lng": -16.5469,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 42072
+    },
+    {
+      "id": 978,
+      "type": "laug",
+      "lat": 64.2361,
+      "lng": -16.0695,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 39050
+    },
+    {
+      "id": 979,
+      "type": "kolsýrulaugar",
+      "lat": 64.3341,
+      "lng": -15.2456,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8040
+    },
+    {
+      "id": 980,
+      "type": "kolsýrulaugar",
+      "lat": 64.2517,
+      "lng": -15.4504,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 11680
+    },
+    {
+      "id": 982,
+      "type": "laug",
+      "lat": 65.5249,
+      "lng": -23.325,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 3746
+    },
+    {
+      "id": 983,
+      "type": "kolsýrulaugar",
+      "lat": 64.9818,
+      "lng": -23.1581,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 15839
+    },
+    {
+      "id": 984,
+      "type": "laug",
+      "lat": 64.8211,
+      "lng": -22.4367,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5724
+    },
+    {
+      "id": 993,
+      "type": "laug",
+      "lat": 63.9295,
+      "lng": -21.292,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8913
+    },
+    {
+      "id": 997,
+      "type": "laug",
+      "lat": 63.9876,
+      "lng": -21.1604,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 1830
+    },
+    {
+      "id": 998,
+      "type": "laug",
+      "lat": 63.9806,
+      "lng": -21.1672,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2248
+    },
+    {
+      "id": 1010,
+      "type": "laug",
+      "lat": 64.8249,
+      "lng": -19.276,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 13543
+    },
+    {
+      "id": 1011,
+      "type": "laug",
+      "lat": 66.1832,
+      "lng": -16.9945,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 21746
+    },
+    {
+      "id": 1014,
+      "type": "laug",
+      "lat": 65.8349,
+      "lng": -17.3168,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5772
+    },
+    {
+      "id": 1016,
+      "type": "laug",
+      "lat": 65.8185,
+      "lng": -17.3031,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 7587
+    },
+    {
+      "id": 1018,
+      "type": "laug",
+      "lat": 65.8065,
+      "lng": -17.3196,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8932
+    },
+    {
+      "id": 1019,
+      "type": "laug",
+      "lat": 65.7841,
+      "lng": -17.274,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 8001
+    },
+    {
+      "id": 1021,
+      "type": "laug",
+      "lat": 65.7461,
+      "lng": -17.3723,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 2838
+    },
+    {
+      "id": 1022,
+      "type": "laug",
+      "lat": 65.672,
+      "lng": -17.3154,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 5819
+    },
+    {
+      "id": 1024,
+      "type": "laug",
+      "lat": 65.6463,
+      "lng": -17.2831,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9021
+    },
+    {
+      "id": 1026,
+      "type": "laug",
+      "lat": 65.629,
+      "lng": -17.2934,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 10680
+    },
+    {
+      "id": 1032,
+      "type": "laug",
+      "lat": 65.9728,
+      "lng": -22.5994,
+      "accuracyMeters": 500,
+      "nearestAtlasMeters": 9278
+    }
+  ]
+}
