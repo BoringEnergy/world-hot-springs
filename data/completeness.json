@@ -1,0 +1,34 @@
+{
+  "note": "The atlas beside national counts published by a government. The units differ, so ratio is atlas / official between differently defined counts, not a percentage complete; each row says why. Sources and caveats: data/reference/official-inventories.json.",
+  "siteLinkMeters": 500,
+  "rows": [
+    {
+      "inventory": "jp-moe-onsen-riyou-fy2024",
+      "country": "JP",
+      "countryName": "Japan",
+      "publisher": "Ministry of the Environment, Japan (環境省)",
+      "source": "https://www.env.go.jp/nature/onsen/pdf/6-7_p_1.pdf",
+      "asOf": "2025-03-31",
+      "unit": "温泉地 (hot-spring localities)",
+      "official": 2839,
+      "comparesWith": "sites",
+      "atlas": 812,
+      "ratio": 0.29,
+      "caveat": "Counts only localities with lodging: note 1 of the table reads 温泉地数は宿泊施設のある場所を計上. A wild spring with no inn is not a 温泉地, so this is itself a floor."
+    },
+    {
+      "inventory": "jp-moe-onsen-riyou-fy2024",
+      "country": "JP",
+      "countryName": "Japan",
+      "publisher": "Ministry of the Environment, Japan (環境省)",
+      "source": "https://www.env.go.jp/nature/onsen/pdf/6-7_p_1.pdf",
+      "asOf": "2025-03-31",
+      "unit": "源泉 (sources)",
+      "official": 27899,
+      "comparesWith": "features",
+      "atlas": 1023,
+      "ratio": 0.04,
+      "caveat": "Every registered source, including 4,074 below 25 C (Japanese law counts mineral water as 温泉 at any temperature), 11,032 not in use, and drilled wells. Many are not places anyone could visit."
+    }
+  ]
+}

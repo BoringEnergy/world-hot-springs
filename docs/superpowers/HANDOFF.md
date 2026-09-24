@@ -48,8 +48,8 @@ method, written down. The count had three kinds of error, measured on the
     not a spring        records of wells, houses, shops and survey points   343 fixed here
     counted twice       one spring in two records, mostly NOAA 1981 pins    17 fixed
                         a few hundred metres from the OSM pin               2026-09-22
-    counting unit       numbered pools and vents at one site each count     not decided
-                        as a spring ("Termita 3" / "Termita 4")
+    counting unit       numbered pools and vents at one site each count     decided and
+                        as a spring ("Termita 3" / "Termita 4")             built 2026-09-23
 
 **This PR: 7,490 -> 7,147 springs, 131 -> 126 countries.** Found by reading
 every attribute-free record whose name has no thermal word in any script, then
@@ -93,6 +93,19 @@ reading (8 of 48,707, up to 1,152 C). Published data byte-identical.
 Next worth doing with it: the 52 conflicts are a reviewed-claims worklist, and
 the 145 corroborations could appear on the card ("confirmed by a second
 survey"), which is a schema addition and wants a decision.
+
+**How the atlas counts, decided by Hudson 2026-09-23:** two counts always
+(7,130 features, 4,462 sites), a site is features linked within 500 m, and the
+atlas is set beside any official national count. See DATA.md "How the atlas
+counts" and `specs/2026-09-23-counting-unit.md`. Japan is the only official
+count so far, read from the ministry's FY2024 PDF: the atlas's 812 sites are
+0.29 of its 2,839 localities, and those count only places with lodging.
+
+**Next for the count:** find and read the other national inventories the spec
+names (Iceland, New Zealand, Taiwan, Korea, Hungary, Turkey), each entered in
+`data/reference/official-inventories.json` only with its source and caveats. And
+the fun half, deferred as a schema change: a per-record site so the map can
+show "Termita 1-4" as one place.
 
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
 an agent. It is a separate question from the count.

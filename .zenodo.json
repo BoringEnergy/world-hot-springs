@@ -8,7 +8,7 @@
       "name": "Hudson R&D"
     }
   ],
-  "description": "An open, curated, provenance-attached atlas of the world's public and semi-public hot springs. Temperature, price, clothing policy and opening hours are first-class fields; unknown values are stored explicitly as null and rendered as \"Unknown\" rather than omitted, blank, or invented. Springs that local communities ask to have excluded are removed from the live atlas and from every later version, and the exclusion survives re-import. This version holds 7,130 records across 126 countries; 19% carry a recorded temperature, which is a description of what public data exists rather than a backlog.",
+  "description": "An open, curated, provenance-attached atlas of the world's public and semi-public hot springs. Temperature, price, clothing policy and opening hours are first-class fields; unknown values are stored explicitly as null and rendered as \"Unknown\" rather than omitted, blank, or invented. Springs that local communities ask to have excluded are removed from the live atlas and from every later version, and the exclusion survives re-import. This version holds 7,130 hot-spring features at 4,462 sites (features within 500 m of one another) across 126 countries; 19% carry a recorded temperature, which is a description of what public data exists rather than a backlog.",
   "access_right": "open",
   "license": "odbl-1.0",
   "keywords": [

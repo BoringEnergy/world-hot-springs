@@ -17,8 +17,10 @@ import { numberWords, springsInWords } from '../src/lib/format.ts';
 const README = fs.readFileSync('README.md', 'utf8');
 const SUMMARY = JSON.parse(fs.readFileSync('data/summary.json', 'utf8'));
 
-test('the README headline count matches summary.json', () => {
-  const want = `**${SUMMARY.total.toLocaleString('en-US')} springs across ${SUMMARY.countries} countries**`;
+test('the README headline states both counts, from summary.json', () => {
+  // Two counts, never one alone: docs/superpowers/specs/2026-09-23-counting-unit.md.
+  const n = (x) => x.toLocaleString('en-US');
+  const want = `**${n(SUMMARY.total)} hot-spring features at ${n(SUMMARY.sites)} sites across ${SUMMARY.countries} countries**`;
   assert.ok(README.includes(want), `README should contain: ${want}`);
 });
 

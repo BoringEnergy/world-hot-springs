@@ -8,7 +8,12 @@ survey, forum posts, and OpenStreetMap tags that nobody has ever normalised.
 This repository is an attempt to fix that, in public, with the provenance
 attached.
 
-**7,130 springs across 126 countries** in the current build.
+**7,130 hot-spring features at 4,462 sites across 126 countries** in the current build.
+A feature is what a mapper drew: a vent, a pool, a spring. A site is the
+features within 500 m of one another, the place a visitor means by "a hot
+spring". Both are a floor of what is publicly mapped, not a census: in Japan,
+where the government counts, the atlas holds 812 sites beside 2,839 official
+hot-spring localities ([how the atlas counts](docs/DATA.md#how-the-atlas-counts)).
 
 **v1 — 2026-09-11.** The atlas meets every success criterion in
 [SPEC.md](SPEC.md) §9. Coverage is a description of what public data exists,

@@ -17,6 +17,8 @@ import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { compileBadImports, matchBadImport, unmatchedIds } from './lib/bad-imports.mjs';
 import { findCoarseDuplicates, nceiRefOf } from './lib/coarse-pins.mjs';
+import { groupSites, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
+import { compileInventories, compareWithInventories } from './lib/completeness.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
@@ -38,6 +40,8 @@ const RAW_DIR = path.join('data', 'raw', 'osm');
 const OUT_JSON = path.join('data', 'hot-springs.json');
 const OUT_GEOJSON = path.join('data', 'hot-springs.geojson');
 const OUT_SUMMARY = path.join('data', 'summary.json');
+const OUT_COMPLETENESS = path.join('data', 'completeness.json');
+const INVENTORIES = path.join('data', 'reference', 'official-inventories.json');
 const REGISTRY = path.join('data', 'registry.json');
 const OVERLAY_DIR = path.join('data', 'overlay');
 const EVENTS = path.join('data', 'events.jsonl');
@@ -937,6 +941,12 @@ async function main() {
     if (r.clothing.policy !== 'unknown') withClothing++;
   }
 
+  // --- Two counts, always together ---
+  // Features are what mappers drew; sites are the places a visitor means. The
+  // atlas publishes both and never one alone (docs/superpowers/specs/
+  // 2026-09-23-counting-unit.md). The linking distance travels with them.
+  const { siteOf, sites } = groupSites(records);
+
   const summary = {
     // The OSM snapshot this dataset was derived from -- NOT when the build
     // ran. buildTimestamp() takes the newest raw-tile mtime (or
@@ -951,6 +961,8 @@ async function main() {
     // whose whole premise is not doing that.
     sourceDate: generatedAt,
     total: records.length,
+    sites: sites.length,
+    siteLinkMeters: SITE_LINK_METERS,
     countries: Object.keys(byCountry).length,
     coverage: {
       temperature: withTemp,
@@ -964,17 +976,39 @@ async function main() {
         .map(([k, v]) => [k.split('|')[1], v])
         .sort((a, b) => b[1] - a[1]),
     ),
+    sitesByCountry: sitesByCountry(records, siteOf),
     droppedDuplicates: dropped,
     rejected: Object.fromEntries(rejects),
     excludedByPrivacyList: excluded,
     landManagerRestricted: Object.fromEntries(byManager),
   };
   fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
+
+  // --- Against the official count, where one exists ---
+  const byIso = { features: {}, sites: {}, names: {} };
+  const isoSites = {};
+  for (const r of records) {
+    const cc = r.location.country;
+    byIso.features[cc] = (byIso.features[cc] ?? 0) + 1;
+    byIso.names[cc] = r.location.countryName;
+    (isoSites[cc] ??= new Set()).add(siteOf.get(r.id));
+  }
+  for (const [cc, set] of Object.entries(isoSites)) byIso.sites[cc] = set.size;
+  const inventories = compileInventories(JSON.parse(fs.readFileSync(INVENTORIES, 'utf8')));
+  const againstOfficial = compareWithInventories(inventories, byIso);
+  fs.writeFileSync(OUT_COMPLETENESS, `${JSON.stringify({
+    note: 'The atlas beside national counts published by a government. The units differ, so ratio is atlas / official between differently defined counts, not a percentage complete; each row says why. Sources and caveats: data/reference/official-inventories.json.',
+    siteLinkMeters: SITE_LINK_METERS,
+    rows: againstOfficial,
+  }, null, 2)}\n`);
   fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');
   const written = appendEvents(EVENTS, [...identityEvents, ...sourceEvents, ...overlayEvents], generatedAt);
   if (written) console.log(`  ${written} new event(s) recorded in ${EVENTS}`);
 
-  console.log(`\n${records.length} springs across ${summary.countries} countries`);
+  console.log(`\n${records.length} features at ${sites.length} sites across ${summary.countries} countries`);
+  for (const c of againstOfficial) {
+    console.log(`  ${c.countryName}: ${c.atlas} ${c.comparesWith} beside ${c.official} ${c.unit} (${c.asOf}), ratio ${c.ratio}`);
+  }
   console.log(`  temperature known: ${withTemp} (${Math.round((withTemp / records.length) * 100)}%)`);
   console.log(`  price known:       ${withPrice} (${Math.round((withPrice / records.length) * 100)}%)`);
   console.log(`  hours known:       ${withHours} (${Math.round((withHours / records.length) * 100)}%)`);
@@ -987,7 +1021,7 @@ async function main() {
     fs.copyFileSync(f, path.join(publicDir, path.basename(f)));
   }
 
-  console.log(`\nwrote ${OUT_JSON}, ${OUT_GEOJSON}, ${OUT_SUMMARY} (+ copies in public/data/)`);
+  console.log(`\nwrote ${OUT_JSON}, ${OUT_GEOJSON}, ${OUT_SUMMARY} (+ copies in public/data/), ${OUT_COMPLETENESS}`);
 }
 
 // Guarded so a test can import mergeInto without rebuilding the whole dataset
