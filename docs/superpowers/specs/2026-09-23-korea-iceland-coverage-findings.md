@@ -1,6 +1,8 @@
 # Korea and Iceland — can the atlas fill its two thinnest countries?
 
-Findings 2026-09-23. Status: **two decisions for Hudson.** Nothing built.
+Findings 2026-09-23. **Decided 2026-09-24:** I1 (Iceland worklist) built in
+#107. Hudson chose K1 for Korea, and **K1 was measured before building and does
+not work**; see "K1, measured" below. Korea's coverage stays as it is.
 
 The official-count comparison (DATA.md, "How the atlas counts") showed the atlas
 thinnest in South Korea (33 sites beside 446 official hot-spring areas, 0.07) and
@@ -48,6 +50,38 @@ as add new ones.
 - **K3: import only the 113 rows that already have coordinates** (the standard
   data plus Busan). No geocoding, but it misses the 524 bathhouses that are the
   in-scope set.
+
+### K1, measured (2026-09-24) — not viable
+
+A deterministic sample of 30 of the 524 rows (every 17th), sent to Nominatim
+one request a second:
+
+| Query | Building or point of interest | Road only | Nothing |
+|---|---|---|---|
+| the row's address | **5** | 12 | 13 |
+| the business name and its district | **6**, one of them wrong ("세종" matched a hospital) | 0 | 24 |
+
+A road-level result is the road's centroid, and roads such as 죽령로 run for
+tens of kilometres, so it is not a pin. OpenStreetMap holds too few Korean
+house-number addresses, and the businesses themselves are rarely mapped under
+the names the list gives them. **About one row in six could be placed, so K1
+would publish a sixth of Korea's licensed set and imply that was all of it.**
+
+The sample also showed the list is looser than "hot-spring bathhouses". Rows
+include motels, unmanned love hotels, a PC-room hotel, a housing company and a
+residents' council: anything licensed to *use* hot-spring water.
+
+It cannot check the existing records either. 7 of the atlas's 38 Korean names
+match a listed business, and 2 of those 7 are coincidences. Well-known springs
+such as 수안보, 청도용암온천 and 능암온천랜드 are absent, because the list is Korea
+Hot Spring Association members (524 of the ministry's 555 licensed businesses).
+Absence from it proves nothing.
+
+**What would work, if Korea matters enough:** K2, the government's Juso
+address API, which does hold Korean road addresses. First, its terms must be
+confirmed to allow republishing its coordinates under ODbL, and a key obtained.
+Even then, the list's scope (motels and companies) would need filtering to
+places people go to bathe.
 
 ## Iceland — no open list of places to bathe
 

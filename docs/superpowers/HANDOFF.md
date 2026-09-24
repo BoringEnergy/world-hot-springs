@@ -114,8 +114,11 @@ spring's neighbours at its place.
 **Coverage, 2026-09-23 (findings spec `2026-09-23-korea-iceland-coverage-findings.md`).**
 Iceland: decision I1 built -- `data/iceland-candidates.json`, 389 warm/hot springs
 on the CC BY 4.0 2003 map with nothing in the atlas within 1 km. A worklist to
-verify one at a time, never an import. Korea: decision K (geocode the 524
-licensed hot-spring businesses via Nominatim) is Hudson's; not started.
+verify one at a time, never an import. Korea: Hudson chose K1 (Nominatim); measured on a
+30-row sample first, it places one row in six (address: 5 building-level, 12
+road-only, 13 nothing; name: 6, one wrong), and the list is broader than
+bathhouses (motels, companies) and only association members. Not built. The
+remaining route is K2 (Juso API), only after its terms are confirmed for ODbL.
 
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
 an agent. It is a separate question from the count.
