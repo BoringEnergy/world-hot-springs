@@ -8,7 +8,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { matchWqp, agreedReading, groupStations, WQP_RADIUS_M, AGREEMENT_C } from './lib/wqp-match.mjs';
+import {
+  matchWqp, compareWqp, agreedReading, groupStations, WQP_RADIUS_M, AGREEMENT_C, PLAUSIBLE_MAX_C,
+} from './lib/wqp-match.mjs';
 
 const spring = (id, lat, lng) => ({
   id, name: id, location: { lat, lng }, temperature: { celsius: null },
@@ -154,4 +156,61 @@ test('no spring is enriched by a station that also serves another', () => {
   for (const m of report.matched) seen.set(m.station, (seen.get(m.station) ?? 0) + 1);
   const shared = [...seen.entries()].filter(([, n]) => n > 1);
   assert.deepEqual(shared, [], 'a station may enrich at most one spring');
+});
+
+test('a reading above boiling is not a reading of spring water, and is dropped alone', () => {
+  assert.equal(PLAUSIBLE_MAX_C, 100);
+  const st = groupStations([
+    reading('A', 40, -118, 1152, '2000-02-02'),
+    reading('A', 40, -118, 41, '1999-01-01'),
+    reading('A', 40, -118, 42, '2001-01-01'),
+  ]).get('A');
+  assert.deepEqual(st.readings.map((r) => r.celsius), [41, 42], 'the sound readings survive and can agree');
+  assert.equal(groupStations([reading('B', 40, -118, 100)]).get('B').readings.length, 1, '100 C itself is possible');
+});
+
+const known = (id, lat, lng, celsius, source = 'NOAA') => ({ ...spring(id, lat, lng), temperature: { celsius, source } });
+
+test('a second measurement that agrees is corroboration; one that disagrees is a conflict', () => {
+  const { corroborated, conflicts } = compareWqp(
+    [reading('A', 40, -118, 59.5, '1980-08-19'), reading('B', 41, -118, 17, '1974-01-01')],
+    [known('agrees', 40, -118, 60), known('differs', 41, -118, 52)],
+  );
+  assert.deepEqual(corroborated.map((c) => [c.id, c.atlas, c.wqp]), [['agrees', 60, 59.5]]);
+  assert.deepEqual(conflicts.map((c) => [c.id, c.atlas, c.wqp, c.wqpMeasuredAt]), [['differs', 52, 17, '1974-01-01']]);
+});
+
+test('comparison never writes, and never looks at a spring with no value', () => {
+  const s = spring('empty', 40, -118);
+  const k = known('k', 41, -118, 52);
+  const { corroborated, conflicts } = compareWqp([reading('A', 40, -118, 50), reading('B', 41, -118, 17)], [s, k]);
+  assert.equal(corroborated.length + conflicts.length, 1);
+  assert.equal(s.temperature.celsius, null);
+  assert.equal(k.temperature.celsius, 52);
+});
+
+test('a station near two springs is not compared with either, even if one has no value', () => {
+  // Unlike the fill pass: the question is whether the reading is OF this spring.
+  const { corroborated, conflicts } = compareWqp(
+    [reading('A', 40, -118, 17)],
+    [known('k', north(40, 30), -118, 52), spring('neighbour', north(40, -30), -118)],
+  );
+  assert.equal(corroborated.length + conflicts.length, 0);
+});
+
+test('a spring with two stations in range, or a station whose readings disagree, is not compared', () => {
+  const two = compareWqp([reading('A', 40, -118, 17), reading('B', north(40, 50), -118, 52)], [known('k', 40, -118, 52)]);
+  assert.equal(two.corroborated.length + two.conflicts.length, 0);
+  const spread = compareWqp([reading('A', 40, -118, 30), reading('A', 40, -118, 52)], [known('k', 40, -118, 52)]);
+  assert.equal(spread.corroborated.length + spread.conflicts.length, 0);
+});
+
+test('the shipped report sorts every comparison by the tolerance it states', () => {
+  const report = JSON.parse(fs.readFileSync('data/wqp-match-report.json', 'utf8'));
+  assert.equal(report.counts.corroborated, report.corroborated.length);
+  assert.equal(report.counts.conflicts, report.conflicts.length);
+  assert.ok(report.corroborated.length > 50, 'not vacuous');
+  for (const c of report.corroborated) assert.ok(Math.abs(c.atlas - c.wqp) <= AGREEMENT_C, c.id);
+  for (const c of report.conflicts) assert.ok(Math.abs(c.atlas - c.wqp) > AGREEMENT_C, c.id);
+  for (const c of [...report.corroborated, ...report.conflicts]) assert.ok(c.wqp <= PLAUSIBLE_MAX_C, c.id);
 });

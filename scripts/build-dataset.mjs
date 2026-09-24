@@ -26,7 +26,7 @@ import { matchNcei, hasAuthoredTemperature } from './lib/ncei-match.mjs';
 import { classify, toRecord, refKey, NCEI_PROVIDER } from './lib/ncei-admit.mjs';
 import { aistClassification } from './lib/senshitsu.mjs';
 import { fromTsv as wqpFromTsv, WQP_SOURCE, WQP_PAGE, WQP_PROVIDER } from './lib/wqp.mjs';
-import { matchWqp } from './lib/wqp-match.mjs';
+import { matchWqp, compareWqp } from './lib/wqp-match.mjs';
 import { fromTsv as nbmgFromTsv, NBMG_PAGE, NBMG_PROVIDER } from './lib/nbmg.mjs';
 import { matchNbmg } from './lib/nbmg-match.mjs';
 import { reconcileAccuracy } from './lib/accuracy.mjs';
@@ -655,6 +655,9 @@ async function main() {
     console.log('Merging Water Quality Portal readings ...');
     const wqpRows = wqpFromTsv(fs.readFileSync(WQP_TSV, 'utf8'));
     const { matched: wqpMatched, withheld: wqpWithheld } = matchWqp(wqpRows, records);
+    // Before the fill, so a spring is never compared with the reading this
+    // stage is about to give it.
+    const { corroborated: wqpCorroborated, conflicts: wqpConflicts } = compareWqp(wqpRows, records);
 
     let wqpFilled = 0;
     let wqpDeferred = 0;
@@ -693,14 +696,21 @@ async function main() {
           filled: wqpFilled,
           deferredToAuthor: wqpDeferred,
           withheld: wqpWithheld.length,
+          corroborated: wqpCorroborated.length,
+          conflicts: wqpConflicts.length,
         },
         matched: wqpMatched,
         withheld: wqpWithheld,
+        // A second measurement of a temperature the atlas already publishes.
+        // Neither list changes a record: agreement is evidence, and a
+        // disagreement is for a person to read, not for source order to settle.
+        corroborated: wqpCorroborated,
+        conflicts: wqpConflicts,
       }, null, 2)}\n`,
     );
     console.log(
       `  ${wqpMatched.length} matched, ${wqpFilled} temperature(s) filled, `
-      + `${wqpWithheld.length} withheld -> data/wqp-match-report.json`,
+      + `${wqpWithheld.length} withheld, ${wqpCorroborated.length} corroborated, ${wqpConflicts.length} in conflict -> data/wqp-match-report.json`,
     );
   }
 

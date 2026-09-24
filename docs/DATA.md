@@ -358,6 +358,31 @@ The same measurement sets `location.accuracyMeters` on the pins NOAA placed:
 **500 m**, the 90th percentile, not the 110 m the decimals suggest. The sample is
 springs OSM also maps, which leans toward well-known ones.
 
+### A second measurement of the same spring
+
+The Water Quality Portal (USGS/EPA monitoring stations) fills a temperature only
+for a spring that has none, from the one station within 200 m, and only when that
+station serves no other spring still waiting for a value. It never overwrites.
+
+It also **compares** its reading with a temperature a spring already has, and
+reports the result in `data/wqp-match-report.json` without changing any record:
+
+- `corroborated`: the two agree within 2 C. Of the NOAA 1981 temperatures a
+  station can be attributed to, about three in four are confirmed this way.
+- `conflicts`: they disagree, with both values, both dates and the station. They
+  are not settled by which source is newer. Many disagreeing stations are plainly
+  measuring something else inside the radius: 17 C beside a 52 C spring, usually
+  colder, a creek or a well.
+
+For a comparison, a station near two springs is attributed to neither, even when
+one of them has no value. The question is whether the reading is *of* this
+spring.
+
+A station reading above **100 C** is dropped as a reading. Liquid water at the
+surface cannot be hotter; the 8 such readings in the mirror (up to 1,152 C) are
+entry or unit errors. This bounds a water sample, not the atlas: a curated claim
+may state a superheated well.
+
 ## Known limitations
 
 - **Coverage follows OSM's coverage**, which is excellent in Japan, Iceland, and
