@@ -78,12 +78,21 @@ of this spring is historical". The absorbed ids stay in the registry with
 `mergedInto` and a `spring.merged` event. `accuracyMeters` on NOAA pins is now
 500 (p90), not 110.
 
-**Open, found on the way, not decided:** NOAA's 1981 stage runs before WQP,
-and WQP steps aside silently when a temperature is present. So a dated modern
-WQP reading loses to a 1981 figure on every spring both describe, and the
-disagreement is reported nowhere. San Antonio Hot Spring is 54 C from NOAA; WQP
-measured 40. Whether a dated reading should win is a precedence decision for
-the whole dataset, not a fix to slip into a dedupe PR.
+**NOAA vs WQP, settled 2026-09-23: report, do not resolve.** The plan was
+"a dated modern reading beats 1981". Measured first, and it was wrong: 25 of
+the 36 readings WQP fills are OLDER than 1981 (San Antonio's 40 C is from
+1973), and many readings that disagree with NOAA are plainly not the spring
+(17 C at Kahneeta's 52, 433 C beside a 33 C spring). So `compareWqp()` checks
+every spring that already has a temperature and reports `corroborated` (145,
+144 of them NOAA's: about three in four NOAA values WQP can reach) and
+`conflicts` (52) in `data/wqp-match-report.json`, changing no record. Filling
+is untouched, including the recorded decision that a neighbour with a value
+does not contend for a reading. A WQP reading above 100 C is dropped as a
+reading (8 of 48,707, up to 1,152 C). Published data byte-identical.
+
+Next worth doing with it: the 52 conflicts are a reviewed-claims worklist, and
+the 145 corroborations could appear on the card ("confirmed by a second
+survey"), which is a schema addition and wants a decision.
 
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
 an agent. It is a separate question from the count.
