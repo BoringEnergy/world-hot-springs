@@ -32,6 +32,14 @@ and `version` and `date-released` in `CITATION.cff`, and a test holds
   named by its lowest spring id. 622 places hold more than one spring, 3,290
   springs between them; a spring's card lists the others at its place, so
   "Termita 3" reads as one of nine pools rather than a destination of its own.
+- **Iceland, South Korea and Taiwan beside their official counts.** Each read
+  from the primary source: Orkustofnun's 2024 geothermal map (1,388 cells of
+  about 500 m, 2,274 clusters), the Ministry of the Interior and Safety's 2025
+  status report (446 hot-spring areas, 1,117 wells, as of 2024-12-31), and the
+  Geological Survey and Mining Management Agency's list of 150 natural outcrops
+  (a list with no stated total, so counted by the atlas and marked so). New
+  Zealand, Hungary and Turkey were read and have no comparable count; that is
+  recorded with the sources read, not left blank.
 - **Two counts, always together.** `summary.json` gains `sites` (4,462),
   `sitesByCountry` and `siteLinkMeters` (500) beside `total` (7,130
   features). A site is the features within 500 m of one another, the place a

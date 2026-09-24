@@ -415,8 +415,13 @@ government publishes a national count, the build sets the atlas beside it in
 
 | Country | Official count | As of | Atlas | Ratio |
 |---|---|---|---|---|
-| Japan | 2,839 温泉地 (localities) | 2025-03-31 | 812 sites | 0.29 |
+| Japan | 2,839 温泉地 (hot-spring localities) | 2025-03-31 | 812 sites | 0.29 |
 | Japan | 27,899 源泉 (sources) | 2025-03-31 | 1,023 features | 0.04 |
+| Iceland | 1,388 reitir (geothermal cells, about 500 m radius) | 2024-11-19 | 167 sites | 0.12 |
+| Iceland | 2,274 þyrpingar (clusters of vents, about 50 m radius) | 2024-11-19 | 330 features | 0.15 |
+| South Korea | 446 온천발견 지역 (hot-spring discovery areas) | 2024-12-31 | 33 sites | 0.07 |
+| South Korea | 1,117 온천공 (hot-spring wells) | 2024-12-31 | 38 features | 0.03 |
+| Taiwan | 150 溫泉露頭 (natural hot-spring outcrops) | 2025-06-20 | 92 sites | 0.61 |
 
 The units are the publisher's and never match ours exactly, so the ratio is
 indicative, not a percentage complete. Japan's localities count only places
@@ -425,8 +430,21 @@ floor; its sources include 4,074 below 25 C (Japanese law counts mineral water
 as 温泉 at any temperature), 11,032 not in use, and drilled wells. Source: the
 Ministry of the Environment's 令和6年度 温泉利用状況.
 
+Iceland's cell is a circle of about 500 m radius, close to the atlas's site,
+and the same Orkustofnun report finds continuous surface geothermal activity
+rarely spreads beyond 500 m outside the high-temperature areas: independent
+support for the linking distance. Korea's counts are legal designations and
+mostly drilled wells with a 25 C floor. Taiwan's agency publishes a list of 150
+natural outcrops and no total, so that number is the atlas's count of its rows
+(`countedByAtlas`). Every row's full caveat is in the reference file.
+
 A country appears here only once its published inventory has been read and
-its caveats written down. None is estimated.
+its caveats written down. None is estimated. Read and found to have no count
+comparable with ours: **New Zealand** (GNS keeps a surface-features database
+but publishes no total), **Hungary** (the registry certifies medicinal waters,
+mostly wells), **Turkey** (MTA gives "around 1,000" natural outflows, an
+approximation, and 246 drilled fields). The sources read are listed under
+`withoutComparableCount`.
 
 ## Known limitations
 

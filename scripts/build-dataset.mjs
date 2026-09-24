@@ -18,7 +18,7 @@ import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { compileBadImports, matchBadImport, unmatchedIds } from './lib/bad-imports.mjs';
 import { findCoarseDuplicates, nceiRefOf } from './lib/coarse-pins.mjs';
 import { groupSites, siteLabels, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
-import { compileInventories, compareWithInventories } from './lib/completeness.mjs';
+import { compileInventories, compileChecked, compareWithInventories } from './lib/completeness.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
 import { appendEvents } from './lib/events.mjs';
@@ -999,12 +999,15 @@ async function main() {
     (isoSites[cc] ??= new Set()).add(siteOf.get(r.id));
   }
   for (const [cc, set] of Object.entries(isoSites)) byIso.sites[cc] = set.size;
-  const inventories = compileInventories(JSON.parse(fs.readFileSync(INVENTORIES, 'utf8')));
+  const inventoryFile = JSON.parse(fs.readFileSync(INVENTORIES, 'utf8'));
+  const inventories = compileInventories(inventoryFile);
+  const checkedWithoutCount = compileChecked(inventoryFile);
   const againstOfficial = compareWithInventories(inventories, byIso);
   fs.writeFileSync(OUT_COMPLETENESS, `${JSON.stringify({
     note: 'The atlas beside national counts published by a government. The units differ, so ratio is atlas / official between differently defined counts, not a percentage complete; each row says why. Sources and caveats: data/reference/official-inventories.json.',
     siteLinkMeters: SITE_LINK_METERS,
     rows: againstOfficial,
+    withoutComparableCount: checkedWithoutCount,
   }, null, 2)}\n`);
   fs.writeFileSync(REGISTRY, JSON.stringify(registry, null, 2) + '\n');
   const written = appendEvents(EVENTS, [...identityEvents, ...sourceEvents, ...overlayEvents], generatedAt);
