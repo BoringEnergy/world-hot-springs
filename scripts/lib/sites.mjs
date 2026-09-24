@@ -88,6 +88,23 @@ export function groupSites(records, linkMeters = SITE_LINK_METERS) {
 }
 
 /**
+ * Each record's site, as the record will carry it: `{ id, springs }`.
+ *
+ * The id is the lowest record id in the site, so it names a real spring and
+ * stays put as long as that spring stays in the place -- a site number would
+ * renumber every site after any change anywhere. It moves only when that
+ * spring leaves, or when two sites join and the other held a lower id.
+ */
+export function siteLabels(sites) {
+  const label = new Map();
+  for (const ids of sites) {
+    const id = ids.reduce((lo, x) => (x < lo ? x : lo));
+    for (const member of ids) label.set(member, { id, springs: ids.length });
+  }
+  return label;
+}
+
+/**
  * Sites per country, by country name. A site that straddles a border counts in
  * each country it touches, so these can sum to more than the total; the total
  * counts every site once.

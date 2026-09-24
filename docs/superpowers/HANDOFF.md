@@ -103,9 +103,9 @@ count so far, read from the ministry's FY2024 PDF: the atlas's 812 sites are
 
 **Next for the count:** find and read the other national inventories the spec
 names (Iceland, New Zealand, Taiwan, Korea, Hungary, Turkey), each entered in
-`data/reference/official-inventories.json` only with its source and caveats. And
-the fun half, deferred as a schema change: a per-record site so the map can
-show "Termita 1-4" as one place.
+`data/reference/official-inventories.json` only with its source and caveats. The
+per-record site is built (`location.site`, 2026-09-23): the card lists a
+spring's neighbours at its place.
 
 Jev (typesafe-ai/jev) was researched and parked: a typed-decision model, not
 an agent. It is a separate question from the count.

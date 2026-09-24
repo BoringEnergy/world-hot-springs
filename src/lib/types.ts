@@ -71,6 +71,13 @@ export interface HotSpring {
      * privacy radius would be defeated.
      */
     accuracyMeters: number | null;
+    /**
+     * The place this spring is part of: every spring linked to it by a chain
+     * of neighbours within 500 m. `id` is the lowest spring id in the place
+     * and `springs` how many it holds, 1 for a spring on its own.
+     * Pipeline-owned and not claimable; see docs/DATA.md "How the atlas counts".
+     */
+    site: { id: string; springs: number };
   };
   temperature: {
     celsius: number | null;

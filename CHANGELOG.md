@@ -27,6 +27,11 @@ and `version` and `date-released` in `CITATION.cff`, and a test holds
 
 ## [Unreleased]
 
+- **Every record says which place it is part of.** New field
+  `location.site`: `{ id, springs }`, the site of the record's 500 m group,
+  named by its lowest spring id. 622 places hold more than one spring, 3,290
+  springs between them; a spring's card lists the others at its place, so
+  "Termita 3" reads as one of nine pools rather than a destination of its own.
 - **Two counts, always together.** `summary.json` gains `sites` (4,462),
   `sitesByCountry` and `siteLinkMeters` (500) beside `total` (7,130
   features). A site is the features within 500 m of one another, the place a

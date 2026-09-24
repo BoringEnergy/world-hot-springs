@@ -401,6 +401,13 @@ Two counts, always together (decided 2026-09-23;
 to join separate places along a valley. A site that straddles a border counts
 in each country's figure and once in the total.
 
+Every record carries its site as `location.site`: `{ id, springs }`, where `id`
+is the lowest spring id in the place (so it names a real spring and stays put
+while that spring stays) and `springs` is how many the place holds, 1 for a
+spring on its own. The card uses it to list a spring's neighbours. Sites are
+formed after the privacy filter, so an excluded spring never joins, splits or
+is counted in a published neighbour's place. Pipeline-owned, not claimable.
+
 **Both are a floor of what is publicly mapped, not a census.** Where a
 government publishes a national count, the build sets the atlas beside it in
 `data/completeness.json`, from the reviewed figures in
