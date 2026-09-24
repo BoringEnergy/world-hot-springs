@@ -11,6 +11,8 @@ import {
   formatCoords,
   formatAccuracy,
   formatDistance,
+  formatShortDistance,
+  placeMates,
   formatElevation,
   formatHoursStatus,
   formatName,
@@ -29,6 +31,7 @@ export function DetailPanel() {
   const units = useStore((s) => s.units);
   const select = useStore((s) => s.select);
   const userLocation = useStore((s) => s.userLocation);
+  const springs = useStore((s) => s.springs);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -48,6 +51,8 @@ export function DetailPanel() {
   const temp = temperatureDisplay(spring, units);
   const prohibition = prohibitionNotice(spring);
   const accuracy = formatAccuracy(spring.location.accuracyMeters, units);
+  const place = placeMates(spring, springs);
+  const SHOWN_MATES = 6;
 
   const band = tempBand(spring.temperature.celsius);
   const color = bandColor(band);
@@ -307,6 +312,34 @@ export function DetailPanel() {
             <span className="mt-0.5 block text-xs text-steam-400">{accuracy}</span>
           )}
         </Field>
+
+        {place && (
+          <Field label="This place">
+            <p className="text-steam-100">
+              One of {place.springs} springs within walking distance of each other.
+            </p>
+            <ul className="mt-1.5 space-y-0.5">
+              {place.mates.slice(0, SHOWN_MATES).map((m) => (
+                <li key={m.id}>
+                  <button
+                    onClick={() => select(m.id)}
+                    className="flex w-full items-baseline justify-between gap-3 rounded-md px-1 py-0.5 text-left text-sm text-steam-200 transition hover:bg-basalt-800 hover:text-steam-100"
+                  >
+                    <span className="truncate">{m.name}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-steam-400">
+                      {formatShortDistance(m.meters, units)}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {place.mates.length > SHOWN_MATES && (
+              <p className="mt-1 text-xs text-steam-400">
+                and {place.mates.length - SHOWN_MATES} more nearby
+              </p>
+            )}
+          </Field>
+        )}
 
         {spring.description && <Field label="Description" value={spring.description} />}
 

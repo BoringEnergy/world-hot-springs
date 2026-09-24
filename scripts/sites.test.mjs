@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { groupSites, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
+import { groupSites, siteLabels, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
+import { placeMates, formatShortDistance } from '../src/lib/format.ts';
 import { compileInventories, compareWithInventories } from './lib/completeness.mjs';
 
 const M_PER_DEG_LAT = 111_195;
@@ -106,4 +107,47 @@ test("DATA.md's comparison table is the shipped comparison, row for row", () => 
     assert.ok(row, `DATA.md has no row starting ${want}`);
     assert.ok(row.includes(`| ${r.asOf} | ${n(r.atlas)} ${r.comparesWith} | ${r.ratio} |`), `stale row: ${row}`);
   }
+});
+
+test('a site is named by its lowest spring id, whatever order the records come in', () => {
+  const rs = [rec('whs_c', 45, 10), rec('whs_a', 45 + north(100), 10), rec('whs_z', 10, 10)];
+  const labels = siteLabels(groupSites(rs).sites);
+  assert.deepEqual(labels.get('whs_c'), { id: 'whs_a', springs: 2 });
+  assert.deepEqual(labels.get('whs_a'), { id: 'whs_a', springs: 2 });
+  assert.deepEqual(labels.get('whs_z'), { id: 'whs_z', springs: 1 });
+  const reversed = siteLabels(groupSites([...rs].reverse()).sites);
+  assert.deepEqual(reversed.get('whs_c'), labels.get('whs_c'));
+});
+
+const springAt = (id, name, lat, site) => ({ id, name, location: { lat, lng: 10, site } });
+
+test('the card lists the other springs at a place, nearest first, and nothing for a lone spring', () => {
+  const site = { id: 'a', springs: 3 };
+  const a = springAt('a', 'Termita 1', 45, site);
+  const b = springAt('b', null, 45 + north(200), site);
+  const c = springAt('c', 'Termita 3', 45 + north(40), site);
+  const lone = springAt('d', 'Elsewhere', 10, { id: 'd', springs: 1 });
+  const p = placeMates(a, [a, b, c, lone]);
+  assert.equal(p.springs, 3);
+  assert.deepEqual(p.mates.map((m) => [m.name, Math.round(m.meters)]), [['Termita 3', 40], ['Unnamed spring', 200]]);
+  assert.equal(placeMates(lone, [a, b, c, lone]), null);
+});
+
+test('distances inside a place read in metres or feet, never 0.0 km', () => {
+  assert.equal(formatShortDistance(38, 'c'), '40 m');
+  assert.equal(formatShortDistance(38, 'f'), '120 ft');
+  assert.equal(formatShortDistance(1450, 'c'), '1.4 km');
+});
+
+test('every shipped record says which place it is part of, and the places add up', () => {
+  const all = JSON.parse(fs.readFileSync('data/hot-springs.json', 'utf8'));
+  const members = new Map();
+  for (const r of all) {
+    assert.ok(r.location.site?.id, `${r.id} has no site`);
+    members.set(r.location.site.id, (members.get(r.location.site.id) ?? 0) + 1);
+  }
+  assert.equal(members.size, SUMMARY.sites);
+  for (const r of all) assert.equal(r.location.site.springs, members.get(r.location.site.id), r.id);
+  const ids = new Set(all.map((r) => r.id));
+  for (const id of members.keys()) assert.ok(ids.has(id), `site ${id} is not the id of a published spring`);
 });

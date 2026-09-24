@@ -17,7 +17,7 @@ import { loadExclusions, isExcluded } from './lib/exclusions.mjs';
 import { isSameSpring, resolveRegistry } from './lib/identity.mjs';
 import { compileBadImports, matchBadImport, unmatchedIds } from './lib/bad-imports.mjs';
 import { findCoarseDuplicates, nceiRefOf } from './lib/coarse-pins.mjs';
-import { groupSites, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
+import { groupSites, siteLabels, sitesByCountry, SITE_LINK_METERS } from './lib/sites.mjs';
 import { compileInventories, compareWithInventories } from './lib/completeness.mjs';
 import { buildTimestamp, buildDate } from './lib/buildtime.mjs';
 import { loadOverlays, applyOverlays } from './lib/overlay.mjs';
@@ -903,6 +903,17 @@ async function main() {
     (a.name || '￿').localeCompare(b.name || '￿'),
   );
 
+  // --- Sites ---
+  // Features are what mappers drew; sites are the places a visitor means. The
+  // atlas publishes both counts and never one alone (docs/superpowers/specs/
+  // 2026-09-23-counting-unit.md), and every record says which site it is part
+  // of, so the map can show "Termita 1-4" as one place. After the privacy
+  // filter on purpose: an excluded spring must not join, split or be counted
+  // in the site of a published neighbour.
+  const { siteOf, sites } = groupSites(records);
+  const labels = siteLabels(sites);
+  for (const r of records) r.location.site = labels.get(r.id);
+
   // --- Outputs ---
   fs.writeFileSync(OUT_JSON, JSON.stringify(records));
 
@@ -940,12 +951,6 @@ async function main() {
     if (r.hours.open) withHours++;
     if (r.clothing.policy !== 'unknown') withClothing++;
   }
-
-  // --- Two counts, always together ---
-  // Features are what mappers drew; sites are the places a visitor means. The
-  // atlas publishes both and never one alone (docs/superpowers/specs/
-  // 2026-09-23-counting-unit.md). The linking distance travels with them.
-  const { siteOf, sites } = groupSites(records);
 
   const summary = {
     // The OSM snapshot this dataset was derived from -- NOT when the build

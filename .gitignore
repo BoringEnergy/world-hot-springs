@@ -42,3 +42,4 @@ playwright/.cache/
 
 # Local session output. Never part of the project.
 Claude outputs/
+.gstack/

@@ -187,6 +187,35 @@ export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; ln
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+/**
+ * The other springs at this spring's place, nearest first.
+ *
+ * A place is every spring linked by neighbours within 500 m (location.site),
+ * so "Termita 3" can say it is one of nine pools rather than pretending to be
+ * a destination of its own. Null for a spring that is its own place.
+ */
+export function placeMates(
+  spring: HotSpring,
+  all: HotSpring[],
+): { springs: number; mates: { id: string; name: string; meters: number }[] } | null {
+  const site = spring.location.site;
+  if (!site || site.springs < 2) return null;
+  const mates = all
+    .filter((s) => s.id !== spring.id && s.location.site?.id === site.id)
+    .map((s) => ({ id: s.id, name: formatName(s), meters: distanceKm(spring.location, s.location) * 1000 }))
+    .sort((a, b) => a.meters - b.meters || a.id.localeCompare(b.id));
+  return { springs: site.springs, mates };
+}
+
+/** Metres or feet, for the short distances inside one place. */
+export function formatShortDistance(meters: number, units: Units): string {
+  if (units === 'f') {
+    const ft = meters * 3.28084;
+    return ft < 5280 ? `${Math.round(ft / 10) * 10} ft` : `${(ft / 5280).toFixed(1)} mi`;
+  }
+  return meters < 1000 ? `${Math.round(meters / 5) * 5} m` : `${(meters / 1000).toFixed(1)} km`;
+}
+
 export function formatDistance(km: number, units: Units): string {
   if (units === 'f') {
     const mi = km * 0.621371;
