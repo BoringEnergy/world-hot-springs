@@ -95,8 +95,7 @@ jobs:
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24
-
+          node-version: "24.22.1"
       # No `npm ci`. The validator must never need the pull request's
       # dependency tree, because installing it would execute its scripts.
       #

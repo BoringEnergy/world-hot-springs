@@ -1,0 +1,6 @@
+[
+  ".github/workflows/gate-2.yml",
+  ".github/workflows/gate.yml",
+  ".github/workflows/security-hygiene.yml",
+  ".github/workflows/ui.yml"
+]

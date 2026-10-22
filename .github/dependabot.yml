@@ -1,0 +1,21 @@
+# DRAFT: merge only after owner review; no auto-merge configuration.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Denver
+    open-pull-requests-limit: 2
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Denver
+    open-pull-requests-limit: 2
+    cooldown:
+      default-days: 7
